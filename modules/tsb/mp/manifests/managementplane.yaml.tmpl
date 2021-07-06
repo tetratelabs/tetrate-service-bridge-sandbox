@@ -1,0 +1,16 @@
+---
+apiVersion: install.tetrate.io/v1alpha1
+kind: ManagementPlane
+metadata:
+  name: managementplane
+  namespace: tsb
+  organization: tetrate
+spec:
+  hub:  ${registry}
+  telemetryStore:
+    elastic:
+      host: ${es_host}
+      port: 9200
+      version: 7
+      protocol: https
+      selfSigned: true

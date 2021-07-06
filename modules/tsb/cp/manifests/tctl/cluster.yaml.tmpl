@@ -1,0 +1,20 @@
+---
+apiVersion: install.tetrate.io/v1alpha1
+kind: ControlPlane
+metadata:
+  name: controlplane
+  namespace: istio-system
+spec:
+  hub:  ${registry}
+  telemetryStore:
+    elastic:
+      host: ${es_host}
+      port: 9200
+      version: 7
+      protocol: https
+      selfSigned: true
+  managementPlane:
+    host: ${tctl_host}
+    port: 8443
+    clusterName: ${cluster_name}
+  meshExpansion: {}
