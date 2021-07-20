@@ -20,6 +20,9 @@ resource "kubernetes_namespace" "elastic-system" {
   metadata {
     name = "elastic-system"
   }
+  lifecycle {
+    ignore_changes = [metadata]
+  }
 }
 
 data "kubectl_path_documents" "manifests" {

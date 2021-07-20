@@ -140,13 +140,12 @@ data "template_file" "managementplane" {
     es_host  = data.kubernetes_service.es.status[0].load_balancer[0].ingress[0].ip
     registry = var.registry
   }
-  depends_on = [kubectl_manifest.managementplanesecrets]
+  depends_on = [kubectl_manifest.managementplaneoperator]
 }
 
 resource "kubectl_manifest" "managementplane" {
-  count      = 1
   yaml_body  = data.template_file.managementplane.rendered
-  depends_on = [null_resource.tctl_managementplanesecrets]
+  depends_on = [kubectl_manifest.managementplaneoperator]
 }
 
 data "kubernetes_service" "tsb" {
@@ -172,3 +171,4 @@ data "kubernetes_secret" "es_cacert" {
   }
   depends_on = [kubectl_manifest.managementplane]
 }
+

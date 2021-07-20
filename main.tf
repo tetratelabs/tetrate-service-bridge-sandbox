@@ -93,3 +93,10 @@ module "tsb_cp" {
 
 }
 
+module "app_bookinfo" {
+  source                     = "./modules/app/bookinfo"
+  k8s_host                   = module.azure_k8s.1.host
+  k8s_cluster_ca_certificate = module.azure_k8s.1.cluster_ca_certificate
+  k8s_client_certificate     = module.azure_k8s.1.client_certificate
+  k8s_client_key             = module.azure_k8s.1.client_key
+}
