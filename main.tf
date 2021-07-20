@@ -40,8 +40,15 @@ module "azure_oidc" {
   tctl_host   = module.tsb_mp.host
 }
 
+module "cert-manager" {
+  source                     = "./modules/tsb/cert-manager"
+  k8s_host                   = module.azure_k8s.0.host
+  k8s_cluster_ca_certificate = module.azure_k8s.0.cluster_ca_certificate
+  k8s_client_certificate     = module.azure_k8s.0.client_certificate
+  k8s_client_key             = module.azure_k8s.0.client_key
+}
 module "elastic" {
-  source                     = "./modules/azure/elastic"
+  source                     = "./modules/tsb/elastic"
   k8s_host                   = module.azure_k8s.0.host
   k8s_cluster_ca_certificate = module.azure_k8s.0.cluster_ca_certificate
   k8s_client_certificate     = module.azure_k8s.0.client_certificate
@@ -50,6 +57,7 @@ module "elastic" {
 
 module "tsb_mp" {
   source                     = "./modules/tsb/mp"
+  name_prefix                = var.name_prefix
   cluster_name               = module.azure_k8s.0.cluster_name
   tctl_username              = var.tctl_username
   tctl_password              = var.tctl_password
@@ -58,10 +66,15 @@ module "tsb_mp" {
   k8s_client_certificate     = module.azure_k8s.0.client_certificate
   k8s_client_key             = module.azure_k8s.0.client_key
   registry                   = module.azure_base.registry
+  jumpbox_host               = module.azure_jumpbox.public_ip
+  jumpbox_username           = var.jumpbox_username
+  jumpbox_pkey               = module.azure_jumpbox.pkey
 }
 
 module "tsb_cp" {
   source                     = "./modules/tsb/cp"
+  name_prefix                = var.name_prefix
+  mp_cluster_name            = module.azure_k8s.0.cluster_name
   tctl_host                  = module.tsb_mp.host
   tctl_username              = var.tctl_username
   tctl_password              = var.tctl_password
@@ -74,5 +87,9 @@ module "tsb_cp" {
   k8s_client_certificate     = module.azure_k8s.1.client_certificate
   k8s_client_key             = module.azure_k8s.1.client_key
   registry                   = module.azure_base.registry
+  jumpbox_host               = module.azure_jumpbox.public_ip
+  jumpbox_username           = var.jumpbox_username
+  jumpbox_pkey               = module.azure_jumpbox.pkey
+
 }
 

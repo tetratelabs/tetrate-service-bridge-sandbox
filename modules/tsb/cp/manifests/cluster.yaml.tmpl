@@ -1,12 +1,11 @@
 ---
 apiVersion: install.tetrate.io/v1alpha1
-kind: ManagementPlane
+kind: ControlPlane
 metadata:
-  name: managementplane
-  namespace: tsb
+  name: controlplane
+  namespace: istio-system
 spec:
   hub: ${registry}
-  organization: tetrate
   telemetryStore:
     elastic:
       host: ${es_host}
@@ -14,30 +13,27 @@ spec:
       version: 7
       protocol: https
       selfSigned: true
+  managementPlane:
+    host: ${tctl_host}
+    port: 8443
+    clusterName: ${cluster_name}
+  meshExpansion: {}
   components:
-    apiServer:
-      teamSyncSchedule: 0 * * * *
-    frontEnvoy:
-      kubeSpec:
-        service:
-          annotations:
-            service.beta.kubernetes.io/azure-load-balancer-internal: "false"
-          type: LoadBalancer
     xcp:
       kubeSpec:
         overlays:
         - apiVersion: install.xcp.tetrate.io/v1alpha1
-          kind: CentralXcp
-          name: central-xcp
+          kind: EdgeXcp
+          name: edge-xcp
           patches:
-          - path: spec.components.centralServer.kubeSpec.service.annotations
+          - path: spec.components.edgeServer.kubeSpec.service.annotations
             value:
               service.beta.kubernetes.io/azure-load-balancer-internal: "false"
-          - path: spec.components.centralServer.kubeSpec.overlays
+          - path: spec.components.edgeServer.kubeSpec.overlays
             value:
             - apiVersion: v1
               kind: Service
-              name: xcp-central
+              name: xcp-edge
               patches:
               - path: spec.type
                 value: LoadBalancer

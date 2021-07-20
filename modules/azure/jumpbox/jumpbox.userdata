@@ -2,6 +2,7 @@
 packages:
   - language-pack-en
   - docker.io
+  - nginx
 
 users:
   - default
@@ -20,6 +21,7 @@ write_files:
       docker login -u ${registry_admin} -p ${registry_password} "${registry}" 
       curl -Lo "/usr/local/bin/tctl" "https://binaries.dl.tetrate.io/public/raw/versions/linux-amd64-${tsb_version}/tctl"
       chmod +x "/usr/local/bin/tctl"
+      cp /usr/local/bin/tctl /usr/share/nginx/html/
       curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
       install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl
       tctl install image-sync \

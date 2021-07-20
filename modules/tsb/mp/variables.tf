@@ -1,3 +1,6 @@
+variable "name_prefix" {
+  description = "name prefix"
+}
 variable "cluster_name" {
 }
 
@@ -20,4 +23,13 @@ variable "tctl_username" {
 }
 
 variable "tctl_password" {
+}
+
+variable "jumpbox_host" {
+}
+
+variable "jumpbox_username" {
+}
+
+variable "jumpbox_pkey" {
 }

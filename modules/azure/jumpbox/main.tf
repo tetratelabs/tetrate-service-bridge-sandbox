@@ -17,6 +17,29 @@ resource "azurerm_network_security_group" "jumpbox_sg" {
   }
 
   security_rule {
+    name                       = "http"
+    priority                   = 102
+    direction                  = "Inbound"
+    access                     = "Allow"
+    protocol                   = "Tcp"
+    source_port_range          = "*"
+    destination_port_range     = "80"
+    source_address_prefix      = "*"
+    destination_address_prefix = "*"
+  }
+
+  security_rule {
+    name                       = "https"
+    priority                   = 103
+    direction                  = "Inbound"
+    access                     = "Allow"
+    protocol                   = "Tcp"
+    source_port_range          = "*"
+    destination_port_range     = "443"
+    source_address_prefix      = "*"
+    destination_address_prefix = "*"
+  }
+  security_rule {
     name                       = "intravnet"
     priority                   = 201
     direction                  = "Inbound"
@@ -35,23 +58,23 @@ resource "azurerm_network_security_group" "jumpbox_sg" {
 
 
 resource "azurerm_public_ip" "jumpbox_public_ip" {
-  name                         =  "${var.name_prefix}_jumpbox_public_ip"
-  location                     = var.location
-  resource_group_name          = var.resource_group_name
-  allocation_method           = "Dynamic"
+  name                = "${var.name_prefix}_jumpbox_public_ip"
+  location            = var.location
+  resource_group_name = var.resource_group_name
+  allocation_method   = "Dynamic"
   tags = {
     owner = "${var.name_prefix}_tsb"
   }
 }
 
 resource "azurerm_network_interface" "jumpbox_nic" {
-  name                         =  "${var.name_prefix}_jumpbox_nic"
-  location                     = var.location
-  resource_group_name          = var.resource_group_name
+  name                = "${var.name_prefix}_jumpbox_nic"
+  location            = var.location
+  resource_group_name = var.resource_group_name
 
   ip_configuration {
-    name                          =  "${var.name_prefix}_jumpbox_ip"
-    subnet_id                     =  var.vnet_subnets[0]
+    name                          = "${var.name_prefix}_jumpbox_ip"
+    subnet_id                     = var.vnet_subnets[0]
     private_ip_address_allocation = "Dynamic"
     public_ip_address_id          = azurerm_public_ip.jumpbox_public_ip.id
   }
@@ -87,13 +110,13 @@ data "template_file" "jumpbox_userdata" {
 
 
 resource "azurerm_linux_virtual_machine" "jumpbox" {
-  name                      = "${var.name_prefix}-jumpbox"
-  location                  = var.location
-  resource_group_name       = var.resource_group_name
-  size                      = "Standard_F2s_v2"
-  network_interface_ids     = [ azurerm_network_interface.jumpbox_nic.id ]
-  admin_username            = var.jumpbox_username
-  custom_data               = base64encode(data.template_file.jumpbox_userdata.rendered)
+  name                  = "${var.name_prefix}-jumpbox"
+  location              = var.location
+  resource_group_name   = var.resource_group_name
+  size                  = "Standard_F2s_v2"
+  network_interface_ids = [azurerm_network_interface.jumpbox_nic.id]
+  admin_username        = var.jumpbox_username
+  custom_data           = base64encode(data.template_file.jumpbox_userdata.rendered)
 
 
   # az vm image list --output table
@@ -111,15 +134,15 @@ resource "azurerm_linux_virtual_machine" "jumpbox" {
   }
 
   admin_ssh_key {
-    username   = "tsbadmin"
-    public_key = "${trimspace(tls_private_key.generated.public_key_openssh)} tsbadmin@tetrate.io"
+    username   = var.jumpbox_username
+    public_key = "${trimspace(tls_private_key.generated.public_key_openssh)} ${var.jumpbox_username}@tetrate.io"
   }
 
   identity {
     type = "SystemAssigned"
   }
 
-  depends_on        = [tls_private_key.generated]
+  depends_on = [tls_private_key.generated]
 
   # Up to 15 tags as per Azure
   tags = {
@@ -129,7 +152,8 @@ resource "azurerm_linux_virtual_machine" "jumpbox" {
 }
 
 resource "local_file" "tsbadmin_pem" {
-    content           = tls_private_key.generated.private_key_pem
-    filename          = "${var.name_prefix}-tsbadmin.pem"
-    depends_on        = [ tls_private_key.generated ]
+  content         = tls_private_key.generated.private_key_pem
+  filename        = "${var.name_prefix}-${var.jumpbox_username}.pem"
+  depends_on      = [tls_private_key.generated]
+  file_permission = "0600"
 }
