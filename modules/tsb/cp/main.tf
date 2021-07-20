@@ -1,14 +1,20 @@
+provider "kubernetes" {
+  host                   = var.k8s_host
+  cluster_ca_certificate = base64decode(var.k8s_cluster_ca_certificate)
+  client_certificate     = base64decode(var.k8s_client_certificate)
+  client_key             = base64decode(var.k8s_client_key)
+}
 provider "kubectl" {
-  host                    = var.k8s_host
-  cluster_ca_certificate  = base64decode(var.k8s_cluster_ca_certificate)
-  client_certificate      = base64decode(var.k8s_client_certificate)
-  client_key              = base64decode(var.k8s_client_key)
-  load_config_file        = false
+  host                   = var.k8s_host
+  cluster_ca_certificate = base64decode(var.k8s_cluster_ca_certificate)
+  client_certificate     = base64decode(var.k8s_client_certificate)
+  client_key             = base64decode(var.k8s_client_key)
+  load_config_file       = false
 }
 
 
 data "template_file" "cluster" {
-  template = file("${path.module}/manifests/tctl/cluster.yaml.tmpl")
+  template = file("${path.module}/manifests/cluster.yaml.tmpl")
   vars = {
     es_host      = var.es_host
     registry     = var.registry
@@ -17,44 +23,81 @@ data "template_file" "cluster" {
   }
 }
 
-resource "local_file" "cluster" {
-    content           = data.template_file.cluster.rendered
-    filename          = "${path.module}/manifests/tctl/${var.cluster_name}.yaml"
-}
-
-resource "null_resource" "tctl_clusteroperators" {
-
-  provisioner "local-exec" {
-
-    command = <<EOT
-      /usr/bin/env tctl config clusters set default --bridge-address $TCTL_HOST:8443
-      /usr/bin/env tctl config profiles set-current default
-      /usr/bin/env tctl login --org tetrate --username admin --password admin $TCTL_HOST --tenant tetrate
-      /usr/bin/env tctl apply -f $PATH_MODULE/manifests/tctl/$CLUSTER_NAME.yaml
-      /usr/bin/env tctl install manifest cluster-operators --registry $REGISTRY  > $PATH_MODULE/manifests/tctl/clusteroperators.yaml
-      EOT
-    environment = {
-      REGISTRY        = var.registry
-      PATH_MODULE     = path.module
-      TCTL_HOST       = var.tctl_host
-      ES_PASSWORD     = var.es_password
-      ES_CACERT       = var.es_cacert
-      CLUSTER_NAME    = var.cluster_name
-    }
+data "template_file" "controlplane" {
+  template = file("${path.module}/manifests/tctl-control-plane.sh.tmpl")
+  vars = {
+    mp_cluster_name = var.mp_cluster_name
+    cluster_name    = var.cluster_name
+    tctl_host       = var.tctl_host
+    tctl_username   = var.tctl_username
+    tctl_password   = var.tctl_password
+    tctl_org        = "tetrate"
+    tctl_tenant     = "tetrate"
+    registry        = var.registry
+    es_username     = "elastic"
+    es_password     = var.es_password
+    es_cacert       = base64encode(var.es_cacert)
   }
-  depends_on = [ local_file.cluster ]
 }
 
+resource "null_resource" "tctl_controlplane" {
+  connection {
+    host        = var.jumpbox_host
+    type        = "ssh"
+    agent       = false
+    user        = var.jumpbox_username
+    private_key = var.jumpbox_pkey
+  }
+  provisioner "file" {
+    content     = data.template_file.cluster.rendered
+    destination = "~/tctl/${var.cluster_name}-cluster.yaml"
+  }
+
+  provisioner "file" {
+    content     = data.template_file.controlplane.rendered
+    destination = "~/tctl/${var.cluster_name}-tctl-control-plane.sh"
+  }
+
+  provisioner "remote-exec" {
+    inline = [
+      "sh ~/tctl/${var.cluster_name}-tctl-control-plane.sh"
+    ]
+  }
+
+  # file-remote is not supported yet, https://github.com/hashicorp/terraform/issues/3379
+  provisioner "local-exec" {
+    command = "scp -oStrictHostKeyChecking=no -oUserKnownHostsFile=/dev/null -i ${var.name_prefix}-${var.jumpbox_username}.pem  ${var.jumpbox_username}@${var.jumpbox_host}:~/tctl/${var.cluster_name}-*.yaml ${path.module}/manifests/tctl/"
+  }
+  depends_on = [data.template_file.cluster, data.template_file.controlplane]
+}
+resource "kubernetes_namespace" "istio-system" {
+  metadata {
+    name = "istio-system"
+  }
+  lifecycle {
+    ignore_changes = [metadata]
+  }
+
+}
 
 data "kubectl_path_documents" "clusteroperators" {
-    pattern = "${path.module}/manifests/tctl/clusteroperators.yaml"
-    disable_template = true
-    depends_on = [ null_resource.tctl_clusteroperators ]
+  pattern          = "${path.module}/manifests/tctl/${var.cluster_name}-clusteroperators.yaml"
+  disable_template = true
 }
 
 resource "kubectl_manifest" "clusteroperators" {
-    count     = length(data.kubectl_path_documents.clusteroperators.documents)
-    yaml_body = element(data.kubectl_path_documents.clusteroperators.documents, count.index)
-    depends_on = [ null_resource.tctl_clusteroperators ]
+  count      = length(data.kubectl_path_documents.clusteroperators.documents)
+  yaml_body  = element(data.kubectl_path_documents.clusteroperators.documents, count.index)
+  depends_on = [null_resource.tctl_controlplane]
 }
 
+data "kubectl_path_documents" "controlplanesecrets" {
+  pattern          = "${path.module}/manifests/tctl/${var.cluster_name}-controlplane-secrets.yaml"
+  disable_template = true
+}
+
+resource "kubectl_manifest" "controlplanesecrets" {
+  count      = length(data.kubectl_path_documents.controlplanesecrets.documents)
+  yaml_body  = element(data.kubectl_path_documents.controlplanesecrets.documents, count.index)
+  depends_on = [null_resource.tctl_controlplane]
+}

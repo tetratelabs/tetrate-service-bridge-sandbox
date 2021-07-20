@@ -1,4 +1,10 @@
+variable "name_prefix" {
+  description = "name prefix"
+}
 variable "cluster_name" {
+}
+
+variable "mp_cluster_name" {
 }
 
 variable "k8s_host" {
@@ -32,5 +38,15 @@ variable "es_password" {
 }
 
 variable "es_cacert" {
+}
+
+
+variable "jumpbox_host" {
+}
+
+variable "jumpbox_username" {
+}
+
+variable "jumpbox_pkey" {
 }
 
