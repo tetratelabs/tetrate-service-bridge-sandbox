@@ -1,4 +1,4 @@
-/usr/bin/env tctl config clusters set default --bridge-address ${tctl_host}:8443
+/usr/bin/env tctl config clusters set default --bridge-address ${tctl_host}:8443 --tls-insecure
 /usr/bin/env tctl config users set admin --org ${tctl_org} --username ${tctl_username} --password ${tctl_password} --tenant ${tctl_tenant}
 /usr/bin/env tctl config profiles set default --cluster="default" --username="admin"
 /usr/bin/env tctl config profiles set-current "default"

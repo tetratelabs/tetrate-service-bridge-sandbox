@@ -1,3 +1,9 @@
+provider "kubernetes" {
+  host                   = var.k8s_host
+  cluster_ca_certificate = base64decode(var.k8s_cluster_ca_certificate)
+  client_certificate     = base64decode(var.k8s_client_certificate)
+  client_key             = base64decode(var.k8s_client_key)
+}
 provider "kubectl" {
   host                   = var.k8s_host
   cluster_ca_certificate = base64decode(var.k8s_cluster_ca_certificate)
@@ -64,7 +70,15 @@ resource "null_resource" "tctl_controlplane" {
   }
   depends_on = [data.template_file.cluster, data.template_file.controlplane]
 }
+resource "kubernetes_namespace" "istio-system" {
+  metadata {
+    name = "istio-system"
+  }
+  lifecycle {
+    ignore_changes = [metadata]
+  }
 
+}
 
 data "kubectl_path_documents" "clusteroperators" {
   pattern          = "${path.module}/manifests/tctl/${var.cluster_name}-clusteroperators.yaml"

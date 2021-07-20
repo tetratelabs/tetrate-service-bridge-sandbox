@@ -11,10 +11,13 @@ tsb_deps:
 tsb_mp:
 	terraform init
 	terraform validate
+	terraform apply -auto-approve -target=module.tsb_mp.null_resource.tctl_managementplane
+	terraform apply -auto-approve -target=module.tsb_mp.null_resource.tctl_managementplanesecrets
 	terraform apply -auto-approve -target=module.tsb_mp
 tsb_cp:
 	terraform init
 	terraform validate
+	terraform apply -auto-approve -target=module.tsb_cp.null_resource.tctl_controlplane
 	terraform apply -auto-approve -target=module.tsb_cp
 azure_oidc:
 	terraform init
