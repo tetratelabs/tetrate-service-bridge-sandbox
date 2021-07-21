@@ -4,7 +4,10 @@ The intention is to create azure-go-to demo...and variablize the world "complete
 
 The `Makefile` in this directory provides automated provisioning of k8s clusters with TSB installed on Azure. 
 
+![Workflow](workflow.jpg?raw=true "Workflow")
+
 The setup consists of
+
 * module.azure_base   - deploys resource group, vnet and acr
 * module.azure_jumpbox - deploys jumpbox, pushes tsb repo to acr
 * module.azure_k8s  - deploys k8s cluster for MP and N-number of CPs(*) leveraging AKS
@@ -13,6 +16,8 @@ The setup consists of
 * module.cert-manager - deploys cert-manager on MP k8s cluster
 * module.tsb_mp     - responsible for MP setup
 * module.tsb_cp     - responsible for CP setup
+
+
 
 ## Requirements
 
