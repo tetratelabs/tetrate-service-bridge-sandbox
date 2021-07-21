@@ -117,13 +117,12 @@ resource "null_resource" "tctl_managementplanesecrets" {
 data "kubectl_path_documents" "managementplanesecrets" {
   pattern          = "${path.module}/manifests/tctl/managementplanesecrets.yaml"
   disable_template = true
-  #depends_on       = [null_resource.tctl_managementplanesecrets]
 }
 
 resource "kubectl_manifest" "managementplanesecrets" {
   count      = length(data.kubectl_path_documents.managementplanesecrets.documents)
   yaml_body  = element(data.kubectl_path_documents.managementplanesecrets.documents, count.index)
-  depends_on = [null_resource.tctl_managementplanesecrets]
+  depends_on = [kubectl_manifest.managementplaneoperator]
 }
 
 data "kubernetes_service" "es" {
@@ -131,7 +130,6 @@ data "kubernetes_service" "es" {
     name      = "tsb-es-http"
     namespace = "elastic-system"
   }
-  depends_on = [kubectl_manifest.managementplanesecrets]
 }
 
 data "template_file" "managementplane" {
@@ -140,12 +138,12 @@ data "template_file" "managementplane" {
     es_host  = data.kubernetes_service.es.status[0].load_balancer[0].ingress[0].ip
     registry = var.registry
   }
-  depends_on = [kubectl_manifest.managementplaneoperator]
+  depends_on = [kubectl_manifest.managementplanesecrets]
 }
 
 resource "kubectl_manifest" "managementplane" {
   yaml_body  = data.template_file.managementplane.rendered
-  depends_on = [kubectl_manifest.managementplaneoperator]
+  depends_on = [kubectl_manifest.managementplanesecrets]
 }
 
 data "kubernetes_service" "tsb" {
@@ -161,7 +159,6 @@ data "kubernetes_secret" "es_password" {
     name      = "tsb-es-elastic-user"
     namespace = "elastic-system"
   }
-  depends_on = [kubectl_manifest.managementplane]
 }
 
 data "kubernetes_secret" "es_cacert" {
@@ -169,6 +166,5 @@ data "kubernetes_secret" "es_cacert" {
     name      = "tsb-es-http-ca-internal"
     namespace = "elastic-system"
   }
-  depends_on = [kubectl_manifest.managementplane]
 }
 

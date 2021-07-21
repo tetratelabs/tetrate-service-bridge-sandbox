@@ -16,6 +16,14 @@ provider "kubectl" {
 data "template_file" "cluster" {
   template = file("${path.module}/manifests/cluster.yaml.tmpl")
   vars = {
+    cluster_name = var.cluster_name
+    organization = "tetrate"
+  }
+}
+
+data "template_file" "controlplane" {
+  template = file("${path.module}/manifests/controlplane.yaml.tmpl")
+  vars = {
     es_host      = var.es_host
     registry     = var.registry
     tctl_host    = var.tctl_host
@@ -23,7 +31,7 @@ data "template_file" "cluster" {
   }
 }
 
-data "template_file" "controlplane" {
+data "template_file" "clusteroperators" {
   template = file("${path.module}/manifests/tctl-control-plane.sh.tmpl")
   vars = {
     mp_cluster_name = var.mp_cluster_name
@@ -40,7 +48,7 @@ data "template_file" "controlplane" {
   }
 }
 
-resource "null_resource" "tctl_controlplane" {
+resource "null_resource" "tctl_clusteroperators" {
   connection {
     host        = var.jumpbox_host
     type        = "ssh"
@@ -55,6 +63,11 @@ resource "null_resource" "tctl_controlplane" {
 
   provisioner "file" {
     content     = data.template_file.controlplane.rendered
+    destination = "~/tctl/${var.cluster_name}-controlplane.yaml"
+  }
+
+  provisioner "file" {
+    content     = data.template_file.clusteroperators.rendered
     destination = "~/tctl/${var.cluster_name}-tctl-control-plane.sh"
   }
 
@@ -70,25 +83,14 @@ resource "null_resource" "tctl_controlplane" {
   }
   depends_on = [data.template_file.cluster, data.template_file.controlplane]
 }
-resource "kubernetes_namespace" "istio-system" {
-  metadata {
-    name = "istio-system"
-  }
-  lifecycle {
-    ignore_changes = [metadata]
-  }
-
-}
-
 data "kubectl_path_documents" "clusteroperators" {
   pattern          = "${path.module}/manifests/tctl/${var.cluster_name}-clusteroperators.yaml"
   disable_template = true
 }
 
 resource "kubectl_manifest" "clusteroperators" {
-  count      = length(data.kubectl_path_documents.clusteroperators.documents)
-  yaml_body  = element(data.kubectl_path_documents.clusteroperators.documents, count.index)
-  depends_on = [null_resource.tctl_controlplane]
+  count     = length(data.kubectl_path_documents.clusteroperators.documents)
+  yaml_body = element(data.kubectl_path_documents.clusteroperators.documents, count.index)
 }
 
 data "kubectl_path_documents" "controlplanesecrets" {
@@ -99,5 +101,19 @@ data "kubectl_path_documents" "controlplanesecrets" {
 resource "kubectl_manifest" "controlplanesecrets" {
   count      = length(data.kubectl_path_documents.controlplanesecrets.documents)
   yaml_body  = element(data.kubectl_path_documents.controlplanesecrets.documents, count.index)
-  depends_on = [null_resource.tctl_controlplane]
+  depends_on = [kubectl_manifest.clusteroperators]
 }
+
+
+data "kubectl_path_documents" "controlplane" {
+  pattern          = "${path.module}/manifests/tctl/${var.cluster_name}-controlplane.yaml"
+  disable_template = true
+}
+
+resource "kubectl_manifest" "controlplane" {
+  count      = length(data.kubectl_path_documents.controlplane.documents)
+  yaml_body  = element(data.kubectl_path_documents.controlplane.documents, count.index)
+  depends_on = [kubectl_manifest.controlplanesecrets]
+}
+
+
