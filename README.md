@@ -43,6 +43,7 @@ make aks
 make tsb_deps
 # note it may take up to 15-20 mins until ACR will have all the TSB images uploaded
 make tsb_mp
+# note before provisioning cp, figure out teamsync and perform kubectl tfdemo-aks-1-kubeconfig create job -n tsb teamsync-bootstrap --from=cronjob/teamsync
 make tsb_cp
 make app_bookinfo
 ```
