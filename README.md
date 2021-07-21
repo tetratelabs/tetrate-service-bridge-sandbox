@@ -8,7 +8,9 @@ The setup consists of
 * module.azure_base   - deploys resource group, vnet and acr
 * module.azure_jumpbox - deploys jumpbox, pushes tsb repo to acr
 * module.azure_k8s  - deploys k8s cluster for MP and N-number of CPs(*) leveraging AKS
+* module.azure_oidc - (optional) deploys Azure AD prereqs
 * module.elastic    - deploys ECK on MP k8s cluster
+* module.cert-manager - deploys cert-manager on MP k8s cluster
 * module.tsb_mp     - responsible for MP setup
 * module.tsb_cp     - responsible for CP setup
 
