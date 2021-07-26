@@ -18,7 +18,7 @@ resource "kubectl_server_version" "current" {}
 
 resource "kubernetes_namespace" "bookinfo" {
   metadata {
-    name = "elastic-system"
+    name = "bookinfo"
     labels = {
       istio-injection = "enabled"
     }
@@ -34,5 +34,6 @@ resource "kubectl_manifest" "manifests" {
   count      = length(data.kubectl_path_documents.manifests.documents)
   yaml_body  = element(data.kubectl_path_documents.manifests.documents, count.index)
   depends_on = [kubernetes_namespace.bookinfo]
+  override_namespace = "bookinfo"
 }
 
