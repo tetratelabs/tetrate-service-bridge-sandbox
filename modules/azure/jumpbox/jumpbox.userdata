@@ -3,6 +3,8 @@ packages:
   - language-pack-en
   - docker.io
   - nginx
+  - tmux
+  - vim
 
 users:
   - default

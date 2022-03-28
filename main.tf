@@ -34,19 +34,15 @@ module "azure_k8s" {
   depends_on          = [module.azure_base, module.azure_jumpbox]
 }
 
-module "azure_oidc" {
-  source      = "./modules/azure/oidc"
-  name_prefix = var.name_prefix
-  tctl_host   = module.tsb_mp.host
-}
-
 module "cert-manager" {
-  source                     = "./modules/tsb/cert-manager"
+  source                     = "./addons/cert-manager"
   k8s_host                   = module.azure_k8s.0.host
   k8s_cluster_ca_certificate = module.azure_k8s.0.cluster_ca_certificate
   k8s_client_certificate     = module.azure_k8s.0.client_certificate
   k8s_client_key             = module.azure_k8s.0.client_key
 }
+
+/* 
 module "elastic" {
   source                     = "./modules/tsb/elastic"
   k8s_host                   = module.azure_k8s.0.host
@@ -100,3 +96,11 @@ module "app_bookinfo" {
   k8s_client_certificate     = module.azure_k8s.1.client_certificate
   k8s_client_key             = module.azure_k8s.1.client_key
 }
+
+
+module "azure_oidc" {
+  source      = "./modules/azure/oidc"
+  name_prefix = var.name_prefix
+  tctl_host   = module.tsb_mp.host
+} */
+

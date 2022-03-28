@@ -17,7 +17,7 @@ resource "azuread_application" "oidc" {
   }
 
   required_resource_access {
-    resource_app_id = "00000002-0000-0000-c000-000000000000" # Azure AD Graph
+    resource_app_id = "00000003-0000-0000-c000-000000000000" # Azure AD Graph
 
     resource_access {
       id   = "5778995a-e1bf-45b8-affa-663a9f3f4d04" # Directory.Read.All
