@@ -1,36 +1,32 @@
 # Copyright (c) Tetrate, Inc 2021 All Rights Reserved.
+jumpbox:
+	terraform init
+	terraform validate
+	terraform apply -target=module.azure_jumpbox
 aks:
 	terraform init
 	terraform validate
-	terraform apply -auto-approve -target=module.azure_k8s
+	terraform apply -target=module.azure_k8s
 tsb_deps:
 	terraform init
 	terraform validate
-	terraform apply -auto-approve -target=module.cert-manager
-	terraform apply -auto-approve -target=module.elastic
+	terraform apply -target=module.cert-manager
+	terraform apply -target=module.es
 tsb_mp:
 	terraform init
 	terraform validate
-	terraform apply -auto-approve -target=module.tsb_mp.null_resource.tctl_managementplane
-	terraform apply -auto-approve -target=module.tsb_mp.null_resource.tctl_managementplanesecrets
-	terraform apply -auto-approve -target=module.tsb_mp.kubectl_manifest.managementplaneoperator
-	terraform apply -auto-approve -target=module.tsb_mp
+	terraform apply -target=module.tsb_mp
 tsb_cp:
 	terraform init
 	terraform validate
-	terraform apply -auto-approve -target=module.tsb_cp.null_resource.tctl_clusteroperators
-	terraform apply -auto-approve -target=module.tsb_cp
+	terraform apply -target=module.tsb_cp
 azure_oidc:
 	terraform init
 	terraform validate
-	terraform apply -auto-approve -target=module.azure_oidc
+	terraform apply -target=module.azure_oidc
 app_bookinfo:
 	terraform init
 	terraform validate
-	terraform apply -auto-approve -target=module.app_bookinfo
+	terraform apply -target=module.app_bookinfo
 destroy:
-	terraform validate
-	terraform destroy -auto-approve -target=module.azure_k8s
-	terraform destroy -auto-approve -target=module.azure_base
-	terraform destroy -auto-approve -target=module.azure_jumpbox
-	terraform destroy -auto-approve
+	terraform destroy 

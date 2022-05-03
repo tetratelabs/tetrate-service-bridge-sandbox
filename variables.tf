@@ -16,16 +16,25 @@ variable "image-sync_username" {
 variable "image-sync_apikey" {
 }
 
-variable "tctl_username" {
+variable "tsb_username" {
   default = "admin"
 }
 
-variable "tctl_password" {
-  default = "admin"
+variable "tsb_password" {
 }
 
 variable "tsb_version" {
-  default = "1.3.0"
+  default = "1.5.0"
+}
+variable "tsb_fqdn" {
+  default = "toa.cx.tetrate.info"
+}
+variable "dns_zone" {
+  default = "cx.tetrate.info"
+}
+
+variable "tsb_org" {
+  default = "tetrate"
 }
 
 variable "jumpbox_username" {

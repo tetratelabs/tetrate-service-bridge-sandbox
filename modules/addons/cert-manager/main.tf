@@ -8,10 +8,21 @@ provider "helm" {
 }
 
 resource "helm_release" "cert_manager" {
-  name = "cert-manager"
+  name             = "cert-manager"
+  repository       = "https://charts.jetstack.io"
+  chart            = "cert-manager"
+  version          = "1.7.2"
+  create_namespace = true
+  namespace        = "cert-manager"
 
-  repository = "https://charts.jetstack.io"
-  chart      = "cert-manager"
-  version    = "1.7.2"
+  set {
+    name  = "installCRDs"
+    value = "true"
+  }
 
+}
+
+resource "time_sleep" "wait_90_seconds" {
+  depends_on      = [helm_release.cert_manager]
+  create_duration = "90s"
 }

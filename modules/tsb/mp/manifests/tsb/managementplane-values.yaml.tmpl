@@ -1,0 +1,29 @@
+image:
+  tag: ${tsb_version}
+  registry: ${registry}
+secrets:
+  tsb:
+    adminPassword: ${tsb_password}
+  xcp: 
+    authModes:
+      jwt: true
+    autoGenerateCerts: true
+  elasticsearch:
+    username: ${es_username}
+    password: ${es_password}
+  ldap:
+    binddn: ${ldap_binddn}
+    bindpassword: ${ldap_bindpassword}
+  postgres:
+    username: ${db_username}
+    password: ${db_password}
+spec:
+  hub: "${registry}"
+  organization: "${tsb_org}"
+  telemetryStore:
+    elastic:
+      host: "${es_host}"
+      port: 9200
+      version: 7
+      selfSigned: true
+      protocol: https

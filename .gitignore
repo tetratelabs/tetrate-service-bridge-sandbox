@@ -5,6 +5,7 @@
 *.tfstate
 *.tfstate.*
 *.terraform.*
+*.jwk
 
 # Crash log files
 crash.log

@@ -35,59 +35,78 @@ module "azure_k8s" {
 }
 
 module "cert-manager" {
-  source                     = "./addons/cert-manager"
+  source                     = "./modules/addons/cert-manager"
   k8s_host                   = module.azure_k8s.0.host
   k8s_cluster_ca_certificate = module.azure_k8s.0.cluster_ca_certificate
   k8s_client_certificate     = module.azure_k8s.0.client_certificate
   k8s_client_key             = module.azure_k8s.0.client_key
 }
 
-/* 
-module "elastic" {
-  source                     = "./modules/tsb/elastic"
+module "es" {
+  source                     = "./modules/addons/elastic"
   k8s_host                   = module.azure_k8s.0.host
   k8s_cluster_ca_certificate = module.azure_k8s.0.cluster_ca_certificate
   k8s_client_certificate     = module.azure_k8s.0.client_certificate
   k8s_client_key             = module.azure_k8s.0.client_key
 }
+
 
 module "tsb_mp" {
   source                     = "./modules/tsb/mp"
   name_prefix                = var.name_prefix
   cluster_name               = module.azure_k8s.0.cluster_name
-  tctl_username              = var.tctl_username
-  tctl_password              = var.tctl_password
+  jumpbox_host               = module.azure_jumpbox.public_ip
+  jumpbox_username           = var.jumpbox_username
+  jumpbox_pkey               = module.azure_jumpbox.pkey
+  tsb_version                = var.tsb_version
+  tsb_fqdn                   = var.tsb_fqdn
+  tsb_org                    = var.tsb_org
+  tsb_username               = var.tsb_username
+  tsb_password               = var.tsb_password
+  image-sync_username        = var.image-sync_username
+  image-sync_apikey          = var.image-sync_apikey
+  registry                   = module.azure_base.registry
   k8s_host                   = module.azure_k8s.0.host
   k8s_cluster_ca_certificate = module.azure_k8s.0.cluster_ca_certificate
   k8s_client_certificate     = module.azure_k8s.0.client_certificate
   k8s_client_key             = module.azure_k8s.0.client_key
-  registry                   = module.azure_base.registry
-  jumpbox_host               = module.azure_jumpbox.public_ip
-  jumpbox_username           = var.jumpbox_username
-  jumpbox_pkey               = module.azure_jumpbox.pkey
+}
+
+module "aws_dns" {
+  source      = "./modules/aws/dns"
+  dns_zone    = var.dns_zone
+  tsb_fqdn    = var.tsb_fqdn
+  tsb_mp_host = module.tsb_mp.host
 }
 
 module "tsb_cp" {
   source                     = "./modules/tsb/cp"
   name_prefix                = var.name_prefix
-  mp_cluster_name            = module.azure_k8s.0.cluster_name
-  tctl_host                  = module.tsb_mp.host
-  tctl_username              = var.tctl_username
-  tctl_password              = var.tctl_password
+  cluster_name               = module.azure_k8s.1.cluster_name
+  jumpbox_host               = module.azure_jumpbox.public_ip
+  jumpbox_username           = var.jumpbox_username
+  jumpbox_pkey               = module.azure_jumpbox.pkey
+  tsb_version                = var.tsb_version
+  tsb_mp_host                = module.tsb_mp.host
+  tsb_fqdn                   = var.tsb_fqdn
+  tsb_org                    = var.tsb_org
+  tsb_username               = var.tsb_username
+  tsb_password               = var.tsb_password
+  tsb_cacert                 = module.tsb_mp.tsb_cacert
+  image-sync_username        = var.image-sync_username
+  image-sync_apikey          = var.image-sync_apikey
+  registry                   = module.azure_base.registry
   es_host                    = module.tsb_mp.es_host
+  es_username                = module.tsb_mp.es_username
   es_password                = module.tsb_mp.es_password
   es_cacert                  = module.tsb_mp.es_cacert
-  cluster_name               = module.azure_k8s.1.cluster_name
   k8s_host                   = module.azure_k8s.1.host
   k8s_cluster_ca_certificate = module.azure_k8s.1.cluster_ca_certificate
   k8s_client_certificate     = module.azure_k8s.1.client_certificate
   k8s_client_key             = module.azure_k8s.1.client_key
-  registry                   = module.azure_base.registry
-  jumpbox_host               = module.azure_jumpbox.public_ip
-  jumpbox_username           = var.jumpbox_username
-  jumpbox_pkey               = module.azure_jumpbox.pkey
-
 }
+
+/*
 
 module "app_bookinfo" {
   source                     = "./modules/app/bookinfo"
