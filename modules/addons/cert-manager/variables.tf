@@ -10,3 +10,5 @@ variable "k8s_client_key" {
 variable "k8s_cluster_ca_certificate" {
 }
 
+variable "tsb_fqdn" {
+}

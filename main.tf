@@ -19,7 +19,6 @@ module "azure_jumpbox" {
   registry            = module.azure_base.registry
   registry_username   = module.azure_base.registry_username
   registry_password   = module.azure_base.registry_password
-  depends_on          = [module.azure_base]
 }
 
 module "azure_k8s" {
@@ -28,10 +27,10 @@ module "azure_k8s" {
   resource_group_name = module.azure_base.resource_group_name
   location            = var.location
   name_prefix         = var.name_prefix
-  cluster_name        = "${var.name_prefix}-aks-${count.index + 1}"
+  cluster_name        = "${substr(var.name_prefix, 0, min(length("${var.name_prefix}"), 6))}${count.index + 1}"
   vnet_subnets        = module.azure_base.vnet_subnets
   registry_id         = module.azure_base.registry_id
-  depends_on          = [module.azure_base, module.azure_jumpbox]
+  depends_on          = [module.azure_jumpbox]
 }
 
 module "cert-manager" {
@@ -40,32 +39,11 @@ module "cert-manager" {
   k8s_cluster_ca_certificate = module.azure_k8s.0.cluster_ca_certificate
   k8s_client_certificate     = module.azure_k8s.0.client_certificate
   k8s_client_key             = module.azure_k8s.0.client_key
+  tsb_fqdn                   = var.tsb_fqdn
 }
 
 module "es" {
   source                     = "./modules/addons/elastic"
-  k8s_host                   = module.azure_k8s.0.host
-  k8s_cluster_ca_certificate = module.azure_k8s.0.cluster_ca_certificate
-  k8s_client_certificate     = module.azure_k8s.0.client_certificate
-  k8s_client_key             = module.azure_k8s.0.client_key
-}
-
-
-module "tsb_mp" {
-  source                     = "./modules/tsb/mp"
-  name_prefix                = var.name_prefix
-  cluster_name               = module.azure_k8s.0.cluster_name
-  jumpbox_host               = module.azure_jumpbox.public_ip
-  jumpbox_username           = var.jumpbox_username
-  jumpbox_pkey               = module.azure_jumpbox.pkey
-  tsb_version                = var.tsb_version
-  tsb_fqdn                   = var.tsb_fqdn
-  tsb_org                    = var.tsb_org
-  tsb_username               = var.tsb_username
-  tsb_password               = var.tsb_password
-  image-sync_username        = var.image-sync_username
-  image-sync_apikey          = var.image-sync_apikey
-  registry                   = module.azure_base.registry
   k8s_host                   = module.azure_k8s.0.host
   k8s_cluster_ca_certificate = module.azure_k8s.0.cluster_ca_certificate
   k8s_client_certificate     = module.azure_k8s.0.client_certificate
@@ -79,6 +57,28 @@ module "aws_dns" {
   tsb_mp_host = module.tsb_mp.host
 }
 
+module "tsb_mp" {
+  source                     = "./modules/tsb/mp"
+  name_prefix                = var.name_prefix
+  cluster_name               = module.azure_k8s.0.cluster_name
+  jumpbox_host               = module.azure_jumpbox.public_ip
+  jumpbox_username           = var.jumpbox_username
+  jumpbox_pkey               = module.azure_jumpbox.pkey
+  tsb_version                = var.tsb_version
+  tsb_helm_version           = var.tsb_helm_version
+  tsb_fqdn                   = var.tsb_fqdn
+  tsb_org                    = var.tsb_org
+  tsb_username               = var.tsb_username
+  tsb_password               = var.tsb_password
+  image-sync_username        = var.image-sync_username
+  image-sync_apikey          = var.image-sync_apikey
+  registry                   = module.azure_base.registry
+  k8s_host                   = module.azure_k8s.0.host
+  k8s_cluster_ca_certificate = module.azure_k8s.0.cluster_ca_certificate
+  k8s_client_certificate     = module.azure_k8s.0.client_certificate
+  k8s_client_key             = module.azure_k8s.0.client_key
+}
+
 module "tsb_cp" {
   source                     = "./modules/tsb/cp"
   name_prefix                = var.name_prefix
@@ -87,6 +87,7 @@ module "tsb_cp" {
   jumpbox_username           = var.jumpbox_username
   jumpbox_pkey               = module.azure_jumpbox.pkey
   tsb_version                = var.tsb_version
+  tsb_helm_version           = var.tsb_helm_version
   tsb_mp_host                = module.tsb_mp.host
   tsb_fqdn                   = var.tsb_fqdn
   tsb_org                    = var.tsb_org
@@ -122,4 +123,3 @@ module "azure_oidc" {
   name_prefix = var.name_prefix
   tctl_host   = module.tsb_mp.host
 } */
-

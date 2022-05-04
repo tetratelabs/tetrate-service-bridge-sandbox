@@ -73,28 +73,30 @@ resource "null_resource" "jumpbox_tctl" {
   depends_on = [data.template_file.cluster, data.template_file.tctl_controlplane]
 }
 
+data "local_file" "service_account" {
+  filename   = "${var.cluster_name}-service-account.jwk"
+  depends_on = [null_resource.jumpbox_tctl]
+}
 data "template_file" "controlplane_values" {
   template = file("${path.module}/manifests/tsb/controlplane-values.yaml.tmpl")
   vars = {
-    registry     = var.registry
-    tsb_version  = var.tsb_version
-    tsb_fqdn     = var.tsb_fqdn
-    cluster_name = var.cluster_name
-    #es
-    es_host     = var.es_host
-    es_username = var.es_username
-    es_password = var.es_password
+    registry                  = var.registry
+    tsb_version               = var.tsb_version
+    tsb_fqdn                  = var.tsb_fqdn
+    cluster_name              = var.cluster_name
+    serviceaccount_clusterfqn = "organizations/${var.tsb_org}t/clusters/${var.cluster_name}"
+    serviceaccount_jwk        = data.local_file.service_account.content
+    es_host                   = var.es_host
+    es_username               = var.es_username
+    es_password               = var.es_password
   }
+  depends_on = [data.local_file.service_account]
 }
-data "local_file" "service_account" {
-  filename = "${var.cluster_name}-service-account.jwk"
-}
-
 resource "helm_release" "controlplane" {
   name                = "controlplane"
   repository          = "https://dl.cloudsmith.io/PcTzkIaPWoQlH4Tj/tetrate/helm-internal/helm/charts"
   chart               = "controlplane"
-  version             = "1.5.0-dev"
+  version             = var.tsb_helm_version
   create_namespace    = true
   namespace           = "istio-system"
   timeout             = 900
@@ -116,24 +118,13 @@ resource "helm_release" "controlplane" {
     name  = "secrets.elasticsearch.cacert"
     value = var.es_cacert
   }
-
-  set {
-    name  = "secrets.clusterServiceAccount.clusterFQN"
-    value = "organizations/${var.tsb_org}t/clusters/${var.cluster_name}"
-  }
-
-  set {
-    name = "secrets.clusterServiceAccount.JWK"
-    #value = "test123"
-    value = tostring(data.local_file.service_account.content)
-  }
 }
 
 resource "helm_release" "dataplane" {
   name                = "dataplane"
   repository          = "https://dl.cloudsmith.io/PcTzkIaPWoQlH4Tj/tetrate/helm-internal/helm/charts"
   chart               = "dataplane"
-  version             = "1.5.0-dev"
+  version             = var.tsb_helm_version
   create_namespace    = true
   namespace           = "istio-gateway"
   timeout             = 900

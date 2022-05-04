@@ -30,43 +30,20 @@ resource "kubernetes_namespace" "tsb" {
     ignore_changes = [metadata]
   }
 }
-
-data "kubectl_path_documents" "manifests_selfsigned_ca" {
-  pattern          = "${path.module}/manifests/cert-manager/selfsigned-ca.yaml"
-  disable_template = true
-}
-
-resource "kubectl_manifest" "manifests_selfsigned_ca" {
-  count      = length(data.kubectl_path_documents.manifests_selfsigned_ca.documents)
-  yaml_body  = element(data.kubectl_path_documents.manifests_selfsigned_ca.documents, count.index)
-  depends_on = [kubernetes_namespace.tsb]
 }
 data "kubernetes_secret" "selfsigned_ca" {
   metadata {
     name      = "selfsigned-ca"
     namespace = "cert-manager"
   }
-  depends_on = [kubectl_manifest.manifests_selfsigned_ca]
 }
 
-data "kubectl_path_documents" "manifests_tsb_server_cert" {
-  pattern = "${path.module}/manifests/cert-manager/tsb-certs.yaml.tmpl"
-  vars = {
-    tsb_fqdn = var.tsb_fqdn
-  }
-}
-
-resource "kubectl_manifest" "manifests_tsb_server_cert" {
-  count      = length(data.kubectl_path_documents.manifests_tsb_server_cert.documents)
-  yaml_body  = element(data.kubectl_path_documents.manifests_tsb_server_cert.documents, count.index)
-  depends_on = [kubernetes_namespace.tsb]
-}
 data "kubernetes_secret" "tsb_server_cert" {
   metadata {
     name      = "tsb-server-cert"
-    namespace = "tsb"
+    namespace = "cert-manager"
   }
-  depends_on = [kubectl_manifest.manifests_tsb_server_cert]
+
 }
 
 data "kubernetes_secret" "es_password" {
@@ -118,7 +95,7 @@ resource "helm_release" "managementplane" {
   name                = "managementplane"
   repository          = "https://dl.cloudsmith.io/PcTzkIaPWoQlH4Tj/tetrate/helm-internal/helm/charts"
   chart               = "managementplane"
-  version             = "1.5.0-dev"
+  version             = var.tsb_helm_version
   namespace           = "tsb"
   timeout             = 900
   repository_username = var.image-sync_username

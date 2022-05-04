@@ -5,6 +5,9 @@ secrets:
   elasticsearch:
     username: ${es_username}
     password: ${es_password}
+  clusterServiceAccount:
+    clusterFQN: ${serviceaccount_clusterfqn}
+    JWK: '${serviceaccount_jwk}'
 spec:
   hub: ${registry}
   telemetryStore:

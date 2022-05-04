@@ -26,6 +26,9 @@ variable "tsb_password" {
 variable "tsb_version" {
   default = "1.5.0"
 }
+variable "tsb_helm_version" {
+  default = "1.5.0"
+}
 variable "tsb_fqdn" {
   default = "toa.cx.tetrate.info"
 }

@@ -15,6 +15,8 @@ variable "jumpbox_pkey" {
 
 variable "tsb_version" {
 }
+variable "tsb_helm_version" {
+}
 variable "tsb_fqdn" {
 }
 
