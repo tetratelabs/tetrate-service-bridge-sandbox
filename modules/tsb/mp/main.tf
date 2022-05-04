@@ -30,7 +30,6 @@ resource "kubernetes_namespace" "tsb" {
     ignore_changes = [metadata]
   }
 }
-}
 data "kubernetes_secret" "selfsigned_ca" {
   metadata {
     name      = "selfsigned-ca"
