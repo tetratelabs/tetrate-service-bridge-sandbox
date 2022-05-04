@@ -1,4 +1,4 @@
-# AKS clusters setup using Terraform
+# Deploy Tetrate Service Bridge Demo on Azure Kubernetes Service (AKS) using Terraform
 
 The intention is to create azure-go-to demo... from deploying MP and CP using helm til having an application demo setup using standard and gitops approach...and of course variablize the world "completely" is work in progress...
 
