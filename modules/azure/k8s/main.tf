@@ -20,7 +20,7 @@ resource "azurerm_kubernetes_cluster" "k8s" {
     # min_count = 1
     # max_count = 10
     node_count      = 3
-    vm_size         = "Standard_D2_v4"
+    vm_size         = "Standard_B2ms"
     type            = "VirtualMachineScaleSets"
     os_disk_size_gb = 50
   }
