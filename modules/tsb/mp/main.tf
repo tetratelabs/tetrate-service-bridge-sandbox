@@ -76,6 +76,7 @@ data "template_file" "managementplane_values" {
     registry     = var.registry
     tsb_password = var.tsb_password
     tsb_org      = var.tsb_org
+    tsb_fqdn     = var.tsb_fqdn
     #eck
     es_host     = data.kubernetes_service.es.status[0].load_balancer[0].ingress[0].ip
     es_username = "elastic"
@@ -92,7 +93,7 @@ data "template_file" "managementplane_values" {
 
 resource "helm_release" "managementplane" {
   name                = "managementplane"
-  repository          = "https://dl.cloudsmith.io/PcTzkIaPWoQlH4Tj/tetrate/helm-internal/helm/charts"
+  repository          = "https://dl.cloudsmith.io/basic/tetrate/tsb-helm/helm/charts/"
   chart               = "managementplane"
   version             = var.tsb_helm_version
   namespace           = "tsb"

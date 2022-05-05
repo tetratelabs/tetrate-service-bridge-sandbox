@@ -84,7 +84,7 @@ data "template_file" "controlplane_values" {
     tsb_version               = var.tsb_version
     tsb_fqdn                  = var.tsb_fqdn
     cluster_name              = var.cluster_name
-    serviceaccount_clusterfqn = "organizations/${var.tsb_org}t/clusters/${var.cluster_name}"
+    serviceaccount_clusterfqn = "organizations/${var.tsb_org}/clusters/${var.cluster_name}"
     serviceaccount_jwk        = data.local_file.service_account.content
     es_host                   = var.es_host
     es_username               = var.es_username
@@ -94,7 +94,7 @@ data "template_file" "controlplane_values" {
 }
 resource "helm_release" "controlplane" {
   name                = "controlplane"
-  repository          = "https://dl.cloudsmith.io/PcTzkIaPWoQlH4Tj/tetrate/helm-internal/helm/charts"
+  repository          = "https://dl.cloudsmith.io/basic/tetrate/tsb-helm/helm/charts/"
   chart               = "controlplane"
   version             = var.tsb_helm_version
   create_namespace    = true
@@ -122,7 +122,7 @@ resource "helm_release" "controlplane" {
 
 resource "helm_release" "dataplane" {
   name                = "dataplane"
-  repository          = "https://dl.cloudsmith.io/PcTzkIaPWoQlH4Tj/tetrate/helm-internal/helm/charts"
+  repository          = "https://dl.cloudsmith.io/basic/tetrate/tsb-helm/helm/charts/"
   chart               = "dataplane"
   version             = var.tsb_helm_version
   create_namespace    = true

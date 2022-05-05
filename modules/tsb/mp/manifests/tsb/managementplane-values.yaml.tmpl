@@ -7,7 +7,11 @@ secrets:
   xcp: 
     authModes:
       jwt: true
+      mtls: false
     autoGenerateCerts: true
+    central: 
+      additionalDNSNames: 
+      - ${tsb_fqdn}
   elasticsearch:
     username: ${es_username}
     password: ${es_password}

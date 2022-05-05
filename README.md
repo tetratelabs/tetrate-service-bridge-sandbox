@@ -36,7 +36,6 @@ image-sync_apikey = "cloudsmith-apikey"
 image-sync_username = "cloudsmith-username"
 tsb_fqdn            = "toa.cx.tetrate.info"
 tsb_version         = "1.5.0-internal-rc1"
-tsb_helm_version    = "1.5.0-dev"
 tsb_password        = "Tetrate123"
 ```
 

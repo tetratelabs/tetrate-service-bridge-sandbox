@@ -65,7 +65,7 @@ module "tsb_mp" {
   jumpbox_username           = var.jumpbox_username
   jumpbox_pkey               = module.azure_jumpbox.pkey
   tsb_version                = var.tsb_version
-  tsb_helm_version           = var.tsb_helm_version
+  tsb_helm_version           = var.tsb_helm_version != null ? var.tsb_helm_version : var.tsb_version
   tsb_fqdn                   = var.tsb_fqdn
   tsb_org                    = var.tsb_org
   tsb_username               = var.tsb_username
@@ -87,7 +87,7 @@ module "tsb_cp" {
   jumpbox_username           = var.jumpbox_username
   jumpbox_pkey               = module.azure_jumpbox.pkey
   tsb_version                = var.tsb_version
-  tsb_helm_version           = var.tsb_helm_version
+  tsb_helm_version           = var.tsb_helm_version != null ? var.tsb_helm_version : var.tsb_version
   tsb_mp_host                = module.tsb_mp.host
   tsb_fqdn                   = var.tsb_fqdn
   tsb_org                    = var.tsb_org
