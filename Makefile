@@ -26,7 +26,7 @@ tsb_fqdn:
 tsb_cp:
 	@echo cluster_id is ${cluster_id}
 	terraform init
-	terraform taint "module.tsb_cp.null_resource.jumpbox_tctl"
+	terraform taint -allow-missing "module.tsb_cp.null_resource.jumpbox_tctl"
 	terraform apply -auto-approve -target=module.tsb_cp -var=cluster_id=${cluster_id}
 app_bookinfo:
 	@echo cluster_id is ${cluster_id}

@@ -103,6 +103,8 @@ module "tsb_cp" {
   tsb_username               = var.tsb_username
   tsb_password               = var.tsb_password
   tsb_cacert                 = module.tsb_mp.tsb_cacert
+  istiod_cacerts_tls_crt     = module.tsb_mp.istiod_cacerts_tls_crt
+  istiod_cacerts_tls_key     = module.tsb_mp.istiod_cacerts_tls_key
   image-sync_username        = var.image-sync_username
   image-sync_apikey          = var.image-sync_apikey
   registry                   = module.azure_base.registry

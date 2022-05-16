@@ -120,6 +120,25 @@ resource "helm_release" "controlplane" {
   }
 }
 
+resource "kubernetes_secret_v1" "cacerts" {
+  metadata {
+    name      = "cacerts"
+    namespace = "istio-system"
+    annotations = {
+      clustername = var.cluster_name
+    }
+  }
+
+  data = {
+    "ca-cert.pem"    = var.istiod_cacerts_tls_crt
+    "ca-key.pem"     = var.istiod_cacerts_tls_key
+    "root-cert.pem"  = var.tsb_cacert
+    "cert-chain.pem" = var.istiod_cacerts_tls_crt
+  }
+
+  type       = "kubernetes.io/generic"
+  depends_on = [helm_release.controlplane]
+}
 resource "helm_release" "dataplane" {
   name                = "dataplane"
   repository          = "https://dl.cloudsmith.io/basic/tetrate/tsb-helm/helm/charts/"

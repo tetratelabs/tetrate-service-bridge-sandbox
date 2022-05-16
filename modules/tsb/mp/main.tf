@@ -42,9 +42,14 @@ data "kubernetes_secret" "tsb_server_cert" {
     name      = "tsb-server-cert"
     namespace = "cert-manager"
   }
-
 }
 
+data "kubernetes_secret" "istiod_cacerts" {
+  metadata {
+    name      = "istiod-cacerts"
+    namespace = "cert-manager"
+  }
+}
 data "kubernetes_secret" "es_password" {
   metadata {
     name      = "tsb-es-elastic-user"

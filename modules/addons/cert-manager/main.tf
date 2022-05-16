@@ -51,16 +51,16 @@ resource "kubectl_manifest" "manifests_selfsigned_ca" {
   depends_on = [time_sleep.wait_90_seconds]
 }
 
-data "kubectl_path_documents" "manifests_tsb_server_cert" {
-  pattern = "${path.module}/manifests/tsb-certs.yaml.tmpl"
+data "kubectl_path_documents" "manifests_certs" {
+  pattern = "${path.module}/manifests/certs.yaml.tmpl"
   vars = {
     tsb_fqdn = var.tsb_fqdn
   }
 }
 
-resource "kubectl_manifest" "manifests_tsb_server_cert" {
-  count      = length(data.kubectl_path_documents.manifests_tsb_server_cert.documents)
-  yaml_body  = element(data.kubectl_path_documents.manifests_tsb_server_cert.documents, count.index)
+resource "kubectl_manifest" "manifests_certs" {
+  count      = length(data.kubectl_path_documents.manifests_certs.documents)
+  yaml_body  = element(data.kubectl_path_documents.manifests_certs.documents, count.index)
   depends_on = [time_sleep.wait_90_seconds]
 }
 
