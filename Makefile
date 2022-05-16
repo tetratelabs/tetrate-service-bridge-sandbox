@@ -22,7 +22,7 @@ tsb_mp:
 	terraform apply -auto-approve -target=module.tsb_mp
 	terraform apply -auto-approve -target=module.aws_dns
 tsb_fqdn:
-  terraform apply -auto-approve -target=module.aws_dns
+	terraform apply -auto-approve -target=module.aws_dns
 tsb_cp:
 	@echo cluster_id is ${cluster_id}
 	terraform init
