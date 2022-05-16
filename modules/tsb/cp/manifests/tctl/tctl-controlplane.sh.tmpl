@@ -4,3 +4,4 @@
 /usr/bin/env tctl config profiles set-current "default"
 /usr/bin/env tctl apply -f ${cluster_name}-cluster.yaml
 /usr/bin/env tctl install cluster-service-account --cluster ${cluster_name} > ${cluster_name}-service-account.jwk
+/usr/bin/env tctl x gitops grant ${cluster_name}

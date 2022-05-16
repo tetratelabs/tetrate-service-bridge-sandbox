@@ -22,7 +22,7 @@ module "azure_jumpbox" {
 }
 
 module "azure_k8s" {
-  count               = 1 + var.cp_count
+  count               = 1 + var.app_clusters_count
   source              = "./modules/azure/k8s"
   resource_group_name = module.azure_base.resource_group_name
   location            = var.location
@@ -44,6 +44,14 @@ module "cert-manager" {
 
 module "es" {
   source                     = "./modules/addons/elastic"
+  k8s_host                   = module.azure_k8s.0.host
+  k8s_cluster_ca_certificate = module.azure_k8s.0.cluster_ca_certificate
+  k8s_client_certificate     = module.azure_k8s.0.client_certificate
+  k8s_client_key             = module.azure_k8s.0.client_key
+}
+
+module "argocd" {
+  source                     = "./modules/addons/argocd"
   k8s_host                   = module.azure_k8s.0.host
   k8s_cluster_ca_certificate = module.azure_k8s.0.cluster_ca_certificate
   k8s_client_certificate     = module.azure_k8s.0.client_certificate
@@ -81,8 +89,9 @@ module "tsb_mp" {
 
 module "tsb_cp" {
   source                     = "./modules/tsb/cp"
+  cluster_id                 = var.cluster_id
   name_prefix                = var.name_prefix
-  cluster_name               = module.azure_k8s.1.cluster_name
+  cluster_name               = element(module.azure_k8s, var.cluster_id).cluster_name
   jumpbox_host               = module.azure_jumpbox.public_ip
   jumpbox_username           = var.jumpbox_username
   jumpbox_pkey               = module.azure_jumpbox.pkey
@@ -101,25 +110,25 @@ module "tsb_cp" {
   es_username                = module.tsb_mp.es_username
   es_password                = module.tsb_mp.es_password
   es_cacert                  = module.tsb_mp.es_cacert
-  k8s_host                   = module.azure_k8s.1.host
-  k8s_cluster_ca_certificate = module.azure_k8s.1.cluster_ca_certificate
-  k8s_client_certificate     = module.azure_k8s.1.client_certificate
-  k8s_client_key             = module.azure_k8s.1.client_key
-}
+  k8s_host                   = element(module.azure_k8s, var.cluster_id).host
+  k8s_cluster_ca_certificate = element(module.azure_k8s, var.cluster_id).cluster_ca_certificate
+  k8s_client_certificate     = element(module.azure_k8s, var.cluster_id).client_certificate
+  k8s_client_key             = element(module.azure_k8s, var.cluster_id).client_key
 
-/*
+}
 
 module "app_bookinfo" {
   source                     = "./modules/app/bookinfo"
-  k8s_host                   = module.azure_k8s.1.host
-  k8s_cluster_ca_certificate = module.azure_k8s.1.cluster_ca_certificate
-  k8s_client_certificate     = module.azure_k8s.1.client_certificate
-  k8s_client_key             = module.azure_k8s.1.client_key
+  k8s_host                   = element(module.azure_k8s, var.cluster_id).host
+  k8s_cluster_ca_certificate = element(module.azure_k8s, var.cluster_id).cluster_ca_certificate
+  k8s_client_certificate     = element(module.azure_k8s, var.cluster_id).client_certificate
+  k8s_client_key             = element(module.azure_k8s, var.cluster_id).client_key
 }
 
-
+/*
 module "azure_oidc" {
   source      = "./modules/azure/oidc"
   name_prefix = var.name_prefix
   tctl_host   = module.tsb_mp.host
-} */
+} 
+*/

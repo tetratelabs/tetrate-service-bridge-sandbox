@@ -43,7 +43,10 @@ variable "tsb_org" {
 variable "jumpbox_username" {
   default = "tsbadmin"
 }
-
-variable "cp_count" {
+variable "cluster_id" {
   default = 1
 }
+variable "app_clusters_count" {
+  default = 1
+}
+

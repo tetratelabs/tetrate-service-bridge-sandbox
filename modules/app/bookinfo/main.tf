@@ -31,9 +31,9 @@ data "kubectl_path_documents" "manifests" {
 }
 
 resource "kubectl_manifest" "manifests" {
-  count      = length(data.kubectl_path_documents.manifests.documents)
-  yaml_body  = element(data.kubectl_path_documents.manifests.documents, count.index)
-  depends_on = [kubernetes_namespace.bookinfo]
+  count              = length(data.kubectl_path_documents.manifests.documents)
+  yaml_body          = element(data.kubectl_path_documents.manifests.documents, count.index)
+  depends_on         = [kubernetes_namespace.bookinfo]
   override_namespace = "bookinfo"
 }
 

@@ -7,6 +7,10 @@ output "tsb_cacert" {
   value = data.kubernetes_secret.selfsigned_ca.data["tls.crt"]
 }
 
+output "tsb_cakey" {
+  value = data.kubernetes_secret.selfsigned_ca.data["tls.key"]
+}
+
 output "es_host" {
   value = data.kubernetes_service.es.status[0].load_balancer[0].ingress[0].ip
 }

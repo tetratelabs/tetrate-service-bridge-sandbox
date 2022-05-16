@@ -1,6 +1,9 @@
 variable "name_prefix" {
   description = "name prefix"
 }
+variable "cluster_id" {
+}
+
 variable "cluster_name" {
 }
 

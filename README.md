@@ -48,7 +48,8 @@ make tsb_deps
 # deploy TSB MP using Helm chart
 make tsb_mp
 # deploy TSB CP using Helm chart
-make tsb_cp
+make tsb_cp cluster_id=0
+make tsb_cp cluster_id=1
 # deploy bookinfo application
 make app_bookinfo
 ```
