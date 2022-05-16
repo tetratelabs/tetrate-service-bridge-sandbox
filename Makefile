@@ -31,7 +31,6 @@ tsb_cp:
 app_bookinfo:
 	@echo cluster_id is ${cluster_id}
 	terraform init
-	terraform taint "module.app_bookinfo.kubectl_manifest.manifests"
 	terraform apply -auto-approve -target=module.app_bookinfo
 azure_oidc:
 	terraform init

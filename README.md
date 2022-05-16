@@ -14,6 +14,7 @@ The setup consists of
 
 * module.es             - deploys ECK on MP k8s cluster
 * module.cert-manager   - deploys cert-manager on MP k8s cluster
+* module.argocd         - deploys argoCD
 
 * module.tsb_mp         - responsible for TSB MP setup using Helm chart
 * module.tsb_cp         - responsible for TSB CP setup using Helm chart
@@ -37,6 +38,7 @@ image-sync_username = "cloudsmith-username"
 tsb_fqdn            = "toa.cx.tetrate.info"
 tsb_version         = "1.5.0-internal-rc1"
 tsb_password        = "Tetrate123"
+app_clusters_count  = "1"
 ```
 
 To stand up the demo continue with the steps below:
