@@ -44,7 +44,7 @@ app_clusters_count  = "1"
 To stand up the demo continue with the steps below:
 ```bash
 # setup underlying clusters
-make aks
+make azure_k8s
 # deploy TSB dependecies such as elastic, cert-manager
 make tsb_deps
 # deploy TSB MP using Helm chart
