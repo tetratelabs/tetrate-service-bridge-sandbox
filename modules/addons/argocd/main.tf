@@ -14,7 +14,7 @@ resource "helm_release" "argocd" {
   create_namespace = true
   namespace        = "argocd"
   timeout          = 900
-
+  description      = var.cluster_name
   set {
     name  = "controller.enableStatefulSet"
     value = "true"
@@ -24,4 +24,10 @@ resource "helm_release" "argocd" {
     name  = "configs.secret.argocdServerAdminPassword"
     value = bcrypt(var.tsb_password)
   }
+
+  set {
+    name  = "server.service.type"
+    value = "LoadBalancer"
+  }
+
 }

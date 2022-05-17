@@ -53,10 +53,11 @@ module "es" {
 
 module "argocd" {
   source                     = "./modules/addons/argocd"
-  k8s_host                   = module.azure_k8s.0.host
-  k8s_cluster_ca_certificate = module.azure_k8s.0.cluster_ca_certificate
-  k8s_client_certificate     = module.azure_k8s.0.client_certificate
-  k8s_client_key             = module.azure_k8s.0.client_key
+  cluster_name               = element(module.azure_k8s, var.cluster_id).cluster_name
+  k8s_host                   = element(module.azure_k8s, var.cluster_id).host
+  k8s_cluster_ca_certificate = element(module.azure_k8s, var.cluster_id).cluster_ca_certificate
+  k8s_client_certificate     = element(module.azure_k8s, var.cluster_id).client_certificate
+  k8s_client_key             = element(module.azure_k8s, var.cluster_id).client_key
   tsb_password               = var.tsb_password
 }
 
@@ -120,6 +121,7 @@ module "tsb_cp" {
   k8s_client_key             = element(module.azure_k8s, var.cluster_id).client_key
 
 }
+
 
 module "app_bookinfo" {
   source                     = "./modules/app/bookinfo"

@@ -16,7 +16,6 @@ tsb_deps:
 	terraform init
 	terraform apply -auto-approve -target=module.cert-manager
 	terraform apply -auto-approve -target=module.es
-	terraform apply -auto-approve -target=module.argocd
 tsb_mp:
 	terraform init
 	terraform apply -auto-approve -target=module.tsb_mp
@@ -28,6 +27,10 @@ tsb_cp:
 	terraform init
 	terraform taint -allow-missing "module.tsb_cp.null_resource.jumpbox_tctl"
 	terraform apply -auto-approve -target=module.tsb_cp -var=cluster_id=${cluster_id}
+	terraform apply -auto-approve -target=module.argocd -var=cluster_id=${cluster_id}
+argocd:
+	@echo cluster_id is ${cluster_id}
+	terraform apply -auto-approve -target=module.argocd -var=cluster_id=${cluster_id}
 app_bookinfo:
 	@echo cluster_id is ${cluster_id}
 	terraform init
@@ -36,9 +39,9 @@ azure_oidc:
 	terraform init
 	terraform apply -auto-approve -target=module.azure_oidc
 destroy:
-	terraform destroy -refresh=false -auto-approve -target=module.aws_dns
-	terraform destroy -refresh=false -auto-approve -target=module.azure_k8s
-	terraform destroy -refresh=false -auto-approve -target=module.azure_base
-	terraform destroy -refresh=false -auto-approve -target=module.azure_jumpbox
-	terraform destroy -refresh=false -auto-approve
+	terraform destroy -refresh=false -target=module.aws_dns
+	terraform destroy -refresh=false -target=module.azure_k8s
+	terraform destroy -refresh=false -target=module.azure_base
+	terraform destroy -refresh=false -target=module.azure_jumpbox
+	terraform destroy -refresh=false 
 	terraform destroy 

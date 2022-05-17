@@ -7,7 +7,6 @@ The `Makefile` in this directory provides automated provisioning of k8s clusters
 ```mermaid
   graph TD;
       A[make azure_k8s] --> B[make tsb_deps]
-      A[make azure_k8s] --> Z[make app_bookinfo]
       B[make tsb_deps] --> C[make tsb_mp]
       Y[make azure_oidc] --> C[make tsb_mp]
       C[make tsb_mp] --> D[make tsb_cp]
@@ -39,11 +38,11 @@ terraform.tfvars
 ```
 name_prefix = "juggles"
 location    = "eastus"
-cidr        = "172.16.0.0/16"
+cidr        = "172.20.0.0/16"
 image-sync_apikey = "cloudsmith-apikey"
 image-sync_username = "cloudsmith-username"
-tsb_fqdn            = "toa.cx.tetrate.info"
-tsb_version         = "1.5.0-internal-rc1"
+tsb_fqdn            = "mtoa.cx.tetrate.info"
+tsb_version         = "1.5.0-internal-rc2"
 tsb_password        = "Tetrate123"
 app_clusters_count  = "1"
 ```
