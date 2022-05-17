@@ -10,7 +10,9 @@ The `Makefile` in this directory provides automated provisioning of k8s clusters
       B[make tsb_deps] --> C[make tsb_mp]
       Y[make azure_oidc] --> C[make tsb_mp]
       C[make tsb_mp] --> D[make tsb_cp]
+      D[make tsb_cp] --> E[make argocd]
       style Y fill:lightgrey
+      style D fill:lightgrey
 ```
 The setup consists of
 
@@ -58,8 +60,9 @@ make tsb_mp
 # deploy TSB CP using Helm chart
 make tsb_cp cluster_id=0
 make tsb_cp cluster_id=1
-# deploy bookinfo application
-make app_bookinfo
+# (optional) deploy ArgoCD
+make argocd cluster_id=0
+make argocd cluster_id=1
 ```
 
 The completion of the above steps will result in:

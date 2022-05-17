@@ -6,7 +6,13 @@ provider "helm" {
     client_key             = base64decode(var.k8s_client_key)
   }
 }
-
+provider "kubectl" {
+  host                   = var.k8s_host
+  cluster_ca_certificate = base64decode(var.k8s_cluster_ca_certificate)
+  client_certificate     = base64decode(var.k8s_client_certificate)
+  client_key             = base64decode(var.k8s_client_key)
+  load_config_file       = false
+}
 resource "helm_release" "argocd" {
   name             = "argo-cd"
   repository       = "https://argoproj.github.io/argo-helm"
@@ -30,4 +36,15 @@ resource "helm_release" "argocd" {
     value = "LoadBalancer"
   }
 
+}
+
+data "kubectl_path_documents" "manifests_argocd_apps" {
+  pattern          = "${path.module}/manifests/*.yaml"
+  disable_template = true
+}
+
+resource "kubectl_manifest" "manifests_argocd_apps" {
+  count      = length(data.kubectl_path_documents.manifests_argocd_apps.documents)
+  yaml_body  = element(data.kubectl_path_documents.manifests_argocd_apps.documents, count.index)
+  depends_on = [helm_release.argocd]
 }

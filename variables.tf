@@ -49,7 +49,3 @@ variable "cluster_id" {
 variable "app_clusters_count" {
   default = 1
 }
-
-variable "argocd_git_repo" {
-  default = "https://github.com/smarunich/azure-tsb-tf-demo/argocd/"
-}
