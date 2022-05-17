@@ -103,7 +103,7 @@ module "tsb_cp" {
   tsb_version                = var.tsb_version
   tsb_helm_version           = var.tsb_helm_version != null ? var.tsb_helm_version : var.tsb_version
   tsb_mp_host                = module.tsb_mp.host
-  tier1_cluster              = var.cluster_id != 0 ? "true" : "false"
+  tier1_cluster              = var.cluster_id == "0" ? true : false
   tsb_fqdn                   = var.tsb_fqdn
   tsb_org                    = var.tsb_org
   tsb_username               = var.tsb_username
