@@ -30,6 +30,8 @@ tsb_cp:
 argocd:
 	@echo cluster_id is ${cluster_id}
 	terraform apply -auto-approve -target=module.argocd -var=cluster_id=${cluster_id}
+keycloak:
+	terraform apply -auto-approve -target=module.keycloak -var=cluster_id=0
 app_bookinfo:
 	@echo cluster_id is ${cluster_id}
 	terraform init

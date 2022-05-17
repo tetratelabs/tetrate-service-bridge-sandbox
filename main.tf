@@ -61,6 +61,17 @@ module "argocd" {
   tsb_password               = var.tsb_password
 }
 
+
+module "keycloak" {
+  source                     = "./modules/addons/keycloak"
+  cluster_name               = element(module.azure_k8s, var.cluster_id).cluster_name
+  k8s_host                   = element(module.azure_k8s, var.cluster_id).host
+  k8s_cluster_ca_certificate = element(module.azure_k8s, var.cluster_id).cluster_ca_certificate
+  k8s_client_certificate     = element(module.azure_k8s, var.cluster_id).client_certificate
+  k8s_client_key             = element(module.azure_k8s, var.cluster_id).client_key
+  tsb_password               = var.tsb_password
+}
+
 module "aws_dns" {
   source      = "./modules/aws/dns"
   dns_zone    = var.dns_zone
@@ -103,7 +114,7 @@ module "tsb_cp" {
   tsb_version                = var.tsb_version
   tsb_helm_version           = var.tsb_helm_version != null ? var.tsb_helm_version : var.tsb_version
   tsb_mp_host                = module.tsb_mp.host
-  tier1_cluster              = var.cluster_id == "0" ? true : false
+  tier1_cluster              = var.cluster_id == "0" ? var.mp_as_tier1_cluster : false
   tsb_fqdn                   = var.tsb_fqdn
   tsb_org                    = var.tsb_org
   tsb_username               = var.tsb_username

@@ -48,6 +48,9 @@ variable "tsb_org" {
   default = "tetrate"
 }
 
+variable "mp_as_tier1_cluster" {
+  default = true
+}
 variable "jumpbox_username" {
   default = "tsbadmin"
 }
