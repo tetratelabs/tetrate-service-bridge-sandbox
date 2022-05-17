@@ -6,11 +6,11 @@ The `Makefile` in this directory provides automated provisioning of k8s clusters
 
 ```mermaid
   graph TD;
-      A[make azure_k8s] --> B[make tsb_deps];
-      A[make azure_k8s] --> Z[app_bookinfo];
-      B[make tsb_deps] --> C[make tsb_mp];
-      Y[make azure_oidc] --> C[make tsb_mp];
-      C[make tsb_mp] --> D[make tsb_cp];
+      A[make azure_k8s] --> B[make tsb_deps]
+      A[make azure_k8s] --> Z[make app_bookinfo]
+      B[make tsb_deps] --> C[make tsb_mp]
+      Y[make azure_oidc] --> C[make tsb_mp]
+      C[make tsb_mp] --> D[make tsb_cp]
 ```
 The setup consists of
 
