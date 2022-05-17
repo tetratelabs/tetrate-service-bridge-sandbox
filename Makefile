@@ -35,6 +35,7 @@ keycloak:
 app_bookinfo:
 	@echo cluster_id is ${cluster_id}
 	terraform init
+	terraform taint -allow-missing "module.app_bookinfo"
 	terraform apply -auto-approve -target=module.app_bookinfo
 azure_oidc:
 	terraform init

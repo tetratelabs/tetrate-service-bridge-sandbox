@@ -12,6 +12,8 @@ The `Makefile` in this directory provides automated provisioning of k8s clusters
       C[make tsb_mp] --> D[make tsb_cp]
       C[make tsb_mp] --> F[make keycloak]
       D[make tsb_cp] --> E[make argocd]
+      D[make tsb_cp] --> Z[make app_bookinfo]
+      style Z fill:lightgrey
       style Y fill:lightgrey
       style E fill:lightgrey
       style F fill:lightgrey
@@ -24,8 +26,9 @@ The setup consists of
 
 * module.es             - deploys ECK on MP k8s cluster
 * module.cert-manager   - deploys cert-manager on MP k8s cluster
-* module.argocd         - deploys argoCD
+* module.argocd         - deploys argoCD and bookinfo using argoCD with related TSB components
 * module.keycloak       - deploys keycloak
+* module.app_bookinfo   - deploys bookinfo
 
 * module.tsb_mp         - responsible for TSB MP setup using Helm chart
 * module.tsb_cp         - responsible for TSB CP setup using Helm chart
