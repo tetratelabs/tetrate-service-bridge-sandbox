@@ -11,6 +11,7 @@ The `Makefile` in this directory provides automated provisioning of k8s clusters
       B[make tsb_deps] --> C[make tsb_mp]
       Y[make azure_oidc] --> C[make tsb_mp]
       C[make tsb_mp] --> D[make tsb_cp]
+      style Y fill:lightgrey
 ```
 The setup consists of
 
