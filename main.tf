@@ -1,8 +1,9 @@
 module "azure_base" {
-  source      = "./modules/azure/base"
-  name_prefix = var.name_prefix
-  location    = var.location
-  cidr        = var.cidr
+  source         = "./modules/azure/base"
+  name_prefix    = var.name_prefix
+  location       = var.location
+  cidr           = var.cidr
+  clusters_count = 1 + var.app_clusters_count
 }
 
 module "azure_jumpbox" {
@@ -11,7 +12,7 @@ module "azure_jumpbox" {
   location            = var.location
   resource_group_name = module.azure_base.resource_group_name
   cidr                = var.cidr
-  vnet_subnets        = module.azure_base.vnet_subnets
+  vnet_subnet         = module.azure_base.vnet_subnets[0]
   tsb_version         = var.tsb_version
   jumpbox_username    = var.jumpbox_username
   image-sync_username = var.image-sync_username
@@ -28,7 +29,7 @@ module "azure_k8s" {
   location            = var.location
   name_prefix         = var.name_prefix
   cluster_name        = "${substr(var.name_prefix, 0, min(length("${var.name_prefix}"), 6))}${count.index + 1}"
-  vnet_subnets        = module.azure_base.vnet_subnets
+  vnet_subnet         = module.azure_base.vnet_subnets[count.index]
   registry_id         = module.azure_base.registry_id
   depends_on          = [module.azure_jumpbox]
 }

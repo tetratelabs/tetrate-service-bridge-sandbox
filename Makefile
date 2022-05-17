@@ -36,9 +36,9 @@ azure_oidc:
 	terraform init
 	terraform apply -auto-approve -target=module.azure_oidc
 destroy:
-	terraform destroy -auto-approve -target=module.aws_dns
-	terraform destroy -auto-approve -target=module.azure_k8s
-	terraform destroy -auto-approve -target=module.azure_base
-	terraform destroy -auto-approve -target=module.azure_jumpbox
-	terraform destroy -auto-approve
+	terraform destroy -refresh=false -auto-approve -target=module.aws_dns
+	terraform destroy -refresh=false -auto-approve -target=module.azure_k8s
+	terraform destroy -refresh=false -auto-approve -target=module.azure_base
+	terraform destroy -refresh=false -auto-approve -target=module.azure_jumpbox
+	terraform destroy -refresh=false -auto-approve
 	terraform destroy 

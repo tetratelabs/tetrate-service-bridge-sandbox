@@ -10,12 +10,12 @@ resource "azurerm_kubernetes_cluster" "k8s" {
   private_cluster_enabled = false
 
   network_profile {
-    network_plugin = "kubenet"
+    network_plugin = "azure"
   }
 
   default_node_pool {
     name           = replace(var.cluster_name, "-", "")
-    vnet_subnet_id = var.vnet_subnets[0]
+    vnet_subnet_id = var.vnet_subnet
     # enable_auto_scaling = false
     # min_count = 1
     # max_count = 10

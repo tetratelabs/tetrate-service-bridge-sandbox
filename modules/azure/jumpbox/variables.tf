@@ -15,8 +15,8 @@ variable "cidr" {
   description = "cidr"
 }
 
-variable "vnet_subnets" {
-  description = "vnet subnet ids"
+variable "vnet_subnet" {
+  description = "vnet subnet id"
 }
 
 variable "registry" {

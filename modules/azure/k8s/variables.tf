@@ -14,8 +14,8 @@ variable "resource_group_name" {
   description = "resource group name"
 }
 
-variable "vnet_subnets" {
-  description = "vnet subnet ids"
+variable "vnet_subnet" {
+  description = "vnet subnet id"
 }
 
 variable "registry_id" {

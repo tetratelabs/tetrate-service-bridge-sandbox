@@ -74,7 +74,7 @@ resource "azurerm_network_interface" "jumpbox_nic" {
 
   ip_configuration {
     name                          = "${var.name_prefix}_jumpbox_ip"
-    subnet_id                     = var.vnet_subnets[0]
+    subnet_id                     = var.vnet_subnet
     private_ip_address_allocation = "Dynamic"
     public_ip_address_id          = azurerm_public_ip.jumpbox_public_ip.id
   }
