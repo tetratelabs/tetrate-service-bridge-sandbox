@@ -16,18 +16,12 @@ resource "helm_release" "argocd" {
   timeout          = 900
 
   set {
-    name  = "redis-ha.enabled"
-    value = "true"
-  }
-
-  set {
     name  = "controller.enableStatefulSet"
     value = "true"
   }
 
   set {
-    name  = "server.replicas"
-    value = 2
+    name  = "configs.secret.argocdServerAdminPassword"
+    value = bcrypt(var.tsb_password)
   }
-
 }
