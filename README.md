@@ -70,6 +70,10 @@ The completion of the above steps will result in:
 - output kubeconfig files for all the created aks clusters in format of: $cluster_name-kubeconfig
 - output IP address and private key for the jumpbox (ssh username: tsbadmin)
 
+### ArgoCD 
+
+* deploys bookinfo app under gitops-bookinfo namespace and exposes it over the ingress gateway as gitops-bookinfo.tetrate.io 
+
 When you are done with the environment, you can destroy it by running:
 
 ```bash
