@@ -103,8 +103,8 @@ resource "helm_release" "managementplane" {
   version             = var.tsb_helm_version
   namespace           = "tsb"
   timeout             = 900
-  repository_username = var.image-sync_username
-  repository_password = var.image-sync_apikey
+  repository_username = var.tsb_helm_username
+  repository_password = var.tsb_helm_password
 
   values = [data.template_file.managementplane_values.rendered]
   set {

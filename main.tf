@@ -7,19 +7,19 @@ module "azure_base" {
 }
 
 module "azure_jumpbox" {
-  source              = "./modules/azure/jumpbox"
-  name_prefix         = var.name_prefix
-  location            = var.location
-  resource_group_name = module.azure_base.resource_group_name
-  cidr                = var.cidr
-  vnet_subnet         = module.azure_base.vnet_subnets[0]
-  tsb_version         = var.tsb_version
-  jumpbox_username    = var.jumpbox_username
-  image-sync_username = var.image-sync_username
-  image-sync_apikey   = var.image-sync_apikey
-  registry            = module.azure_base.registry
-  registry_username   = module.azure_base.registry_username
-  registry_password   = module.azure_base.registry_password
+  source                  = "./modules/azure/jumpbox"
+  name_prefix             = var.name_prefix
+  location                = var.location
+  resource_group_name     = module.azure_base.resource_group_name
+  cidr                    = var.cidr
+  vnet_subnet             = module.azure_base.vnet_subnets[0]
+  tsb_version             = var.tsb_version
+  jumpbox_username        = var.jumpbox_username
+  tsb_image_sync_username = var.tsb_image_sync_username
+  tsb_image_sync_apikey   = var.tsb_image_sync_apikey
+  registry                = module.azure_base.registry
+  registry_username       = module.azure_base.registry_username
+  registry_password       = module.azure_base.registry_password
 }
 
 module "azure_k8s" {
@@ -81,8 +81,10 @@ module "tsb_mp" {
   tsb_org                    = var.tsb_org
   tsb_username               = var.tsb_username
   tsb_password               = var.tsb_password
-  image-sync_username        = var.image-sync_username
-  image-sync_apikey          = var.image-sync_apikey
+  tsb_image_sync_username    = var.tsb_image_sync_username
+  tsb_image_sync_apikey      = var.tsb_image_sync_apikey
+  tsb_helm_username          = var.tsb_helm_username != null ? var.tsb_helm_username : var.tsb_image_sync_username
+  tsb_helm_password          = var.tsb_helm_password != null ? var.tsb_helm_password : var.tsb_image_sync_apikey
   registry                   = module.azure_base.registry
   k8s_host                   = module.azure_k8s.0.host
   k8s_cluster_ca_certificate = module.azure_k8s.0.cluster_ca_certificate
@@ -108,8 +110,10 @@ module "tsb_cp" {
   tsb_cacert                 = module.tsb_mp.tsb_cacert
   istiod_cacerts_tls_crt     = module.tsb_mp.istiod_cacerts_tls_crt
   istiod_cacerts_tls_key     = module.tsb_mp.istiod_cacerts_tls_key
-  image-sync_username        = var.image-sync_username
-  image-sync_apikey          = var.image-sync_apikey
+  tsb_image_sync_username    = var.tsb_image_sync_username
+  tsb_image_sync_apikey      = var.tsb_image_sync_apikey
+  tsb_helm_username          = var.tsb_helm_username != null ? var.tsb_helm_username : var.tsb_image_sync_username
+  tsb_helm_password          = var.tsb_helm_password != null ? var.tsb_helm_password : var.tsb_image_sync_apikey
   registry                   = module.azure_base.registry
   es_host                    = module.tsb_mp.es_host
   es_username                = module.tsb_mp.es_username
@@ -119,7 +123,6 @@ module "tsb_cp" {
   k8s_cluster_ca_certificate = element(module.azure_k8s, var.cluster_id).cluster_ca_certificate
   k8s_client_certificate     = element(module.azure_k8s, var.cluster_id).client_certificate
   k8s_client_key             = element(module.azure_k8s, var.cluster_id).client_key
-
 }
 
 

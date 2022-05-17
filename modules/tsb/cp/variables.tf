@@ -43,10 +43,16 @@ variable "istiod_cacerts_tls_crt" {
 variable "istiod_cacerts_tls_key" {
 }
 
-variable "image-sync_username" {
+variable "tsb_image_sync_username" {
 }
 
-variable "image-sync_apikey" {
+variable "tsb_image_sync_apikey" {
+}
+
+variable "tsb_helm_username" {
+}
+
+variable "tsb_helm_password" {
 }
 variable "registry" {
 }

@@ -97,17 +97,16 @@ data "template_file" "jumpbox_userdata" {
   template = file("${path.module}/jumpbox.userdata")
 
   vars = {
-    jumpbox_username    = var.jumpbox_username
-    tsb_version         = var.tsb_version
-    image-sync_username = var.image-sync_username
-    image-sync_apikey   = var.image-sync_apikey
-    registry            = var.registry
-    registry_admin      = var.registry_username
-    registry_password   = var.registry_password
-    pubkey              = tls_private_key.generated.public_key_openssh
+    jumpbox_username        = var.jumpbox_username
+    tsb_version             = var.tsb_version
+    tsb_image_sync_username = var.tsb_image_sync_username
+    tsb_image_sync_apikey   = var.tsb_image_sync_apikey
+    registry                = var.registry
+    registry_admin          = var.registry_username
+    registry_password       = var.registry_password
+    pubkey                  = tls_private_key.generated.public_key_openssh
   }
 }
-
 
 resource "azurerm_linux_virtual_machine" "jumpbox" {
   name                  = "${var.name_prefix}-jumpbox"

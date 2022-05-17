@@ -100,8 +100,8 @@ resource "helm_release" "controlplane" {
   create_namespace    = true
   namespace           = "istio-system"
   timeout             = 900
-  repository_username = var.image-sync_username
-  repository_password = var.image-sync_apikey
+  repository_username = var.tsb_helm_username
+  repository_password = var.tsb_helm_password
 
   values = [data.template_file.controlplane_values.rendered]
 
@@ -147,8 +147,8 @@ resource "helm_release" "dataplane" {
   create_namespace    = true
   namespace           = "istio-gateway"
   timeout             = 900
-  repository_username = var.image-sync_username
-  repository_password = var.image-sync_apikey
+  repository_username = var.tsb_helm_username
+  repository_password = var.tsb_helm_password
 
   set {
     name  = "image.registry"

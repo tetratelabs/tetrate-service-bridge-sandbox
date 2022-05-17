@@ -10,10 +10,18 @@ variable "cidr" {
   description = "cidr"
 }
 
-variable "image-sync_username" {
+variable "tsb_image_sync_username" {
 }
 
-variable "image-sync_apikey" {
+variable "tsb_image_sync_apikey" {
+}
+
+variable "tsb_helm_username" {
+  default = null
+}
+
+variable "tsb_helm_password" {
+  default = null
 }
 
 variable "tsb_username" {

@@ -31,10 +31,10 @@ variable "registry_password" {
 variable "jumpbox_username" {
 }
 
-variable "image-sync_username" {
+variable "tsb_image_sync_username" {
 }
 
-variable "image-sync_apikey" {
+variable "tsb_image_sync_apikey" {
 }
 
 variable "tsb_version" {

@@ -29,10 +29,16 @@ variable "tsb_username" {
 variable "tsb_password" {
 }
 
-variable "image-sync_username" {
+variable "tsb_image_sync_username" {
 }
 
-variable "image-sync_apikey" {
+variable "tsb_image_sync_apikey" {
+}
+
+variable "tsb_helm_username" {
+}
+
+variable "tsb_helm_password" {
 }
 variable "registry" {
 }
