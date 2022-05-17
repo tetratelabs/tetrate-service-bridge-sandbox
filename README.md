@@ -4,8 +4,14 @@ The intention is to create azure-go-to demo... from deploying MP and CP using he
 
 The `Makefile` in this directory provides automated provisioning of k8s clusters with TSB installed on Azure. 
 
-![Workflow](workflow.jpg?raw=true "Workflow")
-
+```mermaid
+  graph TD;
+      make azure_k8s --> make tsb_deps;
+      make azure_k8s --> make app_bookinfo;
+      make tsb_deps --> make tsb_mp;
+      make azure_oidc --> make tsb_mp;
+      make tsb_mp --> make tsb_cp;
+```
 The setup consists of
 
 * module.azure_base     - deploys resource group, vnet and acr
@@ -60,7 +66,7 @@ The completion of the above steps will result in:
 - output TSB management plane endpoint
 - output kubeconfig files for all the created aks clusters in format of: $cluster_name-kubeconfig
 - output IP address and private key for the jumpbox (ssh username: tsbadmin)
-- 
+
 When you are done with the environment, you can destroy it by running:
 
 ```bash
