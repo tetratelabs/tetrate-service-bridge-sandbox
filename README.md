@@ -12,7 +12,7 @@ The `Makefile` in this directory provides automated provisioning of k8s clusters
       C[make tsb_mp] --> D[make tsb_cp]
       D[make tsb_cp] --> E[make argocd]
       style Y fill:lightgrey
-      style D fill:lightgrey
+      style E fill:lightgrey
 ```
 The setup consists of
 
@@ -73,6 +73,7 @@ The completion of the above steps will result in:
 ### ArgoCD 
 
 * deploys bookinfo app under gitops-bookinfo namespace and exposes it over the ingress gateway as gitops-bookinfo.tetrate.io 
+* argocd is exposed using ```LoadBalancer``` type ```k get svc -n argocd argo-cd-argocd-server```, the username is admin and password is the specified TSB admin password
 
 When you are done with the environment, you can destroy it by running:
 
