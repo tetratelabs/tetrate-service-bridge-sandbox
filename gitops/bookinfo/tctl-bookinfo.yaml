@@ -80,7 +80,7 @@ metadata:
     tsb.tetrate.io/organization: tetrate
     tsb.tetrate.io/tenant: dev
     tsb.tetrate.io/workspace: gitops-bookinfo-ws
-    tsb.tetrate.io/gatewayGroup: gitos-bookinfo-gg
+    tsb.tetrate.io/gatewayGroup: gitops-bookinfo-gg
 spec:
   workloadSelector:
     namespace: gitops-bookinfo
