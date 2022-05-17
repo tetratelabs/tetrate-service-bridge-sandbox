@@ -7,6 +7,9 @@ The `Makefile` in this directory provides automated provisioning of k8s clusters
 ```mermaid
   graph TD;
       azure_k8s --> tsb_deps;
+      azure_k8s : module.azure_base
+      azure_k8s : module.azure_jumpbox
+      azure_k8s : module.azure_k8s
       azure_k8s --> app_bookinfo;
       tsb_deps --> tsb_mp;
       azure_oidc --> tsb_mp;
