@@ -25,8 +25,9 @@ provider "kubernetes" {
 data "template_file" "cluster" {
   template = file("${path.module}/manifests/tsb/cluster.yaml.tmpl")
   vars = {
-    cluster_name = var.cluster_name
-    tsb_org      = var.tsb_org
+    cluster_name  = var.cluster_name
+    tsb_org       = var.tsb_org
+    tier1_cluster = var.tier1_cluster
   }
 }
 

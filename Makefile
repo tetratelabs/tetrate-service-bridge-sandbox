@@ -27,7 +27,6 @@ tsb_cp:
 	terraform init
 	terraform taint -allow-missing "module.tsb_cp.null_resource.jumpbox_tctl"
 	terraform apply -auto-approve -target=module.tsb_cp -var=cluster_id=${cluster_id}
-	terraform apply -auto-approve -target=module.argocd -var=cluster_id=${cluster_id}
 argocd:
 	@echo cluster_id is ${cluster_id}
 	terraform apply -auto-approve -target=module.argocd -var=cluster_id=${cluster_id}
