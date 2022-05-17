@@ -93,5 +93,5 @@ spec:
       routing:
         rules:
           - route:
-              host: productpage.gitops-bookinfo.svc.cluster.local"
-              port: 80
+              host: "gitops-bookinfo/productpage.gitops-bookinfo.svc.cluster.local"
+              port: 9080
