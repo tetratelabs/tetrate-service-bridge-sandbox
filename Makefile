@@ -2,6 +2,7 @@
 # 
 # Default variables
 cluster_id = 1
+cloud = azure
 # Functions
 azure_jumpbox:
 	terraform init
@@ -23,20 +24,23 @@ tsb_mp:
 tsb_fqdn:
 	terraform apply -auto-approve -target=module.aws_dns
 tsb_cp:
-	@echo cluster_id is ${cluster_id}
+	@echo cluster_id is ${cluster_id} 
+	@echo cloud is ${cloud}
 	terraform init
 	terraform taint -allow-missing "module.tsb_cp.null_resource.jumpbox_tctl"
-	terraform apply -auto-approve -target=module.tsb_cp -var=cluster_id=${cluster_id}
+	terraform apply -auto-approve -target=module.tsb_cp -var=cluster_id=${cluster_id} -var=cloud=${cloud}
 argocd:
-	@echo cluster_id is ${cluster_id}
-	terraform apply -auto-approve -target=module.argocd -var=cluster_id=${cluster_id}
+	@echo cluster_id is ${cluster_id} 
+	@echo cloud is ${cloud}
+	terraform apply -auto-approve -target=module.argocd -var=cluster_id=${cluster_id} -var=cloud=${cloud}
 keycloak:
 	terraform apply -auto-approve -target=module.keycloak -var=cluster_id=0
 app_bookinfo:
-	@echo cluster_id is ${cluster_id}
+	@echo cluster_id is ${cluster_id} 
+	@echo cloud is ${cloud}
 	terraform init
 	terraform taint -allow-missing "module.app_bookinfo"
-	terraform apply -auto-approve -target=module.app_bookinfo
+	terraform apply -auto-approve -target=module.app_bookinfo -var=cluster_id=${cluster_id} -var=cloud=${cloud}
 azure_oidc:
 	terraform init
 	terraform apply -auto-approve -target=module.azure_oidc

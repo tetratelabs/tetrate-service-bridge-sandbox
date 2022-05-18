@@ -7,6 +7,14 @@ output "cluster_ca_certificate" {
   value = base64decode(module.eks.cluster_certificate_authority_data)
 }
 
+/* output "client_certificate" {
+  value = azurerm_kubernetes_cluster.k8s.kube_config.0.client_certificate
+}
+
+output "client_key" {
+  value = azurerm_kubernetes_cluster.k8s.kube_config.0.client_key
+} */
+
 output "token" {
   value = data.aws_eks_cluster_auth.cluster.token
 }

@@ -1,3 +1,7 @@
+variable "cloud" {
+  default = "azure"
+}
+
 variable "name_prefix" {
   description = "name prefix"
 }
