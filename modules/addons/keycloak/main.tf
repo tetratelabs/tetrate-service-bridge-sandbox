@@ -21,7 +21,7 @@ resource "helm_release" "keycloak" {
   chart            = "keycloak"
   create_namespace = true
   namespace        = "keycloak"
-  timeout          = 900
+  timeout          = 300
   description      = var.cluster_name
 
   set {
@@ -40,5 +40,8 @@ resource "helm_release" "keycloak" {
     name  = "service.type"
     value = "LoadBalancer"
   }
-
+  set {
+    name  = "externalDatabase.password"
+    value = var.tsb_password
+  }
 }
