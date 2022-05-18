@@ -12,7 +12,7 @@ users:
     gecos: TSB
     lock_passwd: true
     shell: /bin/bash
-    sudo:  ALL=(ALL) NOPASSWD:ALL
+    sudo: ALL=(ALL) NOPASSWD:ALL
     groups: admin, docker
     ssh_authorized_keys:
       - ${pubkey}
@@ -28,8 +28,8 @@ write_files:
       aws ecr get-login-password --region $region | docker login --username AWS --password-stdin "${registry}"
       install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl
       tctl install image-sync \
-        --username "${image-sync_username}" \
-        --apikey "${image-sync_apikey}" \
+        --username "${tsb_image_sync_username}" \
+        --apikey "${tsb_image_sync_apikey}" \
         --registry "${registry}" \
         --accept-eula
       touch /tmp/cloud-init.done

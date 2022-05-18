@@ -198,12 +198,12 @@ data "template_file" "jumpbox_userdata" {
   template = file("${path.module}/jumpbox.userdata")
 
   vars = {
-    jumpbox_username    = var.jumpbox_username
-    tsb_version         = var.tsb_version
-    image-sync_username = var.image-sync_username
-    image-sync_apikey   = var.image-sync_apikey
-    registry            = var.registry
-    pubkey              = tls_private_key.generated.public_key_openssh
+    jumpbox_username             = var.jumpbox_username
+    tsb_version                  = var.tsb_version
+    tsb_image_sync-sync_username = var.tsb_image_sync_username
+    tsb_image_sync-sync_apikey   = var.tsb_image_sync_apikey
+    registry                     = var.registry
+    pubkey                       = tls_private_key.generated.public_key_openssh
   }
 }
 
@@ -213,7 +213,7 @@ data "aws_ami" "ubuntu" {
 
   filter {
     name   = "name"
-    values = ["ubuntu/images/hvm-ssd/ubuntu-focal-20.04-amd64-server-*"]
+    values = ["ubuntu/tsb_image_syncs/hvm-ssd/ubuntu-focal-20.04-amd64-server-*"]
   }
 
   filter {
