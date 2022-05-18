@@ -13,7 +13,7 @@ spec:
     directory:
       recurse: true
     path: gitops/bookinfo
-    repoURL: https://github.com/smarunich/azure-tsb-tf-demo.git
+    repoURL: https://github.com/smarunich/tetrate-service-bridge-sandbox.git
     targetRevision: main
   syncPolicy:
     automated:
