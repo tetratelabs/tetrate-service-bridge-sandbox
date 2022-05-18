@@ -34,6 +34,34 @@ module "azure_k8s" {
   depends_on          = [module.azure_jumpbox]
 }
 
+module "aws_base" {
+  source      = "./modules/aws/base"
+  name_prefix = var.name_prefix
+  cidr        = var.cidr
+}
+
+module "aws_jumpbox" {
+  source                  = "./modules/aws/jumpbox"
+  name_prefix             = var.name_prefix
+  vpc_id                  = module.aws_base.vpc_id
+  vpc_subnets             = module.aws_base.vpc_subnets
+  cidr                    = var.cidr
+  tsb_version             = var.tsb_version
+  jumpbox_username        = var.jumpbox_username
+  tsb_image_sync_username = var.tsb_image_sync_username
+  tsb_image_sync_apikey   = var.tsb_image_sync_apikey
+  registry                = module.aws_base.registry
+}
+module "aws_k8s" {
+  count        = var.app_clusters_count
+  source       = "./modules/aws/k8s"
+  vpc_id       = module.aws_base.vpc_id
+  vpc_subnets  = module.aws_base.vpc_subnets
+  name_prefix  = var.name_prefix
+  cluster_name = "${var.name_prefix}-eks-${count.index + 1}"
+  depends_on   = [module.aws_jumpbox]
+}
+
 module "cert-manager" {
   source                     = "./modules/addons/cert-manager"
   k8s_host                   = module.azure_k8s.0.host
