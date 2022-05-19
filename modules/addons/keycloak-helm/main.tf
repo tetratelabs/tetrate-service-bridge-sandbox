@@ -7,17 +7,16 @@ provider "helm" {
   }
 }
 
-provider "kubectl" {
+provider "kubernetes" {
   host                   = var.k8s_host
   cluster_ca_certificate = base64decode(var.k8s_cluster_ca_certificate)
   client_certificate     = base64decode(var.k8s_client_certificate)
   client_key             = base64decode(var.k8s_client_key)
-  load_config_file       = false
 }
 
 resource "helm_release" "keycloak" {
   name             = "keycloak"
-  repository       = "https://charts.bitnami.com/bitnami"
+  repository       = "https://codecentric.github.io/helm-charts"
   chart            = "keycloak"
   create_namespace = true
   namespace        = "keycloak"
@@ -25,23 +24,27 @@ resource "helm_release" "keycloak" {
   description      = var.cluster_name
 
   set {
-    name  = "auth.createAdminUser"
-    value = "true"
-  }
-  set {
-    name  = "auth.adminUser"
-    value = "admin"
-  }
-  set {
-    name  = "auth.adminPassword"
-    value = var.tsb_password
-  }
-  set {
     name  = "service.type"
     value = "LoadBalancer"
   }
   set {
-    name  = "externalDatabase.password"
-    value = var.tsb_password
+    name  = "extraEnv"
+    value = <<EOF
+- name: KEYCLOAK_USER
+  value: admin
+- name: KEYCLOAK_PASSWORD
+  value: ${var.password}
+- name: KEYCLOAK_LOGLEVEL
+  value: DEBUG
+EOF
   }
 }
+
+data "kubernetes_service" "keycloak" {
+  metadata {
+    name      = "keycloak-http"
+    namespace = "keycloak"
+  }
+  depends_on = [helm_release.keycloak]
+}
+

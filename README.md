@@ -28,8 +28,11 @@ The setup consists of
 
 * module.es             - deploys ECK on MP k8s cluster
 * module.cert-manager   - deploys cert-manager on MP k8s cluster
-* module.argocd         - deploys argoCD and bookinfo using argoCD with related TSB components
-* module.keycloak       - deploys keycloak
+* module.argocd         - deploys argoCD
+   bookinfo demo app using ArgoCD with related TSB components
+   grpc demo app using ArgoCD with related TSB components
+* module.keycloak-helm      - deploys keycloak
+* module.keycloak-provider  - configs keycloak for JWT-based external authorization demo
 * module.app_bookinfo   - deploys bookinfo
 
 * module.tsb_mp         - responsible for TSB MP setup using Helm chart

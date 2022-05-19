@@ -86,19 +86,27 @@ module "argocd" {
   k8s_cluster_ca_certificate = element(module.azure_k8s, var.cluster_id).cluster_ca_certificate
   k8s_client_certificate     = element(module.azure_k8s, var.cluster_id).client_certificate
   k8s_client_key             = element(module.azure_k8s, var.cluster_id).client_key
-  tsb_password               = var.tsb_password
+  password                   = var.tsb_password
 }
 
 
-module "keycloak" {
-  source                     = "./modules/addons/keycloak"
+module "keycloak-helm" {
+  source                     = "./modules/addons/keycloak-helm"
   cluster_name               = element(module.azure_k8s, var.cluster_id).cluster_name
   k8s_host                   = element(module.azure_k8s, var.cluster_id).host
   k8s_cluster_ca_certificate = element(module.azure_k8s, var.cluster_id).cluster_ca_certificate
   k8s_client_certificate     = element(module.azure_k8s, var.cluster_id).client_certificate
   k8s_client_key             = element(module.azure_k8s, var.cluster_id).client_key
-  tsb_password               = var.tsb_password
+  password                   = var.tsb_password
 }
+
+module "keycloak-provider" {
+  source   = "./modules/addons/keycloak-provider"
+  endpoint = "http://${module.keycloak-helm.host}"
+  username = module.keycloak-helm.username
+  password = module.keycloak-helm.password
+}
+
 
 module "aws_dns" {
   source      = "./modules/aws/dns"

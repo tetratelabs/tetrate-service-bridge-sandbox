@@ -34,7 +34,7 @@ argocd:
 	@echo cloud is ${cloud}
 	terraform apply -auto-approve -target=module.argocd -var=cluster_id=${cluster_id} -var=cloud=${cloud}
 keycloak:
-	terraform apply -auto-approve -target=module.keycloak -var=cluster_id=0
+	terraform apply -auto-approve -target=module.keycloak-helm -var=cluster_id=0
 app_bookinfo:
 	@echo cluster_id is ${cluster_id} 
 	@echo cloud is ${cloud}
