@@ -22,6 +22,22 @@ provider "kubernetes" {
   client_key             = base64decode(var.k8s_client_key)
 }
 
+resource "time_sleep" "warmup_90_seconds" {
+  create_duration = "90s"
+}
+
+data "kubectl_path_documents" "manifests_certs" {
+  pattern = "${path.module}/manifests/cert-manager/certs.yaml.tmpl"
+  vars = {
+    tsb_fqdn = var.tsb_fqdn
+  }
+}
+
+resource "kubectl_manifest" "manifests_certs" {
+  count     = length(data.kubectl_path_documents.manifests_certs.documents)
+  yaml_body = element(data.kubectl_path_documents.manifests_certs.documents, count.index)
+}
+
 resource "kubernetes_namespace" "tsb" {
   metadata {
     name = "tsb"
@@ -35,6 +51,7 @@ data "kubernetes_secret" "selfsigned_ca" {
     name      = "selfsigned-ca"
     namespace = "cert-manager"
   }
+  depends_on = [time_sleep.warmup_90_seconds]
 }
 
 data "kubernetes_secret" "tsb_server_cert" {
@@ -42,6 +59,7 @@ data "kubernetes_secret" "tsb_server_cert" {
     name      = "tsb-server-cert"
     namespace = "cert-manager"
   }
+  depends_on = [time_sleep.warmup_90_seconds]
 }
 
 data "kubernetes_secret" "istiod_cacerts" {
@@ -49,6 +67,7 @@ data "kubernetes_secret" "istiod_cacerts" {
     name      = "istiod-cacerts"
     namespace = "cert-manager"
   }
+  depends_on = [time_sleep.warmup_90_seconds]
 }
 data "kubernetes_secret" "es_password" {
   metadata {

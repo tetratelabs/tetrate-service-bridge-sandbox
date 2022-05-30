@@ -64,11 +64,10 @@ module "aws_k8s" {
 
 module "cert-manager" {
   source                     = "./modules/addons/cert-manager"
-  k8s_host                   = module.azure_k8s.0.host
-  k8s_cluster_ca_certificate = module.azure_k8s.0.cluster_ca_certificate
-  k8s_client_certificate     = module.azure_k8s.0.client_certificate
-  k8s_client_key             = module.azure_k8s.0.client_key
-  tsb_fqdn                   = var.tsb_fqdn
+  k8s_host                   = element(module.azure_k8s, var.cluster_id).host
+  k8s_cluster_ca_certificate = element(module.azure_k8s, var.cluster_id).cluster_ca_certificate
+  k8s_client_certificate     = element(module.azure_k8s, var.cluster_id).client_certificate
+  k8s_client_key             = element(module.azure_k8s, var.cluster_id).client_key
 }
 
 module "es" {
