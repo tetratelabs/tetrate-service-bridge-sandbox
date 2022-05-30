@@ -32,7 +32,10 @@ resource "helm_release" "cert_manager" {
     name  = "installCRDs"
     value = "true"
   }
-
+  set {
+    name  = "featureGates"
+    value = "ExperimentalCertificateSigningRequestControllers=true"
+  }
 }
 
 resource "time_sleep" "wait_90_seconds" {
