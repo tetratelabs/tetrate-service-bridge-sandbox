@@ -138,29 +138,6 @@ resource "time_sleep" "wait_90_seconds" {
   create_duration = "90s"
 }
 
-resource "null_resource" "jumpbox_kubectl" {
-  connection {
-    host        = var.jumpbox_host
-    type        = "ssh"
-    agent       = false
-    user        = var.jumpbox_username
-    private_key = var.jumpbox_pkey
-  }
-
-  provisioner "file" {
-    source      = "${var.cluster_name}-kubeconfig"
-    destination = "${var.cluster_name}-kubeconfig"
-  }
-  provisioner "remote-exec" {
-
-    inline = [
-      "kubectl --kubeconfig ${var.cluster_name}-kubeconfig create job -n tsb teamsync-bootstrap --from=cronjob/teamsync"
-    ]
-  }
-
-  depends_on = [time_sleep.wait_90_seconds]
-}
-
 data "kubernetes_service" "tsb" {
   metadata {
     name      = "envoy"

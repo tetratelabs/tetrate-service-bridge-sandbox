@@ -5,7 +5,7 @@ resource "azurerm_kubernetes_cluster" "k8s" {
 
   dns_prefix = var.cluster_name
 
-  kubernetes_version      = "1.21.9"
+  kubernetes_version      = "1.22.6"
   sku_tier                = "Free"
   private_cluster_enabled = false
 
