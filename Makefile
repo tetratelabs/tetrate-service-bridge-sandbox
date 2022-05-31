@@ -19,7 +19,7 @@ tsb_deps:
 	terraform apply -auto-approve -target=module.es
 tsb_mp:
 	terraform init
-	terraform apply -auto-approve -target=module.tsb_mp.kubectl_manifest.manifests_cert
+	terraform apply -auto-approve -target=module.tsb_mp.kubectl_manifest.manifests_certs
 	terraform apply -auto-approve -target=module.tsb_mp
 	terraform apply -auto-approve -target=module.aws_dns
 tsb_fqdn:
@@ -28,9 +28,9 @@ tsb_cp:
 	@echo cluster_id is ${cluster_id} 
 	@echo cloud is ${cloud}
 	terraform init
+	terraform taint -allow-missing "module.cert-manager"
 	terraform apply -auto-approve -target=module.cert-manager -var=cluster_id=${cluster_id} 
 	terraform taint -allow-missing "module.tsb_cp.null_resource.jumpbox_tctl"
-	terraform taint -allow-missing "module.cert-manager.time_sleep.wait_90_seconds"
 	terraform apply -auto-approve -target=module.tsb_cp -var=cluster_id=${cluster_id} -var=cloud=${cloud}
 argocd:
 	@echo cluster_id is ${cluster_id} 
