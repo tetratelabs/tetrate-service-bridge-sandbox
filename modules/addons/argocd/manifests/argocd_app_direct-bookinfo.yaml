@@ -1,0 +1,21 @@
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: gitops-direct-bookinfo
+  namespace: argocd
+spec:
+  destination:
+    namespace: gitops-direct-bookinfo
+    server: https://kubernetes.default.svc
+  project: default
+  source:
+    directory:
+      recurse: true
+    path: gitops/bookinfo-direct
+    repoURL: https://github.com/smarunich/tetrate-service-bridge-sandbox.git
+    targetRevision: main
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true

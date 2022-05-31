@@ -1,0 +1,118 @@
+---
+apiVersion: tsb.tetrate.io/v2
+kind: Tenant
+metadata:
+  name: stg
+  annotations:
+    tsb.tetrate.io/organization: tetrate
+spec:
+  description: stg
+---
+apiVersion: tsb.tetrate.io/v2
+kind: Workspace
+metadata:
+  name: gitops-direct-bookinfo-ws
+  annotations:
+    tsb.tetrate.io/organization: tetrate
+    tsb.tetrate.io/tenant: stg
+spec:
+  namespaceSelector:
+    names:
+      - "*/gitops-direct-bookinfo"
+---
+apiVersion: gateway.tsb.tetrate.io/v2
+kind: Group
+metadata:
+  name: gitops-direct-bookinfo-gg
+  annotations:
+    tsb.tetrate.io/organization: tetrate
+    tsb.tetrate.io/tenant: stg
+    tsb.tetrate.io/workspace: gitops-direct-bookinfo-ws
+spec:
+  namespaceSelector:
+    names:
+      - "*/gitops-direct-bookinfo"
+  configMode: BRIDGED
+---
+apiVersion: traffic.tsb.tetrate.io/v2
+kind: Group
+metadata:
+  name: gitops-direct-bookinfo-tg
+  annotations:
+    tsb.tetrate.io/organization: tetrate
+    tsb.tetrate.io/tenant: stg
+    tsb.tetrate.io/workspace: gitops-direct-bookinfo-ws
+spec:
+  namespaceSelector:
+    names:
+      - "*/gitops-direct-bookinfo"
+  configMode: BRIDGED
+---
+apiVersion: security.tsb.tetrate.io/v2
+kind: Group
+metadata:
+  name: gitops-direct-bookinfo-sg
+  annotations:
+    tsb.tetrate.io/organization: tetrate
+    tsb.tetrate.io/tenant: stg
+    tsb.tetrate.io/workspace: gitops-direct-bookinfo-ws
+spec:
+  namespaceSelector:
+    names:
+      - "*/gitops-direct-bookinfo"
+  configMode: BRIDGED
+---
+apiVersion: install.tetrate.io/v1alpha1
+kind: IngressGateway
+metadata:
+  name: gitops-direct-bookinfo-gw
+  namespace: gitops-direct-bookinfo
+spec:
+  kubeSpec:
+    service:
+      type: LoadBalancer
+---
+apiVersion: networking.istio.io/v1alpha3
+kind: Gateway
+metadata:
+  name: gitops-direct-bookinfo-gw
+  namespace: gitops-direct-bookinfo
+  labels:
+    istio.io/rev: "tsb"
+  annotations:
+    tsb.tetrate.io/organization: tetrate
+    tsb.tetrate.io/tenant: stg
+    tsb.tetrate.io/workspace: gitops-direct-bookinfo-ws
+    tsb.tetrate.io/gatewayGroup: gitops-direct-bookinfo-gg
+spec:
+  selector:
+    app: gitops-direct-bookinfo-gw
+  servers:
+    - port:
+        number: 80
+        name: http
+        protocol: HTTP
+      hosts:
+        - "gitops-direct-bookinfo.tetrate.io"
+---
+apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
+metadata:
+  name: e2e-gitops-obstester-vs
+  namespace: gitops-direct-bookinfo
+  labels:
+    istio.io/rev: "tsb"
+  annotations:
+    tsb.tetrate.io/organization: tetrate
+    tsb.tetrate.io/tenant: stg
+    tsb.tetrate.io/workspace: gitops-direct-bookinfo-ws
+    tsb.tetrate.io/gatewayGroup: gitops-direct-bookinfo-gg
+spec:
+  hosts:
+    - "gitops-direct-bookinfo.tetrate.io"
+  gateways:
+    - gitops-direct-bookinfo-gw
+  http:
+    - route:
+        - destination:
+            host: productpage
