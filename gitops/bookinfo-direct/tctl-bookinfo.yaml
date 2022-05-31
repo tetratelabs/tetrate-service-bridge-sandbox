@@ -32,7 +32,7 @@ spec:
   namespaceSelector:
     names:
       - "*/gitops-direct-bookinfo"
-  configMode: BRIDGED
+  configMode: DIRECT
 ---
 apiVersion: traffic.tsb.tetrate.io/v2
 kind: Group
@@ -46,7 +46,7 @@ spec:
   namespaceSelector:
     names:
       - "*/gitops-direct-bookinfo"
-  configMode: BRIDGED
+  configMode: DIRECT
 ---
 apiVersion: security.tsb.tetrate.io/v2
 kind: Group
@@ -60,7 +60,7 @@ spec:
   namespaceSelector:
     names:
       - "*/gitops-direct-bookinfo"
-  configMode: BRIDGED
+  configMode: DIRECT
 ---
 apiVersion: install.tetrate.io/v1alpha1
 kind: IngressGateway
