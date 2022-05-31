@@ -106,7 +106,7 @@ metadata:
     tsb.tetrate.io/organization: tetrate
     tsb.tetrate.io/tenant: stg
     tsb.tetrate.io/workspace: gitops-direct-bookinfo-ws
-    tsb.tetrate.io/gatewayGroup: gitops-direct-bookinfo-tg
+    tsb.tetrate.io/trafficGroup: gitops-direct-bookinfo-tg
 spec:
   host: productpage
   subsets:
