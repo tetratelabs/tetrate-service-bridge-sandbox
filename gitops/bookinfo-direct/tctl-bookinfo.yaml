@@ -98,7 +98,7 @@ spec:
 apiVersion: networking.istio.io/v1alpha3
 kind: VirtualService
 metadata:
-  name: e2e-gitops-obstester-vs
+  name: gitops-direct-bookinfo-vs
   namespace: gitops-direct-bookinfo
   labels:
     istio.io/rev: "tsb"
