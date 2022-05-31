@@ -96,6 +96,25 @@ spec:
         - "gitops-direct-bookinfo.tetrate.io"
 ---
 apiVersion: networking.istio.io/v1alpha3
+kind: DestinationRule
+metadata:
+  name: gitops-direct-bookinfo-dr
+  namespace: gitops-direct-bookinfo
+  labels:
+    istio.io/rev: "tsb"
+  annotations:
+    tsb.tetrate.io/organization: tetrate
+    tsb.tetrate.io/tenant: stg
+    tsb.tetrate.io/workspace: gitops-direct-bookinfo-ws
+    tsb.tetrate.io/gatewayGroup: gitops-direct-bookinfo-tg
+spec:
+  host: productpage
+  subsets:
+    - name: v1
+      labels:
+        version: v1
+---
+apiVersion: networking.istio.io/v1alpha3
 kind: VirtualService
 metadata:
   name: gitops-direct-bookinfo-vs
@@ -116,3 +135,4 @@ spec:
     - route:
         - destination:
             host: productpage
+            subset: v1
