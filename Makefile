@@ -15,10 +15,11 @@ azure_k8s:
 	terraform apply -auto-approve -target=module.azure_k8s
 tsb_deps:
 	terraform init
-	terraform apply -auto-approve -target=module.cert-manager
+	terraform apply -auto-approve -target=module.cert-manager -var=cluster_id=0
 	terraform apply -auto-approve -target=module.es
 tsb_mp:
 	terraform init
+	terraform apply -auto-approve -target=module.tsb_mp.kubectl_manifest.manifests_certs
 	terraform apply -auto-approve -target=module.tsb_mp
 	terraform apply -auto-approve -target=module.aws_dns
 tsb_fqdn:
@@ -27,6 +28,8 @@ tsb_cp:
 	@echo cluster_id is ${cluster_id} 
 	@echo cloud is ${cloud}
 	terraform init
+	terraform state list | grep "^module.cert-manager" | grep -v data | tr -d ':' | xargs -I '{}' terraform taint {}
+	terraform apply -auto-approve -target=module.cert-manager -var=cluster_id=${cluster_id} 
 	terraform taint -allow-missing "module.tsb_cp.null_resource.jumpbox_tctl"
 	terraform apply -auto-approve -target=module.tsb_cp -var=cluster_id=${cluster_id} -var=cloud=${cloud}
 argocd:
@@ -39,7 +42,7 @@ app_bookinfo:
 	@echo cluster_id is ${cluster_id} 
 	@echo cloud is ${cloud}
 	terraform init
-	terraform taint -allow-missing "module.app_bookinfo"
+	terraform state list | grep "^module.app_bookinfo" | grep -v data | tr -d ':' | xargs -I '{}' terraform taint {}
 	terraform apply -auto-approve -target=module.app_bookinfo -var=cluster_id=${cluster_id} -var=cloud=${cloud}
 azure_oidc:
 	terraform init

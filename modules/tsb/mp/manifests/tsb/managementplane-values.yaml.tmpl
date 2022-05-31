@@ -5,9 +5,6 @@ secrets:
   tsb:
     adminPassword: ${tsb_password}
   xcp: 
-    authModes:
-      jwt: true
-      mtls: false
     autoGenerateCerts: true
     central: 
       additionalDNSNames: 
@@ -18,7 +15,7 @@ secrets:
   ldap:
     binddn: ${ldap_binddn}
     bindpassword: ${ldap_bindpassword}
-  postgres:
+  postgres: 
     username: ${db_username}
     password: ${db_password}
 spec:
@@ -31,3 +28,11 @@ spec:
       version: 7
       selfSigned: true
       protocol: https
+  components:
+    xcp:
+      centralAuthModes:
+        jwt: true
+    internalCertProvider:
+        certManager:
+          managed: EXTERNAL
+        

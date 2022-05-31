@@ -22,6 +22,22 @@ provider "kubernetes" {
   client_key             = base64decode(var.k8s_client_key)
 }
 
+resource "time_sleep" "warmup_90_seconds" {
+  create_duration = "90s"
+}
+
+data "kubectl_path_documents" "manifests_certs" {
+  pattern = "${path.module}/manifests/cert-manager/certs.yaml.tmpl"
+  vars = {
+    tsb_fqdn = var.tsb_fqdn
+  }
+}
+
+resource "kubectl_manifest" "manifests_certs" {
+  count     = length(data.kubectl_path_documents.manifests_certs.documents)
+  yaml_body = element(data.kubectl_path_documents.manifests_certs.documents, count.index)
+}
+
 resource "kubernetes_namespace" "tsb" {
   metadata {
     name = "tsb"
@@ -35,6 +51,7 @@ data "kubernetes_secret" "selfsigned_ca" {
     name      = "selfsigned-ca"
     namespace = "cert-manager"
   }
+  depends_on = [time_sleep.warmup_90_seconds]
 }
 
 data "kubernetes_secret" "tsb_server_cert" {
@@ -42,6 +59,7 @@ data "kubernetes_secret" "tsb_server_cert" {
     name      = "tsb-server-cert"
     namespace = "cert-manager"
   }
+  depends_on = [time_sleep.warmup_90_seconds]
 }
 
 data "kubernetes_secret" "istiod_cacerts" {
@@ -49,6 +67,7 @@ data "kubernetes_secret" "istiod_cacerts" {
     name      = "istiod-cacerts"
     namespace = "cert-manager"
   }
+  depends_on = [time_sleep.warmup_90_seconds]
 }
 data "kubernetes_secret" "es_password" {
   metadata {
@@ -133,32 +152,9 @@ resource "helm_release" "managementplane" {
 
 }
 
-resource "time_sleep" "wait_90_seconds" {
+resource "time_sleep" "wait_180_seconds" {
   depends_on      = [helm_release.managementplane]
-  create_duration = "90s"
-}
-
-resource "null_resource" "jumpbox_kubectl" {
-  connection {
-    host        = var.jumpbox_host
-    type        = "ssh"
-    agent       = false
-    user        = var.jumpbox_username
-    private_key = var.jumpbox_pkey
-  }
-
-  provisioner "file" {
-    source      = "${var.cluster_name}-kubeconfig"
-    destination = "${var.cluster_name}-kubeconfig"
-  }
-  provisioner "remote-exec" {
-
-    inline = [
-      "kubectl --kubeconfig ${var.cluster_name}-kubeconfig create job -n tsb teamsync-bootstrap --from=cronjob/teamsync"
-    ]
-  }
-
-  depends_on = [time_sleep.wait_90_seconds]
+  create_duration = "180s"
 }
 
 data "kubernetes_service" "tsb" {
@@ -166,5 +162,5 @@ data "kubernetes_service" "tsb" {
     name      = "envoy"
     namespace = "tsb"
   }
-  depends_on = [time_sleep.wait_90_seconds]
+  depends_on = [time_sleep.wait_180_seconds]
 }
