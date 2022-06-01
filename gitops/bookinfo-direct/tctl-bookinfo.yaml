@@ -80,6 +80,8 @@ metadata:
   labels:
     istio.io/rev: "tsb"
   annotations:
+    argocd.argoproj.io/compare-options: IgnoreExtraneous
+    argocd.argoproj.io/sync-options: Prune=false
     tsb.tetrate.io/organization: tetrate
     tsb.tetrate.io/tenant: stg
     tsb.tetrate.io/workspace: gitops-direct-bookinfo-ws
@@ -103,6 +105,8 @@ metadata:
   labels:
     istio.io/rev: "tsb"
   annotations:
+    argocd.argoproj.io/compare-options: IgnoreExtraneous
+    argocd.argoproj.io/sync-options: Prune=false
     tsb.tetrate.io/organization: tetrate
     tsb.tetrate.io/tenant: stg
     tsb.tetrate.io/workspace: gitops-direct-bookinfo-ws
@@ -122,6 +126,8 @@ metadata:
   labels:
     istio.io/rev: "tsb"
   annotations:
+    argocd.argoproj.io/compare-options: IgnoreExtraneous
+    argocd.argoproj.io/sync-options: Prune=false
     tsb.tetrate.io/organization: tetrate
     tsb.tetrate.io/tenant: stg
     tsb.tetrate.io/workspace: gitops-direct-bookinfo-ws
