@@ -95,3 +95,11 @@ spec:
           - route:
               host: "gitops-bookinfo/productpage.gitops-bookinfo.svc.cluster.local"
               port: 9080
+    - name: details
+      port: 80
+      hostname: "gitops-details.tetrate.io"
+      routing:
+        rules:
+          - route:
+              host: "gitops-bookinfo/details.gitops-bookinfo.svc.cluster.local"
+              port: 9080
