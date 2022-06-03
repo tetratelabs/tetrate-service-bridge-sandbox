@@ -335,9 +335,12 @@ spec:
     spec:
       serviceAccountName: bookinfo-productpage
       containers:
-        - name: productpage
-          image: docker.io/istio/examples-bookinfo-productpage-v1:1.16.2
-          imagePullPolicy: IfNotPresent
+      - env:
+        - name: DETAILS_HOSTNAME
+          value: details.tetrate.com
+        image: docker.io/chirauki/productpage
+        imagePullPolicy: IfNotPresent
+        name: productpage
           ports:
             - containerPort: 9080
           volumeMounts:
