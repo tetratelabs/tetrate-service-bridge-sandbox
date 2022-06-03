@@ -337,7 +337,7 @@ spec:
       containers:
       - env:
         - name: DETAILS_HOSTNAME
-          value: details.tetrate.com
+          value: gitops-details.tetrate.io
         image: docker.io/chirauki/productpage
         imagePullPolicy: IfNotPresent
         name: productpage
