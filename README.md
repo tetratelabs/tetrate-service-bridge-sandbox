@@ -66,7 +66,7 @@ To stand up the demo continue with the steps below:
 # setup modules
 make init
 # setup underlying clusters
-make azure_k8s
+make k8s
 # deploy TSB dependecies such as elastic, cert-manager
 make tsb_deps
 # deploy TSB MP using Helm chart
