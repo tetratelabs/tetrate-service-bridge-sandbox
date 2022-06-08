@@ -13,11 +13,9 @@ The `Makefile` in this directory provides automated provisioning of k8s clusters
       Y[make azure_oidc] --> C[make tsb_mp]
       C[make tsb_mp] --> D[make tsb_cp]
       C[make tsb_mp] --> F[make keycloak]
-      D[make tsb_cp] --> E[make argocd]
-      D[make tsb_cp] --> Z[make app_bookinfo]
-      style Z fill:lightgrey
+      D[make tsb_cp cluster_id=0|N cloud=azure|aws] --> E[make argocd cluster_id=0|N cloud=azure|aws]
+      D[make tsb_cp cluster_id=0|N cloud=azure|aws] --> Z[make app_bookinfo cluster_id=0|N cloud=azure|aws]
       style Y fill:lightgrey
-      style E fill:lightgrey
       style F fill:lightgrey
 ```
 The setup consists of
