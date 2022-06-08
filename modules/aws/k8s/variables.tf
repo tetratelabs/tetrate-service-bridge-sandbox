@@ -13,3 +13,5 @@ variable "vpc_subnets" {
   description = "vnet subnet ids"
 }
 
+variable "k8s_version" {
+}

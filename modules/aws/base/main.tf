@@ -10,10 +10,11 @@ resource "aws_vpc" "tsb" {
 data "aws_availability_zones" "available" {}
 
 resource "aws_subnet" "tsb" {
-  count             = min(length(data.aws_availability_zones.available.names), var.min_az_count, var.max_az_count)
-  availability_zone = data.aws_availability_zones.available.names[count.index]
-  cidr_block        = cidrsubnet(var.cidr, 8, count.index)
-  vpc_id            = aws_vpc.tsb.id
+  count                   = min(length(data.aws_availability_zones.available.names), var.min_az_count, var.max_az_count)
+  availability_zone       = data.aws_availability_zones.available.names[count.index]
+  cidr_block              = cidrsubnet(var.cidr, 8, count.index)
+  vpc_id                  = aws_vpc.tsb.id
+  map_public_ip_on_launch = "true"
   tags = {
     Name  = "${var.name_prefix}-subnet-${data.aws_availability_zones.available.names[count.index]}"
     Owner = "${var.name_prefix}_tsb"

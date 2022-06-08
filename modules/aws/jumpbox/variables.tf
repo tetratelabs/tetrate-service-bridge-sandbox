@@ -5,7 +5,7 @@ variable "name_prefix" {
 variable "vpc_id" {
 }
 
-variable "vpc_subnets" {
+variable "vpc_subnet" {
 }
 
 variable "cidr" {

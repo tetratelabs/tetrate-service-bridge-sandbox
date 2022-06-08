@@ -52,10 +52,10 @@ terraform.tfvars
 name_prefix = "juggles"
 location    = "eastus"
 cidr        = "172.20.0.0/16"
-tsb_image_sync_username = "cloudsmith-apikey"
-tsb_image_sync_apikey   = "cloudsmith-username"
-tsb_helm_username       = "cloudsmith-apikey"
-tsb_helm_password       = "cloudsmith-username"
+tsb_image_sync_username = "cloudsmith-username"
+tsb_image_sync_apikey   = "cloudsmith-apikey"
+tsb_helm_username       = "cloudsmith-username"
+tsb_helm_password       = "cloudsmith-apikey"
 tsb_fqdn            = "mtoa.cx.tetrate.info"
 tsb_version         = "1.5.0-internal-rc2"
 tsb_password        = "Tetrate123"
@@ -71,11 +71,13 @@ make tsb_deps
 # deploy TSB MP using Helm chart
 make tsb_mp
 # deploy TSB CP using Helm chart
-make tsb_cp cluster_id=0
-make tsb_cp cluster_id=1
+make tsb_cp cluster_id=0 cloud=azure # MP cluster will be onboarded as Tier1
+make tsb_cp cluster_id=1 cloud=azure
+make tsb_cp cluster_id=0 cloud=aws
 # (optional) deploy ArgoCD
-make argocd cluster_id=0
-make argocd cluster_id=1
+make argocd cluster_id=0 cloud=azure 
+make argocd cluster_id=1 cloud=azure 
+make argocd cluster_id=0 cloud=aws
 ```
 
 The completion of the above steps will result in:

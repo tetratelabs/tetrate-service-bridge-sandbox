@@ -2,24 +2,21 @@ provider "helm" {
   kubernetes {
     host                   = var.k8s_host
     cluster_ca_certificate = base64decode(var.k8s_cluster_ca_certificate)
-    client_certificate     = base64decode(var.k8s_client_certificate)
-    client_key             = base64decode(var.k8s_client_key)
+    token                  = var.k8s_client_token
   }
 }
 
 provider "kubectl" {
   host                   = var.k8s_host
   cluster_ca_certificate = base64decode(var.k8s_cluster_ca_certificate)
-  client_certificate     = base64decode(var.k8s_client_certificate)
-  client_key             = base64decode(var.k8s_client_key)
+  token                  = var.k8s_client_token
   load_config_file       = false
 }
 
 provider "kubernetes" {
   host                   = var.k8s_host
   cluster_ca_certificate = base64decode(var.k8s_cluster_ca_certificate)
-  client_certificate     = base64decode(var.k8s_client_certificate)
-  client_key             = base64decode(var.k8s_client_key)
+  token                  = var.k8s_client_token
 }
 
 data "template_file" "cluster" {
@@ -68,7 +65,7 @@ resource "null_resource" "jumpbox_tctl" {
 
   # file-remote is not supported yet, https://github.com/hashicorp/terraform/issues/3379
   provisioner "local-exec" {
-    command = "scp -oStrictHostKeyChecking=no -oUserKnownHostsFile=/dev/null -i ${var.name_prefix}-${var.jumpbox_username}.pem  ${var.jumpbox_username}@${var.jumpbox_host}:${var.cluster_name}-service-account.jwk ${var.cluster_name}-service-account.jwk"
+    command = "scp -oStrictHostKeyChecking=no -oUserKnownHostsFile=/dev/null -i ${var.name_prefix}-${var.cloud}-${var.jumpbox_username}.pem  ${var.jumpbox_username}@${var.jumpbox_host}:${var.cluster_name}-service-account.jwk ${var.cluster_name}-service-account.jwk"
   }
 
   depends_on = [data.template_file.cluster, data.template_file.tctl_controlplane]

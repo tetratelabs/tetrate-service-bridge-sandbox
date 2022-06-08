@@ -18,7 +18,7 @@ output "username" {
   value = azurerm_kubernetes_cluster.k8s.kube_config.0.username
 }
 
-output "password" {
+output "token" {
   value = azurerm_kubernetes_cluster.k8s.kube_config.0.password
 }
 
