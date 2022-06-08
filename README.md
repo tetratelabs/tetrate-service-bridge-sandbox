@@ -70,15 +70,13 @@ To stand up the demo continue with the steps below:
 make init
 # setup underlying clusters
 make k8s
-# deploy TSB dependecies such as elastic, cert-manager
-make tsb_deps
-# deploy TSB MP using Helm chart
+# deploy TSB MP (to include required dependecies)
 make tsb_mp
-# deploy TSB CP using Helm chart
+# deploy TSB CP using Helm chart on the target cluster
 make tsb_cp cluster_id=0 cloud=azure # MP cluster is targetted to be onboarded as Tier1
 make tsb_cp cluster_id=1 cloud=azure
 make tsb_cp cluster_id=0 cloud=aws
-# deploy apps using ArgoCD
+# deploy apps using ArgoCD on the target cluster
 make argocd cluster_id=1 cloud=azure 
 make argocd cluster_id=0 cloud=aws
 ```
