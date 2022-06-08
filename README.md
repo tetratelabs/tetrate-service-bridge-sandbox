@@ -35,7 +35,7 @@ The setup consists of
 
 * module.tsb_mp         - responsible for TSB MP setup using Helm chart
 * module.tsb_cp         - responsible for TSB CP setup using Helm chart
-* module.aws_dns        - responsible for TSB Public FQDN setup
+* module.aws_route53_register_fqdn        - responsible for TSB Public FQDN setup
 
 ## Requirements
 

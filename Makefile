@@ -61,12 +61,12 @@ tsb_mp:
 	terraform apply -auto-approve -target=module.azure_k8s -target=module.aws_base -target=module.aws_jumpbox 
 	terraform apply -auto-approve -target=module.tsb_mp.kubectl_manifest.manifests_certs
 	terraform apply -auto-approve -target=module.tsb_mp
-	terraform apply -auto-approve -target=module.aws_dns -var=cluster_id=0 -var=cloud=azure
+	terraform apply -auto-approve -target=module.aws_route53_register_fqdn -var=cluster_id=0 -var=cloud=azure
 
 ## tsb_fqdn					 creates TSB MP FQDN
 .PHONY: tsb_fqdn
 tsb_fqdn:
-	terraform apply -auto-approve -target=module.aws_dns -var=cluster_id=0 -var=cloud=azure
+	terraform apply -auto-approve -target=module.aws_route53_register_fqdn -var=cluster_id=0 -var=cloud=azure
 
 ## tsb_cp	cluster_id=1 cloud=azure		 onboards CP on AKS cluster with ID=1 
 .PHONY: tsb_cp
@@ -112,7 +112,7 @@ azure_oidc:
 ## destroy					 destroy the environment
 .PHONY: destroy
 destroy:
-	terraform destroy -refresh=false -target=module.aws_dns
+	terraform destroy -refresh=false -target=module.aws_route53_register_fqdn
 	terraform state list | grep "^module.tsb" | xargs -I '{}'  terraform state rm {}
 	terraform state list | grep "^module.cert" | xargs -I '{}'  terraform state rm {}
 	terraform state list | grep "^module.argo" | xargs -I '{}'  terraform state rm {}

@@ -108,11 +108,11 @@ module "keycloak-provider" {
 }
 
 
-module "aws_dns" {
-  source      = "./modules/aws/dns"
-  dns_zone    = var.dns_zone
-  tsb_fqdn    = var.tsb_fqdn
-  tsb_mp_host = module.tsb_mp.host
+module "aws_route53_register_fqdn" {
+  source   = "./modules/aws/route53_register_fqdn"
+  dns_zone = var.dns_zone
+  fqdn     = var.tsb_fqdn
+  address  = module.tsb_mp.host
 }
 
 module "tsb_mp" {

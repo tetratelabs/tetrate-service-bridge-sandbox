@@ -4,8 +4,8 @@ data "aws_route53_zone" "zone" {
 
 resource "aws_route53_record" "tsb_fqdn" {
   zone_id = data.aws_route53_zone.zone.zone_id
-  name    = var.tsb_fqdn
+  name    = var.fqdn
   type    = "A"
   ttl     = "30"
-  records = [var.tsb_mp_host]
+  records = [var.address]
 }
