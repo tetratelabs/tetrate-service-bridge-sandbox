@@ -97,6 +97,12 @@ azure_oidc:
 .PHONY: destroy
 destroy:
 	terraform destroy -refresh=false -target=module.aws_dns
+	terraform state list | grep "^module.tsb" | xargs -I '{}'  terraform state rm {}
+	terraform state list | grep "^module.cert" | xargs -I '{}'  terraform state rm {}
+	terraform state list | grep "^module.argo" | xargs -I '{}'  terraform state rm {}
+	terraform state list | grep "^module.es" | xargs -I '{}'  terraform state rm {}
+	terraform state list | grep "^module.keycloak" | xargs -I '{}'  terraform state rm {}
+	terraform state list | grep "^module.app" | xargs -I '{}'  terraform state rm {}
 	terraform destroy -refresh=false -target=module.aws_k8s -target=module.aws_jumpbox  -target=module.aws_base
 	terraform destroy -refresh=false -target=module.azure_k8s  -target=module.azure_jumpbox -target=module.azure_base
 	terraform destroy -refresh=false 
