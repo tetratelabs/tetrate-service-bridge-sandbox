@@ -9,29 +9,34 @@ cloud = azure
 help : Makefile
 	@sed -n 's/^##//p' $<
 
+## init					 terraform init
+.PHONY: init
+init:
+	terraform init
+
 ## azure_jumpbox					 deploys jumpbox, pushes tsb repo to acr
 .PHONY: azure_jumpbox
 azure_jumpbox:
-	terraform init
 	terraform apply -auto-approve -target=module.azure_base -target=module.azure_jumpbox
 
 ## aws_jumpbox					 deploys jumpbox, pushes tsb repo to acr
 .PHONY: aws_jumpbox
 aws_jumpbox:
-	terraform init
 	terraform apply -auto-approve -target=module.aws_base -target=module.aws_jumpbox
 
 ## azure_k8s					 deploys azure k8s cluster for MP and N-number of CPs(*) leveraging AKS
 .PHONY: azure_k8s
 azure_k8s:
-	terraform init
-	terraform apply -auto-approve -target=module.azure_base -target=module.azure_jumpbox -target=module.azure_k8s
+	terraform apply -auto-approve -target=module.azure_base
+	terraform apply -auto-approve -target=module.azure_jumpbox 
+	terraform apply -auto-approve -target=module.azure_k8s
 
 ## aws_k8s					 deploys EKS K8s cluster (CPs only)
 .PHONY: aws_k8s
 aws_k8s:
-	terraform init
-	terraform apply -auto-approve -target=module.aws_base -target=module.aws_jumpbox -target=module.aws_k8s
+	terraform apply -auto-approve -target=module.aws_base 
+	terraform apply -auto-approve -target=module.aws_jumpbox 
+	terraform apply -auto-approve -target=module.aws_k8s
 
 .PHONY: tsb_deps
 tsb_deps: 

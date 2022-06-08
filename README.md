@@ -53,9 +53,9 @@ tsb_image_sync_apikey   = "cloudsmith-apikey"
 tsb_helm_username       = "cloudsmith-username"
 tsb_helm_password       = "cloudsmith-apikey"
 tsb_fqdn                = "<YOUR UNIQUE NAME TO BE CREATED>.cx.tetrate.info"
-tsb_version                  = "1.5.0-EA0"
+tsb_version                  = "1.5.0-EA1"
 tsb_password                 = "Tetrate123"
-azure_region                 = "eastus"
+azure_region                 = "East US"
 aws_region                   = "eu-west-1"
 aws_eks_app_clusters_count   = 1
 azure_aks_app_clusters_count = 1
@@ -63,6 +63,8 @@ azure_aks_app_clusters_count = 1
 
 To stand up the demo continue with the steps below:
 ```bash
+# setup modules
+make init
 # setup underlying clusters
 make azure_k8s
 # deploy TSB dependecies such as elastic, cert-manager
