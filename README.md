@@ -73,8 +73,7 @@ make tsb_mp
 make tsb_cp cluster_id=0 cloud=azure # MP cluster is targetted to be onboarded as Tier1
 make tsb_cp cluster_id=1 cloud=azure
 make tsb_cp cluster_id=0 cloud=aws
-# (optional) deploy ArgoCD
-make argocd cluster_id=0 cloud=azure 
+# deploy apps using ArgoCD
 make argocd cluster_id=1 cloud=azure 
 make argocd cluster_id=0 cloud=aws
 ```
