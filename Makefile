@@ -3,7 +3,7 @@
 # Default variables
 cluster_id = 1
 cloud = azure
-terraform_apply_args = "${-auto-approve}"
+terraform_apply_args = -auto-approve
 #terraform_apply_args = 
 # Functions
 
