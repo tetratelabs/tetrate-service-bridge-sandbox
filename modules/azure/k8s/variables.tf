@@ -20,3 +20,6 @@ variable "vnet_subnet" {
 
 variable "registry_id" {
 }
+
+variable "k8s_version" {
+}

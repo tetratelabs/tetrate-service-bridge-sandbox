@@ -3,8 +3,9 @@ resource "aws_security_group" "jumpbox_sg" {
   vpc_id      = var.vpc_id
 
   tags = {
-    Name  = "${var.name_prefix}_jumpbox_sg"
-    Owner = "${var.name_prefix}_tsb"
+    Name            = "${var.name_prefix}_jumpbox_sg"
+    Owner           = "${var.name_prefix}_tsb"
+    "Tetrate:Owner" = "sergey@tetrate.io"
   }
 
   ingress {
@@ -188,7 +189,7 @@ resource "aws_key_pair" "tsbadmin_key_pair" {
 
 resource "local_file" "tsbadmin_pem" {
   content         = tls_private_key.generated.private_key_pem
-  filename        = "${var.name_prefix}-${var.jumpbox_username}.pem"
+  filename        = "${var.name_prefix}-aws-${var.jumpbox_username}.pem"
   depends_on      = [tls_private_key.generated]
   file_permission = "0600"
 }
@@ -198,12 +199,12 @@ data "template_file" "jumpbox_userdata" {
   template = file("${path.module}/jumpbox.userdata")
 
   vars = {
-    jumpbox_username             = var.jumpbox_username
-    tsb_version                  = var.tsb_version
-    tsb_image_sync-sync_username = var.tsb_image_sync_username
-    tsb_image_sync-sync_apikey   = var.tsb_image_sync_apikey
-    registry                     = var.registry
-    pubkey                       = tls_private_key.generated.public_key_openssh
+    jumpbox_username        = var.jumpbox_username
+    tsb_version             = var.tsb_version
+    tsb_image_sync_username = var.tsb_image_sync_username
+    tsb_image_sync_apikey   = var.tsb_image_sync_apikey
+    registry                = var.registry
+    pubkey                  = tls_private_key.generated.public_key_openssh
   }
 }
 
@@ -213,7 +214,7 @@ data "aws_ami" "ubuntu" {
 
   filter {
     name   = "name"
-    values = ["ubuntu/tsb_image_syncs/hvm-ssd/ubuntu-focal-20.04-amd64-server-*"]
+    values = ["ubuntu/images/hvm-ssd/ubuntu-focal-20.04-amd64-server-*"]
   }
 
   filter {
@@ -233,21 +234,22 @@ resource "aws_instance" "jumpbox" {
 
   key_name                    = aws_key_pair.tsbadmin_key_pair.key_name
   vpc_security_group_ids      = [aws_security_group.jumpbox_sg.id]
-  subnet_id                   = var.vpc_subnets[0]
+  subnet_id                   = var.vpc_subnet
   associate_public_ip_address = true
   source_dest_check           = false
   user_data                   = data.template_file.jumpbox_userdata.rendered
   iam_instance_profile        = aws_iam_instance_profile.jumpbox_iam_profile.name
 
   tags = {
-    Name  = "${var.name_prefix}_jumpbox"
-    Owner = "${var.name_prefix}_tsb"
+    Name            = "${var.name_prefix}_jumpbox"
+    Owner           = "${var.name_prefix}_tsb"
+    "Tetrate:Owner" = "sergey@tetrate.io"
   }
 
-  root_block_device {
-    volume_type           = "standard"
-    volume_size           = "60"
-    delete_on_termination = "true"
+  volume_tags = {
+    Name            = "${var.name_prefix}_jumpbox"
+    Owner           = "${var.name_prefix}_tsb"
+    "Tetrate:Owner" = "sergey@tetrate.io"
   }
 
 }

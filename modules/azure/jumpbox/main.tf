@@ -152,7 +152,7 @@ resource "azurerm_linux_virtual_machine" "jumpbox" {
 
 resource "local_file" "tsbadmin_pem" {
   content         = tls_private_key.generated.private_key_pem
-  filename        = "${var.name_prefix}-${var.jumpbox_username}.pem"
+  filename        = "${var.name_prefix}-azure-${var.jumpbox_username}.pem"
   depends_on      = [tls_private_key.generated]
   file_permission = "0600"
 }

@@ -2,22 +2,21 @@ provider "helm" {
   kubernetes {
     host                   = var.k8s_host
     cluster_ca_certificate = base64decode(var.k8s_cluster_ca_certificate)
-    client_certificate     = base64decode(var.k8s_client_certificate)
-    client_key             = base64decode(var.k8s_client_key)
+    token                  = var.k8s_client_token
   }
 }
+
 provider "kubectl" {
   host                   = var.k8s_host
   cluster_ca_certificate = base64decode(var.k8s_cluster_ca_certificate)
-  client_certificate     = base64decode(var.k8s_client_certificate)
-  client_key             = base64decode(var.k8s_client_key)
+  token                  = var.k8s_client_token
   load_config_file       = false
 }
+
 provider "kubernetes" {
   host                   = var.k8s_host
   cluster_ca_certificate = base64decode(var.k8s_cluster_ca_certificate)
-  client_certificate     = base64decode(var.k8s_client_certificate)
-  client_key             = base64decode(var.k8s_client_key)
+  token                  = var.k8s_client_token
 }
 
 resource "helm_release" "cert_manager" {
@@ -37,6 +36,7 @@ resource "helm_release" "cert_manager" {
     name  = "featureGates"
     value = "ExperimentalCertificateSigningRequestControllers=true"
   }
+
 }
 
 resource "time_sleep" "wait_90_seconds" {

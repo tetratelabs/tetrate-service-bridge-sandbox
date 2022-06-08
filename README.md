@@ -15,9 +15,7 @@ The `Makefile` in this directory provides automated provisioning of k8s clusters
       C[make tsb_mp] --> F[make keycloak]
       D[make tsb_cp] --> E[make argocd]
       D[make tsb_cp] --> Z[make app_bookinfo]
-      style Z fill:lightgrey
       style Y fill:lightgrey
-      style E fill:lightgrey
       style F fill:lightgrey
 ```
 The setup consists of
@@ -50,32 +48,36 @@ terraform.tfvars
 
 ```
 name_prefix = "juggles"
-location    = "eastus"
-cidr        = "172.20.0.0/16"
-tsb_image_sync_username = "cloudsmith-apikey"
-tsb_image_sync_apikey   = "cloudsmith-username"
-tsb_helm_username       = "cloudsmith-apikey"
-tsb_helm_password       = "cloudsmith-username"
-tsb_fqdn            = "mtoa.cx.tetrate.info"
-tsb_version         = "1.5.0-internal-rc2"
-tsb_password        = "Tetrate123"
-app_clusters_count  = "1"
+tsb_image_sync_username = "cloudsmith-username"
+tsb_image_sync_apikey   = "cloudsmith-apikey"
+tsb_helm_username       = "cloudsmith-username"
+tsb_helm_password       = "cloudsmith-apikey"
+tsb_fqdn                = "<YOUR UNIQUE NAME TO BE CREATED>.cx.tetrate.info"
+tsb_version                  = "1.5.0-EA1"
+tsb_password                 = "Tetrate123"
+azure_region                 = "East US"
+aws_region                   = "eu-west-1"
+aws_eks_app_clusters_count   = 1
+azure_aks_app_clusters_count = 1
 ```
 
 To stand up the demo continue with the steps below:
 ```bash
+# setup modules
+make init
 # setup underlying clusters
-make azure_k8s
+make k8s
 # deploy TSB dependecies such as elastic, cert-manager
 make tsb_deps
 # deploy TSB MP using Helm chart
 make tsb_mp
 # deploy TSB CP using Helm chart
-make tsb_cp cluster_id=0
-make tsb_cp cluster_id=1
-# (optional) deploy ArgoCD
-make argocd cluster_id=0
-make argocd cluster_id=1
+make tsb_cp cluster_id=0 cloud=azure # MP cluster is targetted to be onboarded as Tier1
+make tsb_cp cluster_id=1 cloud=azure
+make tsb_cp cluster_id=0 cloud=aws
+# deploy apps using ArgoCD
+make argocd cluster_id=1 cloud=azure 
+make argocd cluster_id=0 cloud=aws
 ```
 
 The completion of the above steps will result in:

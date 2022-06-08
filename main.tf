@@ -1,15 +1,15 @@
 module "azure_base" {
   source         = "./modules/azure/base"
   name_prefix    = var.name_prefix
-  location       = var.location
+  location       = var.azure_region
   cidr           = var.cidr
-  clusters_count = 1 + var.app_clusters_count
+  clusters_count = 1 + var.azure_aks_app_clusters_count
 }
 
 module "azure_jumpbox" {
   source                  = "./modules/azure/jumpbox"
   name_prefix             = var.name_prefix
-  location                = var.location
+  location                = var.azure_region
   resource_group_name     = module.azure_base.resource_group_name
   cidr                    = var.cidr
   vnet_subnet             = module.azure_base.vnet_subnets[0]
@@ -23,10 +23,11 @@ module "azure_jumpbox" {
 }
 
 module "azure_k8s" {
-  count               = 1 + var.app_clusters_count
   source              = "./modules/azure/k8s"
+  count               = 1 + var.azure_aks_app_clusters_count
+  k8s_version         = var.azure_aks_k8s_version
   resource_group_name = module.azure_base.resource_group_name
-  location            = var.location
+  location            = var.azure_region
   name_prefix         = var.name_prefix
   cluster_name        = "${substr(var.name_prefix, 0, min(length("${var.name_prefix}"), 6))}${count.index + 1}"
   vnet_subnet         = module.azure_base.vnet_subnets[count.index]
@@ -44,7 +45,7 @@ module "aws_jumpbox" {
   source                  = "./modules/aws/jumpbox"
   name_prefix             = var.name_prefix
   vpc_id                  = module.aws_base.vpc_id
-  vpc_subnets             = module.aws_base.vpc_subnets
+  vpc_subnet              = module.aws_base.vpc_subnets[0]
   cidr                    = var.cidr
   tsb_version             = var.tsb_version
   jumpbox_username        = var.jumpbox_username
@@ -52,9 +53,11 @@ module "aws_jumpbox" {
   tsb_image_sync_apikey   = var.tsb_image_sync_apikey
   registry                = module.aws_base.registry
 }
+
 module "aws_k8s" {
-  count        = var.app_clusters_count
   source       = "./modules/aws/k8s"
+  count        = var.aws_eks_app_clusters_count
+  k8s_version  = var.aws_eks_k8s_version
   vpc_id       = module.aws_base.vpc_id
   vpc_subnets  = module.aws_base.vpc_subnets
   name_prefix  = var.name_prefix
@@ -64,38 +67,36 @@ module "aws_k8s" {
 
 module "cert-manager" {
   source                     = "./modules/addons/cert-manager"
-  k8s_host                   = element(module.azure_k8s, var.cluster_id).host
-  k8s_cluster_ca_certificate = element(module.azure_k8s, var.cluster_id).cluster_ca_certificate
-  k8s_client_certificate     = element(module.azure_k8s, var.cluster_id).client_certificate
-  k8s_client_key             = element(module.azure_k8s, var.cluster_id).client_key
+  cluster_name               = local.cloud[var.cloud][var.cluster_id].cluster_name
+  k8s_host                   = local.cloud[var.cloud][var.cluster_id].host
+  k8s_cluster_ca_certificate = local.cloud[var.cloud][var.cluster_id].cluster_ca_certificate
+  k8s_client_token           = local.cloud[var.cloud][var.cluster_id].token
 }
 
 module "es" {
   source                     = "./modules/addons/elastic"
-  k8s_host                   = module.azure_k8s.0.host
-  k8s_cluster_ca_certificate = module.azure_k8s.0.cluster_ca_certificate
-  k8s_client_certificate     = module.azure_k8s.0.client_certificate
-  k8s_client_key             = module.azure_k8s.0.client_key
+  cluster_name               = local.cloud[var.cloud][var.cluster_id].cluster_name
+  k8s_host                   = local.cloud[var.cloud][var.cluster_id].host
+  k8s_cluster_ca_certificate = local.cloud[var.cloud][var.cluster_id].cluster_ca_certificate
+  k8s_client_token           = local.cloud[var.cloud][var.cluster_id].token
 }
 
 module "argocd" {
   source                     = "./modules/addons/argocd"
-  cluster_name               = element(module.azure_k8s, var.cluster_id).cluster_name
-  k8s_host                   = element(module.azure_k8s, var.cluster_id).host
-  k8s_cluster_ca_certificate = element(module.azure_k8s, var.cluster_id).cluster_ca_certificate
-  k8s_client_certificate     = element(module.azure_k8s, var.cluster_id).client_certificate
-  k8s_client_key             = element(module.azure_k8s, var.cluster_id).client_key
+  cluster_name               = local.cloud[var.cloud][var.cluster_id].cluster_name
+  k8s_host                   = local.cloud[var.cloud][var.cluster_id].host
+  k8s_cluster_ca_certificate = local.cloud[var.cloud][var.cluster_id].cluster_ca_certificate
+  k8s_client_token           = local.cloud[var.cloud][var.cluster_id].token
   password                   = var.tsb_password
 }
 
 
 module "keycloak-helm" {
   source                     = "./modules/addons/keycloak-helm"
-  cluster_name               = element(module.azure_k8s, var.cluster_id).cluster_name
-  k8s_host                   = element(module.azure_k8s, var.cluster_id).host
-  k8s_cluster_ca_certificate = element(module.azure_k8s, var.cluster_id).cluster_ca_certificate
-  k8s_client_certificate     = element(module.azure_k8s, var.cluster_id).client_certificate
-  k8s_client_key             = element(module.azure_k8s, var.cluster_id).client_key
+  cluster_name               = local.cloud[var.cloud][var.cluster_id].cluster_name
+  k8s_host                   = local.cloud[var.cloud][var.cluster_id].host
+  k8s_cluster_ca_certificate = local.cloud[var.cloud][var.cluster_id].cluster_ca_certificate
+  k8s_client_token           = local.cloud[var.cloud][var.cluster_id].token
   password                   = var.tsb_password
 }
 
@@ -115,12 +116,9 @@ module "aws_dns" {
 }
 
 module "tsb_mp" {
-  source                     = "./modules/tsb/mp"
+  source = "./modules/tsb/mp"
+  #source                     = "git::https://github.com/smarunich/terraform-tsb-mp.git?ref=v1.1.1"
   name_prefix                = var.name_prefix
-  cluster_name               = module.azure_k8s.0.cluster_name
-  jumpbox_host               = module.azure_jumpbox.public_ip
-  jumpbox_username           = var.jumpbox_username
-  jumpbox_pkey               = module.azure_jumpbox.pkey
   tsb_version                = var.tsb_version
   tsb_helm_version           = var.tsb_helm_version != null ? var.tsb_helm_version : var.tsb_version
   tsb_fqdn                   = var.tsb_fqdn
@@ -131,25 +129,23 @@ module "tsb_mp" {
   tsb_image_sync_apikey      = var.tsb_image_sync_apikey
   tsb_helm_username          = var.tsb_helm_username != null ? var.tsb_helm_username : var.tsb_image_sync_username
   tsb_helm_password          = var.tsb_helm_password != null ? var.tsb_helm_password : var.tsb_image_sync_apikey
-  registry                   = module.azure_base.registry
-  k8s_host                   = module.azure_k8s.0.host
-  k8s_cluster_ca_certificate = module.azure_k8s.0.cluster_ca_certificate
-  k8s_client_certificate     = module.azure_k8s.0.client_certificate
-  k8s_client_key             = module.azure_k8s.0.client_key
+  registry                   = local.base["azure"].registry
+  cluster_name               = local.cloud["azure"][0].cluster_name
+  k8s_host                   = local.cloud["azure"][0].host
+  k8s_cluster_ca_certificate = local.cloud["azure"][0].cluster_ca_certificate
+  k8s_client_token           = local.cloud["azure"][0].token
 }
 
 module "tsb_cp" {
-  source                     = "./modules/tsb/cp"
+  source = "./modules/tsb/cp"
+  #source                     = "git::https://github.com/smarunich/terraform-tsb-cp.git?ref=v1.1.1"
+  cloud                      = var.cloud
   cluster_id                 = var.cluster_id
   name_prefix                = var.name_prefix
-  cluster_name               = element(module.azure_k8s, var.cluster_id).cluster_name
-  jumpbox_host               = module.azure_jumpbox.public_ip
-  jumpbox_username           = var.jumpbox_username
-  jumpbox_pkey               = module.azure_jumpbox.pkey
   tsb_version                = var.tsb_version
   tsb_helm_version           = var.tsb_helm_version != null ? var.tsb_helm_version : var.tsb_version
   tsb_mp_host                = module.tsb_mp.host
-  tier1_cluster              = var.cluster_id == "0" ? var.mp_as_tier1_cluster : false
+  tier1_cluster              = var.cluster_id == "0" && var.cloud == "azure" ? var.mp_as_tier1_cluster : false
   tsb_fqdn                   = var.tsb_fqdn
   tsb_org                    = var.tsb_org
   tsb_username               = var.tsb_username
@@ -161,24 +157,27 @@ module "tsb_cp" {
   tsb_image_sync_apikey      = var.tsb_image_sync_apikey
   tsb_helm_username          = var.tsb_helm_username != null ? var.tsb_helm_username : var.tsb_image_sync_username
   tsb_helm_password          = var.tsb_helm_password != null ? var.tsb_helm_password : var.tsb_image_sync_apikey
-  registry                   = module.azure_base.registry
   es_host                    = module.tsb_mp.es_host
   es_username                = module.tsb_mp.es_username
   es_password                = module.tsb_mp.es_password
   es_cacert                  = module.tsb_mp.es_cacert
-  k8s_host                   = element(module.azure_k8s, var.cluster_id).host
-  k8s_cluster_ca_certificate = element(module.azure_k8s, var.cluster_id).cluster_ca_certificate
-  k8s_client_certificate     = element(module.azure_k8s, var.cluster_id).client_certificate
-  k8s_client_key             = element(module.azure_k8s, var.cluster_id).client_key
+  jumpbox_host               = local.jumpbox[var.cloud].public_ip
+  jumpbox_username           = var.jumpbox_username
+  jumpbox_pkey               = local.jumpbox[var.cloud].pkey
+  registry                   = local.base[var.cloud].registry
+  cluster_name               = local.cloud[var.cloud][var.cluster_id].cluster_name
+  k8s_host                   = local.cloud[var.cloud][var.cluster_id].host
+  k8s_cluster_ca_certificate = local.cloud[var.cloud][var.cluster_id].cluster_ca_certificate
+  k8s_client_token           = local.cloud[var.cloud][var.cluster_id].token
 }
 
 
 module "app_bookinfo" {
   source                     = "./modules/app/bookinfo"
-  k8s_host                   = element(module.azure_k8s, var.cluster_id).host
-  k8s_cluster_ca_certificate = element(module.azure_k8s, var.cluster_id).cluster_ca_certificate
-  k8s_client_certificate     = element(module.azure_k8s, var.cluster_id).client_certificate
-  k8s_client_key             = element(module.azure_k8s, var.cluster_id).client_key
+  cluster_name               = local.cloud[var.cloud][var.cluster_id].cluster_name
+  k8s_host                   = local.cloud[var.cloud][var.cluster_id].host
+  k8s_cluster_ca_certificate = local.cloud[var.cloud][var.cluster_id].cluster_ca_certificate
+  k8s_client_token           = local.cloud[var.cloud][var.cluster_id].token
 }
 
 /*
