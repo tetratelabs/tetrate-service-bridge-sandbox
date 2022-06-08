@@ -1,0 +1,143 @@
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  labels:
+    istio-injection: enabled
+  name: gitops-opa-s2s-httpbin
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  labels:
+    istio-injection: enabled
+  name: gitops-opa-s2s-sleep
+---
+apiVersion: v1
+data:
+  policy.rego: cGFja2FnZSBleGFtcGxlLmJhc2ljYXV0aAoKZGVmYXVsdCBhbGxvdyA9IGZhbHNlCgojIHVzZXJuYW1lIGFuZCBwYXNzd29yZCBkYXRhYmFzZQp1c2VyX3Bhc3N3b3JkcyA9IHsKICAgICJhbGljZSI6ICJwYXNzd29yZCIsCiAgICAiYm9iIjogInBhc3N3b3JkIgp9CgphbGxvdyA9IHJlc3BvbnNlIHsKICAgICMgY2hlY2sgaWYgcGFzc3dvcmQgZnJvbSBoZWFkZXIgaXMgc2FtZSBhcyBpbiBkYXRhYmFzZSBmb3IgdGhlIHNwZWNpZmljIHVzZXIKICAgIGJhc2ljX2F1dGgucGFzc3dvcmQgPT0gdXNlcl9wYXNzd29yZHNbYmFzaWNfYXV0aC51c2VyX25hbWVdCiAgICByZXNwb25zZSA6PSB7CiAgICAgICJhbGxvd2VkIjogdHJ1ZSwKICAgICAgImhlYWRlcnMiOiB7IngtdXNlciI6IGJhc2ljX2F1dGgudXNlcl9uYW1lfQogICAgfQp9CgpiYXNpY19hdXRoIDo9IHsidXNlcl9uYW1lIjogdXNlcl9uYW1lLCAicGFzc3dvcmQiOiBwYXNzd29yZH0gewogICAgdiA6PSBpbnB1dC5hdHRyaWJ1dGVzLnJlcXVlc3QuaHR0cC5oZWFkZXJzLmF1dGhvcml6YXRpb24KICAgIHN0YXJ0c3dpdGgodiwgIkJhc2ljICIpCiAgICBzIDo9IHN1YnN0cmluZyh2LCBjb3VudCgiQmFzaWMgIiksIC0xKQogICAgW3VzZXJfbmFtZSwgcGFzc3dvcmRdIDo9IHNwbGl0KGJhc2U2NHVybC5kZWNvZGUocyksICI6IikKfQ==
+kind: Secret
+metadata:
+  name: opa-policy
+  namespace: gitops-opa-s2s-httpbin
+type: Opaque
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: httpbin-with-opa
+  namespace: gitops-opa-s2s-httpbin
+  labels:
+    app: httpbin-with-opa
+    service: httpbin-with-opa
+spec:
+  ports:
+    - name: http
+      port: 8000
+      targetPort: 80
+  selector:
+    app: httpbin-with-opa
+---
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  name: httpbin-with-opa
+  amespace: gitops-opa-s2s-httpbin
+  labels:
+    app: httpbin-with-opa
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: httpbin-with-opa
+  template:
+    metadata:
+      labels:
+        app: httpbin-with-opa
+    spec:
+      containers:
+        - image: docker.io/kennethreitz/httpbin
+          imagePullPolicy: IfNotPresent
+          name: httpbin
+          ports:
+            - containerPort: 80
+        - name: opa
+          image: openpolicyagent/opa:latest-envoy
+          securityContext:
+            runAsUser: 1111
+          volumeMounts:
+            - readOnly: true
+              mountPath: /policy
+              name: opa-policy
+          args:
+            - "run"
+            - "--server"
+            - "--addr=localhost:8181"
+            - "--diagnostic-addr=0.0.0.0:8282"
+            - "--set=plugins.envoy_ext_authz_grpc.addr=:9191"
+            - "--set=plugins.envoy_ext_authz_grpc.query=data.envoy.authz.allow"
+            - "--set=decision_logs.console=true"
+            - "--ignore=.*"
+            - "/policy/policy.rego"
+          livenessProbe:
+            httpGet:
+              path: /health?plugins
+              scheme: HTTP
+              port: 8282
+            initialDelaySeconds: 5
+            periodSeconds: 5
+          readinessProbe:
+            httpGet:
+              path: /health?plugins
+              scheme: HTTP
+              port: 8282
+            initialDelaySeconds: 5
+            periodSeconds: 5
+      volumes:
+        - name: opa-policy
+          secret:
+            secretName: opa-policy
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: sleep
+  namespace: gitops-opa-s2s-sleep
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: sleep
+  namespace: gitops-opa-s2s-sleep
+  labels:
+    app: sleep
+    service: sleep
+spec:
+  ports:
+    - port: 80
+      name: http
+  selector:
+    app: sleep
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  namespace: gitops-opa-s2s-sleep
+  name: sleep
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: sleep
+  template:
+    metadata:
+      labels:
+        app: sleep
+    spec:
+      terminationGracePeriodSeconds: 0
+      serviceAccountName: sleep
+      containers:
+        - name: sleep
+          image: curlimages/curl
+          command: ["/bin/sleep", "3650d"]
+          imagePullPolicy: IfNotPresent

@@ -1,0 +1,50 @@
+---
+apiVersion: tsb.tetrate.io/v2
+kind: Tenant
+metadata:
+  name: dev
+  annotations:
+    tsb.tetrate.io/organization: tetrate
+spec:
+  description: dev
+---
+apiVersion: tsb.tetrate.io/v2
+kind: Workspace
+metadata:
+  name: gitops-opa-s2s-httpbin-ws
+  annotations:
+    tsb.tetrate.io/organization: tetrate
+    tsb.tetrate.io/tenant: dev
+spec:
+  namespaceSelector:
+    names:
+      - "*/opa-s2s-httpbin"
+---
+apiVersion: security.tsb.tetrate.io/v2
+kind: Group
+metadata:
+  name: gitops-opa-s2s-httpbin-sg
+  annotations:
+    tsb.tetrate.io/organization: tetrate
+    tsb.tetrate.io/tenant: dev
+    tsb.tetrate.io/workspace: gitops-opa-s2s-httpbin-ws
+spec:
+  namespaceSelector:
+    names:
+      - "*/gitops-opa-s2s-httpbin"
+  configMode: BRIDGED
+---
+apiVersion: security.tsb.tetrate.io/v2
+kind: SecuritySetting
+metadata:
+  name: gitops-opa-s2s-httpbin-ss
+  annotations:
+    tsb.tetrate.io/organization: tetrate
+    tsb.tetrate.io/tenant: dev
+    tsb.tetrate.io/workspace: gitops-opa-s2s-httpbin-ws
+spec:
+  authorization:
+    mode: CLUSTER
+    http:
+      external:
+        uri: "grpc://127.0.0.1:9191"
