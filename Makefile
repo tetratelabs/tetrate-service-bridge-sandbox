@@ -73,7 +73,7 @@ tsb_fqdn:
 tsb_cp:
 	@echo cluster_id is ${cluster_id} 
 	@echo cloud is ${cloud}
-	terraform state list | grep "^module.cert-manager" | grep -v data | grep -v helm | tr -d ':' | xargs -I '{}' terraform taint {}
+	## terraform state list | grep "^module.cert-manager" | grep -v data | grep -v helm | tr -d ':' | xargs -I '{}' terraform taint {}
 	terraform taint -allow-missing "module.tsb_cp.null_resource.jumpbox_tctl"
   ## working around the issue: https://github.com/hashicorp/terraform-provider-azurerm/issues/2602
 	terraform apply -auto-approve -target=module.azure_k8s -target=module.aws_base -target=module.aws_jumpbox  
