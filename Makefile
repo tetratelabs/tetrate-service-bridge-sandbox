@@ -26,13 +26,14 @@ aws_jumpbox:
 
 ## k8s 
 .PHONY: k8s
+k8s:
 	terraform apply -auto-approve -target=module.azure_base
 	terraform apply -auto-approve -target=module.azure_jumpbox 
 	terraform apply -auto-approve -target=module.azure_k8s
 	terraform apply -auto-approve -target=module.aws_base 
 	terraform apply -auto-approve -target=module.aws_jumpbox 
 	terraform apply -auto-approve -target=module.aws_k8s
-	
+
 ## azure_k8s					 deploys azure k8s cluster for MP and N-number of CPs(*) leveraging AKS
 .PHONY: azure_k8s
 azure_k8s:
