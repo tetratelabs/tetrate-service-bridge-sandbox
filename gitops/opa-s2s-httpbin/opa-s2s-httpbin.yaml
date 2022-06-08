@@ -42,7 +42,7 @@ kind: Deployment
 apiVersion: apps/v1
 metadata:
   name: httpbin-with-opa
-  amespace: gitops-opa-s2s-httpbin
+  namespace: gitops-opa-s2s-httpbin
   labels:
     app: httpbin-with-opa
 spec:
