@@ -58,7 +58,7 @@ tsb_fqdn:
 tsb_cp:
 	@echo cluster_id is ${cluster_id} 
 	@echo cloud is ${cloud}
-	terraform state list | grep "^module.cert-manager" | grep -v data | tr -d ':' | xargs -I '{}' terraform taint {}
+	terraform state list | grep "^module.cert-manager" | grep -v data | grep -v helm | tr -d ':' | xargs -I '{}' terraform taint {}
 	terraform taint -allow-missing "module.tsb_cp.null_resource.jumpbox_tctl"
   ## working around the issue: https://github.com/hashicorp/terraform-provider-azurerm/issues/2602
 	terraform apply -auto-approve -target=module.azure_k8s -target=module.aws_base -target=module.aws_jumpbox  
@@ -97,8 +97,7 @@ azure_oidc:
 .PHONY: destroy
 destroy:
 	terraform destroy -refresh=false -target=module.aws_dns
-	terraform destroy -refresh=false -target=module.azure_k8s
-	terraform destroy -refresh=false -target=module.azure_base
-	terraform destroy -refresh=false -target=module.azure_jumpbox
+	terraform destroy -refresh=false -target=module.aws_k8s -target=module.aws_jumpbox  -target=module.aws_base
+	terraform destroy -refresh=false -target=module.azure_k8s  -target=module.azure_jumpbox -target=module.azure_base
 	terraform destroy -refresh=false 
 	terraform destroy 

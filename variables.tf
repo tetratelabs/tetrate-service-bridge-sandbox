@@ -27,12 +27,9 @@ variable "name_prefix" {
   description = "name prefix"
 }
 
-variable "location" {
-  description = "location"
-}
-
 variable "cidr" {
   description = "cidr"
+  default     = "172.20.0.0/16"
 }
 
 variable "tsb_image_sync_username" {
@@ -83,6 +80,14 @@ variable "cluster_id" {
   default = 1
 }
 
+variable "aws_region" {
+  default = "eu-west-1"
+}
+
+variable "azure_region" {
+  default = "eastus"
+}
+
 variable "aws_eks_k8s_version" {
   default = "1.21"
 }
@@ -98,3 +103,4 @@ variable "aws_eks_app_clusters_count" {
 variable "azure_aks_app_clusters_count" {
   default = 1
 }
+

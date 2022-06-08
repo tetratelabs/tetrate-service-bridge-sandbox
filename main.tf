@@ -1,7 +1,7 @@
 module "azure_base" {
   source         = "./modules/azure/base"
   name_prefix    = var.name_prefix
-  location       = var.location
+  location       = var.azure_region
   cidr           = var.cidr
   clusters_count = 1 + var.azure_aks_app_clusters_count
 }
@@ -9,7 +9,7 @@ module "azure_base" {
 module "azure_jumpbox" {
   source                  = "./modules/azure/jumpbox"
   name_prefix             = var.name_prefix
-  location                = var.location
+  location                = var.azure_region
   resource_group_name     = module.azure_base.resource_group_name
   cidr                    = var.cidr
   vnet_subnet             = module.azure_base.vnet_subnets[0]
@@ -27,7 +27,7 @@ module "azure_k8s" {
   count               = 1 + var.azure_aks_app_clusters_count
   k8s_version         = var.azure_aks_k8s_version
   resource_group_name = module.azure_base.resource_group_name
-  location            = var.location
+  location            = var.azure_region
   name_prefix         = var.name_prefix
   cluster_name        = "${substr(var.name_prefix, 0, min(length("${var.name_prefix}"), 6))}${count.index + 1}"
   vnet_subnet         = module.azure_base.vnet_subnets[count.index]
