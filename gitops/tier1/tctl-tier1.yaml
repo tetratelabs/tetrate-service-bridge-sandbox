@@ -2,7 +2,12 @@
 apiVersion: gateway.tsb.tetrate.io/v2
 kind: Tier1Gateway
 metadata:
-  name: bookinfo-tier1
+  name: gitops-bookinfo-tier1
+  annotations:
+    tsb.tetrate.io/organization: tetrate
+    tsb.tetrate.io/tenant: dev
+    tsb.tetrate.io/workspace: gitops-bookinfo-ws
+    tsb.tetrate.io/gatewayGroup: gitops-bookinfo-gg
 spec:
   displayName: bookinfo-tier1
   externalServers:
