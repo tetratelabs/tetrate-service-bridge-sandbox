@@ -9,7 +9,7 @@ metadata:
     tsb.tetrate.io/workspace: gitops-bookinfo-ws
     tsb.tetrate.io/gatewayGroup: gitops-bookinfo-gg
 spec:
-  displayName: bookinfo-tier1
+  displayName: gitops-bookinfo-tier1
   externalServers:
     - hostname: gitops-bookinfo.tetrate.io
       name: bookinfo
