@@ -42,6 +42,7 @@ metadata:
     tsb.tetrate.io/organization: tetrate
     tsb.tetrate.io/tenant: dev
     tsb.tetrate.io/workspace: gitops-opa-s2s-httpbin-ws
+    tsb.tetrate.io/group: gitops-opa-s2s-httpbin-sg
 spec:
   authorization:
     mode: CLUSTER
