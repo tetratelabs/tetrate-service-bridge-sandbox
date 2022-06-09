@@ -14,13 +14,37 @@ metadata:
   name: gitops-opa-s2s-sleep
 ---
 apiVersion: v1
-data:
-  policy.rego: cGFja2FnZSBleGFtcGxlLmJhc2ljYXV0aAoKZGVmYXVsdCBhbGxvdyA9IGZhbHNlCgojIHVzZXJuYW1lIGFuZCBwYXNzd29yZCBkYXRhYmFzZQp1c2VyX3Bhc3N3b3JkcyA9IHsKICAgICJhbGljZSI6ICJwYXNzd29yZCIsCiAgICAiYm9iIjogInBhc3N3b3JkIgp9CgphbGxvdyA9IHJlc3BvbnNlIHsKICAgICMgY2hlY2sgaWYgcGFzc3dvcmQgZnJvbSBoZWFkZXIgaXMgc2FtZSBhcyBpbiBkYXRhYmFzZSBmb3IgdGhlIHNwZWNpZmljIHVzZXIKICAgIGJhc2ljX2F1dGgucGFzc3dvcmQgPT0gdXNlcl9wYXNzd29yZHNbYmFzaWNfYXV0aC51c2VyX25hbWVdCiAgICByZXNwb25zZSA6PSB7CiAgICAgICJhbGxvd2VkIjogdHJ1ZSwKICAgICAgImhlYWRlcnMiOiB7IngtdXNlciI6IGJhc2ljX2F1dGgudXNlcl9uYW1lfQogICAgfQp9CgpiYXNpY19hdXRoIDo9IHsidXNlcl9uYW1lIjogdXNlcl9uYW1lLCAicGFzc3dvcmQiOiBwYXNzd29yZH0gewogICAgdiA6PSBpbnB1dC5hdHRyaWJ1dGVzLnJlcXVlc3QuaHR0cC5oZWFkZXJzLmF1dGhvcml6YXRpb24KICAgIHN0YXJ0c3dpdGgodiwgIkJhc2ljICIpCiAgICBzIDo9IHN1YnN0cmluZyh2LCBjb3VudCgiQmFzaWMgIiksIC0xKQogICAgW3VzZXJfbmFtZSwgcGFzc3dvcmRdIDo9IHNwbGl0KGJhc2U2NHVybC5kZWNvZGUocyksICI6IikKfQ==
-kind: Secret
+kind: ConfigMap
 metadata:
   name: opa-policy
   namespace: gitops-opa-s2s-httpbin
-type: Opaque
+data:
+  policy.rego: |
+    package demo.authz
+
+    default allow = false
+
+    # username and password database
+    user_passwords = {
+        "alice": "password",
+        "bob": "password"
+    }
+
+    allow = response {
+        # check if password from header is same as in database for the specific user
+        basic_auth.password == user_passwords[basic_auth.user_name]
+        response := {
+          "allowed": true,
+          "headers": {"x-user": basic_auth.user_name}
+        }
+    }
+
+    basic_auth := {"user_name": user_name, "password": password} {
+        v := input.attributes.request.http.headers.authorization
+        startswith(v, "Basic ")
+        s := substring(v, count("Basic "), -1)
+        [user_name, password] := split(base64url.decode(s), ":")
+    }
 ---
 apiVersion: v1
 kind: Service
@@ -95,8 +119,8 @@ spec:
             periodSeconds: 5
       volumes:
         - name: opa-policy
-          secret:
-            secretName: opa-policy
+          configMap:
+            name: opa-policy
 ---
 apiVersion: v1
 kind: ServiceAccount
