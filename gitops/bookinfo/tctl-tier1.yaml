@@ -14,6 +14,8 @@ spec:
     - hostname: gitops-bookinfo.tetrate.io
       name: bookinfo
       port: 80
+      tls:
+        mode: DISABLED
   workloadSelector:
     labels:
       app: gitops-tier1gw
