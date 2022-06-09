@@ -1,0 +1,16 @@
+---
+apiVersion: gateway.tsb.tetrate.io/v2
+kind: Tier1Gateway
+metadata:
+  name: bookinfo-tier1
+spec:
+  displayName: bookinfo-tier1
+  externalServers:
+    - hostname: gitops-bookinfo.tetrate.io
+      name: bookinfo
+      port: 80
+  workloadSelector:
+    labels:
+      app: gitops-tier1gw
+      istio: ingressgateway
+    namespace: gitops-tier1

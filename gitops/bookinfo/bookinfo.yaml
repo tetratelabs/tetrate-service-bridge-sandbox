@@ -32,7 +32,6 @@ metadata:
   labels:
     istio-injection: enabled
   name: gitops-bookinfo
-spec:
 ---
 ##################################################################################################
 # Details service
@@ -339,8 +338,8 @@ spec:
           image: docker.io/chirauki/productpage:latest
           imagePullPolicy: IfNotPresent
           env:
-          - name: DETAILS_HOSTNAME
-            value: gitops-details.tetrate.io
+            - name: DETAILS_HOSTNAME
+              value: gitops-details.tetrate.io
           ports:
             - containerPort: 9080
           volumeMounts:

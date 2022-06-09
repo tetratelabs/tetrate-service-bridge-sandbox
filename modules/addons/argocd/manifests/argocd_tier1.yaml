@@ -2,17 +2,17 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: gitops-grpc
+  name: gitops-tier1
   namespace: argocd
 spec:
   destination:
-    namespace: gitops-grpc
+    namespace: gitops-tier1
     server: https://kubernetes.default.svc
   project: default
   source:
     directory:
       recurse: true
-    path: gitops/grpc
+    path: gitops/tier1
     repoURL: https://github.com/smarunich/tetrate-service-bridge-sandbox.git
     targetRevision: main
   syncPolicy:
@@ -25,3 +25,6 @@ spec:
         duration: 5s # the amount to back off. Default unit is seconds, but could also be a duration (e.g. "2m", "1h")
         factor: 2 # a factor to multiply the base duration after each failed retry
         maxDuration: 1m # the maximum amount of time allowed for the backoff strategy
+    syncOptions: # Sync options which modifies sync behavior
+      - Validate=false # disables resource validation (equivalent to 'kubectl apply --validate=false') ( true by default ).
+      - CreateNamespace=false # Namespace Auto-Creation ensures that namespace specified as the application destination exists in the destination cluster
