@@ -18,7 +18,7 @@ metadata:
 spec:
   namespaceSelector:
     names:
-      - "*/opa-s2s-httpbin"
+      - "*/gitops-opa-s2s-httpbin"
 ---
 apiVersion: security.tsb.tetrate.io/v2
 kind: Group
