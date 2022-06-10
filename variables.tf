@@ -89,11 +89,11 @@ variable "azure_region" {
 }
 
 variable "aws_eks_k8s_version" {
-  default = "1.21"
+  default = "1.22"
 }
 
 variable "azure_aks_k8s_version" {
-  default = "1.22.6"
+  default = "1.23.5"
 }
 
 variable "aws_eks_app_clusters_count" {

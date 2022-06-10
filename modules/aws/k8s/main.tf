@@ -15,6 +15,16 @@ module "eks" {
     instance_types = ["m6i.large"]
   }
 
+  cluster_addons = {
+    coredns = {
+      resolve_conflicts = "OVERWRITE"
+    }
+    kube-proxy = {}
+    vpc-cni = {
+      resolve_conflicts = "OVERWRITE"
+    }
+  }
+
   eks_managed_node_groups = {
     node_group = {
       min_size     = 3
