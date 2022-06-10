@@ -19,7 +19,7 @@ spec:
   namespaceSelector:
     names:
       - "*/gitops-bookinfo"
-      - "*/gitops-bookinfo-tier1"
+      - "*/gitops-tier1"
 ---
 apiVersion: gateway.tsb.tetrate.io/v2
 kind: Group
@@ -33,7 +33,7 @@ spec:
   namespaceSelector:
     names:
       - "*/gitops-bookinfo"
-      - "*/gitops-bookinfo-tier1"
+      - "*/gitops-tier1"
   configMode: BRIDGED
 ---
 apiVersion: traffic.tsb.tetrate.io/v2
@@ -48,7 +48,7 @@ spec:
   namespaceSelector:
     names:
       - "*/gitops-bookinfo"
-      - "*/gitops-bookinfo-tier1"
+      - "*/gitops-tier1"
   configMode: BRIDGED
 ---
 apiVersion: security.tsb.tetrate.io/v2
@@ -63,7 +63,7 @@ spec:
   namespaceSelector:
     names:
       - "*/gitops-bookinfo"
-      - "*/gitops-bookinfo-tier1"
+      - "*/gitops-tier1"
   configMode: BRIDGED
 ---
 apiVersion: install.tetrate.io/v1alpha1
