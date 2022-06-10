@@ -5,7 +5,7 @@ metadata:
   labels:
     app: trafficgenerator
   name: trafficgenerator
-  namespace: gitops-bookinfo
+  namespace: gitops-tier1
 spec:
   progressDeadlineSeconds: 600
   replicas: 1
