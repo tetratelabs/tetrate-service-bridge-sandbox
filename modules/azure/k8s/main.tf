@@ -14,15 +14,14 @@ resource "azurerm_kubernetes_cluster" "k8s" {
   }
 
   default_node_pool {
-    name           = replace(var.cluster_name, "-", "")
-    vnet_subnet_id = var.vnet_subnet
-    # enable_auto_scaling = false
-    # min_count = 1
-    # max_count = 10
-    node_count      = 3
-    vm_size         = "Standard_DS2_v2"
-    type            = "VirtualMachineScaleSets"
-    os_disk_size_gb = 50
+    name                = replace(var.cluster_name, "-", "")
+    vnet_subnet_id      = var.vnet_subnet
+    enable_auto_scaling = true
+    min_count           = 3
+    max_count           = 5
+    vm_size             = "Standard_DS2_v2"
+    type                = "VirtualMachineScaleSets"
+    os_disk_size_gb     = 50
   }
 
   identity {
