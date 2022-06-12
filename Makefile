@@ -7,6 +7,8 @@ terraform_apply_args = -auto-approve
 #terraform_apply_args = 
 # Functions
 
+.PHONY: all
+all: k8s tsb_mp tsb_cp argocd
 
 .PHONY : help
 help : Makefile
