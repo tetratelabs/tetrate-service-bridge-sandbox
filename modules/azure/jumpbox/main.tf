@@ -93,10 +93,14 @@ resource "tls_private_key" "generated" {
   rsa_bits  = 4096
 }
 
-data "template_file" "jumpbox_userdata" {
-  template = file("${path.module}/jumpbox.userdata")
-
-  vars = {
+resource "azurerm_linux_virtual_machine" "jumpbox" {
+  name                  = "${var.name_prefix}-jumpbox"
+  location              = var.location
+  resource_group_name   = var.resource_group_name
+  size                  = "Standard_F2s_v2"
+  network_interface_ids = [azurerm_network_interface.jumpbox_nic.id]
+  admin_username        = var.jumpbox_username
+  custom_data           = base64encode(templatefile("${path.module}/jumpbox.userdata",{
     jumpbox_username        = var.jumpbox_username
     tsb_version             = var.tsb_version
     tsb_image_sync_username = var.tsb_image_sync_username
@@ -105,17 +109,7 @@ data "template_file" "jumpbox_userdata" {
     registry_admin          = var.registry_username
     registry_password       = var.registry_password
     pubkey                  = tls_private_key.generated.public_key_openssh
-  }
-}
-
-resource "azurerm_linux_virtual_machine" "jumpbox" {
-  name                  = "${var.name_prefix}-jumpbox"
-  location              = var.location
-  resource_group_name   = var.resource_group_name
-  size                  = "Standard_F2s_v2"
-  network_interface_ids = [azurerm_network_interface.jumpbox_nic.id]
-  admin_username        = var.jumpbox_username
-  custom_data           = base64encode(data.template_file.jumpbox_userdata.rendered)
+  }))
 
 
   # az vm image list --output table

@@ -194,20 +194,6 @@ resource "local_file" "tsbadmin_pem" {
   file_permission = "0600"
 }
 
-
-data "template_file" "jumpbox_userdata" {
-  template = file("${path.module}/jumpbox.userdata")
-
-  vars = {
-    jumpbox_username        = var.jumpbox_username
-    tsb_version             = var.tsb_version
-    tsb_image_sync_username = var.tsb_image_sync_username
-    tsb_image_sync_apikey   = var.tsb_image_sync_apikey
-    registry                = var.registry
-    pubkey                  = tls_private_key.generated.public_key_openssh
-  }
-}
-
 data "aws_ami" "ubuntu" {
 
   most_recent = true
@@ -237,7 +223,14 @@ resource "aws_instance" "jumpbox" {
   subnet_id                   = var.vpc_subnet
   associate_public_ip_address = true
   source_dest_check           = false
-  user_data                   = data.template_file.jumpbox_userdata.rendered
+  user_data                   = templatefile("${path.module}/jumpbox.userdata",{
+    jumpbox_username        = var.jumpbox_username
+    tsb_version             = var.tsb_version
+    tsb_image_sync_username = var.tsb_image_sync_username
+    tsb_image_sync_apikey   = var.tsb_image_sync_apikey
+    registry                = var.registry
+    pubkey                  = tls_private_key.generated.public_key_openssh
+  })
   iam_instance_profile        = aws_iam_instance_profile.jumpbox_iam_profile.name
 
   tags = {
