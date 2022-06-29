@@ -88,10 +88,17 @@ data "kubernetes_service" "es" {
   }
 }
 
-data "template_file" "managementplane_values" {
-  template = file("${path.module}/manifests/tsb/managementplane-values.yaml.tmpl")
+resource "helm_release" "managementplane" {
+  name                = "managementplane"
+  repository          = "https://dl.cloudsmith.io/basic/tetrate/tsb-helm/helm/charts/"
+  chart               = "managementplane"
+  version             = var.tsb_helm_version
+  namespace           = "tsb"
+  timeout             = 900
+  repository_username = var.tsb_helm_username
+  repository_password = var.tsb_helm_password
 
-  vars = {
+  values = [templatefile("${path.module}/manifests/tsb/managementplane-values.yaml.tmpl",{
     #tsb
     tsb_version  = var.tsb_version
     registry     = var.registry
@@ -108,21 +115,7 @@ data "template_file" "managementplane_values" {
     # demo ldap profile
     ldap_binddn       = "cn=admin,dc=tetrate,dc=io"
     ldap_bindpassword = "admin"
-  }
-}
-
-
-resource "helm_release" "managementplane" {
-  name                = "managementplane"
-  repository          = "https://dl.cloudsmith.io/basic/tetrate/tsb-helm/helm/charts/"
-  chart               = "managementplane"
-  version             = var.tsb_helm_version
-  namespace           = "tsb"
-  timeout             = 900
-  repository_username = var.tsb_helm_username
-  repository_password = var.tsb_helm_password
-
-  values = [data.template_file.managementplane_values.rendered]
+  })]
   set {
     name  = "secrets.tsb.cert"
     value = data.kubernetes_secret.tsb_server_cert.data["tls.crt"]
