@@ -36,33 +36,35 @@ module "azure_k8s" {
 }
 
 module "aws_base" {
+  count       = var.aws_eks_app_clusters_count > 0 ? 1 : 0
   source      = "./modules/aws/base"
   name_prefix = var.name_prefix
   cidr        = var.cidr
 }
 
 module "aws_jumpbox" {
+  count                   = var.aws_eks_app_clusters_count > 0 ? 1 : 0
   source                  = "./modules/aws/jumpbox"
   name_prefix             = var.name_prefix
-  vpc_id                  = module.aws_base.vpc_id
-  vpc_subnet              = module.aws_base.vpc_subnets[0]
+  vpc_id                  = module.aws_base[0].vpc_id
+  vpc_subnet              = module.aws_base[0].vpc_subnets[0]
   cidr                    = var.cidr
   tsb_version             = var.tsb_version
   jumpbox_username        = var.jumpbox_username
   tsb_image_sync_username = var.tsb_image_sync_username
   tsb_image_sync_apikey   = var.tsb_image_sync_apikey
-  registry                = module.aws_base.registry
+  registry                = module.aws_base[0].registry
 }
 
 module "aws_k8s" {
   source       = "./modules/aws/k8s"
   count        = var.aws_eks_app_clusters_count
   k8s_version  = var.aws_eks_k8s_version
-  vpc_id       = module.aws_base.vpc_id
-  vpc_subnets  = module.aws_base.vpc_subnets
+  vpc_id       = module.aws_base[0].vpc_id
+  vpc_subnets  = module.aws_base[0].vpc_subnets
   name_prefix  = var.name_prefix
   cluster_name = "${var.name_prefix}-eks-${count.index + 1}"
-  depends_on   = [module.aws_jumpbox]
+  depends_on   = [module.aws_jumpbox[0]]
 }
 
 module "cert-manager" {
