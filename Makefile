@@ -4,6 +4,7 @@
 cluster_id = 1
 cloud = azure
 terraform_apply_args = -auto-approve
+terraform_destroy_args = -auto-approve
 #terraform_apply_args = 
 # Functions
 
@@ -29,6 +30,12 @@ azure_jumpbox:
 aws_jumpbox:
 	terraform apply ${terraform_apply_args} -target=module.aws_base -target=module.aws_jumpbox
 
+
+## gcp_jumpbox					 deploys jumpbox, pushes tsb repo to gcr
+.PHONY: gcp_jumpbox
+gcp_jumpbox:
+	terraform apply ${terraform_apply_args} -target=module.gcp_base -target=module.gcp_jumpbox
+
 ## k8s						 deploys k8s cluster for MP and N-number of CPs(*) 
 .PHONY: k8s
 k8s:
@@ -38,6 +45,9 @@ k8s:
 	terraform apply ${terraform_apply_args} -target=module.aws_base 
 	terraform apply ${terraform_apply_args} -target=module.aws_jumpbox 
 	terraform apply ${terraform_apply_args} -target=module.aws_k8s
+	terraform apply ${terraform_apply_args} -target=module.gcp_base 
+	terraform apply ${terraform_apply_args} -target=module.gcp_jumpbox 
+	terraform apply ${terraform_apply_args} -target=module.gcp_k8s
 
 ## azure_k8s					 deploys azure k8s cluster for MP and N-number of CPs(*) leveraging AKS
 .PHONY: azure_k8s
@@ -52,6 +62,13 @@ aws_k8s:
 	terraform apply ${terraform_apply_args} -target=module.aws_base 
 	terraform apply ${terraform_apply_args} -target=module.aws_jumpbox 
 	terraform apply ${terraform_apply_args} -target=module.aws_k8s
+
+## gcp_k8s					 deploys GKE K8s cluster (CPs only)
+.PHONY: gcp_k8s
+gcp_k8s:
+	terraform apply ${terraform_apply_args} -target=module.gcp_base 
+	terraform apply ${terraform_apply_args} -target=module.gcp_jumpbox 
+	terraform apply ${terraform_apply_args} -target=module.gcp_k8s
 
 .PHONY: tsb_deps
 tsb_deps: 
@@ -116,14 +133,14 @@ azure_oidc:
 ## destroy					 destroy the environment
 .PHONY: destroy
 destroy:
-	terraform destroy -refresh=false -target=module.aws_route53_register_fqdn
+	terraform destroy ${terraform_destroy_args} -refresh=false -target=module.aws_route53_register_fqdn
 	terraform state list | grep "^module.tsb" | xargs -I '{}'  terraform state rm {}
 	terraform state list | grep "^module.cert" | xargs -I '{}'  terraform state rm {}
 	terraform state list | grep "^module.argo" | xargs -I '{}'  terraform state rm {}
 	terraform state list | grep "^module.es" | xargs -I '{}'  terraform state rm {}
 	terraform state list | grep "^module.keycloak" | xargs -I '{}'  terraform state rm {}
 	terraform state list | grep "^module.app" | xargs -I '{}'  terraform state rm {}
-	terraform destroy -refresh=false -target=module.aws_k8s -target=module.aws_jumpbox  -target=module.aws_base
-	terraform destroy -refresh=false -target=module.azure_k8s  -target=module.azure_jumpbox -target=module.azure_base
-	terraform destroy -refresh=false 
-	terraform destroy 
+	terraform destroy ${terraform_destroy_args} -refresh=false -target=module.aws_k8s -target=module.aws_jumpbox  -target=module.aws_base
+	terraform destroy ${terraform_destroy_args} -refresh=false -target=module.azure_k8s  -target=module.azure_jumpbox -target=module.azure_base
+	terraform destroy ${terraform_destroy_args} -refresh=false 
+	terraform destroy ${terraform_destroy_args}
