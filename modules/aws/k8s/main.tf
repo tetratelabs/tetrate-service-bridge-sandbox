@@ -39,10 +39,10 @@ module "eks" {
 
   cluster_security_group_additional_rules = {
     egress_nodes_ephemeral_ports_tcp = {
-      description                = "To node 1025-65535"
-      protocol                   = "tcp"
-      from_port                  = 1025
-      to_port                    = 65535
+      description                = "all"
+      protocol                   = "-1"
+      from_port                  = 0
+      to_port                    = 0
       type                       = "egress"
       source_node_security_group = true
     }
@@ -55,7 +55,7 @@ module "eks" {
       from_port   = 0
       to_port     = 0
       type        = "ingress"
-      self        = true
+      cidr_blocks      = ["0.0.0.0/0"]
     }
     egress_all = {
       description      = "Node all egress"
@@ -64,7 +64,6 @@ module "eks" {
       to_port          = 0
       type             = "egress"
       cidr_blocks      = ["0.0.0.0/0"]
-      ipv6_cidr_blocks = ["::/0"]
     }
   }
 
