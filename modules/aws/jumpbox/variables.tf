@@ -2,6 +2,9 @@ variable "name_prefix" {
   description = "name prefix"
 }
 
+variable "owner" {
+}
+
 variable "vpc_id" {
 }
 

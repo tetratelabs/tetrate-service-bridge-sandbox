@@ -5,7 +5,7 @@ resource "aws_security_group" "jumpbox_sg" {
   tags = {
     Name            = "${var.name_prefix}_jumpbox_sg"
     Owner           = "${var.name_prefix}_tsb"
-    "Tetrate:Owner" = "sergey@tetrate.io"
+    "Tetrate:Owner" = var.owner
   }
 
   ingress {
@@ -223,7 +223,7 @@ resource "aws_instance" "jumpbox" {
   subnet_id                   = var.vpc_subnet
   associate_public_ip_address = true
   source_dest_check           = false
-  user_data                   = base64encode(templatefile("${path.module}/jumpbox.userdata",{
+  user_data = base64encode(templatefile("${path.module}/jumpbox.userdata", {
     jumpbox_username        = var.jumpbox_username
     tsb_version             = var.tsb_version
     tsb_image_sync_username = var.tsb_image_sync_username
@@ -231,18 +231,18 @@ resource "aws_instance" "jumpbox" {
     registry                = var.registry
     pubkey                  = tls_private_key.generated.public_key_openssh
   }))
-  iam_instance_profile        = aws_iam_instance_profile.jumpbox_iam_profile.name
+  iam_instance_profile = aws_iam_instance_profile.jumpbox_iam_profile.name
 
   tags = {
     Name            = "${var.name_prefix}_jumpbox"
     Owner           = "${var.name_prefix}_tsb"
-    "Tetrate:Owner" = "sergey@tetrate.io"
+    "Tetrate:Owner" = var.owner
   }
 
   volume_tags = {
     Name            = "${var.name_prefix}_jumpbox"
     Owner           = "${var.name_prefix}_tsb"
-    "Tetrate:Owner" = "sergey@tetrate.io"
+    "Tetrate:Owner" = var.owner
   }
 
 }
