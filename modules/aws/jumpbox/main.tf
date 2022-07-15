@@ -215,6 +215,12 @@ resource "aws_instance" "jumpbox" {
   subnet_id                   = var.vpc_subnet
   associate_public_ip_address = true
   source_dest_check           = false
+  root_block_device {
+    volume_type           = "standard"
+    volume_size           = "20"
+    delete_on_termination = "true"
+  }
+
   user_data = base64encode(templatefile("${path.module}/jumpbox.userdata", {
     jumpbox_username        = var.jumpbox_username
     tsb_version             = var.tsb_version
