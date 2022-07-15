@@ -186,14 +186,6 @@ resource "aws_key_pair" "tsbadmin_key_pair" {
   public_key = tls_private_key.generated.public_key_openssh
 }
 
-
-resource "local_file" "tsbadmin_pem" {
-  content         = tls_private_key.generated.private_key_pem
-  filename        = "${var.name_prefix}-aws-${var.jumpbox_username}.pem"
-  depends_on      = [tls_private_key.generated]
-  file_permission = "0600"
-}
-
 data "aws_ami" "ubuntu" {
 
   most_recent = true
@@ -228,6 +220,7 @@ resource "aws_instance" "jumpbox" {
     tsb_version             = var.tsb_version
     tsb_image_sync_username = var.tsb_image_sync_username
     tsb_image_sync_apikey   = var.tsb_image_sync_apikey
+    docker_login            = "aws ecr get-login-password --region ${data.aws_availability_zones.available.id} | docker login --username AWS --password-stdin ${var.registry}"
     registry                = var.registry
     pubkey                  = tls_private_key.generated.public_key_openssh
   }))
@@ -245,4 +238,17 @@ resource "aws_instance" "jumpbox" {
     "Tetrate:Owner" = var.owner
   }
 
+}
+
+resource "local_file" "tsbadmin_pem" {
+  content         = tls_private_key.generated.private_key_pem
+  filename        = "${var.name_prefix}-aws-${var.jumpbox_username}.pem"
+  depends_on      = [tls_private_key.generated]
+  file_permission = "0600"
+}
+
+resource "local_file" "ssh_jumpbox" {
+  content         = "/bin/sh ssh -i ${var.name_prefix}-aws-${var.jumpbox_username}.pem -l ${var.jumpbox_username} ${aws_instance.jumpbox.public_ip}"
+  filename        = "ssh-to-aws-jumpbox.sh"
+  file_permission = "0755"
 }

@@ -47,24 +47,25 @@ The setup consists of
 - terraform >= 1.0.0
 - configured and assumed Azure role
 - configured and assumed AWS role
+- (optional) configured and assumed GCP role `gcloud auth application-default login`
 
 ## Usage
 
 terraform.tfvars
 
 ```
-name_prefix = "juggles"
+
+name_prefix = "<YOUR UNIQUE PREFIX NAME TO BE CREATED>
 tsb_image_sync_username = "cloudsmith-username"
-tsb_image_sync_apikey   = "cloudsmith-apikey"
-tsb_helm_username       = "cloudsmith-username"
-tsb_helm_password       = "cloudsmith-apikey"
-tsb_fqdn                = "<YOUR UNIQUE NAME TO BE CREATED>.cx.tetrate.info"
-tsb_version                  = "1.5.0-EA2"
-tsb_password                 = "Tetrate123"
-azure_region                 = "East US"
-aws_region                   = "eu-west-1"
-aws_eks_app_clusters_count   = 0
+tsb_image_sync_apikey = "cloudsmith-apikey"
+tsb_fqdn = "<YOUR UNIQUE NAME TO BE CREATED>.cx.tetrate.info"
+tsb_version = "1.5.0-EA2"
+tsb_password = "Tetrate123"
+azure_region = "East US"
+aws_region = "eu-west-1"
+aws_eks_app_clusters_count = 0
 azure_aks_app_clusters_count = 1
+
 ```
 
 To stand up the demo continue with the steps below:

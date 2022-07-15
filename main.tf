@@ -79,6 +79,22 @@ module "gcp_base" {
   cidr        = var.cidr
 }
 
+module "gcp_jumpbox" {
+  count                   = var.gcp_gke_app_clusters_count > 0 ? 1 : 0
+  source                  = "./modules/gcp/jumpbox"
+  name_prefix             = var.name_prefix
+  region                  = var.gcp_region
+  project_id              = module.gcp_base[0].project_id
+  vpc_id                  = module.gcp_base[0].vpc_id
+  vpc_subnet              = module.gcp_base[0].vpc_subnets[0]
+  tsb_version             = var.tsb_version
+  jumpbox_username        = var.jumpbox_username
+  tsb_image_sync_username = var.tsb_image_sync_username
+  tsb_image_sync_apikey   = var.tsb_image_sync_apikey
+  registry                = module.gcp_base[0].registry
+}
+
+
 module "cert-manager" {
   source                     = "./modules/addons/cert-manager"
   cluster_name               = local.cloud[var.cloud][var.cluster_id].cluster_name

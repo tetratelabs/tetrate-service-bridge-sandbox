@@ -5,7 +5,7 @@ resource "random_string" "random" {
   special = false
   lower   = true
   upper   = false
-  number  = false
+  numeric = false
 }
 
 resource "google_project" "tsb" {
@@ -20,6 +20,19 @@ resource "google_project_service" "compute" {
   service = "compute.googleapis.com"
 }
 
+resource "google_project_service" "containerregistry" {
+  project = google_project.tsb.project_id
+  service = "containerregistry.googleapis.com"
+}
+
+
+resource "time_sleep" "wait_60_seconds" {
+  depends_on = [
+    google_project_service.compute,
+    google_project_service.containerregistry
+  ]
+  create_duration = "60s"
+}
 
 resource "google_compute_network" "tsb" {
   name                    = "${var.name_prefix}-vpc"
@@ -27,7 +40,7 @@ resource "google_compute_network" "tsb" {
   auto_create_subnetworks = "false"
   routing_mode            = "REGIONAL"
   depends_on = [
-    google_project_service.compute
+    time_sleep.wait_60_seconds
   ]
 }
 
@@ -42,7 +55,7 @@ data "google_compute_zones" "available" {
   project = google_project.tsb.project_id
   region  = var.region
   depends_on = [
-    google_project_service.compute
+    time_sleep.wait_60_seconds
   ]
 }
 
@@ -89,16 +102,4 @@ resource "google_compute_firewall" "tsb" {
     ports    = ["22", "80", "443", "15443"]
   }
 
-}
-
-resource "google_project_service" "containerregistry" {
-  project = google_project.tsb.project_id
-  service = "containerregistry.googleapis.com"
-}
-
-resource "google_container_registry" "tsb" {
-  project = google_project.tsb.project_id
-  depends_on = [
-    google_project_service.containerregistry
-  ]
 }

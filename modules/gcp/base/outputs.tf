@@ -15,11 +15,7 @@ output "vpc_subnets" {
 }
 
 output "registry" {
-  value = google_container_registry.tsb.bucket_self_link
-}
-
-output "registry_id" {
-  value = google_container_registry.tsb.id
+  value = "gcr.io/${google_project.tsb.project_id}"
 }
 
 
