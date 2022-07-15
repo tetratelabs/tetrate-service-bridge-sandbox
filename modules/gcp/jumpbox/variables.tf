@@ -6,7 +6,6 @@ variable "region" {
 }
 
 variable "project_id" {
-  description = "resource group name"
 }
 
 variable "vpc_id" {

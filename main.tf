@@ -94,6 +94,16 @@ module "gcp_jumpbox" {
   registry                = module.gcp_base[0].registry
 }
 
+module "gcp_k8s" {
+  source       = "./modules/gcp/k8s"
+  count        = var.gcp_gke_app_clusters_count
+  name_prefix  = var.name_prefix
+  cluster_name = "${var.name_prefix}-gke-${count.index + 1}"
+  project_id   = module.gcp_base[0].project_id
+  region       = var.gcp_region
+  k8s_version  = var.gcp_gke_k8s_version
+  depends_on   = [module.gcp_jumpbox[0]]
+}
 
 module "cert-manager" {
   source                     = "./modules/addons/cert-manager"
