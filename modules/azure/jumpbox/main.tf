@@ -100,11 +100,12 @@ resource "azurerm_linux_virtual_machine" "jumpbox" {
   size                  = "Standard_F2s_v2"
   network_interface_ids = [azurerm_network_interface.jumpbox_nic.id]
   admin_username        = var.jumpbox_username
-  custom_data           = base64encode(templatefile("${path.module}/jumpbox.userdata",{
+  custom_data = base64encode(templatefile("${path.module}/jumpbox.userdata", {
     jumpbox_username        = var.jumpbox_username
     tsb_version             = var.tsb_version
     tsb_image_sync_username = var.tsb_image_sync_username
     tsb_image_sync_apikey   = var.tsb_image_sync_apikey
+    docker_login            = "docker login -u ${var.registry_username} -p ${var.registry_password} ${var.registry}"
     registry                = var.registry
     registry_admin          = var.registry_username
     registry_password       = var.registry_password
@@ -149,4 +150,10 @@ resource "local_file" "tsbadmin_pem" {
   filename        = "${var.name_prefix}-azure-${var.jumpbox_username}.pem"
   depends_on      = [tls_private_key.generated]
   file_permission = "0600"
+}
+
+resource "local_file" "ssh_jumpbox" {
+  content         = "/bin/sh ssh -i ${var.name_prefix}-azure-${var.jumpbox_username}.pem -l ${var.jumpbox_username} ${azurerm_public_ip.jumpbox_public_ip.ip_address}"
+  filename        = "ssh-to-azure-jumpbox.sh"
+  file_permission = "0755"
 }

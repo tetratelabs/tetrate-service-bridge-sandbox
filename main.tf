@@ -43,8 +43,9 @@ module "aws_base" {
 }
 
 module "aws_jumpbox" {
-  count                   = var.aws_eks_app_clusters_count > 0 ? 1 : 0
   source                  = "./modules/aws/jumpbox"
+  count                   = var.aws_eks_app_clusters_count > 0 ? 1 : 0
+  owner                   = var.owner
   name_prefix             = var.name_prefix
   vpc_id                  = module.aws_base[0].vpc_id
   vpc_subnet              = module.aws_base[0].vpc_subnets[0]
@@ -59,12 +60,49 @@ module "aws_jumpbox" {
 module "aws_k8s" {
   source       = "./modules/aws/k8s"
   count        = var.aws_eks_app_clusters_count
+  owner        = var.owner
   k8s_version  = var.aws_eks_k8s_version
   vpc_id       = module.aws_base[0].vpc_id
   vpc_subnets  = module.aws_base[0].vpc_subnets
   name_prefix  = var.name_prefix
   cluster_name = "${var.name_prefix}-eks-${count.index + 1}"
   depends_on   = [module.aws_jumpbox[0]]
+}
+
+module "gcp_base" {
+  count       = var.gcp_gke_app_clusters_count > 0 ? 1 : 0
+  source      = "./modules/gcp/base"
+  name_prefix = var.name_prefix
+  region      = var.gcp_region
+  org_id      = var.gcp_org_id
+  billing_id  = var.gcp_billing_id
+  cidr        = var.cidr
+}
+
+module "gcp_jumpbox" {
+  count                   = var.gcp_gke_app_clusters_count > 0 ? 1 : 0
+  source                  = "./modules/gcp/jumpbox"
+  name_prefix             = var.name_prefix
+  region                  = var.gcp_region
+  project_id              = module.gcp_base[0].project_id
+  vpc_id                  = module.gcp_base[0].vpc_id
+  vpc_subnet              = module.gcp_base[0].vpc_subnets[0]
+  tsb_version             = var.tsb_version
+  jumpbox_username        = var.jumpbox_username
+  tsb_image_sync_username = var.tsb_image_sync_username
+  tsb_image_sync_apikey   = var.tsb_image_sync_apikey
+  registry                = module.gcp_base[0].registry
+}
+
+module "gcp_k8s" {
+  source       = "./modules/gcp/k8s"
+  count        = var.gcp_gke_app_clusters_count
+  name_prefix  = var.name_prefix
+  cluster_name = "${var.name_prefix}-gke-${count.index + 1}"
+  project_id   = module.gcp_base[0].project_id
+  region       = var.gcp_region
+  k8s_version  = var.gcp_gke_k8s_version
+  depends_on   = [module.gcp_jumpbox[0]]
 }
 
 module "cert-manager" {

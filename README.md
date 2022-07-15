@@ -49,24 +49,26 @@ The setup consists of
 - terraform >= 1.0.0
 - configured and assumed Azure role
 - configured and assumed AWS role
+- (optional) configured and assumed GCP role `gcloud auth application-default login`
 
 ## Usage
 
 terraform.tfvars
 
 ```
-name_prefix = "juggles"
+
+name_prefix = "<YOUR UNIQUE PREFIX NAME TO BE CREATED>
 tsb_image_sync_username = "cloudsmith-username"
-tsb_image_sync_apikey   = "cloudsmith-apikey"
-tsb_helm_username       = "cloudsmith-username"
-tsb_helm_password       = "cloudsmith-apikey"
-tsb_fqdn                = "<YOUR UNIQUE NAME TO BE CREATED>.cx.tetrate.info"
-tsb_version                  = "1.5.0-EA2"
-tsb_password                 = "Tetrate123"
-azure_region                 = "East US"
-aws_region                   = "eu-west-1"
-aws_eks_app_clusters_count   = 0
+tsb_image_sync_apikey = "cloudsmith-apikey"
+tsb_fqdn = "<YOUR UNIQUE NAME TO BE CREATED>.cx.tetrate.info"
+tsb_version = "1.5.0"
+tsb_password = "Tetrate123"
+aws_region = "eu-west-1"
+azure_region = "East US"
+gcp_region = "us-west1"
+aws_eks_app_clusters_count = 0
 azure_aks_app_clusters_count = 1
+gcp_gke_app_clusters_count = 0
 ```
 
 To stand up the demo continue with the steps below:
@@ -81,17 +83,19 @@ make tsb_mp
 # deploy TSB CP using Helm chart on the target cluster
 make tsb_cp cluster_id=0 cloud=azure # MP cluster is targetted to be onboarded as Tier1
 make tsb_cp cluster_id=1 cloud=azure
-make tsb_cp cluster_id=0 cloud=aws
+make tsb_cp cluster_id=0 cloud=aws # in case of AWS
+make tsb_cp cluster_id=0 cloud=gcp # in case of GCP
 # deploy apps using ArgoCD on the target cluster
 make argocd cluster_id=1 cloud=azure
 make argocd cluster_id=0 cloud=aws
+make argocd cluster_id=0 cloud=gcp
 ```
 
 The completion of the above steps will result in:
 
 - output TSB management plane endpoint
 - output kubeconfig files for all the created aks clusters in format of: $cluster_name-kubeconfig
-- output IP address and private key for the jumpbox (ssh username: tsbadmin)
+- output IP address and private key for the jumpbox (ssh username: tsbadmin), using shell scripts login to the jumpbox, for example to reach gcp jumpbox just run the script `ssh-to-gcp-jumpbox.sh`
 
 ### ArgoCD
 

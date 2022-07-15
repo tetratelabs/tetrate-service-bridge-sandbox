@@ -1,3 +1,4 @@
+data "aws_availability_zones" "available" {}
 module "eks" {
   source  = "terraform-aws-modules/eks/aws"
   version = "~> 18.23.0"
@@ -6,7 +7,7 @@ module "eks" {
   cluster_version                 = var.k8s_version
   cluster_endpoint_private_access = true
   cluster_endpoint_public_access  = true
-  create_cloudwatch_log_group = false
+  create_cloudwatch_log_group     = false
 
   vpc_id     = var.vpc_id
   subnet_ids = var.vpc_subnets
@@ -32,7 +33,7 @@ module "eks" {
       max_size     = 5
       desired_size = 3
       tags = {
-        "Tetrate:Owner" = "sergey@tetrate.io"
+        "Tetrate:Owner" = var.owner
       }
     }
   }
@@ -55,15 +56,15 @@ module "eks" {
       from_port   = 0
       to_port     = 0
       type        = "ingress"
-      cidr_blocks      = ["0.0.0.0/0"]
+      cidr_blocks = ["0.0.0.0/0"]
     }
     egress_all = {
-      description      = "Node all egress"
-      protocol         = "-1"
-      from_port        = 0
-      to_port          = 0
-      type             = "egress"
-      cidr_blocks      = ["0.0.0.0/0"]
+      description = "Node all egress"
+      protocol    = "-1"
+      from_port   = 0
+      to_port     = 0
+      type        = "egress"
+      cidr_blocks = ["0.0.0.0/0"]
     }
   }
 
@@ -81,4 +82,8 @@ data "aws_eks_cluster_auth" "cluster" {
   depends_on = [module.eks]
 }
 
-
+resource "local_file" "gen_kubeconfig_sh" {
+  content         = "/bin/sh eksctl utils write-kubeconfig --cluster ${var.cluster_name} --region ${data.aws_availability_zones.available.id} --kubeconfig ${var.cluster_name}-kubeconfig"
+  filename        = "generate-${var.cluster_name}-kubeconfig.sh"
+  file_permission = "0755"
+}
