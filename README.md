@@ -66,7 +66,7 @@ azure_region = "East US"
 gcp_region = "us-west1"
 aws_eks_app_clusters_count = 0
 azure_aks_app_clusters_count = 1
-gcp_gke_app_clusters_count = 1
+gcp_gke_app_clusters_count = 0
 ```
 
 To stand up the demo continue with the steps below:
