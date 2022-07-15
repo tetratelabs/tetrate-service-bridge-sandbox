@@ -99,7 +99,7 @@ resource "google_compute_firewall" "tsb" {
 
   allow {
     protocol = "tcp"
-    ports    = ["22", "80", "443", "15443"]
+    ports    = ["22", "80", "443"]
   }
 
 }

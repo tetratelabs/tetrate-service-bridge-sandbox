@@ -5,7 +5,7 @@ data "google_compute_subnetwork" "wait_for_compute_apis_to_be_ready" {
   region    = var.region
 }
 
-
+# doing dependency for google_compute_zones data to wait for compute api readiness... or expose zone from gcp_base module... 
 data "google_compute_zones" "available" {
   project = var.project_id
   region  = data.google_compute_subnetwork.wait_for_compute_apis_to_be_ready.region
