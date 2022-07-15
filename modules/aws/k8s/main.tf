@@ -55,15 +55,15 @@ module "eks" {
       from_port   = 0
       to_port     = 0
       type        = "ingress"
-      cidr_blocks      = ["0.0.0.0/0"]
+      cidr_blocks = ["0.0.0.0/0"]
     }
     egress_all = {
-      description      = "Node all egress"
-      protocol         = "-1"
-      from_port        = 0
-      to_port          = 0
-      type             = "egress"
-      cidr_blocks      = ["0.0.0.0/0"]
+      description = "Node all egress"
+      protocol    = "-1"
+      from_port   = 0
+      to_port     = 0
+      type        = "egress"
+      cidr_blocks = ["0.0.0.0/0"]
     }
   }
 
@@ -81,4 +81,8 @@ data "aws_eks_cluster_auth" "cluster" {
   depends_on = [module.eks]
 }
 
-
+resource "local_file" "gen_kubeconfig_sh" {
+  content         = "/bin/sh eksctl utils write-kubeconfig --cluster ${var.cluster_name} --region ${split(":", module.eks.cluster_endpoint)[3]} --kubeconfig ${var.cluster_name}-kubeconfig"
+  filename        = "generate-${var.cluster_name}-kubeconfig.sh"
+  file_permission = "0755"
+}
