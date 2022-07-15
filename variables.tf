@@ -15,15 +15,17 @@ locals {
 
 locals {
   jumpbox = {
-    aws   = module.aws_jumpbox
+    aws   = module.aws_jumpbox[0]
     azure = module.azure_jumpbox
+    gcp   = module.gcp_jumpbox[0]
   }
 }
 
 locals {
   base = {
-    aws   = module.aws_base
+    aws   = module.aws_base[0]
     azure = module.azure_base
+    gcp   = module.gcp_base[0]
   }
 }
 
