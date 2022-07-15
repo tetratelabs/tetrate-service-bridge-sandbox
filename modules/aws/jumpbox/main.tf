@@ -215,6 +215,7 @@ resource "aws_instance" "jumpbox" {
   subnet_id                   = var.vpc_subnet
   associate_public_ip_address = true
   source_dest_check           = false
+
   root_block_device {
     volume_type           = "standard"
     volume_size           = "20"
