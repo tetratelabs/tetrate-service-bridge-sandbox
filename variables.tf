@@ -2,6 +2,10 @@ variable "cloud" {
   default = "azure"
 }
 
+variable "owner" {
+  default = "tsb-sandbox@tetrate.io"
+}
+
 locals {
   cloud = {
     aws   = module.aws_k8s
@@ -13,6 +17,7 @@ locals {
   jumpbox = {
     aws   = module.aws_jumpbox[0]
     azure = module.azure_jumpbox
+    gcp   = module.gcp_jumpbox[0]
   }
 }
 
@@ -20,6 +25,7 @@ locals {
   base = {
     aws   = module.aws_base[0]
     azure = module.azure_base
+    gcp   = module.gcp_base[0]
   }
 }
 
@@ -88,6 +94,17 @@ variable "azure_region" {
   default = "eastus"
 }
 
+variable "gcp_region" {
+  default = "us-west1"
+}
+
+variable "gcp_org_id" {
+  default = "775566979306"
+}
+
+variable "gcp_billing_id" {
+  default = "0183E5-447B34-776DEB"
+}
 variable "aws_eks_k8s_version" {
   default = "1.22"
 }
@@ -96,11 +113,18 @@ variable "azure_aks_k8s_version" {
   default = "1.23.5"
 }
 
-variable "aws_eks_app_clusters_count" {
-  default = 1
+variable "gcp_gke_k8s_version" {
+  default = "1.21.12-gke.1500"
 }
 
 variable "azure_aks_app_clusters_count" {
   default = 1
+}
+variable "aws_eks_app_clusters_count" {
+  default = 0
+}
+
+variable "gcp_gke_app_clusters_count" {
+  default = 0
 }
 
