@@ -1,3 +1,4 @@
+data "aws_availability_zones" "available" {}
 module "eks" {
   source  = "terraform-aws-modules/eks/aws"
   version = "~> 18.23.0"
@@ -82,7 +83,7 @@ data "aws_eks_cluster_auth" "cluster" {
 }
 
 resource "local_file" "gen_kubeconfig_sh" {
-  content         = "/bin/sh eksctl utils write-kubeconfig --cluster ${var.cluster_name} --region ${split(":", module.eks.cluster_endpoint)[3]} --kubeconfig ${var.cluster_name}-kubeconfig"
+  content         = "/bin/sh eksctl utils write-kubeconfig --cluster ${var.cluster_name} --region ${data.aws_availability_zones.available.id} --kubeconfig ${var.cluster_name}-kubeconfig"
   filename        = "generate-${var.cluster_name}-kubeconfig.sh"
   file_permission = "0755"
 }
