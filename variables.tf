@@ -10,6 +10,7 @@ locals {
   cloud = {
     aws   = module.aws_k8s
     azure = module.azure_k8s
+    gcp   = module.gcp_k8s
   }
 }
 
