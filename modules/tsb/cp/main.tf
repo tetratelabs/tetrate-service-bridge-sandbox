@@ -65,15 +65,13 @@ data "local_file" "service_account" {
   depends_on = [null_resource.jumpbox_tctl]
 }
 resource "helm_release" "controlplane" {
-  name                = "controlplane"
-  repository          = "https://dl.cloudsmith.io/basic/tetrate/tsb-helm/helm/charts/"
-  chart               = "controlplane"
-  version             = var.tsb_helm_version
-  create_namespace    = true
-  namespace           = "istio-system"
-  timeout             = 900
-  repository_username = var.tsb_helm_username
-  repository_password = var.tsb_helm_password
+  name             = "controlplane"
+  repository       = var.tsb_helm_repository
+  chart            = "controlplane"
+  version          = var.tsb_helm_version
+  create_namespace = true
+  namespace        = "istio-system"
+  timeout          = 900
 
   values = [templatefile("${path.module}/manifests/tsb/controlplane-values.yaml.tmpl", {
     registry                  = var.registry
@@ -122,15 +120,13 @@ resource "kubernetes_secret_v1" "cacerts" {
   depends_on = [helm_release.controlplane]
 }
 resource "helm_release" "dataplane" {
-  name                = "dataplane"
-  repository          = "https://dl.cloudsmith.io/basic/tetrate/tsb-helm/helm/charts/"
-  chart               = "dataplane"
-  version             = var.tsb_helm_version
-  create_namespace    = true
-  namespace           = "istio-gateway"
-  timeout             = 900
-  repository_username = var.tsb_helm_username
-  repository_password = var.tsb_helm_password
+  name             = "dataplane"
+  repository       = var.tsb_helm_repository
+  chart            = "dataplane"
+  version          = var.tsb_helm_version
+  create_namespace = true
+  namespace        = "istio-gateway"
+  timeout          = 900
 
   set {
     name  = "image.registry"

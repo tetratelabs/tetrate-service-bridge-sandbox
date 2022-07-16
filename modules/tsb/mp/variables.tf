@@ -8,6 +8,9 @@ variable "cluster_name" {
 variable "tsb_version" {
 }
 
+variable "tsb_helm_repository" {
+}
+
 variable "tsb_helm_version" {
 }
 
@@ -27,12 +30,6 @@ variable "tsb_image_sync_username" {
 }
 
 variable "tsb_image_sync_apikey" {
-}
-
-variable "tsb_helm_username" {
-}
-
-variable "tsb_helm_password" {
 }
 
 variable "registry" {
