@@ -153,7 +153,7 @@ resource "local_file" "tsbadmin_pem" {
 }
 
 resource "local_file" "ssh_jumpbox" {
-  content         = "/bin/sh ssh -i ${var.name_prefix}-azure-${var.jumpbox_username}.pem -l ${var.jumpbox_username} ${azurerm_public_ip.jumpbox_public_ip.ip_address}"
+  content         = "ssh -i ${var.name_prefix}-azure-${var.jumpbox_username}.pem -l ${var.jumpbox_username} ${azurerm_public_ip.jumpbox_public_ip.ip_address}"
   filename        = "ssh-to-azure-jumpbox.sh"
   file_permission = "0755"
 }
