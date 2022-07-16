@@ -3,7 +3,7 @@ output "host" {
 }
 
 output "cluster_ca_certificate" {
-  value = module.gke_auth.cluster_ca_certificate
+  value = base64encode(module.gke_auth.cluster_ca_certificate)
 }
 
 output "token" {
