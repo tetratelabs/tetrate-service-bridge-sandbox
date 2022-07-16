@@ -83,7 +83,7 @@ resource "local_file" "tsbadmin_pem" {
 } */
 
 resource "local_file" "ssh_jumpbox" {
-  content         = "/bin/sh ssh -i ${var.name_prefix}-gcp-${var.jumpbox_username}.pem -l ${var.jumpbox_username} ${google_compute_instance.jumpbox.network_interface.access_config.nat_ip}"
+  content         = "ssh -i ${var.name_prefix}-gcp-${var.jumpbox_username}.pem -l ${var.jumpbox_username} ${google_compute_instance.jumpbox.network_interface[0].access_config[0].nat_ip}"
   filename        = "ssh-to-azure-jumpbox.sh"
   file_permission = "0755"
 }

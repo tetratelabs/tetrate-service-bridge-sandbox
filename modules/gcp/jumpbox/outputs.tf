@@ -3,5 +3,5 @@ output "pkey" {
 }
 
 output "public_ip" {
-  value = google_compute_instance.jumpbox.network_interface.access_config.nat_ip
+  value = google_compute_instance.jumpbox.network_interface[0].access_config[0].nat_ip
 }
