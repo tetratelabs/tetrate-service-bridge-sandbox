@@ -28,15 +28,16 @@ resource "null_resource" "jumpbox_tctl" {
     private_key = var.jumpbox_pkey
   }
   provisioner "file" {
-    content = templatefile("${path.module}/manifests/tsb/cluster.yaml.tmpl",{
-      cluster_name  = var.cluster_name
-      tsb_org       = var.tsb_org
-      tier1_cluster = var.tier1_cluster
+    content = templatefile("${path.module}/manifests/tsb/cluster.yaml.tmpl", {
+      cluster_name    = var.cluster_name
+      tsb_org         = var.tsb_org
+      tier1_cluster   = var.tier1_cluster
+      locality_region = var.locality_region
     })
     destination = "${var.cluster_name}-cluster.yaml"
   }
   provisioner "file" {
-    content = templatefile("${path.module}/manifests/tctl/tctl-controlplane.sh.tmpl",{
+    content = templatefile("${path.module}/manifests/tctl/tctl-controlplane.sh.tmpl", {
       cluster_name = var.cluster_name
       tsb_mp_host  = var.tsb_mp_host
       tsb_org      = var.tsb_org
@@ -74,17 +75,17 @@ resource "helm_release" "controlplane" {
   repository_username = var.tsb_helm_username
   repository_password = var.tsb_helm_password
 
-  values = [templatefile("${path.module}/manifests/tsb/controlplane-values.yaml.tmpl",{
-      registry                  = var.registry
-      tsb_version               = var.tsb_version
-      tsb_fqdn                  = var.tsb_fqdn
-      cluster_name              = var.cluster_name
-      serviceaccount_clusterfqn = "organizations/${var.tsb_org}/clusters/${var.cluster_name}"
-      serviceaccount_jwk        = data.local_file.service_account.content
-      es_host                   = var.es_host
-      es_username               = var.es_username
-      es_password               = var.es_password
-    })]
+  values = [templatefile("${path.module}/manifests/tsb/controlplane-values.yaml.tmpl", {
+    registry                  = var.registry
+    tsb_version               = var.tsb_version
+    tsb_fqdn                  = var.tsb_fqdn
+    cluster_name              = var.cluster_name
+    serviceaccount_clusterfqn = "organizations/${var.tsb_org}/clusters/${var.cluster_name}"
+    serviceaccount_jwk        = data.local_file.service_account.content
+    es_host                   = var.es_host
+    es_username               = var.es_username
+    es_password               = var.es_password
+  })]
 
   set {
     name  = "secrets.tsb.cacert"

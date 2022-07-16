@@ -11,6 +11,9 @@ variable "cluster_name" {
 variable "cloud" {
 }
 
+variable "locality_region" {
+}
+
 variable "jumpbox_host" {
 }
 

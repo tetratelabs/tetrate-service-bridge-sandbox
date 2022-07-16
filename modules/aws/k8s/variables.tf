@@ -8,6 +8,9 @@ variable "cluster_name" {
   description = "cluster name"
 }
 
+variable "region" {
+}
+
 variable "vpc_id" {
 }
 

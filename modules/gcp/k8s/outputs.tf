@@ -22,3 +22,6 @@ output "cluster_name" {
   value = var.cluster_name
 }
 
+output "locality_region" {
+  value = var.region
+}
