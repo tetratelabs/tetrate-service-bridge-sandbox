@@ -89,16 +89,14 @@ data "kubernetes_service" "es" {
 }
 
 resource "helm_release" "managementplane" {
-  name                = "managementplane"
-  repository          = "https://dl.cloudsmith.io/basic/tetrate/tsb-helm/helm/charts/"
-  chart               = "managementplane"
-  version             = var.tsb_helm_version
-  namespace           = "tsb"
-  timeout             = 900
-  repository_username = var.tsb_helm_username
-  repository_password = var.tsb_helm_password
+  name       = "managementplane"
+  repository = var.tsb_helm_repository
+  chart      = "managementplane"
+  version    = var.tsb_helm_version
+  namespace  = "tsb"
+  timeout    = 900
 
-  values = [templatefile("${path.module}/manifests/tsb/managementplane-values.yaml.tmpl",{
+  values = [templatefile("${path.module}/manifests/tsb/managementplane-values.yaml.tmpl", {
     #tsb
     tsb_version  = var.tsb_version
     registry     = var.registry

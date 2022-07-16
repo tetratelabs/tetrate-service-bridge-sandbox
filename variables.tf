@@ -45,14 +45,6 @@ variable "tsb_image_sync_username" {
 variable "tsb_image_sync_apikey" {
 }
 
-variable "tsb_helm_username" {
-  default = null
-}
-
-variable "tsb_helm_password" {
-  default = null
-}
-
 variable "tsb_username" {
   default = "admin"
 }
@@ -62,6 +54,9 @@ variable "tsb_password" {
 
 variable "tsb_version" {
   default = "1.5.0"
+}
+variable "tsb_helm_repository" {
+  default = "https://charts.dl.tetrate.io/public/helm/charts/"
 }
 variable "tsb_helm_version" {
   default = null

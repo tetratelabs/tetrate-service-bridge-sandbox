@@ -160,6 +160,7 @@ module "tsb_mp" {
   #source                     = "git::https://github.com/smarunich/terraform-tsb-mp.git?ref=v1.1.1"
   name_prefix                = var.name_prefix
   tsb_version                = var.tsb_version
+  tsb_helm_repository        = var.tsb_helm_repository
   tsb_helm_version           = var.tsb_helm_version != null ? var.tsb_helm_version : var.tsb_version
   tsb_fqdn                   = var.tsb_fqdn
   tsb_org                    = var.tsb_org
@@ -167,8 +168,6 @@ module "tsb_mp" {
   tsb_password               = var.tsb_password
   tsb_image_sync_username    = var.tsb_image_sync_username
   tsb_image_sync_apikey      = var.tsb_image_sync_apikey
-  tsb_helm_username          = var.tsb_helm_username != null ? var.tsb_helm_username : var.tsb_image_sync_username
-  tsb_helm_password          = var.tsb_helm_password != null ? var.tsb_helm_password : var.tsb_image_sync_apikey
   registry                   = local.base["azure"].registry
   cluster_name               = local.cloud["azure"][0].cluster_name
   k8s_host                   = local.cloud["azure"][0].host
@@ -183,6 +182,7 @@ module "tsb_cp" {
   cluster_id                 = var.cluster_id
   name_prefix                = var.name_prefix
   tsb_version                = var.tsb_version
+  tsb_helm_repository        = var.tsb_helm_repository
   tsb_helm_version           = var.tsb_helm_version != null ? var.tsb_helm_version : var.tsb_version
   tsb_mp_host                = module.tsb_mp.host
   tier1_cluster              = var.cluster_id == "0" && var.cloud == "azure" ? var.mp_as_tier1_cluster : false
@@ -195,8 +195,6 @@ module "tsb_cp" {
   istiod_cacerts_tls_key     = module.tsb_mp.istiod_cacerts_tls_key
   tsb_image_sync_username    = var.tsb_image_sync_username
   tsb_image_sync_apikey      = var.tsb_image_sync_apikey
-  tsb_helm_username          = var.tsb_helm_username != null ? var.tsb_helm_username : var.tsb_image_sync_username
-  tsb_helm_password          = var.tsb_helm_password != null ? var.tsb_helm_password : var.tsb_image_sync_apikey
   es_host                    = module.tsb_mp.es_host
   es_username                = module.tsb_mp.es_username
   es_password                = module.tsb_mp.es_password
