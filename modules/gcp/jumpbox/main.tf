@@ -18,6 +18,9 @@ resource "tls_private_key" "generated" {
 
 data "google_compute_default_service_account" "default" {
   project = var.project_id
+  depends_on = [
+    data.google_compute_subnetwork.wait_for_compute_apis_to_be_ready
+  ]
 }
 
 
@@ -36,6 +39,9 @@ resource "google_compute_instance" "jumpbox" {
   network_interface {
     network    = var.vpc_id
     subnetwork = var.vpc_subnet
+    access_config {
+      // Ephemeral public IP
+    }
   }
 
   # image support required for user-data https://cloud.google.com/container-optimized-os/docs/how-to/create-configure-instance
@@ -70,10 +76,14 @@ resource "local_file" "tsbadmin_pem" {
   file_permission = "0600"
 }
 
-resource "local_file" "ssh_jumpbox" {
+/* resource "local_file" "ssh_jumpbox" {
   content         = "/bin/sh gcloud compute ssh ${google_compute_instance.jumpbox.name} --project=${var.project_id} --zone=${data.google_compute_zones.available.names[0]}"
   filename        = "ssh-to-gcp-jumpbox.sh"
   file_permission = "0755"
+} */
+
+resource "local_file" "ssh_jumpbox" {
+  content         = "/bin/sh ssh -i ${var.name_prefix}-gcp-${var.jumpbox_username}.pem -l ${var.jumpbox_username} ${google_compute_instance.jumpbox.network_interface.access_config.nat_ip}"
+  filename        = "ssh-to-azure-jumpbox.sh"
+  file_permission = "0755"
 }
-
-
