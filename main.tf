@@ -29,7 +29,7 @@ module "azure_k8s" {
   resource_group_name = module.azure_base.resource_group_name
   location            = var.azure_region
   name_prefix         = var.name_prefix
-  cluster_name        = "${substr(var.name_prefix, 0, min(length("${var.name_prefix}"), 6))}${count.index + 1}"
+  cluster_name        = "${var.name_prefix}-aks-${count.index + 1}"
   vnet_subnet         = module.azure_base.vnet_subnets[count.index]
   registry_id         = module.azure_base.registry_id
   depends_on          = [module.azure_jumpbox]
@@ -62,6 +62,7 @@ module "aws_k8s" {
   count        = var.aws_eks_app_clusters_count
   owner        = var.owner
   k8s_version  = var.aws_eks_k8s_version
+  region       = var.aws_region
   vpc_id       = module.aws_base[0].vpc_id
   vpc_subnets  = module.aws_base[0].vpc_subnets
   name_prefix  = var.name_prefix
@@ -180,6 +181,7 @@ module "tsb_cp" {
   source = "./modules/tsb/cp"
   #source                     = "git::https://github.com/smarunich/terraform-tsb-cp.git?ref=v1.1.1"
   cloud                      = var.cloud
+  locality_region            = local.cloud[var.cloud][var.cluster_id].locality_region
   cluster_id                 = var.cluster_id
   name_prefix                = var.name_prefix
   tsb_version                = var.tsb_version
