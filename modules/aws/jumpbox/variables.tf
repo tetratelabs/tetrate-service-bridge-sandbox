@@ -5,6 +5,9 @@ variable "name_prefix" {
 variable "owner" {
 }
 
+variable "region" {
+}
+
 variable "vpc_id" {
 }
 
