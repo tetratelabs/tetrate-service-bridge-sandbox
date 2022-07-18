@@ -247,6 +247,41 @@ resource "aws_instance" "jumpbox" {
 
 }
 
+resource "null_resource" "jumpbox_aws_cleanup" {
+
+  triggers = {
+    host        = aws_instance.jumpbox.public_ip
+    user        = var.jumpbox_username
+    private_key = tls_private_key.generated.private_key_pem
+  }
+
+  connection {
+    host        = self.triggers.host
+    type        = "ssh"
+    agent       = false
+    user        = self.triggers.user
+    private_key = self.triggers.private_key
+  }
+
+  provisioner "file" {
+    content = templatefile("${path.module}/aws_cleanup.sh.tmpl", {
+      vpc_id = var.vpc_id
+      region = var.region
+    })
+    destination = "/home/tsbadmin/aws_cleanup.sh"
+  }
+
+  provisioner "remote-exec" {
+    when = destroy
+    inline = [
+      "sh /home/tsbadmin/aws_cleanup.sh"
+    ]
+    on_failure = continue
+  }
+
+  depends_on = [aws_instance.jumpbox, tls_private_key.generated]
+}
+
 resource "local_file" "tsbadmin_pem" {
   content         = tls_private_key.generated.private_key_pem
   filename        = "${var.name_prefix}-aws-${var.jumpbox_username}.pem"

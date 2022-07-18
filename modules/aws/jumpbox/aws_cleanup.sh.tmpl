@@ -1,0 +1,12 @@
+#!/usr/bin/env bash
+
+export REGION="${region}"
+export VPC_ID="${vpc_id}"
+
+echo 'Destroying K8s ELBs...'
+for elb in $(aws elb describe-load-balancers --region $REGION --query 'LoadBalancerDescriptions[?VPCId=="$VPC_ID"]|[].LoadBalancerName' --output text);do echo "Removing $elb..."; aws elb delete-load-balancer --region $REGION --load-balancer-name $elb; done
+
+sleep 60
+
+echo 'Destroying K8s ELB SGs...'
+for sg in $(aws ec2 --region $REGION describe-security-groups --filters "Name=vpc-id,Values=$VPC_ID" --query "SecurityGroups[*].GroupId" --output text); do echo "Removing $sg..."; aws ec2 delete-security-group --region $REGION --group-id $sg; done

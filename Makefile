@@ -130,6 +130,19 @@ app_bookinfo:
 azure_oidc:
 	terraform apply ${terraform_apply_args} -target=module.azure_oidc
 
+.PHONY: fast_track
+fast_track:
+	make k8s
+	make tsb_mp
+	make tsb_cp cluster_id=0 cloud=azure || true
+	make tsb_cp cluster_id=1 cloud=azure || true
+	make tsb_cp cluster_id=0 cloud=aws || true
+	make tsb_cp cluster_id=0 cloud=gcp || true
+	make argocd cluster_id=0 cloud=azure || true
+	make argocd cluster_id=1 cloud=azure || true
+	make argocd cluster_id=0 cloud=aws || true
+	make argocd cluster_id=0 cloud=gcp || true
+
 ## destroy					 destroy the environment
 .PHONY: destroy
 destroy:
@@ -140,8 +153,11 @@ destroy:
 	terraform state list | grep "^module.es" | xargs -I '{}'  terraform state rm {}
 	terraform state list | grep "^module.keycloak" | xargs -I '{}'  terraform state rm {}
 	terraform state list | grep "^module.app" | xargs -I '{}'  terraform state rm {}
-	terraform destroy ${terraform_destroy_args} -refresh=false -target=module.aws_k8s -target=module.aws_jumpbox  -target=module.aws_base
-	terraform destroy ${terraform_destroy_args} -refresh=false -target=module.gcp_k8s  -target=module.gcp_jumpbox -target=module.gcp_base
-	terraform destroy ${terraform_destroy_args} -refresh=false -target=module.azure_k8s  -target=module.azure_jumpbox -target=module.azure_base
+	terraform destroy ${terraform_destroy_args} -refresh=false -target=module.aws_k8s 
+	terraform destroy ${terraform_destroy_args} -refresh=false -target=module.aws_jumpbox  -target=module.aws_base
+	terraform destroy ${terraform_destroy_args} -refresh=false -target=module.gcp_k8s  
+	terraform destroy ${terraform_destroy_args} -refresh=false -target=module.gcp_jumpbox -target=module.gcp_base
+	terraform destroy ${terraform_destroy_args} -refresh=false -target=module.azure_k8s 
+	terraform destroy ${terraform_destroy_args} -refresh=false -target=module.azure_jumpbox -target=module.azure_base
 	terraform destroy ${terraform_destroy_args} -refresh=false 
 	terraform destroy ${terraform_destroy_args}

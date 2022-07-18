@@ -47,6 +47,7 @@ module "aws_jumpbox" {
   count                   = var.aws_eks_app_clusters_count > 0 ? 1 : 0
   owner                   = var.owner
   name_prefix             = var.name_prefix
+  region                  = var.aws_region
   vpc_id                  = module.aws_base[0].vpc_id
   vpc_subnet              = module.aws_base[0].vpc_subnets[0]
   cidr                    = var.cidr
