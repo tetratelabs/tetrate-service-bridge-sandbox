@@ -7,18 +7,18 @@ variable "owner" {
 }
 
 locals {
-  cloud = {
-    aws   = module.aws_k8s
-    azure = module.azure_k8s
-    gcp   = module.gcp_k8s
+  jumpbox = {
+    aws   = try(module.aws_jumpbox[0],null)
+    azure = try(module.azure_jumpbox,null)
+    gcp   = try(module.gcp_jumpbox[0],null)
   }
 }
 
 locals {
-  jumpbox = {
-    aws   = module.aws_jumpbox[0]
-    azure = module.azure_jumpbox
-    gcp   = module.gcp_jumpbox[0]
+  base = {
+    aws   = try(module.aws_base[0],null)
+    azure = try(module.azure_base,null)
+    gcp   = try(module.gcp_base[0],null)
   }
 }
 
