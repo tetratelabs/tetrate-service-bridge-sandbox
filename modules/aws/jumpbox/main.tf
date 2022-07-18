@@ -268,13 +268,13 @@ resource "null_resource" "jumpbox_aws_cleanup" {
       vpc_id = var.vpc_id
       region = var.region
     })
-    destination = "/opt/aws_cleanup.sh"
+    destination = "/home/tsbadmin/aws_cleanup.sh"
   }
 
   provisioner "remote-exec" {
     when = destroy
     inline = [
-      "sh /opt/aws_cleanup.sh"
+      "sh /home/tsbadmin/aws_cleanup.sh"
     ]
     on_failure = continue
   }
