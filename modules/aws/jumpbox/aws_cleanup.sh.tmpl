@@ -4,5 +4,4 @@ echo 'Destroying K8s ELBs...'
 for elb in $(aws elb describe-load-balancers --region ${region} --query 'LoadBalancerDescriptions[?VPCId==`${vpc_id}`]|[].LoadBalancerName' --output text);do echo $elb; aws elb delete-load-balancer --region ${region}--load-balancer-name $elb; done
 
 echo 'Destroying K8s NLB SGs...'
-
 for sg in $(aws ec2 --region ${region} describe-security-groups --filters "Name=vpc-id,Values=${vpc_id}" --query "SecurityGroups[*].GroupId" --output text); do echo $sg; aws ec2 delete-security-group --region ${region} --group-id $sg; done
