@@ -22,14 +22,6 @@ locals {
   }
 }
 
-locals {
-  base = {
-    aws   = module.aws_base[0]
-    azure = module.azure_base
-    gcp   = module.gcp_base[0]
-  }
-}
-
 variable "name_prefix" {
   description = "name prefix"
 }
