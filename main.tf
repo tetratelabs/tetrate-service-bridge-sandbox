@@ -191,7 +191,7 @@ module "tsb_cp" {
   tsb_helm_repository        = var.tsb_helm_repository
   tsb_helm_version           = var.tsb_helm_version != null ? var.tsb_helm_version : var.tsb_version
   tsb_mp_host                = module.tsb_mp.host
-  tier1_cluster              = var.cluster_id == "0" && var.cloud == "azure" ? var.mp_as_tier1_cluster : false
+  tier1_cluster              = var.cluster_id == var.tsb_mp["cloud"] && var.cloud == var.tsb_mp["cluster_id"] ? var.mp_as_tier1_cluster : false
   tsb_fqdn                   = var.tsb_fqdn
   tsb_org                    = var.tsb_org
   tsb_username               = var.tsb_username
