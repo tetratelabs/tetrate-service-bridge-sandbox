@@ -76,7 +76,7 @@ module "aws_k8s" {
 module "gcp_base" {
   count       = length(var.gcp_k8s_regions)
   source      = "./modules/gcp/base"
-  name_prefix = var.name_prefix
+  name_prefix = "${var.name_prefix}-${var.gcp_k8s_regions[count.index]}"
   project_id  = var.gcp_project_id == null ? google_project.tsb[0].project_id : var.gcp_project_id
   region      = var.gcp_k8s_regions[count.index]
   org_id      = var.gcp_org_id
@@ -102,7 +102,7 @@ module "gcp_jumpbox" {
 module "gcp_k8s" {
   source       = "./modules/gcp/k8s"
   count        = length(var.gcp_k8s_regions)
-  name_prefix  = var.name_prefix
+  name_prefix  = "${var.name_prefix}-${var.gcp_k8s_regions[count.index]}"
   cluster_name = "${var.name_prefix}-gke-${count.index + 1}"
   project_id   = var.gcp_project_id == null ? google_project.tsb[0].project_id : var.gcp_project_id
   region       = var.gcp_k8s_regions[count.index]
@@ -112,18 +112,18 @@ module "gcp_k8s" {
 
 module "cert-manager" {
   source                     = "./modules/addons/cert-manager"
-  cluster_name               = local.cloud[var.cloud][var.cluster_id].cluster_name
-  k8s_host                   = local.cloud[var.cloud][var.cluster_id].host
-  k8s_cluster_ca_certificate = local.cloud[var.cloud][var.cluster_id].cluster_ca_certificate
-  k8s_client_token           = local.cloud[var.cloud][var.cluster_id].token
+  cluster_name               = local.cloud[var.cloud == null ? var.tsb_mp["cloud"] : var.cloud][var.cluster_id == null ? var.tsb_mp["cluster_id"] : var.cluster_id].cluster_name
+  k8s_host                   = local.cloud[var.cloud == null ? var.tsb_mp["cloud"] : var.cloud][var.cluster_id == null ? var.tsb_mp["cluster_id"] : var.cluster_id].host
+  k8s_cluster_ca_certificate = local.cloud[var.cloud == null ? var.tsb_mp["cloud"] : var.cloud][var.cluster_id == null ? var.tsb_mp["cluster_id"] : var.cluster_id].cluster_ca_certificate
+  k8s_client_token           = local.cloud[var.cloud == null ? var.tsb_mp["cloud"] : var.cloud][var.cluster_id == null ? var.tsb_mp["cluster_id"] : var.cluster_id].token
 }
 
 module "es" {
   source                     = "./modules/addons/elastic"
-  cluster_name               = local.cloud[var.tsb_mp_cloud][var.tsb_mp_cluster_id].cluster_name
-  k8s_host                   = local.cloud[var.tsb_mp_cloud][var.tsb_mp_cluster_id].host
-  k8s_cluster_ca_certificate = local.cloud[var.tsb_mp_cloud][var.tsb_mp_cluster_id].cluster_ca_certificate
-  k8s_client_token           = local.cloud[var.tsb_mp_cloud][var.tsb_mp_cluster_id].token
+  cluster_name               = local.cloud[var.tsb_mp["cloud"]][var.tsb_mp["cluster_id"]].cluster_name
+  k8s_host                   = local.cloud[var.tsb_mp["cloud"]][var.tsb_mp["cluster_id"]].host
+  k8s_cluster_ca_certificate = local.cloud[var.tsb_mp["cloud"]][var.tsb_mp["cluster_id"]].cluster_ca_certificate
+  k8s_client_token           = local.cloud[var.tsb_mp["cloud"]][var.tsb_mp["cluster_id"]].token
 }
 
 module "argocd" {
@@ -173,11 +173,11 @@ module "tsb_mp" {
   tsb_password               = var.tsb_password
   tsb_image_sync_username    = var.tsb_image_sync_username
   tsb_image_sync_apikey      = var.tsb_image_sync_apikey
-  registry                   = local.base[var.tsb_mp_cloud].registry
-  cluster_name               = local.cloud[var.tsb_mp_cloud][var.tsb_mp_cluster_id].cluster_name
-  k8s_host                   = local.cloud[var.tsb_mp_cloud][var.tsb_mp_cluster_id].host
-  k8s_cluster_ca_certificate = local.cloud[var.tsb_mp_cloud][var.tsb_mp_cluster_id].cluster_ca_certificate
-  k8s_client_token           = local.cloud[var.tsb_mp_cloud][var.tsb_mp_cluster_id].token
+  registry                   = local.base[var.tsb_mp["cloud"]].registry
+  cluster_name               = local.cloud[var.tsb_mp["cloud"]][var.tsb_mp["cluster_id"]].cluster_name
+  k8s_host                   = local.cloud[var.tsb_mp["cloud"]][var.tsb_mp["cluster_id"]].host
+  k8s_cluster_ca_certificate = local.cloud[var.tsb_mp["cloud"]][var.tsb_mp["cluster_id"]].cluster_ca_certificate
+  k8s_client_token           = local.cloud[var.tsb_mp["cloud"]][var.tsb_mp["cluster_id"]].token
 }
 
 module "tsb_cp" {

@@ -75,18 +75,13 @@ gcp_k8s: init
 
 .PHONY: tsb_deps
 tsb_deps: 
-	@echo "Deploying TSB MP preqs to azure cluster with cluster_id=0"
-  ## working around the issue: https://github.com/hashicorp/terraform-provider-azurerm/issues/2602
-	terraform apply ${terraform_apply_args} -target=module.azure_k8s -target=module.aws_base -target=module.aws_jumpbox  
-	terraform apply ${terraform_apply_args} -target=module.cert-manager -var=cluster_id=$var.tsb_mp_cluster_id -var=cloud=$var.tsb_mp_cloud
+	@echo "Deploying TSB MP preqs"
+	terraform apply ${terraform_apply_args} -target=module.cert-manager -target=module.es
 
 ## tsb_mp						 deploys MP
 .PHONY: tsb_mp
 tsb_mp: tsb_deps
-	@echo "Deploying TSB MP to azure cluster with cluster_id=0"
-  ## working around the issue: https://github.com/hashicorp/terraform-provider-azurerm/issues/2602
-	terraform apply ${terraform_apply_args} -target=module.azure_k8s -target=module.aws_base -target=module.aws_jumpbox 
-  terraform apply ${terraform_apply_args} -target=module.es
+	@echo "Deploying TSB MP"
 	terraform apply ${terraform_apply_args} -target=module.tsb_mp.kubectl_manifest.manifests_certs
 	terraform apply ${terraform_apply_args} -target=module.tsb_mp
 	terraform apply ${terraform_apply_args} -target=module.aws_route53_register_fqdn
@@ -102,9 +97,7 @@ tsb_cp:
 	@echo "Onboarding ${cloud} cluster with cluster_id=${cluster_id} into TSB"
 	#terraform state list | grep "^module.cert-manager" | grep -v data | grep -v manifest | grep -v helm | grep -v wait| tr -d ':' | xargs -I '{}' terraform taint {}
 	terraform taint -allow-missing "module.cert-manager.time_sleep.wait_90_seconds"
-	terraform taint -allow-missing "module.tsb_cp.null_resource.jumpbox_tctl"
-  ## working around the issue: https://github.com/hashicorp/terraform-provider-azurerm/issues/2602
-	terraform apply ${terraform_apply_args} -target=module.azure_k8s -target=module.aws_base -target=module.aws_jumpbox  
+	terraform taint -allow-missing "module.tsb_cp.null_resource.jumpbox_tctl" 
 	terraform apply ${terraform_apply_args} -target=module.cert-manager -var=cluster_id=${cluster_id} -var=cloud=${cloud}
 	terraform apply ${terraform_apply_args} -target=module.tsb_cp -var=cluster_id=${cluster_id} -var=cloud=${cloud}
 
@@ -112,22 +105,16 @@ tsb_cp:
 .PHONY: argocd
 argocd:
 	@echo "Deploying ArgoCD to ${cloud} cluster with cluster_id=${cluster_id}"
-  ## working around the issue: https://github.com/hashicorp/terraform-provider-azurerm/issues/2602
-	terraform apply ${terraform_apply_args} -target=module.azure_k8s -target=module.aws_base -target=module.aws_jumpbox 
 	terraform apply ${terraform_apply_args} -target=module.argocd -var=cluster_id=${cluster_id} -var=cloud=${cloud}
 
 .PHONY: keycloak
 keycloak:
-  ## working around the issue: https://github.com/hashicorp/terraform-provider-azurerm/issues/2602
-	terraform apply ${terraform_apply_args} -target=module.azure_k8s -target=module.aws_base -target=module.aws_jumpbox 
 	terraform apply ${terraform_apply_args} -target=module.keycloak-helm -var=cluster_id=0
 
 .PHONY: app_bookinfo
 app_bookinfo:
 	@echo "Deploying bookinfo application to ${cloud} cluster with cluster_id=${cluster_id}"
 	terraform state list | grep "^module.app_bookinfo" | grep -v data | tr -d ':' | xargs -I '{}' terraform taint {}
-  ## working around the issue: https://github.com/hashicorp/terraform-provider-azurerm/issues/2602
-	terraform apply ${terraform_apply_args} -target=module.azure_k8s -target=module.aws_base -target=module.aws_jumpbox 
 	terraform apply ${terraform_apply_args} -target=module.app_bookinfo -var=cluster_id=${cluster_id} -var=cloud=${cloud}
 
 .PHONY: azure_oidc

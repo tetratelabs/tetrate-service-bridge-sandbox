@@ -1,5 +1,8 @@
 variable "cloud" {
-  default = "azure"
+  default = null
+}
+variable "cluster_id" {
+  default = null
 }
 
 variable "owner" {
@@ -78,9 +81,6 @@ variable "mp_as_tier1_cluster" {
 variable "jumpbox_username" {
   default = "tsbadmin"
 }
-variable "cluster_id" {
-  default = 1
-}
 
 variable "aws_k8s_regions" {
   default = ["eu-west-1"]
@@ -117,10 +117,9 @@ variable "gcp_gke_k8s_version" {
   default = "1.21.12-gke.1500"
 }
 
-variable "tsb_mp_cloud" {
-  default = "azure"
-}
-
-variable "tsb_mp_cluster_id" {
-  default = 0
+variable "tsb_mp" {
+  default = {
+    cloud      = "azure"
+    cluster_id = 0
+  }
 }
