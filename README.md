@@ -56,19 +56,15 @@ The setup consists of
 terraform.tfvars
 
 ```
-
 name_prefix = "<YOUR UNIQUE PREFIX NAME TO BE CREATED>
 tsb_image_sync_username = "cloudsmith-username"
 tsb_image_sync_apikey = "cloudsmith-apikey"
 tsb_fqdn = "<YOUR UNIQUE NAME TO BE CREATED>.cx.tetrate.info"
-tsb_version = "1.5.0"
-tsb_password = "Tetrate123"
-aws_region = "eu-west-1"
-azure_region = "eastus"
-gcp_region = "us-west1"
-aws_eks_app_clusters_count = 0
-azure_aks_app_clusters_count = 1
-gcp_gke_app_clusters_count = 0
+tsb_version       = "1.5.0"
+tsb_password      = "Tetrate123"
+aws_k8s_regions   = ["eu-west-1"]
+azure_k8s_regions = ["eastus"]
+gcp_k8s_regions   = ["us-west1"]
 ```
 
 To stand up the demo continue with the steps below:

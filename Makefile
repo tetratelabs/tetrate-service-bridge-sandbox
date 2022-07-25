@@ -8,6 +8,7 @@ terraform_destroy_args = -auto-approve
 #terraform_apply_args = 
 # Functions
 
+
 .PHONY: all
 all: k8s tsb_mp tsb_cp argocd
 
@@ -18,27 +19,29 @@ help : Makefile
 ## init					 	 terraform init
 .PHONY: init
 init:
+	@echo "Please refer to the latest instructions and terraform.tfvars file format at https://github.com/smarunich/tetrate-service-bridge-sandbox#usage"
 	terraform init
+	terraform apply -target=google_project.tsb
 
 ## azure_jumpbox					 deploys jumpbox, pushes tsb repo to acr
 .PHONY: azure_jumpbox
-azure_jumpbox:
+azure_jumpbox: init
 	terraform apply ${terraform_apply_args} -target=module.azure_base -target=module.azure_jumpbox
 
 ## aws_jumpbox					 deploys jumpbox, pushes tsb repo to acr
 .PHONY: aws_jumpbox
-aws_jumpbox:
+aws_jumpbox: init
 	terraform apply ${terraform_apply_args} -target=module.aws_base -target=module.aws_jumpbox
 
 
 ## gcp_jumpbox					 deploys jumpbox, pushes tsb repo to gcr
 .PHONY: gcp_jumpbox
-gcp_jumpbox:
+gcp_jumpbox: init
 	terraform apply ${terraform_apply_args} -target=module.gcp_base -target=module.gcp_jumpbox
 
 ## k8s						 deploys k8s cluster for MP and N-number of CPs(*) 
 .PHONY: k8s
-k8s:
+k8s: init
 	terraform apply ${terraform_apply_args} -target=module.azure_base
 	terraform apply ${terraform_apply_args} -target=module.azure_jumpbox 
 	terraform apply ${terraform_apply_args} -target=module.azure_k8s
@@ -51,21 +54,21 @@ k8s:
 
 ## azure_k8s					 deploys azure k8s cluster for MP and N-number of CPs(*) leveraging AKS
 .PHONY: azure_k8s
-azure_k8s:
+azure_k8s: init
 	terraform apply ${terraform_apply_args} -target=module.azure_base
 	terraform apply ${terraform_apply_args} -target=module.azure_jumpbox 
 	terraform apply ${terraform_apply_args} -target=module.azure_k8s
 
 ## aws_k8s					 deploys EKS K8s cluster (CPs only)
 .PHONY: aws_k8s
-aws_k8s:
+aws_k8s: init
 	terraform apply ${terraform_apply_args} -target=module.aws_base 
 	terraform apply ${terraform_apply_args} -target=module.aws_jumpbox 
 	terraform apply ${terraform_apply_args} -target=module.aws_k8s
 
 ## gcp_k8s					 deploys GKE K8s cluster (CPs only)
 .PHONY: gcp_k8s
-gcp_k8s:
+gcp_k8s: init
 	terraform apply ${terraform_apply_args} -target=module.gcp_base 
 	terraform apply ${terraform_apply_args} -target=module.gcp_jumpbox 
 	terraform apply ${terraform_apply_args} -target=module.gcp_k8s
@@ -75,7 +78,7 @@ tsb_deps:
 	@echo "Deploying TSB MP preqs to azure cluster with cluster_id=0"
   ## working around the issue: https://github.com/hashicorp/terraform-provider-azurerm/issues/2602
 	terraform apply ${terraform_apply_args} -target=module.azure_k8s -target=module.aws_base -target=module.aws_jumpbox  
-	terraform apply ${terraform_apply_args} -target=module.cert-manager -target=module.es -var=cluster_id=0 -var=cloud=azure
+	terraform apply ${terraform_apply_args} -target=module.cert-manager -var=cluster_id=$var.tsb_mp_cluster_id -var=cloud=$var.tsb_mp_cloud
 
 ## tsb_mp						 deploys MP
 .PHONY: tsb_mp
@@ -83,14 +86,15 @@ tsb_mp: tsb_deps
 	@echo "Deploying TSB MP to azure cluster with cluster_id=0"
   ## working around the issue: https://github.com/hashicorp/terraform-provider-azurerm/issues/2602
 	terraform apply ${terraform_apply_args} -target=module.azure_k8s -target=module.aws_base -target=module.aws_jumpbox 
+  terraform apply ${terraform_apply_args} -target=module.es
 	terraform apply ${terraform_apply_args} -target=module.tsb_mp.kubectl_manifest.manifests_certs
 	terraform apply ${terraform_apply_args} -target=module.tsb_mp
-	terraform apply ${terraform_apply_args} -target=module.aws_route53_register_fqdn -var=cluster_id=0 -var=cloud=azure
+	terraform apply ${terraform_apply_args} -target=module.aws_route53_register_fqdn
 
 ## tsb_fqdn					 creates TSB MP FQDN
 .PHONY: tsb_fqdn
 tsb_fqdn:
-	terraform apply ${terraform_apply_args} -target=module.aws_route53_register_fqdn -var=cluster_id=0 -var=cloud=azure
+	terraform apply ${terraform_apply_args} -target=module.aws_route53_register_fqdn
 
 ## tsb_cp	cluster_id=1 cloud=azure		 onboards CP on AKS cluster with ID=1 
 .PHONY: tsb_cp

@@ -16,17 +16,17 @@ locals {
 
 locals {
   jumpbox = {
-    aws   = try(module.aws_jumpbox[0],null)
-    azure = try(module.azure_jumpbox,null)
-    gcp   = try(module.gcp_jumpbox[0],null)
+    aws   = try(module.aws_jumpbox[0], null)
+    azure = try(module.azure_jumpbox[0], null)
+    gcp   = try(module.gcp_jumpbox[0], null)
   }
 }
 
 locals {
   base = {
-    aws   = try(module.aws_base[0],null)
-    azure = try(module.azure_base,null)
-    gcp   = try(module.gcp_base[0],null)
+    aws   = try(module.aws_base[0], null)
+    azure = try(module.azure_base[0], null)
+    gcp   = try(module.gcp_base[0], null)
   }
 }
 
@@ -82,16 +82,20 @@ variable "cluster_id" {
   default = 1
 }
 
-variable "aws_region" {
-  default = "eu-west-1"
+variable "aws_k8s_regions" {
+  default = ["eu-west-1"]
 }
 
-variable "azure_region" {
-  default = "eastus"
+variable "azure_k8s_regions" {
+  default = ["eastus"]
 }
 
-variable "gcp_region" {
-  default = "us-west1"
+variable "gcp_k8s_regions" {
+  default = ["us-west1"]
+}
+
+variable "gcp_project_id" {
+  default = null
 }
 
 variable "gcp_org_id" {
@@ -113,14 +117,10 @@ variable "gcp_gke_k8s_version" {
   default = "1.21.12-gke.1500"
 }
 
-variable "azure_aks_app_clusters_count" {
-  default = 1
-}
-variable "aws_eks_app_clusters_count" {
-  default = 0
+variable "tsb_mp_cloud" {
+  default = "azure"
 }
 
-variable "gcp_gke_app_clusters_count" {
+variable "tsb_mp_cluster_id" {
   default = 0
 }
-

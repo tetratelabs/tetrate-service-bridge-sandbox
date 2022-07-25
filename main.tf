@@ -1,53 +1,55 @@
 module "azure_base" {
   source         = "./modules/azure/base"
+  count          = length(var.azure_k8s_regions)
   name_prefix    = var.name_prefix
-  location       = var.azure_region
+  location       = var.azure_k8s_regions[count.index]
   cidr           = var.cidr
-  clusters_count = 1 + var.azure_aks_app_clusters_count
+  clusters_count = length(var.azure_k8s_regions)
 }
 
 module "azure_jumpbox" {
   source                  = "./modules/azure/jumpbox"
+  count                   = length(var.azure_k8s_regions) > 0 ? 1 : 0
   name_prefix             = var.name_prefix
-  location                = var.azure_region
-  resource_group_name     = module.azure_base.resource_group_name
+  location                = var.azure_k8s_regions[0]
+  resource_group_name     = module.azure_base[0].resource_group_name
   cidr                    = var.cidr
-  vnet_subnet             = module.azure_base.vnet_subnets[0]
+  vnet_subnet             = module.azure_base[0].vnet_subnets[0]
   tsb_version             = var.tsb_version
   jumpbox_username        = var.jumpbox_username
   tsb_image_sync_username = var.tsb_image_sync_username
   tsb_image_sync_apikey   = var.tsb_image_sync_apikey
-  registry                = module.azure_base.registry
-  registry_username       = module.azure_base.registry_username
-  registry_password       = module.azure_base.registry_password
+  registry                = module.azure_base[0].registry
+  registry_username       = module.azure_base[0].registry_username
+  registry_password       = module.azure_base[0].registry_password
 }
 
 module "azure_k8s" {
   source              = "./modules/azure/k8s"
-  count               = 1 + var.azure_aks_app_clusters_count
+  count               = length(var.azure_k8s_regions)
   k8s_version         = var.azure_aks_k8s_version
-  resource_group_name = module.azure_base.resource_group_name
-  location            = var.azure_region
+  resource_group_name = module.azure_base[0].resource_group_name
+  location            = var.azure_k8s_regions[count.index]
   name_prefix         = var.name_prefix
   cluster_name        = "${var.name_prefix}-aks-${count.index + 1}"
-  vnet_subnet         = module.azure_base.vnet_subnets[count.index]
-  registry_id         = module.azure_base.registry_id
-  depends_on          = [module.azure_jumpbox]
+  vnet_subnet         = module.azure_base[0].vnet_subnets[count.index]
+  registry_id         = module.azure_base[0].registry_id
+  depends_on          = [module.azure_jumpbox[0]]
 }
 
 module "aws_base" {
-  count       = var.aws_eks_app_clusters_count > 0 ? 1 : 0
   source      = "./modules/aws/base"
+  count       = length(var.aws_k8s_regions)
   name_prefix = var.name_prefix
   cidr        = var.cidr
 }
 
 module "aws_jumpbox" {
   source                  = "./modules/aws/jumpbox"
-  count                   = var.aws_eks_app_clusters_count > 0 ? 1 : 0
+  count                   = length(var.aws_k8s_regions) > 0 ? 1 : 0
   owner                   = var.owner
   name_prefix             = var.name_prefix
-  region                  = var.aws_region
+  region                  = var.aws_k8s_regions[0]
   vpc_id                  = module.aws_base[0].vpc_id
   vpc_subnet              = module.aws_base[0].vpc_subnets[0]
   cidr                    = var.cidr
@@ -60,10 +62,10 @@ module "aws_jumpbox" {
 
 module "aws_k8s" {
   source       = "./modules/aws/k8s"
-  count        = var.aws_eks_app_clusters_count
+  count        = length(var.aws_k8s_regions)
   owner        = var.owner
   k8s_version  = var.aws_eks_k8s_version
-  region       = var.aws_region
+  region       = var.aws_k8s_regions[count.index]
   vpc_id       = module.aws_base[0].vpc_id
   vpc_subnets  = module.aws_base[0].vpc_subnets
   name_prefix  = var.name_prefix
@@ -72,21 +74,22 @@ module "aws_k8s" {
 }
 
 module "gcp_base" {
-  count       = var.gcp_gke_app_clusters_count > 0 ? 1 : 0
+  count       = length(var.gcp_k8s_regions)
   source      = "./modules/gcp/base"
   name_prefix = var.name_prefix
-  region      = var.gcp_region
+  project_id  = var.gcp_project_id == null ? google_project.tsb[0].project_id : var.gcp_project_id
+  region      = var.gcp_k8s_regions[count.index]
   org_id      = var.gcp_org_id
   billing_id  = var.gcp_billing_id
   cidr        = var.cidr
 }
 
 module "gcp_jumpbox" {
-  count                   = var.gcp_gke_app_clusters_count > 0 ? 1 : 0
+  count                   = length(var.gcp_k8s_regions) > 0 ? 1 : 0
   source                  = "./modules/gcp/jumpbox"
   name_prefix             = var.name_prefix
-  region                  = var.gcp_region
-  project_id              = module.gcp_base[0].project_id
+  region                  = var.gcp_k8s_regions[0]
+  project_id              = var.gcp_project_id == null ? google_project.tsb[0].project_id : var.gcp_project_id
   vpc_id                  = module.gcp_base[0].vpc_id
   vpc_subnet              = module.gcp_base[0].vpc_subnets[0]
   tsb_version             = var.tsb_version
@@ -98,11 +101,11 @@ module "gcp_jumpbox" {
 
 module "gcp_k8s" {
   source       = "./modules/gcp/k8s"
-  count        = var.gcp_gke_app_clusters_count
+  count        = length(var.gcp_k8s_regions)
   name_prefix  = var.name_prefix
   cluster_name = "${var.name_prefix}-gke-${count.index + 1}"
-  project_id   = module.gcp_base[0].project_id
-  region       = var.gcp_region
+  project_id   = var.gcp_project_id == null ? google_project.tsb[0].project_id : var.gcp_project_id
+  region       = var.gcp_k8s_regions[count.index]
   k8s_version  = var.gcp_gke_k8s_version
   depends_on   = [module.gcp_jumpbox[0]]
 }
@@ -117,10 +120,10 @@ module "cert-manager" {
 
 module "es" {
   source                     = "./modules/addons/elastic"
-  cluster_name               = local.cloud[var.cloud][var.cluster_id].cluster_name
-  k8s_host                   = local.cloud[var.cloud][var.cluster_id].host
-  k8s_cluster_ca_certificate = local.cloud[var.cloud][var.cluster_id].cluster_ca_certificate
-  k8s_client_token           = local.cloud[var.cloud][var.cluster_id].token
+  cluster_name               = local.cloud[var.tsb_mp_cloud][var.tsb_mp_cluster_id].cluster_name
+  k8s_host                   = local.cloud[var.tsb_mp_cloud][var.tsb_mp_cluster_id].host
+  k8s_cluster_ca_certificate = local.cloud[var.tsb_mp_cloud][var.tsb_mp_cluster_id].cluster_ca_certificate
+  k8s_client_token           = local.cloud[var.tsb_mp_cloud][var.tsb_mp_cluster_id].token
 }
 
 module "argocd" {
@@ -170,11 +173,11 @@ module "tsb_mp" {
   tsb_password               = var.tsb_password
   tsb_image_sync_username    = var.tsb_image_sync_username
   tsb_image_sync_apikey      = var.tsb_image_sync_apikey
-  registry                   = local.base["azure"].registry
-  cluster_name               = local.cloud["azure"][0].cluster_name
-  k8s_host                   = local.cloud["azure"][0].host
-  k8s_cluster_ca_certificate = local.cloud["azure"][0].cluster_ca_certificate
-  k8s_client_token           = local.cloud["azure"][0].token
+  registry                   = local.base[var.tsb_mp_cloud].registry
+  cluster_name               = local.cloud[var.tsb_mp_cloud][var.tsb_mp_cluster_id].cluster_name
+  k8s_host                   = local.cloud[var.tsb_mp_cloud][var.tsb_mp_cluster_id].host
+  k8s_cluster_ca_certificate = local.cloud[var.tsb_mp_cloud][var.tsb_mp_cluster_id].cluster_ca_certificate
+  k8s_client_token           = local.cloud[var.tsb_mp_cloud][var.tsb_mp_cluster_id].token
 }
 
 module "tsb_cp" {
