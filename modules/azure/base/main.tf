@@ -31,7 +31,7 @@ resource "random_string" "random" {
 }
 
 resource "azurerm_container_registry" "acr" {
-  name                = "${var.name_prefix}tsbacr${random_string.random.result}"
+  name                = replace("${var.name_prefix}tsbacr${random_string.random.result}", "-", "")
   resource_group_name = azurerm_resource_group.tsb.name
   location            = var.location
   sku                 = "Premium"
