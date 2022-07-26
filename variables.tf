@@ -109,6 +109,13 @@ variable "aws_eks_k8s_version" {
   default = "1.22"
 }
 
+locals {
+  # Common tags to be assigned to all resources
+  aws_tags = {
+    "Tetrate:Owner" = var.owner
+  }
+}
+
 variable "azure_aks_k8s_version" {
   default = "1.23.5"
 }

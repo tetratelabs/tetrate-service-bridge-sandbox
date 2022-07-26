@@ -3,7 +3,7 @@ module "azure_base" {
   count          = length(var.azure_k8s_regions)
   name_prefix    = var.name_prefix
   location       = var.azure_k8s_regions[count.index]
-  cidr           = var.cidr
+  cidr           = cidrsubnet(var.cidr, 4, count.index)
   clusters_count = length(var.azure_k8s_regions)
 }
 
@@ -13,7 +13,7 @@ module "azure_jumpbox" {
   name_prefix             = var.name_prefix
   location                = var.azure_k8s_regions[0]
   resource_group_name     = module.azure_base[0].resource_group_name
-  cidr                    = var.cidr
+  cidr                    = module.azure_base[0].cidr
   vnet_subnet             = module.azure_base[0].vnet_subnets[0]
   tsb_version             = var.tsb_version
   jumpbox_username        = var.jumpbox_username
@@ -41,7 +41,7 @@ module "aws_base" {
   source      = "./modules/aws/base"
   count       = length(var.aws_k8s_regions)
   name_prefix = var.name_prefix
-  cidr        = var.cidr
+  cidr        = cidrsubnet(var.cidr, 4, 16 + count.index)
 }
 
 module "aws_jumpbox" {
@@ -52,7 +52,7 @@ module "aws_jumpbox" {
   region                  = var.aws_k8s_regions[0]
   vpc_id                  = module.aws_base[0].vpc_id
   vpc_subnet              = module.aws_base[0].vpc_subnets[0]
-  cidr                    = var.cidr
+  cidr                    = module.aws_base[0].cidr
   tsb_version             = var.tsb_version
   jumpbox_username        = var.jumpbox_username
   tsb_image_sync_username = var.tsb_image_sync_username
@@ -81,7 +81,7 @@ module "gcp_base" {
   region      = var.gcp_k8s_regions[count.index]
   org_id      = var.gcp_org_id
   billing_id  = var.gcp_billing_id
-  cidr        = var.cidr
+  cidr        = cidrsubnet(var.cidr, 4, 32 + count.index)
 }
 
 module "gcp_jumpbox" {
@@ -191,7 +191,7 @@ module "tsb_cp" {
   tsb_helm_repository        = var.tsb_helm_repository
   tsb_helm_version           = var.tsb_helm_version != null ? var.tsb_helm_version : var.tsb_version
   tsb_mp_host                = module.tsb_mp.host
-  tier1_cluster              = var.cluster_id == var.tsb_mp["cloud"] && var.cloud == var.tsb_mp["cluster_id"] ? var.mp_as_tier1_cluster : false
+  tier1_cluster              = var.cluster_id == var.tsb_mp["cluster_id"] && var.cloud == var.tsb_mp["cloud"] ? var.mp_as_tier1_cluster : false
   tsb_fqdn                   = var.tsb_fqdn
   tsb_org                    = var.tsb_org
   tsb_username               = var.tsb_username

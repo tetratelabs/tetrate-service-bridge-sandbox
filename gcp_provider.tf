@@ -6,10 +6,6 @@ resource "random_string" "random" {
   numeric = false
 }
 
-provider "azurerm" {
-  features {}
-}
-
 resource "google_project" "tsb" {
   count           = var.gcp_project_id == null ? 1 : 0
   name            = "${var.name_prefix}-tsb"
@@ -17,16 +13,3 @@ resource "google_project" "tsb" {
   org_id          = var.gcp_org_id
   billing_account = var.gcp_billing_id
 }
-
-provider "aws" {
-}
-
-terraform {
-  required_providers {
-    kubectl = {
-      source  = "gavinbunney/kubectl"
-      version = ">= 1.7.0"
-    }
-  }
-}
-

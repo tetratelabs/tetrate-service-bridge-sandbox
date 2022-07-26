@@ -10,4 +10,6 @@ output "registry" {
   value = "gcr.io/${var.project_id}"
 }
 
-
+output "cidr" {
+  value = var.cidr
+}

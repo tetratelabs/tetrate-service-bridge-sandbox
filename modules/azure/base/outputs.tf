@@ -29,3 +29,7 @@ output "registry_password" {
 output "registry_id" {
   value = azurerm_container_registry.acr.id
 }
+
+output "cidr" {
+  value = var.cidr
+}

@@ -122,13 +122,17 @@ azure_oidc:
 	terraform apply ${terraform_apply_args} -target=module.azure_oidc
 
 .PHONY: fast_track
-fast_track:
+fast_track_tsb:
 	make k8s
 	make tsb_mp
 	make tsb_cp cluster_id=0 cloud=azure || true
 	make tsb_cp cluster_id=1 cloud=azure || true
 	make tsb_cp cluster_id=0 cloud=aws || true
+	make tsb_cp cluster_id=1 cloud=aws || true
 	make tsb_cp cluster_id=0 cloud=gcp || true
+	make tsb_cp cluster_id=1 cloud=gcp || true
+
+fast_track_argo:
 	make argocd cluster_id=0 cloud=azure || true
 	make argocd cluster_id=1 cloud=azure || true
 	make argocd cluster_id=0 cloud=aws || true
