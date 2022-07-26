@@ -50,7 +50,7 @@ resource "google_compute_subnetwork" "tsb" {
   region  = var.region
   network = google_compute_network.tsb.self_link
 
-  ip_cidr_range = cidrsubnet(var.cidr, 8, count.index)
+  ip_cidr_range = cidrsubnet(var.cidr, 4, count.index)
 }
 
 resource "google_compute_router_nat" "tsb" {

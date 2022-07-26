@@ -7,7 +7,7 @@ resource "azurerm_resource_group" "tsb" {
 }
 
 locals {
-  subnet_prefixes = [for i in range(var.clusters_count) : "${cidrsubnet(var.cidr, 8, i)}"]
+  subnet_prefixes = [for i in range(var.clusters_count) : "${cidrsubnet(var.cidr, 4, i)}"]
   subnet_names    = [for i in range(var.clusters_count) : "${var.name_prefix}_subnet${i}"]
 }
 
