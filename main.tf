@@ -1,7 +1,7 @@
 module "azure_base" {
   source         = "./modules/azure/base"
   count          = length(var.azure_k8s_regions)
-  name_prefix    = "${var.name_prefix}-${var.azure_k8s_regions[count.index]}"
+  name_prefix    = "${var.name_prefix}-${var.azure_k8s_regions[count.index]}-${count.index}"
   location       = var.azure_k8s_regions[count.index]
   cidr           = cidrsubnet(var.cidr, 4, count.index)
   clusters_count = length(var.azure_k8s_regions)
@@ -10,7 +10,7 @@ module "azure_base" {
 module "azure_jumpbox" {
   source                  = "./modules/azure/jumpbox"
   count                   = length(var.azure_k8s_regions) > 0 ? 1 : 0
-  name_prefix             = "${var.name_prefix}-${var.azure_k8s_regions[count.index]}"
+  name_prefix             = "${var.name_prefix}-${var.azure_k8s_regions[count.index]}-${count.index}"
   location                = var.azure_k8s_regions[0]
   resource_group_name     = module.azure_base[0].resource_group_name
   cidr                    = module.azure_base[0].cidr
@@ -30,7 +30,7 @@ module "azure_k8s" {
   k8s_version         = var.azure_aks_k8s_version
   resource_group_name = module.azure_base[0].resource_group_name
   location            = var.azure_k8s_regions[count.index]
-  name_prefix         = "${var.name_prefix}-${var.azure_k8s_regions[count.index]}"
+  name_prefix         = "${var.name_prefix}-${var.azure_k8s_regions[count.index]}-${count.index}"
   cluster_name        = "${var.name_prefix}-aks-${count.index + 1}"
   vnet_subnet         = module.azure_base[0].vnet_subnets[count.index]
   registry_id         = module.azure_base[0].registry_id
@@ -40,7 +40,7 @@ module "azure_k8s" {
 module "aws_base" {
   source      = "./modules/aws/base"
   count       = length(var.aws_k8s_regions)
-  name_prefix = "${var.name_prefix}-${var.aws_k8s_regions[count.index]}"
+  name_prefix = "${var.name_prefix}-${var.aws_k8s_regions[count.index]}-${count.index}""
   cidr        = cidrsubnet(var.cidr, 4, 16 + count.index)
 }
 
@@ -48,7 +48,7 @@ module "aws_jumpbox" {
   source                  = "./modules/aws/jumpbox"
   count                   = length(var.aws_k8s_regions) > 0 ? 1 : 0
   owner                   = var.owner
-  name_prefix             = "${var.name_prefix}-${var.aws_k8s_regions[count.index]}"
+  name_prefix             = "${var.name_prefix}-${var.aws_k8s_regions[count.index]}-${count.index}"
   region                  = var.aws_k8s_regions[0]
   vpc_id                  = module.aws_base[0].vpc_id
   vpc_subnet              = module.aws_base[0].vpc_subnets[0]
@@ -68,7 +68,7 @@ module "aws_k8s" {
   region       = var.aws_k8s_regions[count.index]
   vpc_id       = module.aws_base[0].vpc_id
   vpc_subnets  = module.aws_base[0].vpc_subnets
-  name_prefix  = "${var.name_prefix}-${var.aws_k8s_regions[count.index]}"
+  name_prefix  = "${var.name_prefix}-${var.aws_k8s_regions[count.index]}-${count.index}"
   cluster_name = "${var.name_prefix}-eks-${count.index + 1}"
   depends_on   = [module.aws_jumpbox[0]]
 }
@@ -76,7 +76,7 @@ module "aws_k8s" {
 module "gcp_base" {
   count       = length(var.gcp_k8s_regions)
   source      = "./modules/gcp/base"
-  name_prefix = "${var.name_prefix}-${var.gcp_k8s_regions[count.index]}"
+  name_prefix = "${var.name_prefix}-${var.gcp_k8s_regions[count.index]}-${count.index}"
   project_id  = var.gcp_project_id == null ? google_project.tsb[0].project_id : var.gcp_project_id
   region      = var.gcp_k8s_regions[count.index]
   org_id      = var.gcp_org_id
@@ -87,7 +87,7 @@ module "gcp_base" {
 module "gcp_jumpbox" {
   count                   = length(var.gcp_k8s_regions) > 0 ? 1 : 0
   source                  = "./modules/gcp/jumpbox"
-  name_prefix             = var.name_prefix
+  name_prefix             = "${var.name_prefix}-${var.gcp_k8s_regions[count.index]}-${count.index}"
   region                  = var.gcp_k8s_regions[0]
   project_id              = var.gcp_project_id == null ? google_project.tsb[0].project_id : var.gcp_project_id
   vpc_id                  = module.gcp_base[0].vpc_id
@@ -102,7 +102,7 @@ module "gcp_jumpbox" {
 module "gcp_k8s" {
   source       = "./modules/gcp/k8s"
   count        = length(var.gcp_k8s_regions)
-  name_prefix  = "${var.name_prefix}-${var.gcp_k8s_regions[count.index]}"
+  name_prefix  = "${var.name_prefix}-${var.gcp_k8s_regions[count.index]}-${count.index}"
   cluster_name = "${var.name_prefix}-gke-${count.index + 1}"
   project_id   = var.gcp_project_id == null ? google_project.tsb[0].project_id : var.gcp_project_id
   region       = var.gcp_k8s_regions[count.index]
