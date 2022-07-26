@@ -28,11 +28,11 @@ module "azure_k8s" {
   source              = "./modules/azure/k8s"
   count               = length(var.azure_k8s_regions)
   k8s_version         = var.azure_aks_k8s_version
-  resource_group_name = module.azure_base[0].resource_group_name
+  resource_group_name = module.azure_base[count.index].resource_group_name
   location            = var.azure_k8s_regions[count.index]
   name_prefix         = "${var.name_prefix}-${var.azure_k8s_regions[count.index]}-${count.index}"
   cluster_name        = "${var.name_prefix}-aks-${count.index + 1}"
-  vnet_subnet         = module.azure_base[0].vnet_subnets[count.index]
+  vnet_subnet         = module.azure_base[count.index].vnet_subnets[count.index]
   registry_id         = module.azure_base[0].registry_id
   depends_on          = [module.azure_jumpbox[0]]
 }
