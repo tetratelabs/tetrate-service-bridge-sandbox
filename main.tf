@@ -40,7 +40,7 @@ module "azure_k8s" {
 module "aws_base" {
   source      = "./modules/aws/base"
   count       = length(var.aws_k8s_regions)
-  name_prefix = "${var.name_prefix}-${var.aws_k8s_regions[count.index]}-${count.index}""
+  name_prefix = "${var.name_prefix}-${var.aws_k8s_regions[count.index]}-${count.index}"
   cidr        = cidrsubnet(var.cidr, 4, 16 + count.index)
 }
 
