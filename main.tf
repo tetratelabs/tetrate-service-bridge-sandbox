@@ -1,7 +1,7 @@
 module "azure_base" {
   source         = "./modules/azure/base"
   count          = length(var.azure_k8s_regions)
-  name_prefix    = var.name_prefix
+  name_prefix    = "${var.name_prefix}-${var.azure_k8s_regions[count.index]}"
   location       = var.azure_k8s_regions[count.index]
   cidr           = cidrsubnet(var.cidr, 4, count.index)
   clusters_count = length(var.azure_k8s_regions)
@@ -10,7 +10,7 @@ module "azure_base" {
 module "azure_jumpbox" {
   source                  = "./modules/azure/jumpbox"
   count                   = length(var.azure_k8s_regions) > 0 ? 1 : 0
-  name_prefix             = var.name_prefix
+  name_prefix             = "${var.name_prefix}-${var.azure_k8s_regions[count.index]}"
   location                = var.azure_k8s_regions[0]
   resource_group_name     = module.azure_base[0].resource_group_name
   cidr                    = module.azure_base[0].cidr
@@ -30,7 +30,7 @@ module "azure_k8s" {
   k8s_version         = var.azure_aks_k8s_version
   resource_group_name = module.azure_base[0].resource_group_name
   location            = var.azure_k8s_regions[count.index]
-  name_prefix         = var.name_prefix
+  name_prefix         = "${var.name_prefix}-${var.azure_k8s_regions[count.index]}"
   cluster_name        = "${var.name_prefix}-aks-${count.index + 1}"
   vnet_subnet         = module.azure_base[0].vnet_subnets[count.index]
   registry_id         = module.azure_base[0].registry_id
@@ -40,7 +40,7 @@ module "azure_k8s" {
 module "aws_base" {
   source      = "./modules/aws/base"
   count       = length(var.aws_k8s_regions)
-  name_prefix = var.name_prefix
+  name_prefix = "${var.name_prefix}-${var.aws_k8s_regions[count.index]}"
   cidr        = cidrsubnet(var.cidr, 4, 16 + count.index)
 }
 
@@ -48,7 +48,7 @@ module "aws_jumpbox" {
   source                  = "./modules/aws/jumpbox"
   count                   = length(var.aws_k8s_regions) > 0 ? 1 : 0
   owner                   = var.owner
-  name_prefix             = var.name_prefix
+  name_prefix             = "${var.name_prefix}-${var.aws_k8s_regions[count.index]}"
   region                  = var.aws_k8s_regions[0]
   vpc_id                  = module.aws_base[0].vpc_id
   vpc_subnet              = module.aws_base[0].vpc_subnets[0]
@@ -68,7 +68,7 @@ module "aws_k8s" {
   region       = var.aws_k8s_regions[count.index]
   vpc_id       = module.aws_base[0].vpc_id
   vpc_subnets  = module.aws_base[0].vpc_subnets
-  name_prefix  = var.name_prefix
+  name_prefix  = "${var.name_prefix}-${var.aws_k8s_regions[count.index]}"
   cluster_name = "${var.name_prefix}-eks-${count.index + 1}"
   depends_on   = [module.aws_jumpbox[0]]
 }
