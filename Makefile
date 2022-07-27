@@ -17,6 +17,18 @@ help : Makefile
 	@sed -n 's/^##//p' $<
 
 ## init					 	 terraform init
+.PHONY: loop
+loop:
+	@/bin/sh -c 'index=0;jq -r '.aws_k8s_regions[]' terraform.tfvars.json | while read -r region; do \
+		echo "cloud=aws cluster_id=$$index region=$$region"; \
+		terraform workspace new aws-$$index-$$region; \
+		terraform workspace select aws-$$index-$$region; \
+		terraform apply -auto-approve -target=module.aws_base -target=module.aws_jumpbox -var=aws_k8s_region=$$region; \
+		terraform workspace select default; \
+		let index++; \
+		done; \
+	  '
+## init					 	 terraform init
 .PHONY: init
 init:
 	@echo "Please refer to the latest instructions and terraform.tfvars file format at https://github.com/smarunich/tetrate-service-bridge-sandbox#usage"

@@ -291,6 +291,6 @@ resource "local_file" "tsbadmin_pem" {
 
 resource "local_file" "ssh_jumpbox" {
   content         = "ssh -i ${var.name_prefix}-aws-${var.jumpbox_username}.pem -l ${var.jumpbox_username} ${aws_instance.jumpbox.public_ip}"
-  filename        = "ssh-to-aws-jumpbox.sh"
+  filename        = "ssh-to-aws-${var.name_prefix}-jumpbox.sh"
   file_permission = "0755"
 }

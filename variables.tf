@@ -83,15 +83,19 @@ variable "jumpbox_username" {
 }
 
 variable "aws_k8s_regions" {
-  default = ["eu-west-1"]
+  default = []
+}
+
+variable "aws_k8s_region" {
+  default = null
 }
 
 variable "azure_k8s_regions" {
-  default = ["eastus"]
+  default = []
 }
 
 variable "gcp_k8s_regions" {
-  default = ["us-west1"]
+  default = []
 }
 
 variable "gcp_project_id" {
