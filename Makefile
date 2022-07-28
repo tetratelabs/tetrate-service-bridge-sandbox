@@ -6,11 +6,10 @@ terraform_destroy_args = -auto-approve
 #terraform_apply_args = 
 # Functions
 
-
 .PHONY: all
-all: k8s tsb_mp tsb_cp argocd
+all: tsb
 
-.PHONY : help
+.PHONY: help
 help : Makefile
 	@sed -n 's/^##//p' $<
 
@@ -35,12 +34,12 @@ azure_k8s:
 		cd "infra/azure"; \
 		terraform workspace new azure-$$index-$$region; \
 		terraform workspace select azure-$$index-$$region; \
- 		terraform init; \
+		terraform init; \
 		terraform apply ${terraform_apply_args} -target module.azure_base -var-file="../../terraform.tfvars.json" -var=azure_k8s_region=$$region; \
 		terraform apply ${terraform_apply_args} -var-file="../../terraform.tfvars.json" -var=azure_k8s_region=$$region -var=cluster_name=$$cluster_name; \
 		terraform workspace select default; \
-		cd "../.."; \
 		let index++; \
+		cd "../.."; \
 		done; \
 		'
 
@@ -56,11 +55,11 @@ aws_k8s:
 		cd "infra/aws"; \
 		terraform workspace new aws-$$index-$$region; \
 		terraform workspace select aws-$$index-$$region; \
- 		terraform init; \
+		terraform init; \
 		terraform apply ${terraform_apply_args} -var-file="../../terraform.tfvars.json" -var=aws_k8s_region=$$region -var=cluster_name=$$cluster_name; \
 		terraform workspace select default; \
-		cd "../.."; \
 		let index++; \
+		cd "../.."; \
 		done; \
 		'
 
@@ -76,12 +75,12 @@ gcp_k8s: init
 		cd "infra/gcp"; \
 		terraform workspace new gcp-$$index-$$region; \
 		terraform workspace select gcp-$$index-$$region; \
- 		terraform init; \
+		terraform init; \
 		terraform apply ${terraform_apply_args} -target module.gcp_base -var-file="../../terraform.tfvars.json" -var=gcp_k8s_region=$$region; \
 		terraform apply ${terraform_apply_args} -var-file="../../terraform.tfvars.json" -var=gcp_k8s_region=$$region -var=cluster_name=$$cluster_name; \
 		terraform workspace select default; \
-		cd "../.."; \
 		let index++; \
+		cd "../.."; \
 		done; \
 		'
 
@@ -92,7 +91,7 @@ tsb_mp: k8s
 	@/bin/sh -c '\
 		cd "tsb/mp"; \
 		terraform workspace select default; \
- 		terraform init; \
+		terraform init; \
 		terraform apply ${terraform_apply_args} -target=module.es -var-file="../../terraform.tfvars.json"; \
 		terraform apply ${terraform_apply_args} -target=module.tsb_mp.kubectl_manifest.manifests_certs -var-file="../../terraform.tfvars.json"; \
 		terraform apply ${terraform_apply_args} -var-file="../../terraform.tfvars.json"; \
@@ -111,11 +110,11 @@ tsb_cp: tsb_mp
 		cd "tsb/cp"; \
 		terraform workspace new aws-$$index-$$region; \
 		terraform workspace select aws-$$index-$$region; \
- 		terraform init; \
+		terraform init; \
 		terraform apply ${terraform_apply_args} -var-file="../../terraform.tfvars.json" -var=cloud=aws -var=cluster_id=$$index; \
 		terraform workspace select default; \
-		cd "../.."; \
 		let index++; \
+		cd "../.."; \
 		done; \
 		'
 	@/bin/sh -c '\
@@ -125,11 +124,11 @@ tsb_cp: tsb_mp
 		cd "tsb/cp"; \
 		terraform workspace new azure-$$index-$$region; \
 		terraform workspace select azure-$$index-$$region; \
- 		terraform init; \
+		terraform init; \
 		terraform apply ${terraform_apply_args} -var-file="../../terraform.tfvars.json" -var=cloud=aws -var=cluster_id=$$index; \
 		terraform workspace select default; \
-		cd "../.."; \
 		let index++; \
+		cd "../.."; \
 		done; \
 		'
 	@/bin/sh -c '\
@@ -139,11 +138,11 @@ tsb_cp: tsb_mp
 		cd "tsb/cp"; \
 		terraform workspace new gcp-$$index-$$region; \
 		terraform workspace select gcp-$$index-$$region; \
- 		terraform init; \
+		terraform init; \
 		terraform apply ${terraform_apply_args} -var-file="../../terraform.tfvars.json" -var=cloud=aws -var=cluster_id=$$index; \
 		terraform workspace select default; \
-		cd "../.."; \
 		let index++; \
+		cd "../.."; \
 		done; \
 		'
 
