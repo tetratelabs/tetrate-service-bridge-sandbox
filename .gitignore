@@ -9,6 +9,7 @@ tests/*
 *.tfstate.*
 *.terraform.*
 *.jwk
+*.lock
 
 # Crash log files
 crash.log
