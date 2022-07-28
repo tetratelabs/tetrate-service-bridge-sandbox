@@ -112,5 +112,5 @@ variable "output_path" {
 }
 
 variable "cert-manager_enabled" {
-  default = "true"
+  default = true
 }
