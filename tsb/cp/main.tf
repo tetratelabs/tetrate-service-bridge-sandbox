@@ -29,6 +29,15 @@ data "terraform_remote_state" "tsb_mp" {
   }
 }
 
+module "cert-manager" {
+  source                     = "../../modules/addons/cert-manager"
+  cluster_name               = local.infra[var.cloud][var.cluster_id]["outputs"].cluster_name
+  k8s_host                   = local.infra[var.cloud][var.cluster_id]["outputs"].host
+  k8s_cluster_ca_certificate = local.infra[var.cloud][var.cluster_id]["outputs"].cluster_ca_certificate
+  k8s_client_token           = local.infra[var.cloud][var.cluster_id]["outputs"].token
+  cert-manager_enabled       = var.cert-manager_enabled
+}
+
 module "tsb_cp" {
   source                     = "../../modules/tsb/cp"
   cloud                      = var.cloud

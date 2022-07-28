@@ -22,6 +22,15 @@ data "terraform_remote_state" "gcp" {
   }
 }
 
+module "cert-manager" {
+  source                     = "../../modules/addons/cert-manager"
+  cluster_name               = local.infra[var.tsb_mp["cloud"]][var.tsb_mp["cluster_id"]]["outputs"].cluster_name
+  k8s_host                   = local.infra[var.tsb_mp["cloud"]][var.tsb_mp["cluster_id"]]["outputs"].host
+  k8s_cluster_ca_certificate = local.infra[var.tsb_mp["cloud"]][var.tsb_mp["cluster_id"]]["outputs"].cluster_ca_certificate
+  k8s_client_token           = local.infra[var.tsb_mp["cloud"]][var.tsb_mp["cluster_id"]]["outputs"].token
+  cert-manager_enabled       = var.cert-manager_enabled
+}
+
 module "es" {
   source                     = "../../modules/addons/elastic"
   cluster_name               = local.infra[var.tsb_mp["cloud"]][var.tsb_mp["cluster_id"]]["outputs"].cluster_name
