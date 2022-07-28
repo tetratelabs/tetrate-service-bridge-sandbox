@@ -53,43 +53,50 @@ The setup consists of
 
 ## Usage
 
-terraform.tfvars
+Copy `terraform.tfvars.json.sample` to the root directory as `terraform.tfvars.json`
 
-```
-name_prefix = "<YOUR UNIQUE PREFIX NAME TO BE CREATED>
-tsb_image_sync_username = "cloudsmith-username"
-tsb_image_sync_apikey = "cloudsmith-apikey"
-tsb_fqdn = "<YOUR UNIQUE NAME TO BE CREATED>.cx.tetrate.info"
-tsb_version       = "1.5.0"
-tsb_password      = "Tetrate123"
-aws_k8s_regions   = ["eu-west-1"]
-azure_k8s_regions = ["eastus"]
-gcp_k8s_regions   = ["us-west1"]
+```json
+{
+    "name_prefix": <YOUR UNIQUE PREFIX NAME TO BE CREATED>,
+    "tsb_fqdn": "<YOUR UNIQUE PREFIX NAME TO BE CREATED>.cx.tetrate.info",
+    "tsb_version": "1.5.0",
+    "tsb_image_sync_username": "TSB_REPO_USERNAME",
+    "tsb_image_sync_apikey": "TSB_REPO_APIKEY",
+    "tsb_password": "Tetrate123",
+    "tsb_mp": {
+        "cloud": "gcp",
+        "cluster_id": 0
+    },
+    "tsb_org": "tetrate",
+    "aws_k8s_regions": [
+    ],
+    "azure_k8s_regions": [
+    ],
+    "gcp_k8s_regions": [
+        "us-west1",
+        "us-east1"
+    ]
+}
 ```
 
-To stand up the demo continue with the steps below:
+To stand up the demo do `make tsb`
+
+or if you want to decouple the steps...
 
 ```bash
-# setup modules
-make init
-# setup underlying clusters
+# setup underlying clusters, registries, jumpboxes
 make k8s
-# deploy TSB MP (to include required dependecies)
+# deploy tsb management plane
 make tsb_mp
-# deploy TSB CP using Helm chart on the target cluster
-make tsb_cp cluster_id=0 cloud=azure # MP cluster is targetted to be onboarded as Tier1
-make tsb_cp cluster_id=1 cloud=azure
-make tsb_cp cluster_id=0 cloud=aws # in case of AWS
-make tsb_cp cluster_id=0 cloud=gcp # in case of GCP
-# deploy apps using ArgoCD on the target cluster
-make argocd cluster_id=1 cloud=azure
-make argocd cluster_id=0 cloud=aws
-make argocd cluster_id=0 cloud=gcp
+# onboard deployed clusters
+make tsb_cp
+# deploy argocd on the management cluster
+make argocd
 ```
 
 The completion of the above steps will result in:
 
-- output TSB management plane endpoint
+- all the generated outputs will be provided under `./outputs` folder
 - output kubeconfig files for all the created aks clusters in format of: $cluster_name-kubeconfig
 - output IP address and private key for the jumpbox (ssh username: tsbadmin), using shell scripts login to the jumpbox, for example to reach gcp jumpbox just run the script `ssh-to-gcp-jumpbox.sh`
 
