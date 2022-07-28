@@ -79,7 +79,7 @@ Copy `terraform.tfvars.json.sample` to the root directory as `terraform.tfvars.j
 }
 ```
 
-To stand up the demo do `make tsb`
+To stand up the demo just do `make tsb`
 
 or if you want to decouple the steps...
 
