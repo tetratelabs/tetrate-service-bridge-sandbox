@@ -8,20 +8,16 @@ The `Makefile` in this directory provides automated provisioning of k8s clusters
 
 ```mermaid
   graph TD;
-      I[make init] --> AAA[make k8s]
-      AAA[make k8s] --> A[make azure_k8s]
-      AAA[make k8s] --> AA[make aws_k8s]
-      AAA[make k8s] --> AAAA[make gcp_k8s]
-      A[make azure_k8s] --> C[make tsb_mp]
-      AA[make aws_k8s] --> C[make tsb_mp]
-      AAAA[make gcp_k8s] --> C[make tsb_mp]
-      Y[make azure_oidc] --> C[make tsb_mp]
-      C[make tsb_mp] --> B[make tsb_deps]
-      C[make tsb_mp] --> D[make tsb_cp]
-      C[make tsb_mp] --> F[make keycloak]
-      D[make tsb_cp] --> E[make argocd]
-      D[make tsb_cp] --> Z[make app_bookinfo]
-      style Y fill:lightgrey
+      A[make tsb] --> B[make k8s]
+      B[make k8s] --> C[make aws_k8s]
+      B[make k8s] --> CC[make azure_k8s]
+      B[make k8s] --> CCC[make gcp_k8s]
+      C[make aws_k8s] --> D[make tsb_mp]
+      CC[make azure_k8s] --> D[make tsb_mp]
+      CCC[make gcp_k8s] --> D[make tsb_mp]
+      D[make tsb_mp] --> [make tsb_cp]
+      D[make tsb_mp] --> [make argocd]
+      D[make tsb_mp] --> F[make keycloak]
       style F fill:lightgrey
 ```
 
