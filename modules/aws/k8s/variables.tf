@@ -20,3 +20,6 @@ variable "vpc_subnets" {
 
 variable "k8s_version" {
 }
+
+variable "output_path" {
+}

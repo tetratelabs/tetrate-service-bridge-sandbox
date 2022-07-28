@@ -14,4 +14,7 @@ output "registry_id" {
   value = aws_ecr_repository.tsb.registry_id
 }
 
+output "cidr" {
+  value = var.cidr
+}
 

@@ -84,6 +84,6 @@ data "aws_eks_cluster_auth" "cluster" {
 
 resource "local_file" "gen_kubeconfig_sh" {
   content         = "eksctl utils write-kubeconfig --cluster ${var.cluster_name} --region ${data.aws_availability_zones.available.id} --kubeconfig ${var.cluster_name}-kubeconfig"
-  filename        = "generate-${var.cluster_name}-kubeconfig.sh"
+  filename        = "${var.output_path}/generate-${var.cluster_name}-kubeconfig.sh"
   file_permission = "0755"
 }

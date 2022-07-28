@@ -1,163 +1,166 @@
 # Copyright (c) Tetrate, Inc 2021 All Rights Reserved.
 # 
 # Default variables
-cluster_id = 1
-cloud = azure
 terraform_apply_args = -auto-approve
 terraform_destroy_args = -auto-approve
 #terraform_apply_args = 
 # Functions
 
 .PHONY: all
-all: k8s tsb_mp tsb_cp argocd
+all: tsb
 
-.PHONY : help
+.PHONY: help
 help : Makefile
 	@sed -n 's/^##//p' $<
 
 ## init					 	 terraform init
 .PHONY: init
 init:
-	terraform init
-
-## azure_jumpbox					 deploys jumpbox, pushes tsb repo to acr
-.PHONY: azure_jumpbox
-azure_jumpbox:
-	terraform apply ${terraform_apply_args} -target=module.azure_base -target=module.azure_jumpbox
-
-## aws_jumpbox					 deploys jumpbox, pushes tsb repo to acr
-.PHONY: aws_jumpbox
-aws_jumpbox:
-	terraform apply ${terraform_apply_args} -target=module.aws_base -target=module.aws_jumpbox
-
-
-## gcp_jumpbox					 deploys jumpbox, pushes tsb repo to gcr
-.PHONY: gcp_jumpbox
-gcp_jumpbox:
-	terraform apply ${terraform_apply_args} -target=module.gcp_base -target=module.gcp_jumpbox
+	@echo "Please refer to the latest instructions and terraform.tfvars.json file format at https://github.com/smarunich/tetrate-service-bridge-sandbox#usage"
 
 ## k8s						 deploys k8s cluster for MP and N-number of CPs(*) 
 .PHONY: k8s
-k8s:
-	terraform apply ${terraform_apply_args} -target=module.azure_base
-	terraform apply ${terraform_apply_args} -target=module.azure_jumpbox 
-	terraform apply ${terraform_apply_args} -target=module.azure_k8s
-	terraform apply ${terraform_apply_args} -target=module.aws_base 
-	terraform apply ${terraform_apply_args} -target=module.aws_jumpbox 
-	terraform apply ${terraform_apply_args} -target=module.aws_k8s
-	terraform apply ${terraform_apply_args} -target=module.gcp_base 
-	terraform apply ${terraform_apply_args} -target=module.gcp_jumpbox 
-	terraform apply ${terraform_apply_args} -target=module.gcp_k8s
+k8s: aws_k8s azure_k8s gcp_k8s
 
 ## azure_k8s					 deploys azure k8s cluster for MP and N-number of CPs(*) leveraging AKS
 .PHONY: azure_k8s
 azure_k8s:
-	terraform apply ${terraform_apply_args} -target=module.azure_base
-	terraform apply ${terraform_apply_args} -target=module.azure_jumpbox 
-	terraform apply ${terraform_apply_args} -target=module.azure_k8s
+	@/bin/sh -c '\
+		index=0; \
+		name_prefix=`jq -r '.name_prefix' terraform.tfvars.json`; \
+		jq -r '.azure_k8s_regions[]' terraform.tfvars.json | while read -r region; do \
+		cluster_name="aks-$$name_prefix-$$region-$$index"; \
+		echo "cloud=azure region=$$region cluster_id=$$index cluster_name=$$cluster_name"; \
+		cd "infra/azure"; \
+		terraform workspace new azure-$$index-$$region; \
+		terraform workspace select azure-$$index-$$region; \
+		terraform init; \
+		terraform apply ${terraform_apply_args} -target module.azure_base -var-file="../../terraform.tfvars.json" -var=azure_k8s_region=$$region; \
+		terraform apply ${terraform_apply_args} -var-file="../../terraform.tfvars.json" -var=azure_k8s_region=$$region -var=cluster_name=$$cluster_name; \
+		terraform workspace select default; \
+		let index++; \
+		cd "../.."; \
+		done; \
+		'
 
 ## aws_k8s					 deploys EKS K8s cluster (CPs only)
 .PHONY: aws_k8s
 aws_k8s:
-	terraform apply ${terraform_apply_args} -target=module.aws_base 
-	terraform apply ${terraform_apply_args} -target=module.aws_jumpbox 
-	terraform apply ${terraform_apply_args} -target=module.aws_k8s
+	@/bin/sh -c '\
+		index=0; \
+		name_prefix=`jq -r '.name_prefix' terraform.tfvars.json`; \
+		jq -r '.aws_k8s_regions[]' terraform.tfvars.json | while read -r region; do \
+		cluster_name="eks-$$name_prefix-$$region-$$index"; \
+		echo "cloud=aws region=$$region cluster_id=$$index cluster_name=$$cluster_name"; \
+		cd "infra/aws"; \
+		terraform workspace new aws-$$index-$$region; \
+		terraform workspace select aws-$$index-$$region; \
+		terraform init; \
+		terraform apply ${terraform_apply_args} -var-file="../../terraform.tfvars.json" -var=aws_k8s_region=$$region -var=cluster_name=$$cluster_name; \
+		terraform workspace select default; \
+		let index++; \
+		cd "../.."; \
+		done; \
+		'
 
 ## gcp_k8s					 deploys GKE K8s cluster (CPs only)
 .PHONY: gcp_k8s
-gcp_k8s:
-	terraform apply ${terraform_apply_args} -target=module.gcp_base 
-	terraform apply ${terraform_apply_args} -target=module.gcp_jumpbox 
-	terraform apply ${terraform_apply_args} -target=module.gcp_k8s
-
-.PHONY: tsb_deps
-tsb_deps: 
-	@echo "Deploying TSB MP preqs to azure cluster with cluster_id=0"
-  ## working around the issue: https://github.com/hashicorp/terraform-provider-azurerm/issues/2602
-	terraform apply ${terraform_apply_args} -target=module.azure_k8s -target=module.aws_base -target=module.aws_jumpbox  
-	terraform apply ${terraform_apply_args} -target=module.cert-manager -target=module.es -var=cluster_id=0 -var=cloud=azure
+gcp_k8s: init
+	@/bin/sh -c '\
+		index=0; \
+		name_prefix=`jq -r '.name_prefix' terraform.tfvars.json`; \
+		jq -r '.gcp_k8s_regions[]' terraform.tfvars.json | while read -r region; do \
+		cluster_name="gke-$$name_prefix-$$region-$$index"; \
+		echo "cloud=gcp region=$$region cluster_id=$$index cluster_name=$$cluster_name"; \
+		cd "infra/gcp"; \
+		terraform workspace new gcp-$$index-$$region; \
+		terraform workspace select gcp-$$index-$$region; \
+		terraform init; \
+		terraform apply ${terraform_apply_args} -target module.gcp_base -var-file="../../terraform.tfvars.json" -var=gcp_k8s_region=$$region; \
+		terraform apply ${terraform_apply_args} -var-file="../../terraform.tfvars.json" -var=gcp_k8s_region=$$region -var=cluster_name=$$cluster_name; \
+		terraform workspace select default; \
+		let index++; \
+		cd "../.."; \
+		done; \
+		'
 
 ## tsb_mp						 deploys MP
 .PHONY: tsb_mp
-tsb_mp: tsb_deps
-	@echo "Deploying TSB MP to azure cluster with cluster_id=0"
-  ## working around the issue: https://github.com/hashicorp/terraform-provider-azurerm/issues/2602
-	terraform apply ${terraform_apply_args} -target=module.azure_k8s -target=module.aws_base -target=module.aws_jumpbox 
-	terraform apply ${terraform_apply_args} -target=module.tsb_mp.kubectl_manifest.manifests_certs
-	terraform apply ${terraform_apply_args} -target=module.tsb_mp
-	terraform apply ${terraform_apply_args} -target=module.aws_route53_register_fqdn -var=cluster_id=0 -var=cloud=azure
+tsb_mp: k8s
+	@echo "Deploying TSB Management Plane..."
+	@/bin/sh -c '\
+		cd "tsb/mp"; \
+		terraform workspace select default; \
+		terraform init; \
+		terraform apply ${terraform_apply_args} -target=module.es -var-file="../../terraform.tfvars.json"; \
+		terraform apply ${terraform_apply_args} -target=module.tsb_mp.kubectl_manifest.manifests_certs -var-file="../../terraform.tfvars.json"; \
+		terraform apply ${terraform_apply_args} -var-file="../../terraform.tfvars.json"; \
+		terraform workspace select default; \
+		cd "../.."; \
+		'
 
-## tsb_fqdn					 creates TSB MP FQDN
-.PHONY: tsb_fqdn
-tsb_fqdn:
-	terraform apply ${terraform_apply_args} -target=module.aws_route53_register_fqdn -var=cluster_id=0 -var=cloud=azure
-
-## tsb_cp	cluster_id=1 cloud=azure		 onboards CP on AKS cluster with ID=1 
+## tsb_cp	                       		 onboards CP on AKS cluster with ID=1 
 .PHONY: tsb_cp
-tsb_cp:
-	@echo "Onboarding ${cloud} cluster with cluster_id=${cluster_id} into TSB"
-	#terraform state list | grep "^module.cert-manager" | grep -v data | grep -v manifest | grep -v helm | grep -v wait| tr -d ':' | xargs -I '{}' terraform taint {}
-	terraform taint -allow-missing "module.cert-manager.time_sleep.wait_90_seconds"
-	terraform taint -allow-missing "module.tsb_cp.null_resource.jumpbox_tctl"
-  ## working around the issue: https://github.com/hashicorp/terraform-provider-azurerm/issues/2602
-	terraform apply ${terraform_apply_args} -target=module.azure_k8s -target=module.aws_base -target=module.aws_jumpbox  
-	terraform apply ${terraform_apply_args} -target=module.cert-manager -var=cluster_id=${cluster_id} -var=cloud=${cloud}
-	terraform apply ${terraform_apply_args} -target=module.tsb_cp -var=cluster_id=${cluster_id} -var=cloud=${cloud}
+tsb_cp: tsb_mp
+	@echo "Onboarding clusters, i.e. TSB CP rollouts..."
+	@/bin/sh -c '\
+		index=0; \
+		jq -r '.aws_k8s_regions[]' terraform.tfvars.json | while read -r region; do \
+		echo "cloud=aws region=$$region cluster_id=$$index"; \
+		cd "tsb/cp"; \
+		terraform workspace new aws-$$index-$$region; \
+		terraform workspace select aws-$$index-$$region; \
+		terraform init; \
+		terraform apply ${terraform_apply_args} -var-file="../../terraform.tfvars.json" -var=cloud=aws -var=cluster_id=$$index; \
+		terraform workspace select default; \
+		let index++; \
+		cd "../.."; \
+		done; \
+		'
+	@/bin/sh -c '\
+		index=0; \
+		jq -r '.azure_k8s_regions[]' terraform.tfvars.json | while read -r region; do \
+		echo "cloud=azure region=$$region cluster_id=$$index"; \
+		cd "tsb/cp"; \
+		terraform workspace new azure-$$index-$$region; \
+		terraform workspace select azure-$$index-$$region; \
+		terraform init; \
+		terraform apply ${terraform_apply_args} -var-file="../../terraform.tfvars.json" -var=cloud=aws -var=cluster_id=$$index; \
+		terraform workspace select default; \
+		let index++; \
+		cd "../.."; \
+		done; \
+		'
+	@/bin/sh -c '\
+		index=0; \
+		jq -r '.gcp_k8s_regions[]' terraform.tfvars.json | while read -r region; do \
+		echo "cloud=gcp region=$$region cluster_id=$$index"; \
+		cd "tsb/cp"; \
+		terraform workspace new gcp-$$index-$$region; \
+		terraform workspace select gcp-$$index-$$region; \
+		terraform init; \
+		terraform apply ${terraform_apply_args} -var-file="../../terraform.tfvars.json" -var=cloud=aws -var=cluster_id=$$index; \
+		terraform workspace select default; \
+		let index++; \
+		cd "../.."; \
+		done; \
+		'
 
-## argocd cluster_id=1 cloud=azure		 onboards ArgoCD on AKS cluster with ID=1 
+.PHONY: tsb
+tsb: tsb_cp
+	@echo "Magic is on the way..."
+
+## argocd                        		 onboards ArgoCD on AKS cluster with ID=1 
 .PHONY: argocd
 argocd:
 	@echo "Deploying ArgoCD to ${cloud} cluster with cluster_id=${cluster_id}"
-  ## working around the issue: https://github.com/hashicorp/terraform-provider-azurerm/issues/2602
-	terraform apply ${terraform_apply_args} -target=module.azure_k8s -target=module.aws_base -target=module.aws_jumpbox 
 	terraform apply ${terraform_apply_args} -target=module.argocd -var=cluster_id=${cluster_id} -var=cloud=${cloud}
 
 .PHONY: keycloak
 keycloak:
-  ## working around the issue: https://github.com/hashicorp/terraform-provider-azurerm/issues/2602
-	terraform apply ${terraform_apply_args} -target=module.azure_k8s -target=module.aws_base -target=module.aws_jumpbox 
 	terraform apply ${terraform_apply_args} -target=module.keycloak-helm -var=cluster_id=0
-
-.PHONY: app_bookinfo
-app_bookinfo:
-	@echo "Deploying bookinfo application to ${cloud} cluster with cluster_id=${cluster_id}"
-	terraform state list | grep "^module.app_bookinfo" | grep -v data | tr -d ':' | xargs -I '{}' terraform taint {}
-  ## working around the issue: https://github.com/hashicorp/terraform-provider-azurerm/issues/2602
-	terraform apply ${terraform_apply_args} -target=module.azure_k8s -target=module.aws_base -target=module.aws_jumpbox 
-	terraform apply ${terraform_apply_args} -target=module.app_bookinfo -var=cluster_id=${cluster_id} -var=cloud=${cloud}
-
-.PHONY: azure_oidc
-azure_oidc:
-	terraform apply ${terraform_apply_args} -target=module.azure_oidc
-
-.PHONY: fast_track
-fast_track:
-	make k8s
-	make tsb_mp
-	make tsb_cp cluster_id=0 cloud=azure || true
-	make tsb_cp cluster_id=1 cloud=azure || true
-	make tsb_cp cluster_id=0 cloud=aws || true
-	make tsb_cp cluster_id=0 cloud=gcp || true
-	make argocd cluster_id=0 cloud=azure || true
-	make argocd cluster_id=1 cloud=azure || true
-	make argocd cluster_id=0 cloud=aws || true
-	make argocd cluster_id=0 cloud=gcp || true
 
 ## destroy					 destroy the environment
 .PHONY: destroy
 destroy:
 	terraform destroy ${terraform_destroy_args} -refresh=false -target=module.aws_route53_register_fqdn
-	terraform state list | grep "^module.tsb" | xargs -I '{}'  terraform state rm {}
-	terraform state list | grep "^module.cert" | xargs -I '{}'  terraform state rm {}
-	terraform state list | grep "^module.argo" | xargs -I '{}'  terraform state rm {}
-	terraform state list | grep "^module.es" | xargs -I '{}'  terraform state rm {}
-	terraform state list | grep "^module.keycloak" | xargs -I '{}'  terraform state rm {}
-	terraform state list | grep "^module.app" | xargs -I '{}'  terraform state rm {}
-	terraform destroy ${terraform_destroy_args} -refresh=false -target=module.aws_k8s 
-	terraform destroy ${terraform_destroy_args} -refresh=false -target=module.aws_jumpbox  -target=module.aws_base
-	terraform destroy ${terraform_destroy_args} -refresh=false -target=module.gcp_k8s  
-	terraform destroy ${terraform_destroy_args} -refresh=false -target=module.gcp_jumpbox -target=module.gcp_base
-	terraform destroy ${terraform_destroy_args} -refresh=false -target=module.azure_k8s 
-	terraform destroy ${terraform_destroy_args} -refresh=false -target=module.azure_jumpbox -target=module.azure_base
-	terraform destroy ${terraform_destroy_args} -refresh=false 
-	terraform destroy ${terraform_destroy_args}

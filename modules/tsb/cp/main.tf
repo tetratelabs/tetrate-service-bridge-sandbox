@@ -56,12 +56,12 @@ resource "null_resource" "jumpbox_tctl" {
 
   # file-remote is not supported yet, https://github.com/hashicorp/terraform/issues/3379
   provisioner "local-exec" {
-    command = "scp -oStrictHostKeyChecking=no -oIdentitiesOnly=yes -oUserKnownHostsFile=/dev/null -i ${var.name_prefix}-${var.cloud}-${var.jumpbox_username}.pem  ${var.jumpbox_username}@${var.jumpbox_host}:${var.cluster_name}-service-account.jwk ${var.cluster_name}-service-account.jwk"
+    command = "scp -oStrictHostKeyChecking=no -oIdentitiesOnly=yes -oUserKnownHostsFile=/dev/null -i ${var.output_path}/${var.name_prefix}-${var.locality_region}-${var.cloud}-${var.jumpbox_username}.pem  ${var.jumpbox_username}@${var.jumpbox_host}:${var.cluster_name}-service-account.jwk ${var.output_path}/${var.cluster_name}-service-account.jwk"
   }
 }
 
 data "local_file" "service_account" {
-  filename   = "${var.cluster_name}-service-account.jwk"
+  filename   = "${var.output_path}/${var.cluster_name}-service-account.jwk"
   depends_on = [null_resource.jumpbox_tctl]
 }
 resource "helm_release" "controlplane" {
@@ -142,9 +142,6 @@ resource "helm_release" "dataplane" {
 resource "kubernetes_namespace" "gitops-tier1" {
   count = var.tier1_cluster == true ? 1 : 0
   metadata {
-    labels = {
-      istio-injection = "enabled"
-    }
     name = "gitops-tier1"
   }
 }

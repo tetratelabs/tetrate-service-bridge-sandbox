@@ -15,3 +15,5 @@ variable "region" {
 variable "k8s_version" {
 }
 
+variable "output_path" {
+}

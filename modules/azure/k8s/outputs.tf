@@ -28,7 +28,7 @@ output "kube_config_raw" {
 
 resource "local_file" "kubeconfig" {
   content  = azurerm_kubernetes_cluster.k8s.kube_config_raw
-  filename = "${var.cluster_name}-kubeconfig"
+  filename = "${var.output_path}/${var.cluster_name}-kubeconfig"
 }
 
 output "cluster_name" {

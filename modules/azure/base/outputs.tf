@@ -11,7 +11,7 @@ output "vnet_subnets" {
 }
 
 output "resource_group_name" {
-  value = "${var.name_prefix}_resource_group"
+  value = azurerm_resource_group.tsb.name
 }
 
 output "registry" {
@@ -28,4 +28,8 @@ output "registry_password" {
 
 output "registry_id" {
   value = azurerm_container_registry.acr.id
+}
+
+output "cidr" {
+  value = var.cidr
 }
