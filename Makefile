@@ -125,7 +125,7 @@ tsb_cp: tsb_mp
 		terraform workspace new azure-$$index-$$region; \
 		terraform workspace select azure-$$index-$$region; \
 		terraform init; \
-		terraform apply ${terraform_apply_args} -var-file="../../terraform.tfvars.json" -var=cloud=aws -var=cluster_id=$$index; \
+		terraform apply ${terraform_apply_args} -var-file="../../terraform.tfvars.json" -var=cloud=azure -var=cluster_id=$$index; \
 		terraform workspace select default; \
 		let index++; \
 		cd "../.."; \
@@ -139,7 +139,7 @@ tsb_cp: tsb_mp
 		terraform workspace new gcp-$$index-$$region; \
 		terraform workspace select gcp-$$index-$$region; \
 		terraform init; \
-		terraform apply ${terraform_apply_args} -var-file="../../terraform.tfvars.json" -var=cloud=aws -var=cluster_id=$$index; \
+		terraform apply ${terraform_apply_args} -var-file="../../terraform.tfvars.json" -var=cloud=gcp -var=cluster_id=$$index; \
 		terraform workspace select default; \
 		let index++; \
 		cd "../.."; \
