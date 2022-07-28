@@ -26,7 +26,7 @@ module "tsb_mp" {
   tsb_password               = var.tsb_password
   tsb_image_sync_username    = var.tsb_image_sync_username
   tsb_image_sync_apikey      = var.tsb_image_sync_apikey
-  es_host                    = module.es.es_host
+  es_host                    = module.es.es_ip != "" ? module.es.es_ip : module.es.es_hostname
   es_username                = module.es.es_username
   es_password                = module.es.es_password
   es_cacert                  = module.es.es_cacert
@@ -42,5 +42,5 @@ module "aws_route53_register_fqdn" {
   source   = "../../modules/aws/route53_register_fqdn"
   dns_zone = var.dns_zone
   fqdn     = var.tsb_fqdn
-  address  = module.tsb_mp.host
+  address  = module.tsb_mp.ingress_ip != "" ? module.tsb_mp.ingress_ip : module.tsb_mp.ingress_hostname
 }

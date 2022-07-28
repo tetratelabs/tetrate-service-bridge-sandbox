@@ -1,6 +1,10 @@
 
-output "es_host" {
+output "es_ip" {
   value = data.kubernetes_service.es.status[0].load_balancer[0].ingress[0].ip
+}
+
+output "es_hostname" {
+  value = data.kubernetes_service.es.status[0].load_balancer[0].ingress[0].hostname
 }
 
 output "es_username" {

@@ -24,6 +24,8 @@ loop1:
 		cd "tsb/mp"; \
 		terraform workspace select default; \
  		terraform init; \
+		terraform apply ${terraform_apply_args} -target=module.es -var-file="../../terraform.tfvars.json"; \
+		terraform apply ${terraform_apply_args} -target=module.tsb_mp.kubectl_manifest.manifests_certs -var-file="../../terraform.tfvars.json"; \
 		terraform apply ${terraform_apply_args} -var-file="../../terraform.tfvars.json"; \
 		terraform workspace select default; \
 		cd "../.."; \
@@ -49,7 +51,7 @@ gcp_jumpbox: init
 
 ## k8s						 deploys k8s cluster for MP and N-number of CPs(*) 
 .PHONY: k8s
-k8s: init azure_k8s gcp_k8s aws_k8s
+k8s: aws_k8s
 
 ## azure_k8s					 deploys azure k8s cluster for MP and N-number of CPs(*) leveraging AKS
 .PHONY: azure_k8s
@@ -87,12 +89,14 @@ gcp_k8s: init
 
 ## tsb_mp						 deploys MP
 .PHONY: tsb_mp
-tsb_mp: tsb_deps
+tsb_mp: k8s
 	@echo "Deploying TSB MP"
 	@/bin/sh -c '\
 		cd "tsb/mp"; \
 		terraform workspace select default; \
  		terraform init; \
+		terraform apply ${terraform_apply_args} -target=module.es -var-file="../../terraform.tfvars.json"; \
+		terraform apply ${terraform_apply_args} -target=module.tsb_mp.kubectl_manifest.manifests_certs -var-file="../../terraform.tfvars.json"; \
 		terraform apply ${terraform_apply_args} -var-file="../../terraform.tfvars.json"; \
 		terraform workspace select default; \
 		cd "../.."; \
