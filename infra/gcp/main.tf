@@ -19,6 +19,7 @@ module "gcp_base" {
 
 module "gcp_jumpbox" {
   source                  = "../../modules/gcp/jumpbox"
+  count                   = var.gcp_k8s_region == null ? 0 : 1
   name_prefix             = "${var.name_prefix}-${var.gcp_k8s_region}"
   region                  = var.gcp_k8s_region
   project_id              = var.gcp_project_id == null ? google_project.tsb[0].project_id : var.gcp_project_id
