@@ -93,7 +93,7 @@ tsb_mp: k8s
 		cd "tsb/mp"; \
 		terraform workspace select default; \
 		terraform init; \
-		terraform apply ${terraform_apply_args} -target=module.es -var-file="../../terraform.tfvars.json"; \
+		terraform apply ${terraform_apply_args} -target=module.cert-manager -target=module.es -var-file="../../terraform.tfvars.json"; \
 		terraform apply ${terraform_apply_args} -target=module.tsb_mp.kubectl_manifest.manifests_certs -var-file="../../terraform.tfvars.json"; \
 		terraform apply ${terraform_apply_args} -var-file="../../terraform.tfvars.json"; \
 		terraform workspace select default; \
@@ -151,7 +151,7 @@ tsb_cp: tsb_mp
 tsb: tsb_cp
 	@echo "Magic is on the way..."
 
-## argocd                        		 onboards ArgoCD on AKS cluster with ID=1 
+## argocd
 .PHONY: argocd
 argocd: k8s
 	@echo "Deploying ArgoCD on Management Plane..."
