@@ -120,9 +120,9 @@ resource "helm_release" "managementplane" {
 
 }
 
-resource "time_sleep" "wait_180_seconds" {
+resource "time_sleep" "wait_240_seconds" {
   depends_on      = [helm_release.managementplane]
-  create_duration = "180s"
+  create_duration = "240s"
 }
 
 data "kubernetes_service" "tsb" {
@@ -130,5 +130,5 @@ data "kubernetes_service" "tsb" {
     name      = "envoy"
     namespace = "tsb"
   }
-  depends_on = [time_sleep.wait_180_seconds]
+  depends_on = [time_sleep.wait_240_seconds]
 }
