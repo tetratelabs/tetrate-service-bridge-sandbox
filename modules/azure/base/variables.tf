@@ -10,6 +10,6 @@ variable "cidr" {
   description = "cidr"
 }
 
-variable "clusters_count" {
-  description = "clusters count"
+variable "subnets_count" {
+  default = "3"
 }

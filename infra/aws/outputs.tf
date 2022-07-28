@@ -16,11 +16,13 @@ output "cluster_name" {
 }
 
 output "host" {
-  value = module.aws_k8s[0].host
+  value     = module.aws_k8s[0].host
+  sensitive = true
 }
 
 output "cluster_ca_certificate" {
-  value = module.aws_k8s[0].cluster_ca_certificate
+  value     = module.aws_k8s[0].cluster_ca_certificate
+  sensitive = true
 }
 
 output "token" {

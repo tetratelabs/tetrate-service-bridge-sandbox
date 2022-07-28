@@ -1,5 +1,5 @@
 resource "azurerm_resource_group" "tsb" {
-  name     = "${var.name_prefix}_resource_group"
+  name     = "${var.name_prefix}_rg"
   location = var.location
   tags = {
     owner = "${var.name_prefix}_tsb"
@@ -7,8 +7,8 @@ resource "azurerm_resource_group" "tsb" {
 }
 
 locals {
-  subnet_prefixes = [for i in range(var.clusters_count) : "${cidrsubnet(var.cidr, 4, i)}"]
-  subnet_names    = [for i in range(var.clusters_count) : "${var.name_prefix}_subnet${i}"]
+  subnet_prefixes = [for i in range(var.subnets_count) : "${cidrsubnet(var.cidr, 4, i)}"]
+  subnet_names    = [for i in range(var.subnets_count) : "${var.name_prefix}_subnet${i}"]
 }
 
 module "vnet" {

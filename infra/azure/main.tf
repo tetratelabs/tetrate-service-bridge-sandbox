@@ -3,19 +3,18 @@ provider "azurerm" {
 }
 
 module "azure_base" {
-  source         = "./modules/azure/base"
-  count          = length(var.azure_k8s_regions)
-  name_prefix    = "${var.name_prefix}-${count.index}-${var.azure_k8s_regions[count.index]}"
-  location       = var.azure_k8s_regions[count.index]
-  cidr           = cidrsubnet(var.cidr, 4, count.index)
-  clusters_count = length(var.azure_k8s_regions)
+  source      = "../../modules/azure/base"
+  count       = var.azure_k8s_region == null ? 0 : 1
+  name_prefix = "${var.name_prefix}-${var.azure_k8s_region}"
+  location    = var.azure_k8s_region
+  cidr        = cidrsubnet(var.cidr, 4, count.index)
 }
 
 module "azure_jumpbox" {
-  source                  = "./modules/azure/jumpbox"
-  count                   = length(var.azure_k8s_regions) > 0 ? 1 : 0
-  name_prefix             = "${var.name_prefix}-${count.index}-${var.azure_k8s_regions[count.index]}"
-  location                = var.azure_k8s_regions[0]
+  source                  = "../../modules/azure/jumpbox"
+  count                   = var.azure_k8s_region == null ? 0 : 1
+  name_prefix             = "${var.name_prefix}-${var.azure_k8s_region}"
+  location                = var.azure_k8s_region
   resource_group_name     = module.azure_base[0].resource_group_name
   cidr                    = module.azure_base[0].cidr
   vnet_subnet             = module.azure_base[0].vnet_subnets[0]
@@ -26,17 +25,19 @@ module "azure_jumpbox" {
   registry                = module.azure_base[0].registry
   registry_username       = module.azure_base[0].registry_username
   registry_password       = module.azure_base[0].registry_password
+  output_path             = var.output_path
 }
 
 module "azure_k8s" {
-  source              = "./modules/azure/k8s"
-  count               = length(var.azure_k8s_regions)
+  source              = "../../modules/azure/k8s"
+  count               = var.azure_k8s_region == null ? 0 : 1
   k8s_version         = var.azure_aks_k8s_version
   resource_group_name = module.azure_base[0].resource_group_name
-  location            = var.azure_k8s_regions[count.index]
-  name_prefix         = "${var.name_prefix}-${count.index}-${var.azure_k8s_regions[count.index]}"
-  cluster_name        = "${var.name_prefix}-aks-${count.index + 1}"
+  location            = var.azure_k8s_region
+  name_prefix         = "${var.name_prefix}-${var.azure_k8s_region}"
+  cluster_name        = var.cluster_name == null ? "aks-${var.azure_k8s_region}-${var.name_prefix}" : var.cluster_name
   vnet_subnet         = module.azure_base[count.index].vnet_subnets[count.index]
   registry_id         = module.azure_base[0].registry_id
+  output_path         = var.output_path
   depends_on          = [module.azure_jumpbox[0]]
 }

@@ -13,7 +13,9 @@ variable "owner" {
 
 locals {
   infra = {
-    aws = data.terraform_remote_state.aws
+    aws   = data.terraform_remote_state.aws
+    azure = data.terraform_remote_state.azure
+    gcp   = data.terraform_remote_state.gcp
   }
 }
 

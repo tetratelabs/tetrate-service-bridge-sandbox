@@ -6,6 +6,22 @@ data "terraform_remote_state" "aws" {
   }
 }
 
+data "terraform_remote_state" "azure" {
+  count   = length(var.azure_k8s_regions)
+  backend = "local"
+  config = {
+    path = "../../infra/azure/terraform.tfstate.d/azure-${count.index}-${var.azure_k8s_regions[count.index]}/terraform.tfstate"
+  }
+}
+
+data "terraform_remote_state" "gcp" {
+  count   = length(var.gcp_k8s_regions)
+  backend = "local"
+  config = {
+    path = "../../infra/gcp/terraform.tfstate.d/gcp-${count.index}-${var.gcp_k8s_regions[count.index]}/terraform.tfstate"
+  }
+}
+
 module "es" {
   source                     = "../../modules/addons/elastic"
   cluster_name               = local.infra[var.tsb_mp["cloud"]][var.tsb_mp["cluster_id"]]["outputs"].cluster_name

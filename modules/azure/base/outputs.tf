@@ -11,7 +11,7 @@ output "vnet_subnets" {
 }
 
 output "resource_group_name" {
-  value = "${var.name_prefix}_resource_group"
+  value = azurerm_resource_group.tsb.name
 }
 
 output "registry" {

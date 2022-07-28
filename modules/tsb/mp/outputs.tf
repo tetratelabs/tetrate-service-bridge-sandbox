@@ -18,6 +18,3 @@ output "istiod_cacerts_tls_crt" {
 output "istiod_cacerts_tls_key" {
   value = data.kubernetes_secret.istiod_cacerts.data["tls.key"]
 }
-
-
-

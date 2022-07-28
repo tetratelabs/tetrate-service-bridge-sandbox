@@ -57,5 +57,5 @@ module "gke_auth" {
 
 resource "local_file" "kubeconfig" {
   content  = module.gke_auth.kubeconfig_raw
-  filename = "${google_container_cluster.tsb.name}-kubeconfig"
+  filename = "${var.output_path}/${google_container_cluster.tsb.name}-kubeconfig"
 }
