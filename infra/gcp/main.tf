@@ -47,9 +47,9 @@ module "gcp_k8s" {
 
 module "cert-manager" {
   source                     = "../../modules/addons/cert-manager"
-  cluster_name               = module.aws_k8s[0].cluster_name
-  k8s_host                   = module.aws_k8s[0].host
-  k8s_cluster_ca_certificate = module.aws_k8s[0].cluster_ca_certificate
-  k8s_client_token           = module.aws_k8s[0].token
+  cluster_name               = module.gcp_k8s[0].cluster_name
+  k8s_host                   = module.gcp_k8s[0].host
+  k8s_cluster_ca_certificate = module.gcp_k8s[0].cluster_ca_certificate
+  k8s_client_token           = module.gcp_k8s[0].token
   cert-manager_enabled       = var.cert-manager_enabled
 }
