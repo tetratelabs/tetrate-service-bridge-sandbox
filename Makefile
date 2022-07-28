@@ -25,7 +25,7 @@ k8s: aws_k8s azure_k8s gcp_k8s
 
 ## azure_k8s					 deploys azure k8s cluster for MP and N-number of CPs(*) leveraging AKS
 .PHONY: azure_k8s
-azure_k8s:
+azure_k8s: init
 	@/bin/sh -c '\
 		index=0; \
 		name_prefix=`jq -r '.name_prefix' terraform.tfvars.json`; \
@@ -46,7 +46,7 @@ azure_k8s:
 
 ## aws_k8s					 deploys EKS K8s cluster (CPs only)
 .PHONY: aws_k8s
-aws_k8s:
+aws_k8s: init
 	@/bin/sh -c '\
 		index=0; \
 		name_prefix=`jq -r '.name_prefix' terraform.tfvars.json`; \
@@ -103,7 +103,7 @@ tsb_mp: k8s
 
 ## tsb_cp	                       		 onboards CP on AKS cluster with ID=1 
 .PHONY: tsb_cp
-tsb_cp: tsb_mp
+tsb_cp: k8s
 	@echo "Onboarding clusters, i.e. TSB CP rollouts..."
 	@/bin/sh -c '\
 		index=0; \
@@ -149,7 +149,7 @@ tsb_cp: tsb_mp
 		'
 
 .PHONY: tsb
-tsb: tsb_cp
+tsb: tsb_mp tsb_cp
 	@echo "Magic is on the way..."
 
 ## argocd
