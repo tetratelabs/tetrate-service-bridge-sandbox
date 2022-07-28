@@ -153,7 +153,7 @@ tsb: tsb_cp
 
 ## argocd                        		 onboards ArgoCD on AKS cluster with ID=1 
 .PHONY: argocd
-argocd:
+argocd: k8s
 	@echo "Deploying ArgoCD on Management Plane..."
 	@/bin/sh -c '\
 		cd "addons/argocd"; \
@@ -163,10 +163,6 @@ argocd:
 		terraform workspace select default; \
 		cd "../.."; \
 		'
-
-.PHONY: keycloak
-keycloak:
-	terraform apply ${terraform_apply_args} -target=module.keycloak-helm -var=cluster_id=0
 
 ## destroy					 destroy the environment
 .PHONY: destroy

@@ -8,20 +8,16 @@ The `Makefile` in this directory provides automated provisioning of k8s clusters
 
 ```mermaid
   graph TD;
-      I[make init] --> AAA[make k8s]
-      AAA[make k8s] --> A[make azure_k8s]
-      AAA[make k8s] --> AA[make aws_k8s]
-      AAA[make k8s] --> AAAA[make gcp_k8s]
-      A[make azure_k8s] --> C[make tsb_mp]
-      AA[make aws_k8s] --> C[make tsb_mp]
-      AAAA[make gcp_k8s] --> C[make tsb_mp]
-      Y[make azure_oidc] --> C[make tsb_mp]
-      C[make tsb_mp] --> B[make tsb_deps]
-      C[make tsb_mp] --> D[make tsb_cp]
-      C[make tsb_mp] --> F[make keycloak]
-      D[make tsb_cp] --> E[make argocd]
-      D[make tsb_cp] --> Z[make app_bookinfo]
-      style Y fill:lightgrey
+      A[make tsb] --> B[make k8s]
+      B[make k8s] --> C[make aws_k8s]
+      B[make k8s] --> CC[make azure_k8s]
+      B[make k8s] --> CCC[make gcp_k8s]
+      C[make aws_k8s] --> D[make tsb_mp]
+      CC[make azure_k8s] --> D[make tsb_mp]
+      CCC[make gcp_k8s] --> D[make tsb_mp]
+      D[make tsb_mp] --> [make tsb_cp]
+      D[make tsb_mp] --> [make argocd]
+      D[make tsb_mp] --> F[make keycloak]
       style F fill:lightgrey
 ```
 
@@ -53,43 +49,50 @@ The setup consists of
 
 ## Usage
 
-terraform.tfvars
+Copy `terraform.tfvars.json.sample` to the root directory as `terraform.tfvars.json`
 
-```
-name_prefix = "<YOUR UNIQUE PREFIX NAME TO BE CREATED>
-tsb_image_sync_username = "cloudsmith-username"
-tsb_image_sync_apikey = "cloudsmith-apikey"
-tsb_fqdn = "<YOUR UNIQUE NAME TO BE CREATED>.cx.tetrate.info"
-tsb_version       = "1.5.0"
-tsb_password      = "Tetrate123"
-aws_k8s_regions   = ["eu-west-1"]
-azure_k8s_regions = ["eastus"]
-gcp_k8s_regions   = ["us-west1"]
+```json
+{
+    "name_prefix": <YOUR UNIQUE PREFIX NAME TO BE CREATED>,
+    "tsb_fqdn": "<YOUR UNIQUE PREFIX NAME TO BE CREATED>.cx.tetrate.info",
+    "tsb_version": "1.5.0",
+    "tsb_image_sync_username": "TSB_REPO_USERNAME",
+    "tsb_image_sync_apikey": "TSB_REPO_APIKEY",
+    "tsb_password": "Tetrate123",
+    "tsb_mp": {
+        "cloud": "gcp",
+        "cluster_id": 0
+    },
+    "tsb_org": "tetrate",
+    "aws_k8s_regions": [
+    ],
+    "azure_k8s_regions": [
+    ],
+    "gcp_k8s_regions": [
+        "us-west1",
+        "us-east1"
+    ]
+}
 ```
 
-To stand up the demo continue with the steps below:
+To stand up the demo just do `make tsb`
+
+or if you want to decouple the steps...
 
 ```bash
-# setup modules
-make init
-# setup underlying clusters
+# setup underlying clusters, registries, jumpboxes
 make k8s
-# deploy TSB MP (to include required dependecies)
+# deploy tsb management plane
 make tsb_mp
-# deploy TSB CP using Helm chart on the target cluster
-make tsb_cp cluster_id=0 cloud=azure # MP cluster is targetted to be onboarded as Tier1
-make tsb_cp cluster_id=1 cloud=azure
-make tsb_cp cluster_id=0 cloud=aws # in case of AWS
-make tsb_cp cluster_id=0 cloud=gcp # in case of GCP
-# deploy apps using ArgoCD on the target cluster
-make argocd cluster_id=1 cloud=azure
-make argocd cluster_id=0 cloud=aws
-make argocd cluster_id=0 cloud=gcp
+# onboard deployed clusters
+make tsb_cp
+# deploy argocd on the management cluster
+make argocd
 ```
 
 The completion of the above steps will result in:
 
-- output TSB management plane endpoint
+- all the generated outputs will be provided under `./outputs` folder
 - output kubeconfig files for all the created aks clusters in format of: $cluster_name-kubeconfig
 - output IP address and private key for the jumpbox (ssh username: tsbadmin), using shell scripts login to the jumpbox, for example to reach gcp jumpbox just run the script `ssh-to-gcp-jumpbox.sh`
 
