@@ -6,6 +6,10 @@ output "ingress_hostname" {
   value = module.tsb_mp.ingress_hostname
 }
 
+output "fqdn" {
+  value = var.tsb_fqdn
+}
+
 output "tsb_cacert" {
   value     = module.tsb_mp.tsb_cacert
   sensitive = true

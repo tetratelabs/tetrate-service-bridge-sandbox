@@ -21,14 +21,18 @@ help : Makefile
 .PHONY: loop1
 loop1:
 	@/bin/sh -c '\
-		cd "tsb/mp"; \
-		terraform workspace select default; \
+		index=0; \
+		jq -r '.aws_k8s_regions[]' terraform.tfvars.json | while read -r region; do \
+		echo "cloud=aws region=$$region cluster_id=$$index"; \
+		cd "tsb/cp"; \
+		terraform workspace new aws-$$index-$$region; \
+		terraform workspace select aws-$$index-$$region; \
  		terraform init; \
-		terraform apply ${terraform_apply_args} -target=module.es -var-file="../../terraform.tfvars.json"; \
-		terraform apply ${terraform_apply_args} -target=module.tsb_mp.kubectl_manifest.manifests_certs -var-file="../../terraform.tfvars.json"; \
-		terraform apply ${terraform_apply_args} -var-file="../../terraform.tfvars.json"; \
+		terraform apply ${terraform_apply_args} -var-file="../../terraform.tfvars.json" -var=cloud=aws -var=cluster_id=$$index; \
 		terraform workspace select default; \
 		cd "../.."; \
+		let index++; \
+		done; \
 		'
 
 ## init					 	 terraform init
@@ -90,7 +94,7 @@ gcp_k8s: init
 ## tsb_mp						 deploys MP
 .PHONY: tsb_mp
 tsb_mp: k8s
-	@echo "Deploying TSB MP"
+	@echo "Deploying TSB Management Plane..."
 	@/bin/sh -c '\
 		cd "tsb/mp"; \
 		terraform workspace select default; \
@@ -104,13 +108,22 @@ tsb_mp: k8s
 
 ## tsb_cp	cluster_id=1 cloud=azure		 onboards CP on AKS cluster with ID=1 
 .PHONY: tsb_cp
-tsb_cp:
-	@echo "Onboarding ${cloud} cluster with cluster_id=${cluster_id} into TSB"
-	#terraform state list | grep "^module.cert-manager" | grep -v data | grep -v manifest | grep -v helm | grep -v wait| tr -d ':' | xargs -I '{}' terraform taint {}
-	terraform taint -allow-missing "module.cert-manager.time_sleep.wait_90_seconds"
-	terraform taint -allow-missing "module.tsb_cp.null_resource.jumpbox_tctl" 
-	terraform apply ${terraform_apply_args} -target=module.cert-manager -var=cluster_id=${cluster_id} -var=cloud=${cloud}
-	terraform apply ${terraform_apply_args} -target=module.tsb_cp -var=cluster_id=${cluster_id} -var=cloud=${cloud}
+tsb_cp: tsb_mp
+	@echo "Onboarding clusters, i.e. TSB CP rollouts..."
+	@/bin/sh -c '\
+		index=0; \
+		jq -r '.aws_k8s_regions[]' terraform.tfvars.json | while read -r region; do \
+		echo "cloud=aws region=$$region cluster_id=$$index"; \
+		cd "tsb/cp"; \
+		terraform workspace new aws-$$index-$$region; \
+		terraform workspace select aws-$$index-$$region; \
+ 		terraform init; \
+		terraform apply ${terraform_apply_args} -var-file="../../terraform.tfvars.json" -var=cloud=aws -var=cluster_id=$$index; \
+		terraform workspace select default; \
+		cd "../.."; \
+		let index++; \
+		done; \
+		'
 
 ## argocd cluster_id=1 cloud=azure		 onboards ArgoCD on AKS cluster with ID=1 
 .PHONY: argocd

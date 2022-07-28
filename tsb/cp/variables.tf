@@ -13,10 +13,9 @@ variable "owner" {
 
 locals {
   infra = {
-    aws = terraform_remote_state.aws
+    aws = data.terraform_remote_state.aws
   }
 }
-
 
 variable "name_prefix" {
   description = "name prefix"

@@ -28,3 +28,6 @@ output "token" {
   sensitive = true
 }
 
+output "locality_region" {
+  value = var.aws_k8s_region
+}
