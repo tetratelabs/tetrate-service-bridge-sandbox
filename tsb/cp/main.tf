@@ -30,6 +30,7 @@ data "terraform_remote_state" "tsb_mp" {
 }
 
 module "cert-manager" {
+  count                      = var.cluster_id == var.tsb_mp["cluster_id"] && var.cloud == var.tsb_mp["cloud"] ? 0 : 1
   source                     = "../../modules/addons/cert-manager"
   cluster_name               = local.infra[var.cloud][var.cluster_id]["outputs"].cluster_name
   k8s_host                   = local.infra[var.cloud][var.cluster_id]["outputs"].host
