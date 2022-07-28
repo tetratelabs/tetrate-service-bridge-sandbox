@@ -15,13 +15,6 @@ module "cert-manager" {
   k8s_client_token           = local.cloud[var.cloud == null ? var.tsb_mp["cloud"] : var.cloud][var.cluster_id == null ? var.tsb_mp["cluster_id"] : var.cluster_id].token
 }
 
-module "es" {
-  source                     = "./modules/addons/elastic"
-  cluster_name               = local.cloud[var.tsb_mp["cloud"]][var.tsb_mp["cluster_id"]].cluster_name
-  k8s_host                   = local.cloud[var.tsb_mp["cloud"]][var.tsb_mp["cluster_id"]].host
-  k8s_cluster_ca_certificate = local.cloud[var.tsb_mp["cloud"]][var.tsb_mp["cluster_id"]].cluster_ca_certificate
-  k8s_client_token           = local.cloud[var.tsb_mp["cloud"]][var.tsb_mp["cluster_id"]].token
-}
 
 module "argocd" {
   source                     = "./modules/addons/argocd"

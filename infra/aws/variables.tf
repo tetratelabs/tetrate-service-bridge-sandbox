@@ -7,7 +7,6 @@ variable "cluster_id" {
 variable "cluster_name" {
   default = null
 }
-
 variable "owner" {
   default = "tsb-sandbox@tetrate.io"
 }
@@ -113,5 +112,5 @@ variable "output_path" {
 }
 
 variable "cert-manager_enabled" {
-  default = true
+  default = "true"
 }

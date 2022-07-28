@@ -7,9 +7,14 @@ variable "cluster_id" {
 variable "cluster_name" {
   default = null
 }
-
 variable "owner" {
   default = "tsb-sandbox@tetrate.io"
+}
+
+locals {
+  infra = {
+    aws = data.terraform_remote_state.aws
+  }
 }
 
 variable "name_prefix" {
@@ -110,8 +115,4 @@ variable "tsb_mp" {
 
 variable "output_path" {
   default = "../../outputs"
-}
-
-variable "cert-manager_enabled" {
-  default = true
 }

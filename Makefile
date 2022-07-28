@@ -16,18 +16,19 @@ all: k8s tsb_mp tsb_cp argocd
 help : Makefile
 	@sed -n 's/^##//p' $<
 
+
 ## init					 	 terraform init
-.PHONY: loop
-loop:
-	@/bin/sh -c 'index=0;jq -r '.aws_k8s_regions[]' terraform.tfvars.json | while read -r region; do \
-		echo "cloud=aws cluster_id=$$index region=$$region"; \
-		terraform workspace new aws-$$index-$$region; \
-		terraform workspace select aws-$$index-$$region; \
-		terraform apply -auto-approve -target=module.aws_base -target=module.aws_jumpbox -var=aws_k8s_region=$$region; \
+.PHONY: loop1
+loop1:
+	@/bin/sh -c '\
+		cd "tsb/mp"; \
 		terraform workspace select default; \
-		let index++; \
-		done; \
-	  '
+ 		terraform init; \
+		terraform apply ${terraform_apply_args} -var-file="../../terraform.tfvars.json"; \
+		terraform workspace select default; \
+		cd "../.."; \
+		'
+
 ## init					 	 terraform init
 .PHONY: init
 init:
@@ -40,11 +41,6 @@ init:
 azure_jumpbox: init
 	terraform apply ${terraform_apply_args} -target=module.azure_base -target=module.azure_jumpbox
 
-## aws_jumpbox					 deploys jumpbox, pushes tsb repo to acr
-.PHONY: aws_jumpbox
-aws_jumpbox: init
-	terraform apply ${terraform_apply_args} -target=module.aws_base -target=module.aws_jumpbox
-
 
 ## gcp_jumpbox					 deploys jumpbox, pushes tsb repo to gcr
 .PHONY: gcp_jumpbox
@@ -53,16 +49,7 @@ gcp_jumpbox: init
 
 ## k8s						 deploys k8s cluster for MP and N-number of CPs(*) 
 .PHONY: k8s
-k8s: init
-	terraform apply ${terraform_apply_args} -target=module.azure_base
-	terraform apply ${terraform_apply_args} -target=module.azure_jumpbox 
-	terraform apply ${terraform_apply_args} -target=module.azure_k8s
-	terraform apply ${terraform_apply_args} -target=module.aws_base 
-	terraform apply ${terraform_apply_args} -target=module.aws_jumpbox 
-	terraform apply ${terraform_apply_args} -target=module.aws_k8s
-	terraform apply ${terraform_apply_args} -target=module.gcp_base 
-	terraform apply ${terraform_apply_args} -target=module.gcp_jumpbox 
-	terraform apply ${terraform_apply_args} -target=module.gcp_k8s
+k8s: init azure_k8s gcp_k8s aws_k8s
 
 ## azure_k8s					 deploys azure k8s cluster for MP and N-number of CPs(*) leveraging AKS
 .PHONY: azure_k8s
@@ -73,10 +60,23 @@ azure_k8s: init
 
 ## aws_k8s					 deploys EKS K8s cluster (CPs only)
 .PHONY: aws_k8s
-aws_k8s: init
-	terraform apply ${terraform_apply_args} -target=module.aws_base 
-	terraform apply ${terraform_apply_args} -target=module.aws_jumpbox 
-	terraform apply ${terraform_apply_args} -target=module.aws_k8s
+aws_k8s:
+	@/bin/sh -c '\
+		index=0; \
+		name_prefix=`jq -r '.name_prefix' terraform.tfvars.json`; \
+		jq -r '.aws_k8s_regions[]' terraform.tfvars.json | while read -r region; do \
+		cluster_name="eks-$$name_prefix-$$region-$$index"; \
+		echo "cloud=aws region=$$region cluster_id=$$index cluster_name=$$cluster_name"; \
+		cd "infra/aws"; \
+		terraform workspace new aws-$$index-$$region; \
+		terraform workspace select aws-$$index-$$region; \
+ 		terraform init; \
+		terraform apply ${terraform_apply_args} -var-file="../../terraform.tfvars.json" -var=aws_k8s_region=$$region -var=cluster_name=$$cluster_name; \
+		terraform workspace select default; \
+		cd "../.."; \
+		let index++; \
+		done; \
+		'
 
 ## gcp_k8s					 deploys GKE K8s cluster (CPs only)
 .PHONY: gcp_k8s
@@ -85,23 +85,18 @@ gcp_k8s: init
 	terraform apply ${terraform_apply_args} -target=module.gcp_jumpbox 
 	terraform apply ${terraform_apply_args} -target=module.gcp_k8s
 
-.PHONY: tsb_deps
-tsb_deps: 
-	@echo "Deploying TSB MP preqs"
-	terraform apply ${terraform_apply_args} -target=module.cert-manager -target=module.es
-
 ## tsb_mp						 deploys MP
 .PHONY: tsb_mp
 tsb_mp: tsb_deps
 	@echo "Deploying TSB MP"
-	terraform apply ${terraform_apply_args} -target=module.tsb_mp.kubectl_manifest.manifests_certs
-	terraform apply ${terraform_apply_args} -target=module.tsb_mp
-	terraform apply ${terraform_apply_args} -target=module.aws_route53_register_fqdn
-
-## tsb_fqdn					 creates TSB MP FQDN
-.PHONY: tsb_fqdn
-tsb_fqdn:
-	terraform apply ${terraform_apply_args} -target=module.aws_route53_register_fqdn
+	@/bin/sh -c '\
+		cd "tsb/mp"; \
+		terraform workspace select default; \
+ 		terraform init; \
+		terraform apply ${terraform_apply_args} -var-file="../../terraform.tfvars.json"; \
+		terraform workspace select default; \
+		cd "../.."; \
+		'
 
 ## tsb_cp	cluster_id=1 cloud=azure		 onboards CP on AKS cluster with ID=1 
 .PHONY: tsb_cp

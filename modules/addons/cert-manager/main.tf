@@ -20,6 +20,7 @@ provider "kubernetes" {
 }
 
 resource "helm_release" "cert_manager" {
+  count            = var.cert-manager_enabled == true ? 1 : 0
   name             = "cert-manager"
   repository       = "https://charts.jetstack.io"
   chart            = "cert-manager"
@@ -50,7 +51,7 @@ data "kubectl_path_documents" "manifests_selfsigned_ca" {
 }
 
 resource "kubectl_manifest" "manifests_selfsigned_ca" {
-  count      = length(data.kubectl_path_documents.manifests_selfsigned_ca.documents)
+  count      = var.cert-manager_enabled == true ? length(data.kubectl_path_documents.manifests_selfsigned_ca.documents) : 0
   yaml_body  = element(data.kubectl_path_documents.manifests_selfsigned_ca.documents, count.index)
   depends_on = [time_sleep.wait_90_seconds]
 }

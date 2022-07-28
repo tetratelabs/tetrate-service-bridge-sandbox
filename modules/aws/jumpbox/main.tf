@@ -284,13 +284,13 @@ resource "null_resource" "jumpbox_aws_cleanup" {
 
 resource "local_file" "tsbadmin_pem" {
   content         = tls_private_key.generated.private_key_pem
-  filename        = "${var.name_prefix}-aws-${var.jumpbox_username}.pem"
+  filename        = "${var.output_path}/${var.name_prefix}-aws-${var.jumpbox_username}.pem"
   depends_on      = [tls_private_key.generated]
   file_permission = "0600"
 }
 
 resource "local_file" "ssh_jumpbox" {
   content         = "ssh -i ${var.name_prefix}-aws-${var.jumpbox_username}.pem -l ${var.jumpbox_username} ${aws_instance.jumpbox.public_ip}"
-  filename        = "ssh-to-aws-${var.name_prefix}-jumpbox.sh"
+  filename        = "${var.output_path}/ssh-to-aws-${var.name_prefix}-jumpbox.sh"
   file_permission = "0755"
 }

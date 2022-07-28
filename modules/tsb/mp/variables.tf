@@ -44,11 +44,17 @@ variable "k8s_cluster_ca_certificate" {
 variable "k8s_client_token" {
 }
 
+variable "es_host" {
+}
 
+variable "es_username" {
+}
 
+variable "es_password" {
+}
 
-
-
+variable "es_cacert" {
+}
 
 
 

@@ -66,27 +66,7 @@ data "kubernetes_secret" "istiod_cacerts" {
   }
   depends_on = [time_sleep.warmup_90_seconds]
 }
-data "kubernetes_secret" "es_password" {
-  metadata {
-    name      = "tsb-es-elastic-user"
-    namespace = "elastic-system"
-  }
-}
 
-data "kubernetes_secret" "es_cacert" {
-  metadata {
-    name      = "tsb-es-http-ca-internal"
-    namespace = "elastic-system"
-  }
-}
-
-
-data "kubernetes_service" "es" {
-  metadata {
-    name      = "tsb-es-http"
-    namespace = "elastic-system"
-  }
-}
 
 resource "helm_release" "managementplane" {
   name       = "managementplane"
@@ -104,9 +84,9 @@ resource "helm_release" "managementplane" {
     tsb_org      = var.tsb_org
     tsb_fqdn     = var.tsb_fqdn
     #eck
-    es_host     = data.kubernetes_service.es.status[0].load_balancer[0].ingress[0].ip
-    es_username = "elastic"
-    es_password = data.kubernetes_secret.es_password.data["elastic"]
+    es_host     = var.es_host
+    es_username = var.es_username
+    es_password = var.es_password
     # demo db profile
     db_username = "tsb"
     db_password = "tsb-postgres-password"
@@ -134,7 +114,7 @@ resource "helm_release" "managementplane" {
 
   set {
     name  = "secrets.elasticsearch.cacert"
-    value = data.kubernetes_secret.es_cacert.data["tls.crt"]
+    value = var.es_cacert
 
   }
 
