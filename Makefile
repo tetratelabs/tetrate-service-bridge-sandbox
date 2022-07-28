@@ -188,7 +188,7 @@ destroy:
 		terraform workspace select azure-$$index-$$region; \
 		terraform destroy ${terraform_apply_args} -var-file="../../terraform.tfvars.json" -var=azure_k8s_region=$$region -var=cluster_name=$$cluster_name; \
 		terraform workspace select default; \
-		terraform workspace destroy -force azure-$$index-$$region; \
+		terraform workspace delete -force azure-$$index-$$region; \
 		let index++; \
 		cd "../.."; \
 		done; \
@@ -203,7 +203,7 @@ destroy:
 		terraform workspace select aws-$$index-$$region; \
 		terraform destroy ${terraform_apply_args} -var-file="../../terraform.tfvars.json" -var=aws_k8s_region=$$region -var=cluster_name=$$cluster_name; \
 		terraform workspace select default; \
-		terraform workspace destroy -force aws-$$index-$$region; \
+		terraform workspace delete -force aws-$$index-$$region; \
 		let index++; \
 		cd "../.."; \
 		done; \
