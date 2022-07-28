@@ -154,8 +154,15 @@ tsb: tsb_cp
 ## argocd                        		 onboards ArgoCD on AKS cluster with ID=1 
 .PHONY: argocd
 argocd:
-	@echo "Deploying ArgoCD to ${cloud} cluster with cluster_id=${cluster_id}"
-	terraform apply ${terraform_apply_args} -target=module.argocd -var=cluster_id=${cluster_id} -var=cloud=${cloud}
+	@echo "Deploying ArgoCD on Management Plane..."
+	@/bin/sh -c '\
+		cd "addons/argocd"; \
+		terraform workspace select default; \
+		terraform init; \
+		terraform apply ${terraform_apply_args} -var-file="../../terraform.tfvars.json" -var=cloud=`jq -r '.tsb_mp.cloud' ../../terraform.tfvars.json` -var=cluster_id=`jq -r '.tsb_mp.cluster_id' ../../terraform.tfvars.json`; \
+		terraform workspace select default; \
+		cd "../.."; \
+		'
 
 .PHONY: keycloak
 keycloak:
@@ -211,11 +218,19 @@ destroy:
 		'
 	@/bin/sh -c '\
 		cd "tsb/mp"; \
+		rm -rf terraform.tfstate.d/; \
     rm -rf terraform.tfstate; \
 		cd "../.."; \
 		'
 	@/bin/sh -c '\
 		cd "tsb/cp"; \
     rm -rf terraform.tfstate.d/; \
+		rm -rf terraform.tfstate; \
+		cd "../.."; \
+		'
+	@/bin/sh -c '\
+		cd "addons/argocd"; \
+    rm -rf terraform.tfstate.d/; \
+		rm -rf terraform.tfstate; \
 		cd "../.."; \
 		'
