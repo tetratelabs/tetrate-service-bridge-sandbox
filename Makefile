@@ -6,24 +6,6 @@ terraform_destroy_args = -auto-approve
 #terraform_apply_args = 
 # Functions
 
-## tsb_cp	                       		 onboards CP on AKS cluster with ID=1 
-.PHONY: loop1
-loop1: 
-	@/bin/sh -c '\
-		index=0; \
-		jq -r '.azure_k8s_regions[]' terraform.tfvars.json | while read -r region; do \
-		echo "cloud=azure region=$$region cluster_id=$$index"; \
-		cd "tsb/cp"; \
-		terraform workspace new azure-$$index-$$region; \
-		terraform workspace select azure-$$index-$$region; \
-		terraform init; \
-		terraform apply ${terraform_apply_args} -var-file="../../terraform.tfvars.json" -var=cloud=azure -var=cluster_id=$$index; \
-		terraform workspace select default; \
-		let index++; \
-		cd "../.."; \
-		done; \
-		'
-
 .PHONY: all
 all: tsb
 
