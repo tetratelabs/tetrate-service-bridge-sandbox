@@ -118,3 +118,7 @@ variable "tsb_mp" {
 variable "output_path" {
   default = "../../outputs"
 }
+
+variable "cert-manager_enabled" {
+  default = true
+}

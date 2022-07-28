@@ -36,17 +36,8 @@ module "azure_k8s" {
   location            = var.azure_k8s_region
   name_prefix         = "${var.name_prefix}-${var.azure_k8s_region}"
   cluster_name        = var.cluster_name == null ? "aks-${var.azure_k8s_region}-${var.name_prefix}" : var.cluster_name
-  vnet_subnet         = module.azure_base[count.index].vnet_subnets[count.index]
+  vnet_subnet         = module.azure_base[0].vnet_subnets[0]
   registry_id         = module.azure_base[0].registry_id
   output_path         = var.output_path
   depends_on          = [module.azure_jumpbox[0]]
-}
-
-module "cert-manager" {
-  source                     = "../../modules/addons/cert-manager"
-  cluster_name               = module.azure_k8s[0].cluster_name
-  k8s_host                   = module.azure_k8s[0].host
-  k8s_cluster_ca_certificate = module.azure_k8s[0].cluster_ca_certificate
-  k8s_client_token           = module.azure_k8s[0].token
-  cert-manager_enabled       = var.cert-manager_enabled
 }
