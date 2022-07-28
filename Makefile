@@ -96,7 +96,7 @@ tsb_mp: k8s
 		terraform apply ${terraform_apply_args} -target=module.cert-manager -target=module.es -var-file="../../terraform.tfvars.json"; \
 		terraform apply ${terraform_apply_args} -target=module.tsb_mp.kubectl_manifest.manifests_certs -var-file="../../terraform.tfvars.json"; \
 		terraform apply ${terraform_apply_args} -var-file="../../terraform.tfvars.json"; \
-		terraform apply ${terraform_apply_args} -target=module.aws_route53_register_fqdn -var-file="../../terraform.tfvars.json";
+		terraform apply ${terraform_apply_args} -target=module.aws_route53_register_fqdn -var-file="../../terraform.tfvars.json"; \
 		terraform workspace select default; \
 		cd "../.."; \
 		'
