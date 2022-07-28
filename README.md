@@ -54,10 +54,10 @@ Copy `terraform.tfvars.json.sample` to the root directory as `terraform.tfvars.j
 ```json
 {
     "name_prefix": <YOUR UNIQUE PREFIX NAME TO BE CREATED>,
-    "tsb_fqdn": "<YOUR UNIQUE PREFIX NAME TO BE CREATED>.cx.tetrate.info",
+    "tsb_fqdn": <YOUR UNIQUE PREFIX NAME TO BE CREATED>".cx.tetrate.info",
     "tsb_version": "1.5.0",
-    "tsb_image_sync_username": "TSB_REPO_USERNAME",
-    "tsb_image_sync_apikey": "TSB_REPO_APIKEY",
+    "tsb_image_sync_username": <TSB_REPO_USERNAME>,
+    "tsb_image_sync_apikey": <TSB_REPO_APIKEY>,
     "tsb_password": "Tetrate123",
     "tsb_mp": {
         "cloud": "gcp",
