@@ -1,15 +1,13 @@
 # Tetrate Service Bridge Sandbox
 
-## About
+### Deploy Tetrate Service Bridge Demo on Azure Kubernetes Service (AKS), Google Kubernetes Engine (GKE) and/or Elastic Kubernetes Service (EKS) using Terraform
 ---
-
-## Deploy Tetrate Service Bridge Demo on Azure Kubernetes Service (AKS), Google Kubernetes Engine (GKE) and/or Elastic Kubernetes Service (EKS) using Terraform
-
+## About
 The intention is to create a go-to demo from deploying underlying infra environment to deploying MP and CP and additional addons around usecases
 
 ## Overview
 
-The `Makefile` in this directory provides automated provisioning of TSB demo and necessary dependencies
+The `Makefile` in this directory provides ability to fastforward to anypoint of the automated provisioning of the TSB demo
 
 ```mermaid
   graph TD;
@@ -28,7 +26,7 @@ The `Makefile` in this directory provides automated provisioning of TSB demo and
 
 # Getting Started
 
-## Requirements
+## Prerequisites
 
 - terraform >= 1.0.0
 - AWS role configured and assumed(Route53 is used for TSB MP FQDN)
@@ -67,6 +65,7 @@ git clone https://github.com/smarunich/tetrate-service-bridge-sandbox.git
 ```
 
 ## Usage
+All `Make` commands should be executed from root of repo as this is where `Make` file is.
 
 1. a) Stand up full demo
 
@@ -93,16 +92,13 @@ The completion of the above steps will result in:
 - output kubeconfig files for all the created aks clusters in format of: $cluster_name-kubeconfig
 - output IP address and private key for the jumpbox (ssh username: tsbadmin), using shell scripts login to the jumpbox, for example to reach gcp jumpbox just run the script `ssh-to-gcp-jumpbox.sh`
 
-## Use Cases
-### ArgoCD (```make argocd```)
+## Deployment Scenarios
+[Infra Staging](./infra/README.md)<br>
+[TSB MP Fastforward](./tsb/README.md#tsb_mp)<br>
+[TSB CP Fastforward](./tsb/README.md#tsb_cp)<br>
 
-```bash
-# deploy argocd on the management cluster
-make argocd
-```
-
-- deploys bookinfo app under gitops-bookinfo namespace and exposes it over the ingress gateway as gitops-bookinfo.tetrate.io
-- argocd is exposed using `LoadBalancer` type `k get svc -n argocd argo-cd-argocd-server`, the username is admin and password is the specified TSB admin password
+## Usecases
+[Argocd GITOPs](./addons/README.md#Argocd)
 
 ## CleanUp
 
@@ -114,6 +110,6 @@ make destroy
 
 ### Usage notes
 
-- Terraform destroys only the resources it created.
+- Terraform destroys only the resources it created (`make destroy`)
 - Terraform stores the `state` across workspaces in different folders locally
-- Terraform destroy wont delete aws objects created by K8s loadbalancer services (ELB+SGs)
+- Cleanup of aws objects created by K8s loadbalancer services (ELB+SGs) is currently manual effort
