@@ -11,7 +11,7 @@
 Deploy Argo CD for gitops demo
 
 ```bash
-# Deploys Argocd on TSB Management Plane Cluster
+# Deploys Argocd on all Clusters
 make argocd
 ```
 - deploys bookinfo app under namespace `gitops-bookinfo`  and exposes it over the ingress gateway as `gitops-bookinfo.tetrate.io`
