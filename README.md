@@ -98,7 +98,7 @@ The completion of the above steps will result in:
 [TSB CP Fastforward](./tsb/README.md#tsb_cp)<br>
 
 ## Usecases
-[Argocd GITOPs](./addons/README.md#Argocd)
+[Argocd GITOPs](./addons/README.md#argocd)
 
 ## CleanUp
 

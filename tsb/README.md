@@ -11,7 +11,7 @@
 
 ## tsb_mp
 
-Prepare Infra components with TSB Management Plane
+Prepare Infra components with TSB Management Plane <br>
 `Note`: Management Plane Cluster is selected based off `tsb_mp` variable
 ```json
     "tsb_mp": {
