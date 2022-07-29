@@ -103,7 +103,7 @@ tsb_mp: k8s
 
 ## tsb_cp	                       		 onboards CP on AKS cluster with ID=1 
 .PHONY: tsb_cp
-tsb_cp: k8s
+tsb_cp: k8s tsb_mp
 	@echo "Onboarding clusters, i.e. TSB CP rollouts..."
 	@/bin/sh -c '\
 		index=0; \
@@ -149,7 +149,7 @@ tsb_cp: k8s
 		'
 
 .PHONY: tsb
-tsb: tsb_mp tsb_cp
+tsb: k8s tsb_mp tsb_cp
 	@echo "Magic is on the way..."
 
 ## argocd
