@@ -8,11 +8,6 @@ secrets:
   clusterServiceAccount:
     clusterFQN: ${serviceaccount_clusterfqn}
     JWK: '${serviceaccount_jwk}'
-operator:
-    deployment:
-      env:
-      - name: CONTROL_PLANE_REVISION
-        value: tsb-stable
 spec:
   hub: ${registry}
   telemetryStore:
@@ -30,7 +25,6 @@ spec:
   components:
     xcp:
       centralAuthMode: JWT
-      revision: 'tsb-stable' 
     gitops:
       enabled: true
       reconcileInterval: 600s

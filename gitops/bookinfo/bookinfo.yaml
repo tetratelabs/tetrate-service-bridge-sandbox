@@ -30,7 +30,7 @@ apiVersion: v1
 kind: Namespace
 metadata:
   labels:
-    istio.io/rev: tsb-stable
+    istio-injection: enabled
   name: gitops-bookinfo
 ---
 ##################################################################################################
