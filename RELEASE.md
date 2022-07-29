@@ -4,8 +4,8 @@
 
 ### TSB Changes
 * [Revision istio Control Plane](https://docs.tetrate.io/service-bridge/1.5.x/en-us/setup/revisioned_istio#sidecar-injection) Added  
-* * Sidecar Injection example `istio.io/rev: enabled=tsb-stable`
-* * Under Ingess/Egress and Tier1 Gateway spec configure `revision: tsb-stable`
+  * Sidecar Injection example `istio.io/rev: enabled=tsb-stable`
+  * Under Ingess/Egress and Tier1 Gateway spec configure `revision: tsb-stable`
 * 
 
 ### Bug Fixes
