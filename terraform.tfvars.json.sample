@@ -6,13 +6,14 @@
     "tsb_image_sync_apikey": <TSB_REPO_APIKEY>,
     "tsb_password": "Tetrate123",
     "tsb_mp": {
-        "cloud": "gcp",
+        "cloud": "azure",
         "cluster_id": 0
     },
     "tsb_org": "tetrate",
     "aws_k8s_regions": [
     ],
     "azure_k8s_regions": [
+        "eastus"
     ],
     "gcp_k8s_regions": [
         "us-west1",
