@@ -5,6 +5,7 @@ metadata:
   name: gitops-tier1gw
   namespace: gitops-tier1
 spec:
+  revision: tsb-stable
   kubeSpec:
     service:
       type: LoadBalancer
