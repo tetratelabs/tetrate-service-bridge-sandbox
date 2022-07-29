@@ -1,10 +1,15 @@
 # Tetrate Service Bridge Sandbox
 
+## About
+---
+
 ## Deploy Tetrate Service Bridge Demo on Azure Kubernetes Service (AKS), Google Kubernetes Engine (GKE) and/or Elastic Kubernetes Service (EKS) using Terraform
 
-The intention is to create azure-go-to demo... from deploying MP and CP using helm til having an application demo setup using standard and gitops approach...and of course variablize the world "completely" is work in progress...
+The intention is to create a go-to demo from deploying underlying infra environment to deploying MP and CP and additional addons around usecases
 
-The `Makefile` in this directory provides automated provisioning of k8s clusters with TSB installed on Azure.
+## Overview
+
+The `Makefile` in this directory provides automated provisioning of TSB demo and necessary dependencies
 
 ```mermaid
   graph TD;
@@ -21,35 +26,21 @@ The `Makefile` in this directory provides automated provisioning of k8s clusters
       style F fill:lightgrey
 ```
 
-The setup consists of
-
-- module.azure_base - deploys resource group, vnet and acr
-- module.azure_jumpbox - deploys jumpbox, pushes tsb repo to acr
-- module.azure_k8s - deploys k8s cluster for MP and N-number of CPs(\*) leveraging AKS
-
-- module.es - deploys ECK on MP k8s cluster
-- module.cert-manager - deploys cert-manager on MP k8s cluster
-- module.argocd - deploys argoCD
-  bookinfo demo app using ArgoCD with related TSB components
-  grpc demo app using ArgoCD with related TSB components
-- module.keycloak-helm - deploys keycloak
-- module.keycloak-provider - configs keycloak for JWT-based external authorization demo
-- module.app_bookinfo - deploys bookinfo
-
-- module.tsb_mp - responsible for TSB MP setup using Helm chart
-- module.tsb_cp - responsible for TSB CP setup using Helm chart
-- module.aws_route53_register_fqdn - responsible for TSB Public FQDN setup
+# Getting Started
 
 ## Requirements
 
 - terraform >= 1.0.0
-- configured and assumed Azure role
-- configured and assumed AWS role
-- (optional) configured and assumed GCP role `gcloud auth application-default login`
+- AWS role configured and assumed(Route53 is used for TSB MP FQDN)
+- (optional) Azure role configured and assumed 
+- (optional) GCP role configured and assumed  `gcloud auth application-default login`
 
-## Usage
-
-Copy `terraform.tfvars.json.sample` to the root directory as `terraform.tfvars.json`
+## Setup
+1. Clone the repo
+```bash
+git clone https://github.com/smarunich/tetrate-service-bridge-sandbox.git
+```
+2. Copy `terraform.tfvars.json.sample` to the root directory as `terraform.tfvars.json`
 
 ```json
 {
@@ -75,31 +66,45 @@ Copy `terraform.tfvars.json.sample` to the root directory as `terraform.tfvars.j
 }
 ```
 
-To stand up the demo just do `make tsb`
+## Usage
 
-or if you want to decouple the steps...
+1. a) Stand up full demo
+
+```bash
+# Build full demo
+make tsb
+```
+
+1. b) Decouple demo/Deploy in stages
 
 ```bash
 # setup underlying clusters, registries, jumpboxes
 make k8s
+
 # deploy tsb management plane
 make tsb_mp
-# onboard deployed clusters
+
+# onboard deployed clusters (dataplane/controlplane)
 make tsb_cp
-# deploy argocd on the management cluster
-make argocd
 ```
 
 The completion of the above steps will result in:
-
 - all the generated outputs will be provided under `./outputs` folder
 - output kubeconfig files for all the created aks clusters in format of: $cluster_name-kubeconfig
 - output IP address and private key for the jumpbox (ssh username: tsbadmin), using shell scripts login to the jumpbox, for example to reach gcp jumpbox just run the script `ssh-to-gcp-jumpbox.sh`
 
-### ArgoCD
+## Use Cases
+### ArgoCD (```make argocd```)
+
+```bash
+# deploy argocd on the management cluster
+make argocd
+```
 
 - deploys bookinfo app under gitops-bookinfo namespace and exposes it over the ingress gateway as gitops-bookinfo.tetrate.io
 - argocd is exposed using `LoadBalancer` type `k get svc -n argocd argo-cd-argocd-server`, the username is admin and password is the specified TSB admin password
+
+## CleanUp
 
 When you are done with the environment, you can destroy it by running:
 
@@ -110,5 +115,5 @@ make destroy
 ### Usage notes
 
 - Terraform destroys only the resources it created.
-- Terraform stores the `state` locally
-- variablize the world "completely" is work in progress...
+- Terraform stores the `state` across workspaces in different folders locally
+- Terraform destroy wont delete aws objects created by K8s loadbalancer services (ELB+SGs)
