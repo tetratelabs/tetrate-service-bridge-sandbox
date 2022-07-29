@@ -156,15 +156,57 @@ tsb: k8s tsb_mp tsb_cp
 .PHONY: argocd
 argocd: k8s
 	@echo "Deploying ArgoCD on Management Plane..."
+	# @/bin/sh -c '\
+	# 	cd "addons/argocd"; \
+	# 	terraform workspace select default; \
+	# 	terraform init; \
+	# 	terraform apply ${terraform_apply_args} -var-file="../../terraform.tfvars.json" -var=cloud=`jq -r '.tsb_mp.cloud' ../../terraform.tfvars.json` -var=cluster_id=`jq -r '.tsb_mp.cluster_id' ../../terraform.tfvars.json`; \
+	# 	terraform workspace select default; \
+	# 	cd "../.."; \
+	# 	'
 	@/bin/sh -c '\
+		index=0; \
+		jq -r '.aws_k8s_regions[]' terraform.tfvars.json | while read -r region; do \
+		echo "cloud=aws region=$$region cluster_id=$$index"; \
+		cd "tsb/cp"; \
+		terraform workspace new aws-$$index-$$region; \
+		terraform workspace select aws-$$index-$$region; \
 		cd "addons/argocd"; \
+		terraform apply ${terraform_apply_args} -var-file="../../terraform.tfvars.json" -var=cloud=aws -var=cluster_id=$$index; \
 		terraform workspace select default; \
-		terraform init; \
-		terraform apply ${terraform_apply_args} -var-file="../../terraform.tfvars.json" -var=cloud=`jq -r '.tsb_mp.cloud' ../../terraform.tfvars.json` -var=cluster_id=`jq -r '.tsb_mp.cluster_id' ../../terraform.tfvars.json`; \
-		terraform workspace select default; \
+		let index++; \
 		cd "../.."; \
+		done; \
 		'
-
+	@/bin/sh -c '\
+		index=0; \
+		jq -r '.azure_k8s_regions[]' terraform.tfvars.json | while read -r region; do \
+		echo "cloud=azure region=$$region cluster_id=$$index"; \
+		cd "addons/argocd"; \
+		terraform workspace new azure-$$index-$$region; \
+		terraform workspace select azure-$$index-$$region; \
+		terraform init; \
+		terraform apply ${terraform_apply_args} -var-file="../../terraform.tfvars.json" -var=cloud=azure -var=cluster_id=$$index; \
+		terraform workspace select default; \
+		let index++; \
+		cd "../.."; \
+		done; \
+		'
+	@/bin/sh -c '\
+		index=0; \
+		jq -r '.gcp_k8s_regions[]' terraform.tfvars.json | while read -r region; do \
+		echo "cloud=gcp region=$$region cluster_id=$$index"; \
+		cd "addons/argocd"; \
+		terraform workspace new gcp-$$index-$$region; \
+		terraform workspace select gcp-$$index-$$region; \
+		terraform init; \
+		terraform apply ${terraform_apply_args} -var-file="../../terraform.tfvars.json" -var=cloud=gcp -var=cluster_id=$$index; \
+		terraform workspace select default; \
+		let index++; \
+		cd "../.."; \
+		done; \
+		'
+		
 ## destroy					 destroy the environment
 .PHONY: destroy
 destroy:
