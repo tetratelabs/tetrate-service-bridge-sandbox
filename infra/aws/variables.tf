@@ -73,39 +73,8 @@ variable "azure_k8s_regions" {
   default = []
 }
 
-variable "azure_k8s_region" {
-  default = null
-}
-
-variable "gcp_k8s_regions" {
-  default = []
-}
-
-variable "gcp_k8s_region" {
-  default = null
-}
-
-variable "gcp_project_id" {
-  default = null
-}
-
-variable "gcp_org_id" {
-  default = "775566979306"
-}
-
-variable "gcp_billing_id" {
-  default = "0183E5-447B34-776DEB"
-}
 variable "aws_eks_k8s_version" {
   default = "1.22"
-}
-
-variable "azure_aks_k8s_version" {
-  default = "1.23.5"
-}
-
-variable "gcp_gke_k8s_version" {
-  default = "1.21.12-gke.1500"
 }
 
 variable "tsb_mp" {

@@ -87,7 +87,9 @@ gcp_k8s: init
 
 ## tsb_mp						 deploys MP
 .PHONY: tsb_mp
-tsb_mp: k8s
+tsb_mp:
+	@echo "Refreshing k8s access tokens..."
+	@make k8s
 	@echo "Deploying TSB Management Plane..."
 	@/bin/sh -c '\
 		cd "tsb/mp"; \
@@ -103,7 +105,9 @@ tsb_mp: k8s
 
 ## tsb_cp	                       		 onboards CP on AKS cluster with ID=1 
 .PHONY: tsb_cp
-tsb_cp: k8s tsb_mp
+tsb_cp:
+	@echo "Refreshing k8s access tokens..."
+	@make k8s
 	@echo "Onboarding clusters, i.e. TSB CP rollouts..."
 	@/bin/sh -c '\
 		index=0; \
@@ -154,7 +158,9 @@ tsb: k8s tsb_mp tsb_cp
 
 ## argocd
 .PHONY: argocd
-argocd: k8s
+argocd:
+	@echo "Refreshing k8s access tokens..."
+	@make k8s
 	@echo "Deploying ArgoCD on Management Plane..."
 	# @/bin/sh -c '\
 	# 	cd "addons/argocd"; \
@@ -206,7 +212,6 @@ argocd: k8s
 		cd "../.."; \
 		done; \
 		'
-		
 ## destroy					 destroy the environment
 .PHONY: destroy
 destroy:
