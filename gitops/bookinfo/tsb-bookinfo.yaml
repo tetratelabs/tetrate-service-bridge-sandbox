@@ -72,6 +72,7 @@ metadata:
   name: gitops-bookinfo-gw
   namespace: gitops-bookinfo
 spec:
+  revision: tsb-stable
   kubeSpec:
     service:
       type: LoadBalancer

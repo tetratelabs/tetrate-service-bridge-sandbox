@@ -71,7 +71,7 @@ resource "google_compute_instance" "jumpbox" {
 
 resource "local_file" "tsbadmin_pem" {
   content         = tls_private_key.generated.private_key_pem
-  filename        = "${var.name_prefix}-gcp-${var.jumpbox_username}.pem"
+  filename        = "${var.output_path}/${var.name_prefix}-gcp-${var.jumpbox_username}.pem"
   depends_on      = [tls_private_key.generated]
   file_permission = "0600"
 }
@@ -84,6 +84,6 @@ resource "local_file" "tsbadmin_pem" {
 
 resource "local_file" "ssh_jumpbox" {
   content         = "ssh -i ${var.name_prefix}-gcp-${var.jumpbox_username}.pem -l ${var.jumpbox_username} ${google_compute_instance.jumpbox.network_interface[0].access_config[0].nat_ip}"
-  filename        = "ssh-to-gcp-jumpbox.sh"
+  filename        = "${var.output_path}/ssh-to-gcp-${var.name_prefix}-jumpbox.sh"
   file_permission = "0755"
 }

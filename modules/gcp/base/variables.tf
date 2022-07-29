@@ -6,6 +6,9 @@ variable "region" {
   description = "region"
 }
 
+variable "project_id" {
+}
+
 variable "cidr" {
   description = "cidr"
 }

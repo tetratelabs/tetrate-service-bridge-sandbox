@@ -33,7 +33,7 @@ resource "google_container_node_pool" "primary_preemptible_nodes" {
 
   node_config {
     preemptible  = true
-    machine_type = "n2-standard-2"
+    machine_type = "e2-standard-4"
 
     # Google recommends custom service accounts that have cloud-platform scope and permissions granted via IAM Roles.
     service_account = data.google_compute_default_service_account.default.email
@@ -57,5 +57,5 @@ module "gke_auth" {
 
 resource "local_file" "kubeconfig" {
   content  = module.gke_auth.kubeconfig_raw
-  filename = "${google_container_cluster.tsb.name}-kubeconfig"
+  filename = "${var.output_path}/${google_container_cluster.tsb.name}-kubeconfig"
 }

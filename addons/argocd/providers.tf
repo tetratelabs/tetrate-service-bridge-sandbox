@@ -1,11 +1,3 @@
-provider "azurerm" {
-  features {}
-}
-
-provider "aws" {
-  region = var.aws_region
-}
-
 terraform {
   required_providers {
     kubectl = {
@@ -14,4 +6,3 @@ terraform {
     }
   }
 }
-

@@ -23,3 +23,6 @@ variable "registry_id" {
 
 variable "k8s_version" {
 }
+
+variable "output_path" {
+}

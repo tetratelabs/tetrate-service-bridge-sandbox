@@ -43,3 +43,33 @@ resource "kubectl_manifest" "manifests" {
   yaml_body  = element(data.kubectl_path_documents.manifests.documents, count.index)
   depends_on = [time_sleep.wait_90_seconds]
 }
+
+resource "time_sleep" "wait_60_seconds" {
+  depends_on      = [time_sleep.wait_90_seconds]
+  create_duration = "60s"
+}
+
+data "kubernetes_secret" "es_password" {
+  metadata {
+    name      = "tsb-es-elastic-user"
+    namespace = "elastic-system"
+  }
+  depends_on = [time_sleep.wait_60_seconds]
+}
+
+data "kubernetes_secret" "es_cacert" {
+  metadata {
+    name      = "tsb-es-http-ca-internal"
+    namespace = "elastic-system"
+  }
+  depends_on = [time_sleep.wait_60_seconds]
+}
+
+
+data "kubernetes_service" "es" {
+  metadata {
+    name      = "tsb-es-http"
+    namespace = "elastic-system"
+  }
+  depends_on = [time_sleep.wait_60_seconds]
+}

@@ -2,12 +2,14 @@
 **/.terraform/*
 tests/*
 *.sh
+*.tfvars.json
 
 # .tfstate files
 *.tfstate
 *.tfstate.*
 *.terraform.*
 *.jwk
+*.lock
 
 # Crash log files
 crash.log
@@ -37,3 +39,4 @@ modules/tsb/mp/manifests/tctl/*.yaml
 modules/tsb/cp/manifests/tctl/*.yaml
 *.pem
 *-kubeconfig
+outputs/*
