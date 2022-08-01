@@ -21,7 +21,7 @@ init:
 
 ## k8s						 deploys k8s cluster for MP and N-number of CPs(*) 
 .PHONY: k8s
-k8s: aws_k8s azure_k8s gcp_k8s
+k8s: azure_k8s aws_k8s gcp_k8s
 
 ## azure_k8s					 deploys azure k8s cluster for MP and N-number of CPs(*) leveraging AKS
 .PHONY: azure_k8s
@@ -107,8 +107,8 @@ tsb_mp:
 .PHONY: tsb_cp
 tsb_cp:
 	@echo "Refreshing k8s access tokens..."
-	@make k8s
 	@echo "Onboarding clusters, i.e. TSB CP rollouts..."
+	@make gcp_k8s
 	@/bin/sh -c '\
 		index=0; \
 		jq -r '.gcp_k8s_regions[]' terraform.tfvars.json | while read -r region; do \
@@ -123,6 +123,7 @@ tsb_cp:
 		cd "../.."; \
 		done; \
 		'
+	@make aws_k8s
 	@/bin/sh -c '\
 		index=0; \
 		jq -r '.aws_k8s_regions[]' terraform.tfvars.json | while read -r region; do \
@@ -137,6 +138,7 @@ tsb_cp:
 		cd "../.."; \
 		done; \
 		'
+	@make azure_k8s
 	@/bin/sh -c '\
 		index=0; \
 		jq -r '.azure_k8s_regions[]' terraform.tfvars.json | while read -r region; do \
@@ -160,16 +162,8 @@ tsb: k8s tsb_mp tsb_cp
 .PHONY: argocd
 argocd:
 	@echo "Refreshing k8s access tokens..."
-	@make k8s
 	@echo "Deploying ArgoCD on Management Plane..."
-	# @/bin/sh -c '\
-	# 	cd "addons/argocd"; \
-	# 	terraform workspace select default; \
-	# 	terraform init; \
-	# 	terraform apply ${terraform_apply_args} -var-file="../../terraform.tfvars.json" -var=cloud=`jq -r '.tsb_mp.cloud' ../../terraform.tfvars.json` -var=cluster_id=`jq -r '.tsb_mp.cluster_id' ../../terraform.tfvars.json`; \
-	# 	terraform workspace select default; \
-	# 	cd "../.."; \
-	# 	'
+	@make gcp_k8s
 	@/bin/sh -c '\
 		index=0; \
 		jq -r '.gcp_k8s_regions[]' terraform.tfvars.json | while read -r region; do \
@@ -184,6 +178,7 @@ argocd:
 		cd "../.."; \
 		done; \
 		'
+	@make aws_k8s
 	@/bin/sh -c '\
 		index=0; \
 		jq -r '.aws_k8s_regions[]' terraform.tfvars.json | while read -r region; do \
@@ -198,6 +193,7 @@ argocd:
 		cd "../.."; \
 		done; \
 		'
+	@make azure_k8s
 	@/bin/sh -c '\
 		index=0; \
 		jq -r '.azure_k8s_regions[]' terraform.tfvars.json | while read -r region; do \
