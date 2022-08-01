@@ -13,11 +13,11 @@
     "aws_k8s_regions": [
     ],
     "azure_k8s_regions": [
-        "eastus"
     ],
     "gcp_k8s_regions": [
         "us-west1",
-        "us-east1"
+        "us-east1",
+        "us-central1"
     ]
 }
 
