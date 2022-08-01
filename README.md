@@ -46,28 +46,24 @@ git clone https://github.com/smarunich/tetrate-service-bridge-sandbox.git
 
 2. Copy `terraform.tfvars.json.sample` to the root directory as `terraform.tfvars.json`
 
+Please refer to [tfvars collection](/tfvars_collection) for more examples, i.e. tested options.
+
 ```json
 {
-    "name_prefix": "<YOUR UNIQUE PREFIX NAME TO BE CREATED>",
-    "tsb_fqdn": "<YOUR UNIQUE PREFIX NAME TO BE CREATED>.cx.tetrate.info",
-    "tsb_version": "1.5.0",
-    "tsb_image_sync_username": "<TSB_REPO_USERNAME>",
-    "tsb_image_sync_apikey": "<TSB_REPO_APIKEY>",
-    "tsb_password": "Tetrate123",
-    "tsb_mp": {
-        "cloud": "azure",
-        "cluster_id": 0
-    },
-    "tsb_org": "tetrate",
-    "aws_k8s_regions": [
-    ],
-    "azure_k8s_regions": [
-        "eastus"
-    ],
-    "gcp_k8s_regions": [
-        "us-west1",
-        "us-east1"
-    ]
+  "name_prefix": "<YOUR UNIQUE PREFIX NAME TO BE CREATED>",
+  "tsb_fqdn": "<YOUR UNIQUE PREFIX NAME TO BE CREATED>.cx.tetrate.info",
+  "tsb_version": "1.5.0",
+  "tsb_image_sync_username": "<TSB_REPO_USERNAME>",
+  "tsb_image_sync_apikey": "<TSB_REPO_APIKEY>",
+  "tsb_password": "Tetrate123",
+  "tsb_mp": {
+    "cloud": "azure",
+    "cluster_id": 0
+  },
+  "tsb_org": "tetrate",
+  "aws_k8s_regions": [],
+  "azure_k8s_regions": ["eastus"],
+  "gcp_k8s_regions": ["us-west1", "us-east1"]
 }
 ```
 

@@ -1,0 +1,21 @@
+{
+    "name_prefix": "r150test3",
+    "tsb_fqdn": "r150test3.cx.tetrate.info",
+    "tsb_version": "1.5.0",
+    "tsb_password": "Tetrate123",
+    "tsb_mp": {
+        "cloud": "gcp",
+        "cluster_id": 0
+    },
+    "tsb_org": "tetrate",
+    "aws_k8s_regions": [
+    ],
+    "azure_k8s_regions": [
+        "eastus"
+    ],
+    "gcp_k8s_regions": [
+        "us-west1",
+        "us-east1"
+    ]
+}
+
