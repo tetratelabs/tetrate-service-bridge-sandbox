@@ -67,7 +67,7 @@ Please refer to [tfvars collection](/tfvars_collection) for more examples, i.e. 
 }
 ```
 
-###More [tfvars](/tfvars_collection):
+### More [tfvars](/tfvars_collection):
 
 | Links                                                                                                                   | Description                          |
 | :---------------------------------------------------------------------------------------------------------------------- | ------------------------------------ |
