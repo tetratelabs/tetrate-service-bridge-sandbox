@@ -9,7 +9,7 @@ resource "aws_vpc" "tsb" {
   cidr_block           = var.cidr
   enable_dns_hostnames = true
   tags = {
-    Name  = "${var.name_prefix}${random_string.random_prefix.result}_vpc"
+    Name  = "${var.name_prefix}-${random_string.random_prefix.result}_vpc"
     Owner = "${var.name_prefix}_tsb"
   }
 }

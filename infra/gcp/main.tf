@@ -8,8 +8,8 @@ resource "random_string" "random_prefix" {
 
 resource "google_project" "tsb" {
   count           = var.gcp_project_id == null ? 1 : 0
-  name            = "${var.name_prefix}${random_string.random_prefix.result}-${var.cluster_id}-${var.gcp_k8s_region}"
-  project_id      = "${var.name_prefix}${random_string.random_prefix.result}-${var.cluster_id}-${var.gcp_k8s_region}"
+  name            = "${var.name_prefix}-${random_string.random_prefix.result}-${var.cluster_id}-${var.gcp_k8s_region}"
+  project_id      = "${var.name_prefix}-${random_string.random_prefix.result}-${var.cluster_id}-${var.gcp_k8s_region}"
   org_id          = var.gcp_org_id
   billing_account = var.gcp_billing_id
 }

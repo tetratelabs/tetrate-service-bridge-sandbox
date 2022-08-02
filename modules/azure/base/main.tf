@@ -6,7 +6,7 @@ resource "random_string" "random_prefix" {
   numeric = false
 }
 resource "azurerm_resource_group" "tsb" {
-  name     = "${var.name_prefix}${random_string.random_prefix.result}_rg"
+  name     = "${var.name_prefix}-${random_string.random_prefix.result}_rg"
   location = var.location
   tags = {
     owner = "${var.name_prefix}_tsb"
