@@ -43,7 +43,7 @@ module "tsb_cp" {
   cloud                      = var.cloud
   locality_region            = local.infra[var.cloud][var.cluster_id]["outputs"].locality_region
   cluster_id                 = var.cluster_id
-  name_prefix                = var.name_prefix
+  name_prefix                = "${var.name_prefix}-${var.cluster_id}"
   tsb_version                = var.tsb_version
   tsb_helm_repository        = var.tsb_helm_repository
   tsb_helm_version           = var.tsb_helm_version != null ? var.tsb_helm_version : var.tsb_version
