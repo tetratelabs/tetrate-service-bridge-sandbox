@@ -1,4 +1,4 @@
-resource "random_string" "random" {
+resource "random_string" "random_prefix" {
   length  = 4
   special = false
   lower   = true
@@ -9,7 +9,7 @@ resource "aws_vpc" "tsb" {
   cidr_block           = var.cidr
   enable_dns_hostnames = true
   tags = {
-    Name  = "${var.name_prefix}${random_string.random.result}_vpc"
+    Name  = "${var.name_prefix}${random_string.random_prefix.result}_vpc"
     Owner = "${var.name_prefix}_tsb"
   }
 }
