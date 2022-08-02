@@ -1,8 +1,8 @@
 # Copyright (c) Tetrate, Inc 2021 All Rights Reserved.
 # 
 # Default variables
-terraform_apply_args = -auto-approve
-terraform_destroy_args = -auto-approve 
+terraform_apply_args = -compact-warnings -auto-approve
+terraform_destroy_args = -compact-warnings -auto-approve 
 terraform_workspace_args = -force
 #terraform_apply_args = 
 # Functions
