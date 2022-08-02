@@ -138,10 +138,3 @@ resource "helm_release" "dataplane" {
     value = var.tsb_version
   }
 }
-
-resource "kubernetes_namespace" "gitops-tier1" {
-  count = var.tier1_cluster == true ? 1 : 0
-  metadata {
-    name = "gitops-tier1"
-  }
-}
