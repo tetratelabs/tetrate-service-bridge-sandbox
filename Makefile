@@ -37,7 +37,7 @@ azure_k8s: init
 		terraform workspace select azure-$$index-$$region; \
 		terraform init; \
 		terraform apply ${terraform_apply_args} -target module.azure_base -var-file="../../terraform.tfvars.json" -var=azure_k8s_region=$$region; \
-		terraform apply ${terraform_apply_args} -var-file="../../terraform.tfvars.json" -var=azure_k8s_region=$$region -var=cluster_name=$$cluster_name; \
+		terraform apply ${terraform_apply_args} -var-file="../../terraform.tfvars.json" -var=azure_k8s_region=$$region -var=cluster_name=$$cluster_name -var=cluster_id=$$index; \
 		terraform workspace select default; \
 		let index++; \
 		cd "../.."; \
@@ -57,7 +57,7 @@ aws_k8s: init
 		terraform workspace new aws-$$index-$$region; \
 		terraform workspace select aws-$$index-$$region; \
 		terraform init; \
-		terraform apply ${terraform_apply_args} -var-file="../../terraform.tfvars.json" -var=aws_k8s_region=$$region -var=cluster_name=$$cluster_name; \
+		terraform apply ${terraform_apply_args} -var-file="../../terraform.tfvars.json" -var=aws_k8s_region=$$region -var=cluster_name=$$cluster_name -var=cluster_id=$$index; \
 		terraform workspace select default; \
 		let index++; \
 		cd "../.."; \
@@ -78,7 +78,7 @@ gcp_k8s: init
 		terraform workspace select gcp-$$index-$$region; \
 		terraform init; \
 		terraform apply ${terraform_apply_args} -target module.gcp_base -var-file="../../terraform.tfvars.json" -var=gcp_k8s_region=$$region; \
-		terraform apply ${terraform_apply_args} -var-file="../../terraform.tfvars.json" -var=gcp_k8s_region=$$region -var=cluster_name=$$cluster_name; \
+		terraform apply ${terraform_apply_args} -var-file="../../terraform.tfvars.json" -var=gcp_k8s_region=$$region -var=cluster_name=$$cluster_name -var=cluster_id=$$index; \
 		terraform workspace select default; \
 		let index++; \
 		cd "../.."; \
@@ -220,7 +220,7 @@ destroy:
 		echo "cloud=gcp region=$$region cluster_id=$$index cluster_name=$$cluster_name"; \
 		cd "infra/gcp"; \
 		terraform workspace select gcp-$$index-$$region; \
-		terraform destroy ${terraform_destroy_args} -var-file="../../terraform.tfvars.json" -var=gcp_k8s_region=$$region -var=cluster_name=$$cluster_name; \
+		terraform destroy ${terraform_destroy_args} -var-file="../../terraform.tfvars.json" -var=gcp_k8s_region=$$region -var=cluster_name=$$cluster_name -var=cluster_id=$$index; \
 		terraform workspace select default; \
 		terraform workspace delete ${terraform_workspace_args} gcp-$$index-$$region; \
 		let index++; \
@@ -235,7 +235,7 @@ destroy:
 		echo "cloud=aws region=$$region cluster_id=$$index cluster_name=$$cluster_name"; \
 		cd "infra/aws"; \
 		terraform workspace select aws-$$index-$$region; \
-		terraform destroy ${terraform_destroy_args} -var-file="../../terraform.tfvars.json" -var=aws_k8s_region=$$region -var=cluster_name=$$cluster_name; \
+		terraform destroy ${terraform_destroy_args} -var-file="../../terraform.tfvars.json" -var=aws_k8s_region=$$region -var=cluster_name=$$cluster_name -var=cluster_id=$$index; \
 		terraform workspace select default; \
 		terraform workspace delete ${terraform_workspace_args} aws-$$index-$$region; \
 		let index++; \
@@ -250,7 +250,7 @@ destroy:
 		echo "cloud=azure region=$$region cluster_id=$$index cluster_name=$$cluster_name"; \
 		cd "infra/azure"; \
 		terraform workspace select azure-$$index-$$region; \
-		terraform destroy ${terraform_destroy_args} -var-file="../../terraform.tfvars.json" -var=azure_k8s_region=$$region -var=cluster_name=$$cluster_name; \
+		terraform destroy ${terraform_destroy_args} -var-file="../../terraform.tfvars.json" -var=azure_k8s_region=$$region -var=cluster_name=$$cluster_name -var=cluster_id=$$index; \
 		terraform workspace select default; \
 		terraform workspace delete ${terraform_workspace_args} azure-$$index-$$region; \
 		let index++; \

@@ -1,5 +1,12 @@
+resource "random_string" "random" {
+  length  = 4
+  special = false
+  lower   = true
+  upper   = false
+  numeric = false
+}
 resource "azurerm_resource_group" "tsb" {
-  name     = "${var.name_prefix}_rg"
+  name     = "${var.name_prefix}${random_string.random.result}_rg"
   location = var.location
   tags = {
     owner = "${var.name_prefix}_tsb"
