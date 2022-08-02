@@ -36,7 +36,7 @@ azure_k8s: init
 		terraform workspace new azure-$$index-$$region; \
 		terraform workspace select azure-$$index-$$region; \
 		terraform init; \
-		terraform apply ${terraform_apply_args} -target module.azure_base -var-file="../../terraform.tfvars.json" -var=azure_k8s_region=$$region; \
+		terraform apply ${terraform_apply_args} -target module.azure_base -var-file="../../terraform.tfvars.json" -var=azure_k8s_region=$$region -var=cluster_name=$$cluster_name -var=cluster_id=$$index; \
 		terraform apply ${terraform_apply_args} -var-file="../../terraform.tfvars.json" -var=azure_k8s_region=$$region -var=cluster_name=$$cluster_name -var=cluster_id=$$index; \
 		terraform workspace select default; \
 		let index++; \
@@ -77,7 +77,7 @@ gcp_k8s: init
 		terraform workspace new gcp-$$index-$$region; \
 		terraform workspace select gcp-$$index-$$region; \
 		terraform init; \
-		terraform apply ${terraform_apply_args} -target module.gcp_base -var-file="../../terraform.tfvars.json" -var=gcp_k8s_region=$$region; \
+		terraform apply ${terraform_apply_args} -target module.gcp_base -var-file="../../terraform.tfvars.json" -var=gcp_k8s_region=$$region -var=cluster_name=$$cluster_name -var=cluster_id=$$index; \
 		terraform apply ${terraform_apply_args} -var-file="../../terraform.tfvars.json" -var=gcp_k8s_region=$$region -var=cluster_name=$$cluster_name -var=cluster_id=$$index; \
 		terraform workspace select default; \
 		let index++; \
