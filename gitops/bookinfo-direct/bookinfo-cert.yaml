@@ -3,7 +3,7 @@ apiVersion: cert-manager.io/v1
 kind: Certificate
 metadata:
   name: bookinfo-cert
-  namespace: gitops-bookinfo
+  namespace: gitops-direct-bookinfo
 spec:
   secretName: bookinfo-cert
   duration: 21600h # 900d
@@ -12,4 +12,4 @@ spec:
     kind: ClusterIssuer
     group: cert-manager.io
   dnsNames:
-    - "gitops-bookinfo.tetrate.io"
+    - "gitops-direct-bookinfo.tetrate.io"
