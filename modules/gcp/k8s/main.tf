@@ -59,3 +59,9 @@ resource "local_file" "kubeconfig" {
   content  = module.gke_auth.kubeconfig_raw
   filename = "${var.output_path}/${google_container_cluster.tsb.name}-kubeconfig"
 }
+
+resource "local_file" "gen_kubeconfig_sh" {
+  content         = "gcloud container clusters get-credentials --project ${var.project_id} --region ${var.region} ${var.cluster_name}"
+  filename        = "${var.output_path}/generate-${var.cluster_name}-kubeconfig.sh"
+  file_permission = "0755"
+}
