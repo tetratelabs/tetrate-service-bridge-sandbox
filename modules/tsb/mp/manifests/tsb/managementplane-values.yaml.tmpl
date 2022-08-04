@@ -28,6 +28,15 @@ spec:
       version: 7
       selfSigned: true
       protocol: https
+  tokenIssuer:
+    jwt:
+      expiration: 3600s
+      refreshExpiration: 2592000s
+      tokenPruneInterval: 3600s
+      issuers:
+        - name: https://jwt.tetrate.io
+          signingKey: private.key
+      signingKeysSecret: iam-signing-key
   components:
     xcp:
       centralAuthModes:
