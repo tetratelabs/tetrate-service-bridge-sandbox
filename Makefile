@@ -213,6 +213,13 @@ argocd:
 .PHONY: destroy
 destroy:
 	@/bin/sh -c '\
+		cd "tsb/mp"; \
+		terraform destroy ${terraform_destroy_args} -target=module.aws_route53_register_fqdn -var-file="../../terraform.tfvars.json"; \
+		rm -rf terraform.tfstate.d/; \
+		rm -rf terraform.tfstate; \
+		cd "../.."; \
+		'
+	@/bin/sh -c '\
 		index=0; \
 		name_prefix=`jq -r '.name_prefix' terraform.tfvars.json`; \
 		jq -r '.gcp_k8s_regions[]' terraform.tfvars.json | while read -r region; do \
@@ -258,21 +265,14 @@ destroy:
 		done; \
 		'
 	@/bin/sh -c '\
-		cd "tsb/mp"; \
-		terraform destroy ${terraform_destroy_args} -target=module.aws_route53_register_fqdn -var-file="../../terraform.tfvars.json"; \
-		rm -rf terraform.tfstate.d/; \
-    rm -rf terraform.tfstate; \
-		cd "../.."; \
-		'
-	@/bin/sh -c '\
 		cd "tsb/cp"; \
-    rm -rf terraform.tfstate.d/; \
+		rm -rf terraform.tfstate.d/; \
 		rm -rf terraform.tfstate; \
 		cd "../.."; \
 		'
 	@/bin/sh -c '\
 		cd "addons/argocd"; \
-    rm -rf terraform.tfstate.d/; \
+		rm -rf terraform.tfstate.d/; \
 		rm -rf terraform.tfstate; \
 		cd "../.."; \
 		'
