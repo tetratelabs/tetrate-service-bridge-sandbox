@@ -259,6 +259,7 @@ destroy:
 		'
 	@/bin/sh -c '\
 		cd "tsb/mp"; \
+		terraform destroy ${terraform_destroy_args} -target=module.aws_route53_register_fqdn -var-file="../../terraform.tfvars.json"; \
 		rm -rf terraform.tfstate.d/; \
     rm -rf terraform.tfstate; \
 		cd "../.."; \
