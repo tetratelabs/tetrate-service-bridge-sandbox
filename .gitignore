@@ -39,4 +39,9 @@ modules/tsb/mp/manifests/tctl/*.yaml
 modules/tsb/cp/manifests/tctl/*.yaml
 *.pem
 *-kubeconfig
-outputs/*
+outputs/terraform_outputs/*
+!outputs/terraform_outputs/README.md
+outputs/*.json
+outputs/*.pem
+outputs/*.sh
+!outputs/README.md
