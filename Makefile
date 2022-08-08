@@ -4,6 +4,7 @@
 terraform_apply_args = -compact-warnings -auto-approve
 terraform_destroy_args = -compact-warnings -auto-approve 
 terraform_workspace_args = -force
+terraform_output_args = -json
 #terraform_apply_args = 
 # Functions
 
@@ -38,6 +39,7 @@ azure_k8s: init
 		terraform init; \
 		terraform apply ${terraform_apply_args} -target module.azure_base -var-file="../../terraform.tfvars.json" -var=azure_k8s_region=$$region -var=cluster_name=$$cluster_name -var=cluster_id=$$index; \
 		terraform apply ${terraform_apply_args} -var-file="../../terraform.tfvars.json" -var=azure_k8s_region=$$region -var=cluster_name=$$cluster_name -var=cluster_id=$$index; \
+		terraform output ${terraform_output_args} | jq . > ../../outputs/terraform_output/terraform-azure-$$cluster_name-$$index.json; \
 		terraform workspace select default; \
 		let index++; \
 		cd "../.."; \
@@ -58,6 +60,7 @@ aws_k8s: init
 		terraform workspace select aws-$$index-$$region; \
 		terraform init; \
 		terraform apply ${terraform_apply_args} -var-file="../../terraform.tfvars.json" -var=aws_k8s_region=$$region -var=cluster_name=$$cluster_name -var=cluster_id=$$index; \
+		terraform output ${terraform_output_args} | jq . > ../../outputs/terraform_output/terraform-aws-$$cluster_name-$$index.json; \
 		terraform workspace select default; \
 		let index++; \
 		cd "../.."; \
@@ -79,6 +82,7 @@ gcp_k8s: init
 		terraform init; \
 		terraform apply ${terraform_apply_args} -target module.gcp_base -var-file="../../terraform.tfvars.json" -var=gcp_k8s_region=$$region -var=cluster_name=$$cluster_name -var=cluster_id=$$index; \
 		terraform apply ${terraform_apply_args} -var-file="../../terraform.tfvars.json" -var=gcp_k8s_region=$$region -var=cluster_name=$$cluster_name -var=cluster_id=$$index; \
+		terraform output ${terraform_output_args} | jq . > ../../outputs/terraform_output/terraform-gcp-$$cluster_name-$$index.json; \
 		terraform workspace select default; \
 		let index++; \
 		cd "../.."; \
@@ -99,6 +103,7 @@ tsb_mp:
 		terraform apply ${terraform_apply_args} -target=module.tsb_mp.kubectl_manifest.manifests_certs -var-file="../../terraform.tfvars.json"; \
 		terraform apply ${terraform_apply_args} -var-file="../../terraform.tfvars.json"; \
 		terraform apply ${terraform_apply_args} -target=module.aws_route53_register_fqdn -var-file="../../terraform.tfvars.json"; \
+		terraform output ${terraform_output_args} | jq . > ../../outputs/terraform_output/terraform-tsb-mp.json; \
 		terraform workspace select default; \
 		cd "../.."; \
 		'
