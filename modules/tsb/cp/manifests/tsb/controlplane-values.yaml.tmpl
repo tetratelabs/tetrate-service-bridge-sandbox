@@ -23,6 +23,12 @@ spec:
     clusterName: ${cluster_name}
     selfSigned: true
   components:
+    istio:
+      kubeSpec:
+        deployment:
+          env:
+            - name: AUTO_RELOAD_PLUGIN_CERTS
+              value: "true"
     xcp:
       centralAuthMode: JWT
     gitops:
