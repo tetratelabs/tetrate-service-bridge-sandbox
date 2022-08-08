@@ -35,7 +35,7 @@ module "cert-manager" {
   k8s_host                   = local.infra[var.cloud][var.cluster_id]["outputs"].host
   k8s_cluster_ca_certificate = local.infra[var.cloud][var.cluster_id]["outputs"].cluster_ca_certificate
   k8s_client_token           = local.infra[var.cloud][var.cluster_id]["outputs"].token
-  cert-manager_enabled       = var.cluster_id == var.tsb_mp["cluster_id"] && var.cloud == var.tsb_mp["cloud"] ? false : var.cert-manager_enabled
+  cert-manager_enabled       = tonumber(var.cluster_id) == tonumber(var.tsb_mp["cluster_id"]) && var.cloud == var.tsb_mp["cloud"] ? false : var.cert-manager_enabled
 }
 
 module "tsb_cp" {
