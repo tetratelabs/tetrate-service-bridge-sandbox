@@ -1,0 +1,105 @@
+---
+apiVersion: tsb.tetrate.io/v2
+kind: Tenant
+metadata:
+  name: dev
+  annotations:
+    tsb.tetrate.io/organization: tetrate
+spec:
+  description: dev
+---
+apiVersion: tsb.tetrate.io/v2
+kind: Workspace
+metadata:
+  name: bookinfo-dev-ws
+  annotations:
+    tsb.tetrate.io/organization: tetrate
+    tsb.tetrate.io/tenant: dev
+spec:
+  namespaceSelector:
+    names:
+      - "*/bookinfo-dev"
+---
+apiVersion: gateway.tsb.tetrate.io/v2
+kind: Group
+metadata:
+  name: bookinfo-dev-gg
+  annotations:
+    tsb.tetrate.io/organization: tetrate
+    tsb.tetrate.io/tenant: dev
+    tsb.tetrate.io/workspace: bookinfo-dev-ws
+spec:
+  namespaceSelector:
+    names:
+      - "*/bookinfo-dev"
+  configMode: BRIDGED
+---
+apiVersion: traffic.tsb.tetrate.io/v2
+kind: Group
+metadata:
+  name: bookinfo-dev-tg
+  annotations:
+    tsb.tetrate.io/organization: tetrate
+    tsb.tetrate.io/tenant: dev
+    tsb.tetrate.io/workspace: bookinfo-dev-ws
+spec:
+  namespaceSelector:
+    names:
+      - "*/bookinfo-dev"
+  configMode: BRIDGED
+---
+apiVersion: security.tsb.tetrate.io/v2
+kind: Group
+metadata:
+  name: bookinfo-dev-sg
+  annotations:
+    tsb.tetrate.io/organization: tetrate
+    tsb.tetrate.io/tenant: dev
+    tsb.tetrate.io/workspace: bookinfo-dev-ws
+spec:
+  namespaceSelector:
+    names:
+      - "*/bookinfo-dev"
+  configMode: BRIDGED
+---
+apiVersion: install.tetrate.io/v1alpha1
+kind: IngressGateway
+metadata:
+  name: bookinfo-dev-gw
+  namespace: bookinfo-dev
+spec:
+  kubeSpec:
+    service:
+      type: LoadBalancer
+---
+apiVersion: gateway.tsb.tetrate.io/v2
+kind: IngressGateway
+metadata:
+  name: bookinfo-dev-igw
+  annotations:
+    tsb.tetrate.io/organization: tetrate
+    tsb.tetrate.io/tenant: dev
+    tsb.tetrate.io/workspace: bookinfo-dev-ws
+    tsb.tetrate.io/gatewayGroup: bookinfo-dev-gg
+spec:
+  workloadSelector:
+    namespace: bookinfo-dev
+    labels:
+      app: bookinfo-dev-gw
+  http:
+    - name: productpage
+      port: 80
+      hostname: "bookinfo-dev.tetrate.io"
+      routing:
+        rules:
+          - route:
+              host: "bookinfo-dev/productpage.bookinfo-dev.svc.cluster.local"
+              port: 9080
+    - name: details
+      port: 80
+      hostname: "details-dev.tetrate.io"
+      routing:
+        rules:
+          - route:
+              host: "bookinfo-dev/details.bookinfo-dev.svc.cluster.local"
+              port: 9080

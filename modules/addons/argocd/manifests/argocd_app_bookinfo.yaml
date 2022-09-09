@@ -25,3 +25,111 @@ spec:
         duration: 5s # the amount to back off. Default unit is seconds, but could also be a duration (e.g. "2m", "1h")
         factor: 2 # a factor to multiply the base duration after each failed retry
         maxDuration: 1m # the maximum amount of time allowed for the backoff strategy
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: bookinfo-dev
+  namespace: argocd
+spec:
+  destination:
+    namespace: bookinfo-dev
+    server: https://kubernetes.default.svc
+  project: default
+  source:
+    directory:
+      recurse: true
+    path: gitops/bookinfo/dev
+    repoURL: https://github.com/smarunich/tetrate-service-bridge-sandbox.git
+    targetRevision: rbac-implementation
+  syncPolicy:
+    automated:
+      prune: false
+      selfHeal: true
+    retry:
+      limit: 0 # number of failed sync attempt retries; unlimited number of attempts if less than 0
+      backoff:
+        duration: 5s # the amount to back off. Default unit is seconds, but could also be a duration (e.g. "2m", "1h")
+        factor: 2 # a factor to multiply the base duration after each failed retry
+        maxDuration: 1m # the maximum amount of time allowed for the backoff strategy
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: bookinfo-qa
+  namespace: argocd
+spec:
+  destination:
+    namespace: bookinfo-qa
+    server: https://kubernetes.default.svc
+  project: default
+  source:
+    directory:
+      recurse: true
+    path: gitops/bookinfo/qa
+    repoURL: https://github.com/smarunich/tetrate-service-bridge-sandbox.git
+    targetRevision: rbac-implementation
+  syncPolicy:
+    automated:
+      prune: false
+      selfHeal: true
+    retry:
+      limit: 0 # number of failed sync attempt retries; unlimited number of attempts if less than 0
+      backoff:
+        duration: 5s # the amount to back off. Default unit is seconds, but could also be a duration (e.g. "2m", "1h")
+        factor: 2 # a factor to multiply the base duration after each failed retry
+        maxDuration: 1m # the maximum amount of time allowed for the backoff strategy
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: bookinfo-uat
+  namespace: argocd
+spec:
+  destination:
+    namespace: bookinfo-uat
+    server: https://kubernetes.default.svc
+  project: default
+  source:
+    directory:
+      recurse: true
+    path: gitops/bookinfo/uat
+    repoURL: https://github.com/smarunich/tetrate-service-bridge-sandbox.git
+    targetRevision: rbac-implementation
+  syncPolicy:
+    automated:
+      prune: false
+      selfHeal: true
+    retry:
+      limit: 0 # number of failed sync attempt retries; unlimited number of attempts if less than 0
+      backoff:
+        duration: 5s # the amount to back off. Default unit is seconds, but could also be a duration (e.g. "2m", "1h")
+        factor: 2 # a factor to multiply the base duration after each failed retry
+        maxDuration: 1m # the maximum amount of time allowed for the backoff strategy
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: bookinfo-prod
+  namespace: argocd
+spec:
+  destination:
+    namespace: bookinfo-prod
+    server: https://kubernetes.default.svc
+  project: default
+  source:
+    directory:
+      recurse: true
+    path: gitops/bookinfo/prod
+    repoURL: https://github.com/smarunich/tetrate-service-bridge-sandbox.git
+    targetRevision: rbac-implementation
+  syncPolicy:
+    automated:
+      prune: false
+      selfHeal: true
+    retry:
+      limit: 0 # number of failed sync attempt retries; unlimited number of attempts if less than 0
+      backoff:
+        duration: 5s # the amount to back off. Default unit is seconds, but could also be a duration (e.g. "2m", "1h")
+        factor: 2 # a factor to multiply the base duration after each failed retry
+        maxDuration: 1m # the maximum amount of time allowed for the backoff strategy

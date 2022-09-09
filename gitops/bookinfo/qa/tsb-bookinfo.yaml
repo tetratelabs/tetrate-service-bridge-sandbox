@@ -1,0 +1,105 @@
+---
+apiVersion: tsb.tetrate.io/v2
+kind: Tenant
+metadata:
+  name: qa
+  annotations:
+    tsb.tetrate.io/organization: tetrate
+spec:
+  description: qa
+---
+apiVersion: tsb.tetrate.io/v2
+kind: Workspace
+metadata:
+  name: bookinfo-qa-ws
+  annotations:
+    tsb.tetrate.io/organization: tetrate
+    tsb.tetrate.io/tenant: qa
+spec:
+  namespaceSelector:
+    names:
+      - "*/bookinfo-qa"
+---
+apiVersion: gateway.tsb.tetrate.io/v2
+kind: Group
+metadata:
+  name: bookinfo-qa-gg
+  annotations:
+    tsb.tetrate.io/organization: tetrate
+    tsb.tetrate.io/tenant: qa
+    tsb.tetrate.io/workspace: bookinfo-qa-ws
+spec:
+  namespaceSelector:
+    names:
+      - "*/bookinfo-qa"
+  configMode: BRIDGED
+---
+apiVersion: traffic.tsb.tetrate.io/v2
+kind: Group
+metadata:
+  name: bookinfo-qa-tg
+  annotations:
+    tsb.tetrate.io/organization: tetrate
+    tsb.tetrate.io/tenant: qa
+    tsb.tetrate.io/workspace: bookinfo-qa-ws
+spec:
+  namespaceSelector:
+    names:
+      - "*/bookinfo-qa"
+  configMode: BRIDGED
+---
+apiVersion: security.tsb.tetrate.io/v2
+kind: Group
+metadata:
+  name: bookinfo-qa-sg
+  annotations:
+    tsb.tetrate.io/organization: tetrate
+    tsb.tetrate.io/tenant: qa
+    tsb.tetrate.io/workspace: bookinfo-qa-ws
+spec:
+  namespaceSelector:
+    names:
+      - "*/bookinfo-qa"
+  configMode: BRIDGED
+---
+apiVersion: install.tetrate.io/v1alpha1
+kind: IngressGateway
+metadata:
+  name: bookinfo-qa-gw
+  namespace: bookinfo-qa
+spec:
+  kubeSpec:
+    service:
+      type: LoadBalancer
+---
+apiVersion: gateway.tsb.tetrate.io/v2
+kind: IngressGateway
+metadata:
+  name: bookinfo-qa-igw
+  annotations:
+    tsb.tetrate.io/organization: tetrate
+    tsb.tetrate.io/tenant: qa
+    tsb.tetrate.io/workspace: bookinfo-qa-ws
+    tsb.tetrate.io/gatewayGroup: bookinfo-qa-gg
+spec:
+  workloadSelector:
+    namespace: bookinfo-qa
+    labels:
+      app: bookinfo-qa-gw
+  http:
+    - name: productpage
+      port: 80
+      hostname: "bookinfo-qa.tetrate.io"
+      routing:
+        rules:
+          - route:
+              host: "bookinfo-qa/productpage.bookinfo-qa.svc.cluster.local"
+              port: 9080
+    - name: details
+      port: 80
+      hostname: "details-qa.tetrate.io"
+      routing:
+        rules:
+          - route:
+              host: "bookinfo-qa/details.bookinfo-qa.svc.cluster.local"
+              port: 9080
