@@ -1,20 +1,18 @@
 ---
-apiVersion: tsb.tetrate.io/v2
+apiVersion: api.tsb.tetrate.io/v2
 kind: Tenant
 metadata:
+  organization: tetrate
   name: dev
-  annotations:
-    tsb.tetrate.io/organization: tetrate
 spec:
-  description: dev
+  displayName: dev
 ---
-apiVersion: tsb.tetrate.io/v2
+apiversion: api.tsb.tetrate.io/v2
 kind: Workspace
 metadata:
-  name: bookinfo-dev-ws
-  annotations:
-    tsb.tetrate.io/organization: tetrate
-    tsb.tetrate.io/tenant: dev
+  organization: tetrate
+  tenant: dev
+  name: bookinfo-ws-dev
 spec:
   namespaceSelector:
     names:
@@ -24,10 +22,9 @@ apiVersion: gateway.tsb.tetrate.io/v2
 kind: Group
 metadata:
   name: bookinfo-dev-gg
-  annotations:
-    tsb.tetrate.io/organization: tetrate
-    tsb.tetrate.io/tenant: dev
-    tsb.tetrate.io/workspace: bookinfo-dev-ws
+  organization: tetrate
+  tenant: dev
+  workspace: bookinfo-dev-ws
 spec:
   namespaceSelector:
     names:
@@ -38,10 +35,9 @@ apiVersion: traffic.tsb.tetrate.io/v2
 kind: Group
 metadata:
   name: bookinfo-dev-tg
-  annotations:
-    tsb.tetrate.io/organization: tetrate
-    tsb.tetrate.io/tenant: dev
-    tsb.tetrate.io/workspace: bookinfo-dev-ws
+  organization: tetrate
+  tenant: dev
+  workspace: bookinfo-dev-ws
 spec:
   namespaceSelector:
     names:
@@ -52,10 +48,9 @@ apiVersion: security.tsb.tetrate.io/v2
 kind: Group
 metadata:
   name: bookinfo-dev-sg
-  annotations:
-    tsb.tetrate.io/organization: tetrate
-    tsb.tetrate.io/tenant: dev
-    tsb.tetrate.io/workspace: bookinfo-dev-ws
+  organization: tetrate
+  tenant: dev
+  workspace: bookinfo-dev-ws
 spec:
   namespaceSelector:
     names:
@@ -76,11 +71,10 @@ apiVersion: gateway.tsb.tetrate.io/v2
 kind: IngressGateway
 metadata:
   name: bookinfo-dev-igw
-  annotations:
-    tsb.tetrate.io/organization: tetrate
-    tsb.tetrate.io/tenant: dev
-    tsb.tetrate.io/workspace: bookinfo-dev-ws
-    tsb.tetrate.io/gatewayGroup: bookinfo-dev-gg
+  organization: tetrate
+  tenant: dev
+  workspace: bookinfo-dev-ws
+  gatewayGroup: bookinfo-dev-gg
 spec:
   workloadSelector:
     namespace: bookinfo-dev
@@ -101,5 +95,5 @@ spec:
       routing:
         rules:
           - route:
-              host: "bookinfo-dev/details.bookinfo-dev.svc.cluster.local"
+              host: "bookinfo-dev/details-dev.bookinfo-dev.svc.cluster.local"
               port: 9080

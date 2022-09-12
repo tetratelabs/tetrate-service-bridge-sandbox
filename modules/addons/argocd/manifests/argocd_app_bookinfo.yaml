@@ -12,9 +12,9 @@ spec:
   source:
     directory:
       recurse: true
-    path: gitops/bookinfo
+    path: gitops/bookinfo/old
     repoURL: https://github.com/smarunich/tetrate-service-bridge-sandbox.git
-    targetRevision: main
+    targetRevision: rbac-implementation
   syncPolicy:
     automated:
       prune: false

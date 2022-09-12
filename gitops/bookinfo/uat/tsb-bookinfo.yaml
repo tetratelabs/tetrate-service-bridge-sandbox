@@ -3,8 +3,7 @@ apiVersion: tsb.tetrate.io/v2
 kind: Tenant
 metadata:
   name: uat
-  annotations:
-    tsb.tetrate.io/organization: tetrate
+  organization: tetrate
 spec:
   description: uat
 ---
@@ -12,9 +11,8 @@ apiVersion: tsb.tetrate.io/v2
 kind: Workspace
 metadata:
   name: bookinfo-uat-ws
-  annotations:
-    tsb.tetrate.io/organization: tetrate
-    tsb.tetrate.io/tenant: uat
+  organization: tetrate
+  tenant: uat
 spec:
   namespaceSelector:
     names:
@@ -24,10 +22,9 @@ apiVersion: gateway.tsb.tetrate.io/v2
 kind: Group
 metadata:
   name: bookinfo-uat-gg
-  annotations:
-    tsb.tetrate.io/organization: tetrate
-    tsb.tetrate.io/tenant: uat
-    tsb.tetrate.io/workspace: bookinfo-uat-ws
+  organization: tetrate
+  tenant: uat
+  workspace: bookinfo-uat-ws
 spec:
   namespaceSelector:
     names:
@@ -38,10 +35,9 @@ apiVersion: traffic.tsb.tetrate.io/v2
 kind: Group
 metadata:
   name: bookinfo-uat-tg
-  annotations:
-    tsb.tetrate.io/organization: tetrate
-    tsb.tetrate.io/tenant: uat
-    tsb.tetrate.io/workspace: bookinfo-uat-ws
+  organization: tetrate
+  tenant: uat
+  workspace: bookinfo-uat-ws
 spec:
   namespaceSelector:
     names:
@@ -52,10 +48,9 @@ apiVersion: security.tsb.tetrate.io/v2
 kind: Group
 metadata:
   name: bookinfo-uat-sg
-  annotations:
-    tsb.tetrate.io/organization: tetrate
-    tsb.tetrate.io/tenant: uat
-    tsb.tetrate.io/workspace: bookinfo-uat-ws
+  organization: tetrate
+  tenant: uat
+  workspace: bookinfo-uat-ws
 spec:
   namespaceSelector:
     names:
@@ -76,11 +71,10 @@ apiVersion: gateway.tsb.tetrate.io/v2
 kind: IngressGateway
 metadata:
   name: bookinfo-uat-igw
-  annotations:
-    tsb.tetrate.io/organization: tetrate
-    tsb.tetrate.io/tenant: uat
-    tsb.tetrate.io/workspace: bookinfo-uat-ws
-    tsb.tetrate.io/gatewayGroup: bookinfo-uat-gg
+  organization: tetrate
+  tenant: uat
+  workspace: bookinfo-uat-ws
+  gatewayGroup: bookinfo-uat-gg
 spec:
   workloadSelector:
     namespace: bookinfo-uat
@@ -101,5 +95,5 @@ spec:
       routing:
         rules:
           - route:
-              host: "bookinfo-uat/details.bookinfo-uat.svc.cluster.local"
+              host: "bookinfo-uat/details-uat.bookinfo-uat.svc.cluster.local"
               port: 9080

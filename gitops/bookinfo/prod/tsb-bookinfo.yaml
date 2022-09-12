@@ -3,8 +3,7 @@ apiVersion: tsb.tetrate.io/v2
 kind: Tenant
 metadata:
   name: prod
-  annotations:
-    tsb.tetrate.io/organization: tetrate
+  organization: tetrate
 spec:
   description: prod
 ---
@@ -12,9 +11,8 @@ apiVersion: tsb.tetrate.io/v2
 kind: Workspace
 metadata:
   name: bookinfo-prod-ws
-  annotations:
-    tsb.tetrate.io/organization: tetrate
-    tsb.tetrate.io/tenant: prod
+  organization: tetrate
+  tenant: prod
 spec:
   namespaceSelector:
     names:
@@ -24,10 +22,9 @@ apiVersion: gateway.tsb.tetrate.io/v2
 kind: Group
 metadata:
   name: bookinfo-prod-gg
-  annotations:
-    tsb.tetrate.io/organization: tetrate
-    tsb.tetrate.io/tenant: prod
-    tsb.tetrate.io/workspace: bookinfo-prod-ws
+  organization: tetrate
+  tenant: prod
+  workspace: bookinfo-prod-ws
 spec:
   namespaceSelector:
     names:
@@ -38,10 +35,9 @@ apiVersion: traffic.tsb.tetrate.io/v2
 kind: Group
 metadata:
   name: bookinfo-prod-tg
-  annotations:
-    tsb.tetrate.io/organization: tetrate
-    tsb.tetrate.io/tenant: prod
-    tsb.tetrate.io/workspace: bookinfo-prod-ws
+  organization: tetrate
+  tenant: prod
+  workspace: bookinfo-prod-ws
 spec:
   namespaceSelector:
     names:
@@ -52,10 +48,9 @@ apiVersion: security.tsb.tetrate.io/v2
 kind: Group
 metadata:
   name: bookinfo-prod-sg
-  annotations:
-    tsb.tetrate.io/organization: tetrate
-    tsb.tetrate.io/tenant: prod
-    tsb.tetrate.io/workspace: bookinfo-prod-ws
+  organization: tetrate
+  tenant: prod
+  workspace: bookinfo-prod-ws
 spec:
   namespaceSelector:
     names:
@@ -76,11 +71,10 @@ apiVersion: gateway.tsb.tetrate.io/v2
 kind: IngressGateway
 metadata:
   name: bookinfo-prod-igw
-  annotations:
-    tsb.tetrate.io/organization: tetrate
-    tsb.tetrate.io/tenant: prod
-    tsb.tetrate.io/workspace: bookinfo-prod-ws
-    tsb.tetrate.io/gatewayGroup: bookinfo-prod-gg
+  organization: tetrate
+  tenant: prod
+  workspace: bookinfo-prod-ws
+  gatewayGroup: bookinfo-prod-gg
 spec:
   workloadSelector:
     namespace: bookinfo-prod
@@ -101,5 +95,5 @@ spec:
       routing:
         rules:
           - route:
-              host: "bookinfo-prod/details.bookinfo-prod.svc.cluster.local"
+              host: "bookinfo-prod/details-prod.bookinfo-prod.svc.cluster.local"
               port: 9080

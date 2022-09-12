@@ -339,7 +339,7 @@ spec:
           imagePullPolicy: IfNotPresent
           env:
             - name: DETAILS_HOSTNAME
-              value: gitops-details.tetrate.io
+              value: details-qa.tetrate.io
           ports:
             - containerPort: 9080
           volumeMounts:
