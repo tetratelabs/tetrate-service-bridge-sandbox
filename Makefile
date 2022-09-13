@@ -188,10 +188,10 @@ argocd:
 		index=0; \
 		jq -r '.aws_k8s_regions[]' terraform.tfvars.json | while read -r region; do \
 		echo "cloud=aws region=$$region cluster_id=$$index"; \
-		cd "tsb/cp"; \
+		cd "addons/argocd"; \
 		terraform workspace new aws-$$index-$$region; \
 		terraform workspace select aws-$$index-$$region; \
-		cd "addons/argocd"; \
+		terraform init; \
 		terraform apply ${terraform_apply_args} -var-file="../../terraform.tfvars.json" -var=cloud=aws -var=cluster_id=$$index; \
 		terraform workspace select default; \
 		let index++; \
