@@ -29,7 +29,7 @@ spec:
         - path: spec.template.spec.containers.[name:web].env[-1]
           value:
             name: SESSION_AGE_IN_MINUTES
-            value: "120"
+            value: "60"
   hub: "${registry}"
   organization: "${tsb_org}"
   telemetryStore:
