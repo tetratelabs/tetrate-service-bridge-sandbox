@@ -3,7 +3,8 @@ apiVersion: tsb.tetrate.io/v2
 kind: Tenant
 metadata:
   name: prod
-  organization: tetrate
+  annotations:
+    tsb.tetrate.io/organization: tetrate
 spec:
   description: prod
 ---
@@ -11,8 +12,9 @@ apiVersion: tsb.tetrate.io/v2
 kind: Workspace
 metadata:
   name: bookinfo-prod-ws
-  organization: tetrate
-  tenant: prod
+  annotations:
+    tsb.tetrate.io/organization: tetrate
+    tsb.tetrate.io/tenant: prod
 spec:
   namespaceSelector:
     names:
@@ -22,9 +24,10 @@ apiVersion: gateway.tsb.tetrate.io/v2
 kind: Group
 metadata:
   name: bookinfo-prod-gg
-  organization: tetrate
-  tenant: prod
-  workspace: bookinfo-prod-ws
+  annotations:
+    tsb.tetrate.io/organization: tetrate
+    tsb.tetrate.io/tenant: prod
+    tsb.tetrate.io/workspace: bookinfo-prod-ws
 spec:
   namespaceSelector:
     names:
@@ -35,9 +38,10 @@ apiVersion: traffic.tsb.tetrate.io/v2
 kind: Group
 metadata:
   name: bookinfo-prod-tg
-  organization: tetrate
-  tenant: prod
-  workspace: bookinfo-prod-ws
+  annotations:
+    tsb.tetrate.io/organization: tetrate
+    tsb.tetrate.io/tenant: prod
+    tsb.tetrate.io/workspace: bookinfo-prod-ws
 spec:
   namespaceSelector:
     names:
@@ -48,9 +52,10 @@ apiVersion: security.tsb.tetrate.io/v2
 kind: Group
 metadata:
   name: bookinfo-prod-sg
-  organization: tetrate
-  tenant: prod
-  workspace: bookinfo-prod-ws
+  annotations:
+    tsb.tetrate.io/organization: tetrate
+    tsb.tetrate.io/tenant: prod
+    tsb.tetrate.io/workspace: bookinfo-prod-ws
 spec:
   namespaceSelector:
     names:
@@ -71,10 +76,11 @@ apiVersion: gateway.tsb.tetrate.io/v2
 kind: IngressGateway
 metadata:
   name: bookinfo-prod-igw
-  organization: tetrate
-  tenant: prod
-  workspace: bookinfo-prod-ws
-  gatewayGroup: bookinfo-prod-gg
+  annotations:
+    tsb.tetrate.io/organization: tetrate
+    tsb.tetrate.io/tenant: prod
+    tsb.tetrate.io/workspace: bookinfo-prod-ws
+    tsb.tetrate.io/gatewayGroup: bookinfo-prod-gg
 spec:
   workloadSelector:
     namespace: bookinfo-prod

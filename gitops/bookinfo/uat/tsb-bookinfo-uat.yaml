@@ -3,7 +3,8 @@ apiVersion: tsb.tetrate.io/v2
 kind: Tenant
 metadata:
   name: uat
-  organization: tetrate
+  annotations:
+    tsb.tetrate.io/organization: tetrate
 spec:
   description: uat
 ---
@@ -11,8 +12,9 @@ apiVersion: tsb.tetrate.io/v2
 kind: Workspace
 metadata:
   name: bookinfo-uat-ws
-  organization: tetrate
-  tenant: uat
+  annotations:
+    tsb.tetrate.io/organization: tetrate
+    tsb.tetrate.io/tenant: uat
 spec:
   namespaceSelector:
     names:
@@ -22,9 +24,10 @@ apiVersion: gateway.tsb.tetrate.io/v2
 kind: Group
 metadata:
   name: bookinfo-uat-gg
-  organization: tetrate
-  tenant: uat
-  workspace: bookinfo-uat-ws
+  annotations:
+    tsb.tetrate.io/organization: tetrate
+    tsb.tetrate.io/tenant: uat
+    tsb.tetrate.io/workspace: bookinfo-uat-ws
 spec:
   namespaceSelector:
     names:
@@ -35,9 +38,10 @@ apiVersion: traffic.tsb.tetrate.io/v2
 kind: Group
 metadata:
   name: bookinfo-uat-tg
-  organization: tetrate
-  tenant: uat
-  workspace: bookinfo-uat-ws
+  annotations:
+    tsb.tetrate.io/organization: tetrate
+    tsb.tetrate.io/tenant: uat
+    tsb.tetrate.io/workspace: bookinfo-uat-ws
 spec:
   namespaceSelector:
     names:
@@ -48,9 +52,10 @@ apiVersion: security.tsb.tetrate.io/v2
 kind: Group
 metadata:
   name: bookinfo-uat-sg
-  organization: tetrate
-  tenant: uat
-  workspace: bookinfo-uat-ws
+  annotations:
+    tsb.tetrate.io/organization: tetrate
+    tsb.tetrate.io/tenant: uat
+    tsb.tetrate.io/workspace: bookinfo-uat-ws
 spec:
   namespaceSelector:
     names:
@@ -71,10 +76,11 @@ apiVersion: gateway.tsb.tetrate.io/v2
 kind: IngressGateway
 metadata:
   name: bookinfo-uat-igw
-  organization: tetrate
-  tenant: uat
-  workspace: bookinfo-uat-ws
-  gatewayGroup: bookinfo-uat-gg
+  annotations:
+    tsb.tetrate.io/organization: tetrate
+    tsb.tetrate.io/tenant: uat
+    tsb.tetrate.io/workspace: bookinfo-uat-ws
+    tsb.tetrate.io/gatewayGroup: bookinfo-uat-gg
 spec:
   workloadSelector:
     namespace: bookinfo-uat

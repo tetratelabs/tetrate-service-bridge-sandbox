@@ -1,18 +1,20 @@
 ---
-apiVersion: api.tsb.tetrate.io/v2
+apiVersion: tsb.tetrate.io/v2
 kind: Tenant
 metadata:
-  organization: tetrate
   name: dev
+  annotations:
+    tsb.tetrate.io/organization: tetrate
 spec:
   displayName: dev
 ---
-apiversion: api.tsb.tetrate.io/v2
+apiVersion: tsb.tetrate.io/v2
 kind: Workspace
 metadata:
-  organization: tetrate
-  tenant: dev
-  name: bookinfo-ws-dev
+  name: bookinfo-dev-ws
+  annotations:
+    tsb.tetrate.io/organization: tetrate
+    tsb.tetrate.io/tenant: dev
 spec:
   namespaceSelector:
     names:
@@ -22,9 +24,10 @@ apiVersion: gateway.tsb.tetrate.io/v2
 kind: Group
 metadata:
   name: bookinfo-dev-gg
-  organization: tetrate
-  tenant: dev
-  workspace: bookinfo-dev-ws
+  annotations:
+    tsb.tetrate.io/organization: tetrate
+    tsb.tetrate.io/tenant: dev
+    tsb.tetrate.io/workspace: bookinfo-dev-ws
 spec:
   namespaceSelector:
     names:
@@ -35,9 +38,10 @@ apiVersion: traffic.tsb.tetrate.io/v2
 kind: Group
 metadata:
   name: bookinfo-dev-tg
-  organization: tetrate
-  tenant: dev
-  workspace: bookinfo-dev-ws
+  annotations:
+    tsb.tetrate.io/organization: tetrate
+    tsb.tetrate.io/tenant: dev
+    tsb.tetrate.io/workspace: bookinfo-dev-ws
 spec:
   namespaceSelector:
     names:
@@ -48,9 +52,10 @@ apiVersion: security.tsb.tetrate.io/v2
 kind: Group
 metadata:
   name: bookinfo-dev-sg
-  organization: tetrate
-  tenant: dev
-  workspace: bookinfo-dev-ws
+  annotations:
+    tsb.tetrate.io/organization: tetrate
+    tsb.tetrate.io/tenant: dev
+    tsb.tetrate.io/workspace: bookinfo-dev-ws
 spec:
   namespaceSelector:
     names:
@@ -71,10 +76,11 @@ apiVersion: gateway.tsb.tetrate.io/v2
 kind: IngressGateway
 metadata:
   name: bookinfo-dev-igw
-  organization: tetrate
-  tenant: dev
-  workspace: bookinfo-dev-ws
-  gatewayGroup: bookinfo-dev-gg
+  annotations:
+    tsb.tetrate.io/organization: tetrate
+    tsb.tetrate.io/tenant: dev
+    tsb.tetrate.io/workspace: bookinfo-dev-ws
+    tsb.tetrate.io/gatewayGroup: bookinfo-dev-gg
 spec:
   workloadSelector:
     namespace: bookinfo-dev
