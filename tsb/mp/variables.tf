@@ -124,5 +124,5 @@ variable "cert-manager_enabled" {
 }
 
 variable "dns_provider" {
-  default = null
+  default = "aws"
 }
