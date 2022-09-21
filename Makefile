@@ -102,7 +102,7 @@ tsb_mp:
 		terraform apply ${terraform_apply_args} -target=module.cert-manager -target=module.es -var-file="../../terraform.tfvars.json"; \
 		terraform apply ${terraform_apply_args} -target=module.tsb_mp.kubectl_manifest.manifests_certs -var-file="../../terraform.tfvars.json"; \
 		terraform apply ${terraform_apply_args} -var-file="../../terraform.tfvars.json"; \
-		terraform apply ${terraform_apply_args} -target=module.aws_route53_register_fqdn -var-file="../../terraform.tfvars.json"; \
+		terraform apply ${terraform_apply_args} -target=module.aws_register_fqdn -target=module.azure_register_fqdn -target=module.gcp_register_fqdn -var-file="../../terraform.tfvars.json"; \
 		terraform output ${terraform_output_args} | jq . > ../../outputs/terraform_outputs/terraform-tsb-mp.json; \
 		terraform workspace select default; \
 		cd "../.."; \
@@ -220,6 +220,8 @@ destroy:
 	@/bin/sh -c '\
 		cd "tsb/mp"; \
 		terraform destroy ${terraform_destroy_args} -target=module.aws_register_fqdn -var-file="../../terraform.tfvars.json"; \
+		terraform destroy ${terraform_destroy_args} -target=module.azure_register_fqdn -var-file="../../terraform.tfvars.json"; \
+		terraform destroy ${terraform_destroy_args} -target=module.gcp_register_fqdn -var-file="../../terraform.tfvars.json"; \
 		rm -rf terraform.tfstate.d/; \
 		rm -rf terraform.tfstate; \
 		cd "../.."; \
