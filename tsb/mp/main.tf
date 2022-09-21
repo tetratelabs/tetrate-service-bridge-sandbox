@@ -63,9 +63,26 @@ module "tsb_mp" {
 
 }
 
-module "aws_route53_register_fqdn" {
-  source   = "../../modules/aws/route53_register_fqdn"
-  dns_zone = var.dns_zone
+module "aws_register_fqdn" {
+  count    = var.dns_provider == "aws" ? 1 : 0
+  source   = "../../modules/aws/register_fqdn"
+  dns_zone = "cx.tetrate.info"
+  fqdn     = var.tsb_fqdn
+  address  = module.tsb_mp.ingress_ip != "" ? module.tsb_mp.ingress_ip : module.tsb_mp.ingress_hostname
+}
+
+module "azure_register_fqdn" {
+  count    = var.dns_provider == "azure" ? 1 : 0
+  source   = "../../modules/azure/register_fqdn"
+  dns_zone = "azure.cx.tetrate.info"
+  fqdn     = var.tsb_fqdn
+  address  = module.tsb_mp.ingress_ip != "" ? module.tsb_mp.ingress_ip : module.tsb_mp.ingress_hostname
+}
+
+module "gcp_register_fqdn" {
+  count    = var.dns_provider == "gcp" ? 1 : 0
+  source   = "../../modules/gcp/register_fqdn"
+  dns_zone = "gcp.cx.tetrate.info"
   fqdn     = var.tsb_fqdn
   address  = module.tsb_mp.ingress_ip != "" ? module.tsb_mp.ingress_ip : module.tsb_mp.ingress_hostname
 }

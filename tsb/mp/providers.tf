@@ -27,3 +27,7 @@ provider "kubectl" {
   token                  = local.infra[var.tsb_mp["cloud"]][var.tsb_mp["cluster_id"]]["outputs"].token
   load_config_file       = false
 }
+
+provider "azurerm" {
+  features {}
+}
