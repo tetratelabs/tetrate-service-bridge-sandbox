@@ -28,12 +28,13 @@ module "eks" {
   }
 
   eks_managed_node_groups = {
-    node_group = {
+    tsb_sandbox_blue = {
       min_size     = 3
       max_size     = 5
       desired_size = 3
       tags = {
         "Tetrate:Owner" = var.owner
+        Name = "${var.cluster_name}_tsb_sandbox_blue"
       }
     }
   }

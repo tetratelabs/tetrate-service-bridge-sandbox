@@ -7,7 +7,7 @@ module "azure_base" {
   count       = var.azure_k8s_region == null ? 0 : 1
   name_prefix = "${var.name_prefix}-${var.cluster_id}"
   location    = var.azure_k8s_region
-  cidr        = cidrsubnet(var.cidr, 4, count.index)
+  cidr        = cidrsubnet(var.cidr, 4, 0 + tonumber(var.cluster_id))
 }
 
 module "azure_jumpbox" {

@@ -6,7 +6,7 @@ module "aws_base" {
   source      = "../../modules/aws/base"
   count       = var.aws_k8s_region == null ? 0 : 1
   name_prefix = "${var.name_prefix}-${var.cluster_id}"
-  cidr        = cidrsubnet(var.cidr, 4, 4)
+  cidr        = cidrsubnet(var.cidr, 4, 4 + tonumber(var.cluster_id))
 }
 
 module "aws_jumpbox" {
