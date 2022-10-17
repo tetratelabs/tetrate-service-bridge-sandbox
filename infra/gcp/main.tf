@@ -22,7 +22,7 @@ module "gcp_base" {
   region      = var.gcp_k8s_region
   org_id      = var.gcp_org_id
   billing_id  = var.gcp_billing_id
-  cidr        = cidrsubnet(var.cidr, 4, 8 + count.index)
+  cidr        = cidrsubnet(var.cidr, 4, 8 + tonumber(var.cluster_id))
 }
 
 module "gcp_jumpbox" {
