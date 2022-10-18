@@ -35,7 +35,7 @@ module "tsb_mp" {
   tsb_password               = var.tsb_password
   tsb_image_sync_username    = var.tsb_image_sync_username
   tsb_image_sync_apikey      = var.tsb_image_sync_apikey
-  es_host                    = module.es.es_ip != "" ? module.es.es_ip : module.es.es_hostname
+  es_host                    = coalesce(module.es.es_ip, module.es.es_hostname)
   es_username                = module.es.es_username
   es_password                = module.es.es_password
   es_cacert                  = module.es.es_cacert

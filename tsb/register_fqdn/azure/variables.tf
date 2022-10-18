@@ -1,2 +1,0 @@
-variable "tsb_fqdn" {
-}

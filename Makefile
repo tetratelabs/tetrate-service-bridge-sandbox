@@ -98,9 +98,11 @@ tsb_mp:  ## Deploys MP
 		terraform apply ${terraform_apply_args} -target=module.cert-manager -target=module.es -var-file="../../terraform.tfvars.json"; \
 		terraform apply ${terraform_apply_args} -target=module.tsb_mp.kubectl_manifest.manifests_certs -var-file="../../terraform.tfvars.json"; \
 		terraform apply ${terraform_apply_args} -var-file="../../terraform.tfvars.json"; \
-		terraform -chdir=../register_fqdn/$$cloud init; \
-		terraform -chdir=../register_fqdn/$$cloud apply ${terraform_apply_args} -var-file="../../../terraform.tfvars.json"; \
 		terraform output ${terraform_output_args} | jq . > ../../outputs/terraform_outputs/terraform-tsb-mp.json; \
+		fqdn=`jq -r '.tsb_fqdn' ../../terraform.tfvars.json`; \
+		address=`jq -r "if .ingress_ip.value != \"\" then .ingress_ip.value else .ingress_hostname.value end" ../../outputs/terraform_outputs/terraform-tsb-mp.json`; \
+		terraform -chdir=../../modules/$$cloud/register_fqdn init; \
+		terraform -chdir=../../modules/$$cloud/register_fqdn apply ${terraform_apply_args} -var=address=$$address -var=fqdn=$$fqdn; \
 		terraform workspace select default; \
 		cd "../.."; \
 		'
