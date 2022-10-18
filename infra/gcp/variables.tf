@@ -56,8 +56,13 @@ variable "tsb_org" {
 variable "mp_as_tier1_cluster" {
   default = true
 }
+
 variable "jumpbox_username" {
   default = "tsbadmin"
+}
+
+variable "jumpbox_machine_type" {
+  default = "n1-standard-2"
 }
 
 variable "gcp_k8s_regions" {

@@ -1,6 +1,7 @@
 data "azurerm_dns_zone" "zone" {
   resource_group_name = "dns-terraform-sandbox"
-  name = var.dns_zone
+  # If the dns_zone is not set, remove the first part of the FQDN and use it
+  name = coalesce(var.dns_zone, replace(var.fqdn, "/^[^\\.]+\\./", ""))
 }
 
 data "dns_a_record_set" "tsb" {

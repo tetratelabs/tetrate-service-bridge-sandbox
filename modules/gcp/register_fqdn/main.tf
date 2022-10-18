@@ -1,6 +1,7 @@
 data "google_dns_managed_zone" "zone" {
   project = "dns-terraform-sandbox"
-  name = replace(var.dns_zone, ".", "-")
+   # If the dns_zone is not set, remove the first part of the FQDN and use it
+  name = replace(coalesce(var.dns_zone, replace(var.fqdn, "/^[^\\.]+\\./", "")), ".", "-")
 }
 
 data "dns_a_record_set" "tsb" {
