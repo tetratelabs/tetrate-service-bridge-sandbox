@@ -215,11 +215,13 @@ argocd:  ## Deploys ArgoCD
 destroy:  ## Destroy the environment
 	@/bin/sh -c '\
 		cloud=`jq -r '.tsb_mp.cloud' terraform.tfvars.json`; \
-		cd "tsb/mp/register_fqdn/$$cloud"; \
-		terraform destroy ${terraform_apply_args} -var-file="../../../../terraform.tfvars.json"; \
+		fqdn=`jq -r '.tsb_fqdn' terraform.tfvars.json`; \
+		address=`jq -r "if .ingress_ip.value != \"\" then .ingress_ip.value else .ingress_hostname.value end" outputs/terraform_outputs/terraform-tsb-mp.json`; \
+		cd "modules/$$cloud/register_fqdn"; \
+		terraform destroy ${terraform_apply_args} -var=address=$$address -var=fqdn=$$fqdn; \
 		rm -rf terraform.tfstate.d/; \
 		rm -rf terraform.tfstate; \
-		cd "../../../.."; \
+		cd "../../.."; \
 		'
 	@/bin/sh -c '\
 		index=0; \
