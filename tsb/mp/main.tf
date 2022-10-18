@@ -28,7 +28,7 @@ module "tsb_mp" {
   name_prefix                = var.name_prefix
   tsb_version                = var.tsb_version
   tsb_helm_repository        = var.tsb_helm_repository
-  tsb_helm_version           = var.tsb_helm_version != null ? var.tsb_helm_version : var.tsb_version
+  tsb_helm_version           = coalesce(var.tsb_helm_version, var.tsb_version)
   tsb_fqdn                   = var.tsb_fqdn
   tsb_org                    = var.tsb_org
   tsb_username               = var.tsb_username

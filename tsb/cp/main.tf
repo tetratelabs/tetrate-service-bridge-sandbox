@@ -31,7 +31,7 @@ module "tsb_cp" {
   name_prefix                = "${var.name_prefix}-${var.cluster_id}"
   tsb_version                = var.tsb_version
   tsb_helm_repository        = var.tsb_helm_repository
-  tsb_helm_version           = var.tsb_helm_version != null ? var.tsb_helm_version : var.tsb_version
+  tsb_helm_version           = coalesce(var.tsb_helm_version, var.tsb_version)
   tsb_mp_host                = data.terraform_remote_state.tsb_mp.outputs.fqdn
   tier1_cluster              = tonumber(var.cluster_id) == tonumber(var.tsb_mp["cluster_id"]) && var.cloud == var.tsb_mp["cloud"] ? var.mp_as_tier1_cluster : false
   tsb_fqdn                   = var.tsb_fqdn
