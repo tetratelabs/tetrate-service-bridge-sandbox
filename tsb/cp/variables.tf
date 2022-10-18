@@ -12,11 +12,11 @@ variable "owner" {
 }
 
 locals {
-  infra = {
-    aws   = data.terraform_remote_state.aws
-    azure = data.terraform_remote_state.azure
-    gcp   = data.terraform_remote_state.gcp
-  }
+  infra = data.terraform_remote_state.infra
+
+  k8s_regions = var.cloud == "aws" ? var.aws_k8s_regions : (
+    var.cloud == "azure" ? var.azure_k8s_regions : var.gcp_k8s_regions
+  )
 }
 
 variable "name_prefix" {

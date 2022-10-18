@@ -19,7 +19,7 @@ spec:
       selfSigned: true
   managementPlane:
     host: ${tsb_fqdn}
-    port: 8443
+    port: 443
     clusterName: ${cluster_name}
     selfSigned: true
   components:
@@ -35,8 +35,8 @@ spec:
       enabled: true
       reconcileInterval: 600s
     internalCertProvider:
-        certManager:
-          managed: EXTERNAL
+      certManager:
+        managed: EXTERNAL
     oap:
       streamingLogEnabled: true  
   meshExpansion: {}

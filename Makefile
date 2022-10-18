@@ -13,20 +13,18 @@ all: tsb
 
 .PHONY: help
 help : Makefile
-	@sed -n 's/^##//p' $<
+	@awk 'BEGIN {FS = ":.*##"; printf "Usage:\n"} \
+			/^[.a-zA-Z0-9_-]+:.*?##/ { printf "  \033[36mmake %-15s\033[0m %s\n", $$1, $$2 }' $(MAKEFILE_LIST)
 
-## init					 	 terraform init
 .PHONY: init
-init:
+init:  ## Terraform init
 	@echo "Please refer to the latest instructions and terraform.tfvars.json file format at https://github.com/smarunich/tetrate-service-bridge-sandbox#usage"
 
-## k8s						 deploys k8s cluster for MP and N-number of CPs(*) 
 .PHONY: k8s
-k8s: azure_k8s aws_k8s gcp_k8s
+k8s: azure_k8s aws_k8s gcp_k8s  ## Deploys k8s cluster for MP and N-number of CPs(*) 
 
-## azure_k8s					 deploys azure k8s cluster for MP and N-number of CPs(*) leveraging AKS
 .PHONY: azure_k8s
-azure_k8s: init
+azure_k8s: init  ## Deploys azure k8s cluster for MP and N-number of CPs(*) leveraging AKS
 	@/bin/sh -c '\
 		index=0; \
 		name_prefix=`jq -r '.name_prefix' terraform.tfvars.json`; \
@@ -46,9 +44,8 @@ azure_k8s: init
 		done; \
 		'
 
-## aws_k8s					 deploys EKS K8s cluster (CPs only)
 .PHONY: aws_k8s
-aws_k8s: init
+aws_k8s: init  ## Deploys EKS K8s cluster (CPs only)
 	@/bin/sh -c '\
 		index=0; \
 		name_prefix=`jq -r '.name_prefix' terraform.tfvars.json`; \
@@ -67,9 +64,8 @@ aws_k8s: init
 		done; \
 		'
 
-## gcp_k8s					 deploys GKE K8s cluster (CPs only)
 .PHONY: gcp_k8s
-gcp_k8s: init
+gcp_k8s: init  ## Deploys GKE K8s cluster (CPs only)
 	@/bin/sh -c '\
 		index=0; \
 		name_prefix=`jq -r '.name_prefix' terraform.tfvars.json`; \
@@ -89,28 +85,28 @@ gcp_k8s: init
 		done; \
 		'
 
-## tsb_mp						 deploys MP
 .PHONY: tsb_mp
-tsb_mp:
+tsb_mp:  ## Deploys MP
 	@echo "Refreshing k8s access tokens..."
 	@make k8s
 	@echo "Deploying TSB Management Plane..."
 	@/bin/sh -c '\
+		cloud=`jq -r '.tsb_mp.cloud' terraform.tfvars.json`; \
 		cd "tsb/mp"; \
 		terraform workspace select default; \
 		terraform init; \
 		terraform apply ${terraform_apply_args} -target=module.cert-manager -target=module.es -var-file="../../terraform.tfvars.json"; \
 		terraform apply ${terraform_apply_args} -target=module.tsb_mp.kubectl_manifest.manifests_certs -var-file="../../terraform.tfvars.json"; \
 		terraform apply ${terraform_apply_args} -var-file="../../terraform.tfvars.json"; \
-		terraform apply ${terraform_apply_args} -target=module.aws_register_fqdn -target=module.azure_register_fqdn -target=module.gcp_register_fqdn -var-file="../../terraform.tfvars.json"; \
+		terraform -chdir=../register_fqdn/$$cloud init; \
+		terraform -chdir=../register_fqdn/$$cloud apply ${terraform_apply_args} -var-file="../../../terraform.tfvars.json"; \
 		terraform output ${terraform_output_args} | jq . > ../../outputs/terraform_outputs/terraform-tsb-mp.json; \
 		terraform workspace select default; \
 		cd "../.."; \
 		'
 
-## tsb_cp	                       		 onboards CP on AKS cluster with ID=1 
 .PHONY: tsb_cp
-tsb_cp:
+tsb_cp:  ## Onboards CP on AKS cluster with ID=1
 	@echo "Refreshing k8s access tokens..."
 	@echo "Onboarding clusters, i.e. TSB CP rollouts..."
 	@make gcp_k8s
@@ -160,12 +156,11 @@ tsb_cp:
 		'
 
 .PHONY: tsb
-tsb: k8s tsb_mp tsb_cp
+tsb: k8s tsb_mp tsb_cp  ## Deploys a full environment (MP+CP)
 	@echo "Magic is on the way..."
 
-## argocd
 .PHONY: argocd
-argocd:
+argocd:  ## Deploys ArgoCD
 	@echo "Refreshing k8s access tokens..."
 	@echo "Deploying ArgoCD on Management Plane..."
 	@make gcp_k8s
@@ -214,17 +209,15 @@ argocd:
 		done; \
 		'
 
-## destroy					 destroy the environment
 .PHONY: destroy
-destroy:
+destroy:  ## Destroy the environment
 	@/bin/sh -c '\
-		cd "tsb/mp"; \
-		terraform destroy ${terraform_destroy_args} -target=module.aws_register_fqdn -var-file="../../terraform.tfvars.json"; \
-		terraform destroy ${terraform_destroy_args} -target=module.azure_register_fqdn -var-file="../../terraform.tfvars.json"; \
-		terraform destroy ${terraform_destroy_args} -target=module.gcp_register_fqdn -var-file="../../terraform.tfvars.json"; \
+		cloud=`jq -r '.tsb_mp.cloud' terraform.tfvars.json`; \
+		cd "tsb/mp/register_fqdn/$$cloud"; \
+		terraform destroy ${terraform_apply_args} -var-file="../../../../terraform.tfvars.json"; \
 		rm -rf terraform.tfstate.d/; \
 		rm -rf terraform.tfstate; \
-		cd "../.."; \
+		cd "../../../.."; \
 		'
 	@/bin/sh -c '\
 		index=0; \

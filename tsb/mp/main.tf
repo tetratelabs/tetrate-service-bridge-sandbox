@@ -1,42 +1,26 @@
-data "terraform_remote_state" "aws" {
-  count   = length(var.aws_k8s_regions)
+data "terraform_remote_state" "infra" {
+  count   = length(local.k8s_regions)
   backend = "local"
   config = {
-    path = "../../infra/aws/terraform.tfstate.d/aws-${count.index}-${var.aws_k8s_regions[count.index]}/terraform.tfstate"
-  }
-}
-
-data "terraform_remote_state" "azure" {
-  count   = length(var.azure_k8s_regions)
-  backend = "local"
-  config = {
-    path = "../../infra/azure/terraform.tfstate.d/azure-${count.index}-${var.azure_k8s_regions[count.index]}/terraform.tfstate"
-  }
-}
-
-data "terraform_remote_state" "gcp" {
-  count   = length(var.gcp_k8s_regions)
-  backend = "local"
-  config = {
-    path = "../../infra/gcp/terraform.tfstate.d/gcp-${count.index}-${var.gcp_k8s_regions[count.index]}/terraform.tfstate"
+    path = "../../infra/${var.tsb_mp["cloud"]}/terraform.tfstate.d/${var.tsb_mp["cloud"]}-${count.index}-${local.k8s_regions[count.index]}/terraform.tfstate"
   }
 }
 
 module "cert-manager" {
   source                     = "../../modules/addons/cert-manager"
-  cluster_name               = local.infra[var.tsb_mp["cloud"]][var.tsb_mp["cluster_id"]]["outputs"].cluster_name
-  k8s_host                   = local.infra[var.tsb_mp["cloud"]][var.tsb_mp["cluster_id"]]["outputs"].host
-  k8s_cluster_ca_certificate = local.infra[var.tsb_mp["cloud"]][var.tsb_mp["cluster_id"]]["outputs"].cluster_ca_certificate
-  k8s_client_token           = local.infra[var.tsb_mp["cloud"]][var.tsb_mp["cluster_id"]]["outputs"].token
+  cluster_name               = local.infra[var.tsb_mp["cluster_id"]]["outputs"].cluster_name
+  k8s_host                   = local.infra[var.tsb_mp["cluster_id"]]["outputs"].host
+  k8s_cluster_ca_certificate = local.infra[var.tsb_mp["cluster_id"]]["outputs"].cluster_ca_certificate
+  k8s_client_token           = local.infra[var.tsb_mp["cluster_id"]]["outputs"].token
   cert-manager_enabled       = var.cert-manager_enabled
 }
 
 module "es" {
   source                     = "../../modules/addons/elastic"
-  cluster_name               = local.infra[var.tsb_mp["cloud"]][var.tsb_mp["cluster_id"]]["outputs"].cluster_name
-  k8s_host                   = local.infra[var.tsb_mp["cloud"]][var.tsb_mp["cluster_id"]]["outputs"].host
-  k8s_cluster_ca_certificate = local.infra[var.tsb_mp["cloud"]][var.tsb_mp["cluster_id"]]["outputs"].cluster_ca_certificate
-  k8s_client_token           = local.infra[var.tsb_mp["cloud"]][var.tsb_mp["cluster_id"]]["outputs"].token
+  cluster_name               = local.infra[var.tsb_mp["cluster_id"]]["outputs"].cluster_name
+  k8s_host                   = local.infra[var.tsb_mp["cluster_id"]]["outputs"].host
+  k8s_cluster_ca_certificate = local.infra[var.tsb_mp["cluster_id"]]["outputs"].cluster_ca_certificate
+  k8s_client_token           = local.infra[var.tsb_mp["cluster_id"]]["outputs"].token
 }
 
 module "tsb_mp" {
@@ -55,34 +39,9 @@ module "tsb_mp" {
   es_username                = module.es.es_username
   es_password                = module.es.es_password
   es_cacert                  = module.es.es_cacert
-  registry                   = local.infra[var.tsb_mp["cloud"]][var.tsb_mp["cluster_id"]]["outputs"].registry
-  cluster_name               = local.infra[var.tsb_mp["cloud"]][var.tsb_mp["cluster_id"]]["outputs"].cluster_name
-  k8s_host                   = local.infra[var.tsb_mp["cloud"]][var.tsb_mp["cluster_id"]]["outputs"].host
-  k8s_cluster_ca_certificate = local.infra[var.tsb_mp["cloud"]][var.tsb_mp["cluster_id"]]["outputs"].cluster_ca_certificate
-  k8s_client_token           = local.infra[var.tsb_mp["cloud"]][var.tsb_mp["cluster_id"]]["outputs"].token
-
-}
-
-module "aws_register_fqdn" {
-  count    = var.dns_provider == "aws" ? 1 : 0
-  source   = "../../modules/aws/register_fqdn"
-  dns_zone = "cx.tetrate.info"
-  fqdn     = var.tsb_fqdn
-  address  = module.tsb_mp.ingress_ip != "" ? module.tsb_mp.ingress_ip : module.tsb_mp.ingress_hostname
-}
-
-module "azure_register_fqdn" {
-  count    = var.dns_provider == "azure" ? 1 : 0
-  source   = "../../modules/azure/register_fqdn"
-  dns_zone = "azure.cx.tetrate.info"
-  fqdn     = var.tsb_fqdn
-  address  = module.tsb_mp.ingress_ip != "" ? module.tsb_mp.ingress_ip : module.tsb_mp.ingress_hostname
-}
-
-module "gcp_register_fqdn" {
-  count    = var.dns_provider == "gcp" ? 1 : 0
-  source   = "../../modules/gcp/register_fqdn"
-  dns_zone = "gcp.cx.tetrate.info"
-  fqdn     = var.tsb_fqdn
-  address  = module.tsb_mp.ingress_ip != "" ? module.tsb_mp.ingress_ip : module.tsb_mp.ingress_hostname
+  registry                   = local.infra[var.tsb_mp["cluster_id"]]["outputs"].registry
+  cluster_name               = local.infra[var.tsb_mp["cluster_id"]]["outputs"].cluster_name
+  k8s_host                   = local.infra[var.tsb_mp["cluster_id"]]["outputs"].host
+  k8s_cluster_ca_certificate = local.infra[var.tsb_mp["cluster_id"]]["outputs"].cluster_ca_certificate
+  k8s_client_token           = local.infra[var.tsb_mp["cluster_id"]]["outputs"].token
 }

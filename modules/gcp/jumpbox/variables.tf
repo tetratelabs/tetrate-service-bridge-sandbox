@@ -28,5 +28,9 @@ variable "tsb_version" {
 
 variable "jumpbox_username" {
 }
+
+variable "machine_type" {
+}
+
 variable "output_path" {
 }

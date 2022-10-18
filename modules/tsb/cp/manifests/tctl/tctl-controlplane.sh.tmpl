@@ -1,4 +1,4 @@
-/usr/bin/env tctl config clusters set default --bridge-address ${tsb_mp_host}:8443 --tls-insecure
+/usr/bin/env tctl config clusters set default --bridge-address ${tsb_mp_host}:443 --tls-insecure
 /usr/bin/env tctl config users set admin --org ${tsb_org} --username ${tsb_username} --password ${tsb_password} --tenant ${tsb_tenant}
 /usr/bin/env tctl config profiles set default --cluster="default" --username="admin"
 /usr/bin/env tctl config profiles set-current "default"

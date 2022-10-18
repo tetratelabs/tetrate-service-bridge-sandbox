@@ -19,17 +19,6 @@ secrets:
     username: ${db_username}
     password: ${db_password}
 spec:
-  webUI:
-    kubeSpec:
-      overlays:
-      - apiVersion: apps/v1
-        kind: Deployment
-        name: web
-        patches:
-        - path: spec.template.spec.containers.[name:web].env[-1]
-          value:
-            name: SESSION_AGE_IN_MINUTES
-            value: "60"
   hub: "${registry}"
   organization: "${tsb_org}"
   telemetryStore:
@@ -49,11 +38,24 @@ spec:
           signingKey: private.key
       signingKeysSecret: iam-signing-key
   components:
+    frontEnvoy:
+      port: 443
+    webUI:
+      kubeSpec:
+        overlays:
+        - apiVersion: apps/v1
+          kind: Deployment
+          name: web
+          patches:
+          - path: spec.template.spec.containers.[name:web].env[-1]
+            value:
+              name: SESSION_AGE_IN_MINUTES
+              value: "60"
     xcp:
       centralAuthModes:
         jwt: true
     internalCertProvider:
-        certManager:
-          managed: EXTERNAL
+      certManager:
+        managed: EXTERNAL
     oap:
-      streamingLogEnabled: true  
+      streamingLogEnabled: true

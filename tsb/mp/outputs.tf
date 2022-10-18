@@ -25,7 +25,6 @@ output "istiod_cacerts_tls_key" {
   sensitive = true
 }
 
-
 output "es_ip" {
   value = module.es.es_ip
 }

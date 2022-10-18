@@ -1,24 +1,9 @@
-data "terraform_remote_state" "aws" {
-  count   = length(var.aws_k8s_regions)
-  backend = "local"
-  config = {
-    path = "../../infra/aws/terraform.tfstate.d/aws-${count.index}-${var.aws_k8s_regions[count.index]}/terraform.tfstate"
-  }
-}
 
-data "terraform_remote_state" "azure" {
-  count   = length(var.azure_k8s_regions)
+data "terraform_remote_state" "infra" {
+  count   = length(local.k8s_regions)
   backend = "local"
   config = {
-    path = "../../infra/azure/terraform.tfstate.d/azure-${count.index}-${var.azure_k8s_regions[count.index]}/terraform.tfstate"
-  }
-}
-
-data "terraform_remote_state" "gcp" {
-  count   = length(var.gcp_k8s_regions)
-  backend = "local"
-  config = {
-    path = "../../infra/gcp/terraform.tfstate.d/gcp-${count.index}-${var.gcp_k8s_regions[count.index]}/terraform.tfstate"
+    path = "../../infra/${var.cloud}/terraform.tfstate.d/${var.cloud}-${count.index}-${local.k8s_regions[count.index]}/terraform.tfstate"
   }
 }
 
@@ -31,17 +16,17 @@ data "terraform_remote_state" "tsb_mp" {
 
 module "cert-manager" {
   source                     = "../../modules/addons/cert-manager"
-  cluster_name               = local.infra[var.cloud][var.cluster_id]["outputs"].cluster_name
-  k8s_host                   = local.infra[var.cloud][var.cluster_id]["outputs"].host
-  k8s_cluster_ca_certificate = local.infra[var.cloud][var.cluster_id]["outputs"].cluster_ca_certificate
-  k8s_client_token           = local.infra[var.cloud][var.cluster_id]["outputs"].token
+  cluster_name               = local.infra[var.cluster_id]["outputs"].cluster_name
+  k8s_host                   = local.infra[var.cluster_id]["outputs"].host
+  k8s_cluster_ca_certificate = local.infra[var.cluster_id]["outputs"].cluster_ca_certificate
+  k8s_client_token           = local.infra[var.cluster_id]["outputs"].token
   cert-manager_enabled       = tonumber(var.cluster_id) == tonumber(var.tsb_mp["cluster_id"]) && var.cloud == var.tsb_mp["cloud"] ? false : var.cert-manager_enabled
 }
 
 module "tsb_cp" {
   source                     = "../../modules/tsb/cp"
   cloud                      = var.cloud
-  locality_region            = local.infra[var.cloud][var.cluster_id]["outputs"].locality_region
+  locality_region            = local.infra[var.cluster_id]["outputs"].locality_region
   cluster_id                 = var.cluster_id
   name_prefix                = "${var.name_prefix}-${var.cluster_id}"
   tsb_version                = var.tsb_version
@@ -63,12 +48,12 @@ module "tsb_cp" {
   es_username                = data.terraform_remote_state.tsb_mp.outputs.es_username
   es_password                = data.terraform_remote_state.tsb_mp.outputs.es_password
   es_cacert                  = data.terraform_remote_state.tsb_mp.outputs.es_cacert
-  jumpbox_host               = local.infra[var.cloud][var.cluster_id]["outputs"].public_ip
+  jumpbox_host               = local.infra[var.cluster_id]["outputs"].public_ip
   jumpbox_username           = var.jumpbox_username
-  jumpbox_pkey               = local.infra[var.cloud][var.cluster_id]["outputs"].pkey
-  registry                   = local.infra[var.cloud][var.cluster_id]["outputs"].registry
-  cluster_name               = local.infra[var.cloud][var.cluster_id]["outputs"].cluster_name
-  k8s_host                   = local.infra[var.cloud][var.cluster_id]["outputs"].host
-  k8s_cluster_ca_certificate = local.infra[var.cloud][var.cluster_id]["outputs"].cluster_ca_certificate
-  k8s_client_token           = local.infra[var.cloud][var.cluster_id]["outputs"].token
+  jumpbox_pkey               = local.infra[var.cluster_id]["outputs"].pkey
+  registry                   = local.infra[var.cluster_id]["outputs"].registry
+  cluster_name               = local.infra[var.cluster_id]["outputs"].cluster_name
+  k8s_host                   = local.infra[var.cluster_id]["outputs"].host
+  k8s_cluster_ca_certificate = local.infra[var.cluster_id]["outputs"].cluster_ca_certificate
+  k8s_client_token           = local.infra[var.cluster_id]["outputs"].token
 }
