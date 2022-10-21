@@ -33,3 +33,7 @@ output "token" {
 output "locality_region" {
   value = var.gcp_k8s_region
 }
+
+output "vpc_id" {
+  value = module.gcp_base[0].vpc_id
+}

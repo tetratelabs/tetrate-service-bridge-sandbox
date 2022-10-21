@@ -9,6 +9,12 @@ variable "cluster_name" {
 variable "project_id" {
 }
 
+variable "vpc_id" {
+}
+
+variable "vpc_subnet" {
+}
+
 variable "region" {
 }
 

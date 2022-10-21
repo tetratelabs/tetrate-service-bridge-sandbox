@@ -12,7 +12,8 @@ resource "google_container_cluster" "tsb" {
   project            = var.project_id
   location           = var.region
   min_master_version = var.k8s_version
-
+  network            = var.vpc_id
+  subnetwork         = var.vpc_subnet
 
   # We can't create a cluster with no node pool defined, but we want to only use
   # separately managed node pools. So we create the smallest possible default

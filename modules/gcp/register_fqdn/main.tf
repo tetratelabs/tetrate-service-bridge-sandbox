@@ -1,10 +1,3 @@
-data "terraform_remote_state" "infra" {
-  backend = "local"
-  config = {
-    path = "../../../infra/gcp/terraform.tfstate.d/gcp-${var.cluster_id}-${var.region}/terraform.tfstate"
-  }
-}
-
 data "dns_a_record_set" "tsb" {
   host = var.address
 }
@@ -32,14 +25,14 @@ resource "google_dns_record_set" "shared_fqdn" {
 
 resource "google_dns_managed_zone" "public" {
   count     = local.public_zone ? 1 : 0
-  project   = local.project_id
+  project   = var.project_id
   name      = local.zone_name
   dns_name  = "${local.dns_name}."
 }
 
 resource "google_dns_record_set" "public_fqdn" {
   count        = local.public_zone ? 1 : 0
-  project      = local.project_id
+  project      = var.project_id
   managed_zone = google_dns_managed_zone.public[0].name
   name         = "${var.fqdn}."
   type         = "A"
@@ -51,13 +44,13 @@ resource "google_dns_record_set" "public_fqdn" {
 ## Private DNS Zone
 
 data "google_compute_network" "tsb" {
-  project = local.project_id
-  name    = "${var.name_prefix}-${var.cluster_id}-vpc"
+  project = var.project_id
+  name    = var.vpc_id
 }
 
 resource "google_dns_managed_zone" "private" {
   count      = local.private_zone ? 1 : 0
-  project    = local.project_id
+  project    = var.project_id
   name       = local.zone_name
   dns_name   = "${local.dns_name}."
   visibility = "private"
@@ -71,7 +64,7 @@ resource "google_dns_managed_zone" "private" {
 
 resource "google_dns_record_set" "private_fqdn" {
   count        = local.private_zone ? 1 : 0
-  project      = local.project_id
+  project      = var.project_id
   managed_zone = google_dns_managed_zone.private[0].name
   name         = "${var.fqdn}."
   type         = "A"

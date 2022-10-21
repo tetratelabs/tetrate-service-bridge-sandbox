@@ -46,3 +46,11 @@ output "es_cacert" {
   value     = module.es.es_cacert
   sensitive = true
 }
+
+output "registry" {
+  value = local.infra[var.tsb_mp["cluster_id"]]["outputs"].registry
+}
+
+output "vpc_id" {
+  value = local.infra[var.tsb_mp["cluster_id"]]["outputs"].vpc_id
+}
