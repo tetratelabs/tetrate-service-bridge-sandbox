@@ -92,6 +92,10 @@ tsb_mp:  ## Deploys MP
 	@echo "Deploying TSB Management Plane..."
 	@/bin/sh -c '\
 		cloud=`jq -r '.tsb_mp.cloud' terraform.tfvars.json`; \
+		fqdn=`jq -r '.tsb_fqdn' terraform.tfvars.json`; \
+		name_prefix=`jq -r '.name_prefix' terraform.tfvars.json`; \
+		cluster_id=`jq .tsb_mp.cluster_id terraform.tfvars.json`; \
+		region=`jq -r ."$$cloud"_k8s_regions[$$cluster_id] terraform.tfvars.json`; \
 		cd "tsb/mp"; \
 		terraform workspace select default; \
 		terraform init; \
@@ -99,10 +103,9 @@ tsb_mp:  ## Deploys MP
 		terraform apply ${terraform_apply_args} -target=module.tsb_mp.kubectl_manifest.manifests_certs -var-file="../../terraform.tfvars.json"; \
 		terraform apply ${terraform_apply_args} -var-file="../../terraform.tfvars.json"; \
 		terraform output ${terraform_output_args} | jq . > ../../outputs/terraform_outputs/terraform-tsb-mp.json; \
-		fqdn=`jq -r '.tsb_fqdn' ../../terraform.tfvars.json`; \
 		address=`jq -r "if .ingress_ip.value != \"\" then .ingress_ip.value else .ingress_hostname.value end" ../../outputs/terraform_outputs/terraform-tsb-mp.json`; \
 		terraform -chdir=../../modules/$$cloud/register_fqdn init; \
-		terraform -chdir=../../modules/$$cloud/register_fqdn apply ${terraform_apply_args} -var=address=$$address -var=fqdn=$$fqdn; \
+		terraform -chdir=../../modules/$$cloud/register_fqdn apply ${terraform_apply_args} -var=address=$$address -var=fqdn=$$fqdn -var=name_prefix=$$name_prefix -var=cluster_id=$$cluster_id -var=region=$$region; \
 		terraform workspace select default; \
 		cd "../.."; \
 		'
@@ -216,9 +219,12 @@ destroy:  ## Destroy the environment
 	@/bin/sh -c '\
 		cloud=`jq -r '.tsb_mp.cloud' terraform.tfvars.json`; \
 		fqdn=`jq -r '.tsb_fqdn' terraform.tfvars.json`; \
+		name_prefix=`jq -r '.name_prefix' terraform.tfvars.json`; \
+		cluster_id=`jq .tsb_mp.cluster_id terraform.tfvars.json`; \
+		region=`jq -r ."$$cloud"_k8s_regions[$$cluster_id] terraform.tfvars.json`; \
 		address=`jq -r "if .ingress_ip.value != \"\" then .ingress_ip.value else .ingress_hostname.value end" outputs/terraform_outputs/terraform-tsb-mp.json`; \
 		cd "modules/$$cloud/register_fqdn"; \
-		terraform destroy ${terraform_apply_args} -var=address=$$address -var=fqdn=$$fqdn; \
+		terraform destroy ${terraform_apply_args} -var=address=$$address -var=fqdn=$$fqdn -var=name_prefix=$$name_prefix -var=cluster_id=$$cluster_id -var=region=$$region; \
 		rm -rf terraform.tfstate.d/; \
 		rm -rf terraform.tfstate; \
 		cd "../../.."; \
