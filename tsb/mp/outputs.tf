@@ -46,3 +46,7 @@ output "es_cacert" {
   value     = module.es.es_cacert
   sensitive = true
 }
+
+output "registry" {
+  value = local.infra["outputs"].registry
+}

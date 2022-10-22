@@ -95,14 +95,14 @@ tsb_mp:  ## Deploys MP
 		cd "tsb/mp"; \
 		terraform workspace select default; \
 		terraform init; \
-		terraform apply ${terraform_apply_args} -target=module.cert-manager -target=module.es -var-file="../../terraform.tfvars.json"; \
-		terraform apply ${terraform_apply_args} -target=module.tsb_mp.kubectl_manifest.manifests_certs -var-file="../../terraform.tfvars.json"; \
+		terraform apply ${terraform_apply_args} -target=module.cert-manager -target=module.es -target="data.terraform_remote_state.infra" -var-file="../../terraform.tfvars.json"; \
+		terraform apply ${terraform_apply_args} -target=module.tsb_mp.kubectl_manifest.manifests_certs -target="data.terraform_remote_state.infra" -var-file="../../terraform.tfvars.json"; \
 		terraform apply ${terraform_apply_args} -var-file="../../terraform.tfvars.json"; \
 		terraform output ${terraform_output_args} | jq . > ../../outputs/terraform_outputs/terraform-tsb-mp.json; \
 		fqdn=`jq -r '.tsb_fqdn' ../../terraform.tfvars.json`; \
 		address=`jq -r "if .ingress_ip.value != \"\" then .ingress_ip.value else .ingress_hostname.value end" ../../outputs/terraform_outputs/terraform-tsb-mp.json`; \
-		terraform -chdir=../../modules/$$cloud/register_fqdn init; \
-		terraform -chdir=../../modules/$$cloud/register_fqdn apply ${terraform_apply_args} -var=address=$$address -var=fqdn=$$fqdn; \
+		terraform -chdir=../fqdn/$$cloud init; \
+		terraform -chdir=../fqdn/$$cloud apply ${terraform_apply_args} -var-file="../../../terraform.tfvars.json" -var=address=$$address -var=fqdn=$$fqdn; \
 		terraform workspace select default; \
 		cd "../.."; \
 		'
@@ -217,7 +217,7 @@ destroy:  ## Destroy the environment
 		cloud=`jq -r '.tsb_mp.cloud' terraform.tfvars.json`; \
 		fqdn=`jq -r '.tsb_fqdn' terraform.tfvars.json`; \
 		address=`jq -r "if .ingress_ip.value != \"\" then .ingress_ip.value else .ingress_hostname.value end" outputs/terraform_outputs/terraform-tsb-mp.json`; \
-		cd "modules/$$cloud/register_fqdn"; \
+		cd "tsb/fqdn/$$cloud"; \
 		terraform destroy ${terraform_apply_args} -var=address=$$address -var=fqdn=$$fqdn; \
 		rm -rf terraform.tfstate.d/; \
 		rm -rf terraform.tfstate; \

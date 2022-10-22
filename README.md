@@ -51,7 +51,6 @@ Please refer to [tfvars collection](/tfvars_collection) for more examples, i.e. 
 ```json
 {
   "name_prefix": "<YOUR UNIQUE PREFIX NAME TO BE CREATED>",
-  "dns_provider": "azure",
   "tsb_fqdn": "<YOUR UNIQUE PREFIX NAME TO BE CREATED>.cx.tetrate.info",
   "tsb_version": "1.5.0",
   "tsb_image_sync_username": "<TSB_REPO_USERNAME>",
@@ -132,3 +131,9 @@ make destroy
 - Terraform destroys only the resources it created (`make destroy`)
 - Terraform stores the `state` across workspaces in different folders locally
 - Cleanup of aws objects created by K8s loadbalancer services (ELB+SGs) is currently manual effort
+- When using GCP, it is possible to use the DNS of the current project instead of the shared one. This may
+  be convenient if you don't have permissions to create DNS records in the shared DNS project. To have the
+  DNS records created in your project, just use any `fqdn` you want that ends in `.private`. Alternatively,
+  if you own a domain that you can point to your GCP project, you can use any `fqdn` as long as it does _not_
+  have the shared DNS suffix (gcp.cx.tetrate.info). In this case a public DNS zone will be created in the project
+  for the configured DNS domain.
