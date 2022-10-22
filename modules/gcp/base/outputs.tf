@@ -1,3 +1,6 @@
+output "project_id" {
+  value = var.project_id
+}
 output "vpc_id" {
   value = google_compute_network.tsb.self_link
 }

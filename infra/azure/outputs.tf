@@ -33,3 +33,6 @@ output "token" {
 output "locality_region" {
   value = var.azure_k8s_region
 }
+output "vnet_id" {
+  value = module.aws_base[0].vnet_id
+}

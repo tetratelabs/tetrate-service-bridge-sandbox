@@ -8,11 +8,16 @@ resource "google_project_service" "containerregistry" {
   service = "containerregistry.googleapis.com"
 }
 
+resource "google_project_service" "dns" {
+  project = var.project_id
+  service = "dns.googleapis.com"
+}
 
 resource "time_sleep" "wait_60_seconds" {
   depends_on = [
     google_project_service.compute,
-    google_project_service.containerregistry
+    google_project_service.containerregistry,
+    google_project_service.dns
   ]
   create_duration = "60s"
 }

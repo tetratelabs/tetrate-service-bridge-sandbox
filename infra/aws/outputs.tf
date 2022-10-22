@@ -33,3 +33,7 @@ output "token" {
 output "locality_region" {
   value = var.aws_k8s_region
 }
+
+output "vpc_id" {
+  value = module.aws_base[0].vpc_id
+}
