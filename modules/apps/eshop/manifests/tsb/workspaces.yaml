@@ -1,0 +1,119 @@
+apiVersion: tsb.tetrate.io/v2
+kind: Tenant
+metadata:
+  name: eshop
+  namespace: eshop-config
+  annotations:
+    tsb.tetrate.io/organization: tetrate
+spec:
+  displayName: eShop Portal
+---
+apiVersion: tsb.tetrate.io/v2
+kind: Tenant
+metadata:
+  name: marketing
+  namespace: eshop-config
+  annotations:
+    tsb.tetrate.io/organization: tetrate
+spec:
+  displayName: Marketing
+---
+apiVersion: tsb.tetrate.io/v2
+kind: Tenant
+metadata:
+  name: finance
+  namespace: eshop-config
+  annotations:
+    tsb.tetrate.io/organization: tetrate
+spec:
+  displayName: Finance
+---
+apiVersion: tsb.tetrate.io/v2
+kind: Workspace
+metadata:
+  name: payments
+  namespace: eshop-config
+  annotations:
+    tsb.tetrate.io/organization: tetrate
+    tsb.tetrate.io/tenant: eshop
+spec:
+  displayName: Payments Gate
+  namespaceSelector:
+    names:
+    - "*/payments"
+---
+apiVersion: tsb.tetrate.io/v2
+kind: Workspace
+metadata:
+  name: eshop
+  namespace: eshop-config
+  annotations:
+    tsb.tetrate.io/organization: tetrate
+    tsb.tetrate.io/tenant: eshop
+spec:
+  displayName: eShop Portal
+  namespaceSelector:
+    names:
+    - "*/eshop"
+    - "*/checkout"
+    - "*/trafficgen"
+---
+apiVersion: gateway.tsb.tetrate.io/v2
+kind: Group
+metadata:
+  name: payments-gateways
+  namespace: eshop-config
+  annotations:
+    tsb.tetrate.io/organization: tetrate
+    tsb.tetrate.io/tenant: eshop
+    tsb.tetrate.io/workspace: payments
+spec:
+  displayName: Payments Gateways
+  namespaceSelector:
+    names:
+    - "*/payments"
+---
+apiVersion: gateway.tsb.tetrate.io/v2
+kind: Group
+metadata:
+  name: eshop-gateways
+  namespace: eshop-config
+  annotations:
+    tsb.tetrate.io/organization: tetrate
+    tsb.tetrate.io/tenant: eshop
+    tsb.tetrate.io/workspace: eshop
+spec:
+  displayName: eShop Gateways
+  namespaceSelector:
+    names:
+    - "*/eshop"
+---
+apiVersion: security.tsb.tetrate.io/v2
+kind: Group
+metadata:
+  name: checkout-security
+  namespace: eshop-config
+  annotations:
+    tsb.tetrate.io/organization: tetrate
+    tsb.tetrate.io/tenant: eshop
+    tsb.tetrate.io/workspace: eshop
+spec:
+  displayName: Checkout Security
+  namespaceSelector:
+    names:
+      - "*/checkout"
+---
+apiVersion: security.tsb.tetrate.io/v2
+kind: Group
+metadata:
+  name: portal-security
+  namespace: eshop-config
+  annotations:
+    tsb.tetrate.io/organization: tetrate
+    tsb.tetrate.io/tenant: eshop
+    tsb.tetrate.io/workspace: eshop
+spec:
+  displayName: Portal Security
+  namespaceSelector:
+    names:
+      - "*/eshop"

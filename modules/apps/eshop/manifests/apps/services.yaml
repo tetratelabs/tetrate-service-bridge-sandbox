@@ -1,0 +1,79 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: ${namespace}
+  labels:
+    istio-injection: enabled
+---
+%{ for svc in split(",", services) }
+apiVersion: v1
+kind: Service
+metadata:
+  name: ${svc}
+  namespace: ${namespace}
+  labels:
+    app: ${svc}
+    service: ${svc}
+spec:
+  ports:
+    - port: 80
+      targetPort: 8000
+      name: http
+    - port: 3000
+      targetPort: 3000
+      name: tcp
+  selector:
+    app: ${svc}
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: sa-${svc}
+  namespace: ${namespace}
+  labels:
+    app: ${svc}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ${svc}-v1
+  namespace: ${namespace}
+  labels:
+    app: ${svc}
+    version: v1
+spec:
+  selector:
+    matchLabels:
+      app: ${svc}
+      version: v1
+  template:
+    metadata:
+      labels:
+        app: ${svc}
+        version: v1
+    spec:
+      serviceAccountName: sa-${svc}
+      containers:
+        - name: obs-tester
+          image: docker.io/nacx/obs-tester-server:1.0
+          imagePullPolicy: Always
+          args:
+            - '--log-output-level=all:debug'
+            - '--http-listen-address=:8000' # address the http server in the container listens on
+            - '--tcp-listen-address=:3000' # address the tcp server in the container listens on
+            - '--ep-duration=0' # the default latency used for handling requests to / (echo handler)
+            - '--ep-errors=0' # the default percentage of errors injected when handling echo requests
+            - '--ep-headers=0' # the default percentage of double headers injected when handling echo requests
+            - '--zipkin-reporter-endpoint=http://zipkin.istio-system.svc.cluster.local:9411/api/v2/spans'
+            - '--zipkin-sample-rate=1.0' # When we originate client request, this is the sample rate we use.
+            - '--zipkin-singlehost-spans' # Envoy does not work well with Zipkin's default shared spans
+          env:
+            - name: SVCNAME
+              value: ${svc}
+          ports:
+            - name: http
+              containerPort: 8000
+            - name: tcp
+              containerPort: 3000
+---
+%{ endfor }
