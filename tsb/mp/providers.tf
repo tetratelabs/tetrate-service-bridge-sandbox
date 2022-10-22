@@ -8,23 +8,23 @@ terraform {
 }
 
 provider "kubernetes" {
-  host                   = local.infra[var.tsb_mp["cluster_id"]]["outputs"].host
-  cluster_ca_certificate = base64decode(local.infra[var.tsb_mp["cluster_id"]]["outputs"].cluster_ca_certificate)
-  token                  = local.infra[var.tsb_mp["cluster_id"]]["outputs"].token
+  host                   = local.infra["outputs"].host
+  cluster_ca_certificate = base64decode(local.infra["outputs"].cluster_ca_certificate)
+  token                  = local.infra["outputs"].token
 }
 
 provider "helm" {
   kubernetes {
-    host                   = local.infra[var.tsb_mp["cluster_id"]]["outputs"].host
-    cluster_ca_certificate = base64decode(local.infra[var.tsb_mp["cluster_id"]]["outputs"].cluster_ca_certificate)
-    token                  = local.infra[var.tsb_mp["cluster_id"]]["outputs"].token
+    host                   = local.infra["outputs"].host
+    cluster_ca_certificate = base64decode(local.infra["outputs"].cluster_ca_certificate)
+    token                  = local.infra["outputs"].token
   }
 }
 
 provider "kubectl" {
-  host                   = local.infra[var.tsb_mp["cluster_id"]]["outputs"].host
-  cluster_ca_certificate = base64decode(local.infra[var.tsb_mp["cluster_id"]]["outputs"].cluster_ca_certificate)
-  token                  = local.infra[var.tsb_mp["cluster_id"]]["outputs"].token
+  host                   = local.infra["outputs"].host
+  cluster_ca_certificate = base64decode(local.infra["outputs"].cluster_ca_certificate)
+  token                  = local.infra["outputs"].token
   load_config_file       = false
 }
 
