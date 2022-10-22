@@ -95,8 +95,8 @@ tsb_mp:  ## Deploys MP
 		cd "tsb/mp"; \
 		terraform workspace select default; \
 		terraform init; \
-		terraform apply ${terraform_apply_args} -target=module.cert-manager -target=module.es -var-file="../../terraform.tfvars.json"; \
-		terraform apply ${terraform_apply_args} -target=module.tsb_mp.kubectl_manifest.manifests_certs -var-file="../../terraform.tfvars.json"; \
+		terraform apply ${terraform_apply_args} -target=module.cert-manager -target=module.es -target="data.terraform_remote_state.infra" -var-file="../../terraform.tfvars.json"; \
+		terraform apply ${terraform_apply_args} -target=module.tsb_mp.kubectl_manifest.manifests_certs -target="data.terraform_remote_state.infra" -var-file="../../terraform.tfvars.json"; \
 		terraform apply ${terraform_apply_args} -var-file="../../terraform.tfvars.json"; \
 		terraform output ${terraform_output_args} | jq . > ../../outputs/terraform_outputs/terraform-tsb-mp.json; \
 		fqdn=`jq -r '.tsb_fqdn' ../../terraform.tfvars.json`; \
