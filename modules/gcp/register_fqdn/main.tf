@@ -44,6 +44,7 @@ resource "google_dns_record_set" "public_fqdn" {
 ## Private DNS Zone
 
 data "google_compute_network" "tsb" {
+  count   = local.private_zone ? 1 : 0
   project = var.project_id
   name    = var.vpc_id
 }
@@ -57,7 +58,7 @@ resource "google_dns_managed_zone" "private" {
 
   private_visibility_config {
     networks {
-      network_url = data.google_compute_network.tsb.id
+      network_url = data.google_compute_network.tsb[0].id
     }
   }
 }
