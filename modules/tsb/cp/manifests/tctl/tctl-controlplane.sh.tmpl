@@ -5,3 +5,16 @@
 /usr/bin/env tctl apply -f ${cluster_name}-cluster.yaml
 /usr/bin/env tctl install cluster-service-account --cluster ${cluster_name} > ${cluster_name}-service-account.jwk
 /usr/bin/env tctl x gitops grant ${cluster_name}
+
+# Allow managing platform Roles with the cluster service account
+/usr/bin/env tctl apply -f - <<EOF
+apiVersion: rbac.tsb.tetrate.io/v2
+kind: AccessBindings
+metadata:
+  fqn: admin/rbac
+spec:
+  allow:
+  - role: rbac/admin
+    subjects:
+    - service_account: organizations/tetrate/serviceaccounts/cluster-${cluster_name}
+EOF

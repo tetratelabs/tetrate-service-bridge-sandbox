@@ -1,11 +1,11 @@
 # Copyright (c) Tetrate, Inc 2021 All Rights Reserved.
-# 
+
 # Default variables
 terraform_apply_args = -compact-warnings -auto-approve
 terraform_destroy_args = -compact-warnings -auto-approve 
 terraform_workspace_args = -force
 terraform_output_args = -json
-#terraform_apply_args = 
+
 # Functions
 
 .PHONY: all
@@ -88,7 +88,7 @@ gcp_k8s: init  ## Deploys GKE K8s cluster (CPs only)
 .PHONY: tsb_mp
 tsb_mp:  ## Deploys MP
 	@echo "Refreshing k8s access tokens..."
-	@make k8s
+	@$(MAKE) k8s
 	@echo "Deploying TSB Management Plane..."
 	@/bin/sh -c '\
 		cloud=`jq -r '.tsb_mp.cloud' terraform.tfvars.json`; \
@@ -108,49 +108,19 @@ tsb_mp:  ## Deploys MP
 		'
 
 .PHONY: tsb_cp
-tsb_cp:  ## Onboards CP on AKS cluster with ID=1
-	@echo "Refreshing k8s access tokens..."
+tsb_cp: tsb_cp_gcp tsb_cp_aws tsb_cp_azure  ## Onboards Control Plane clusters
+tsb_cp_%:
 	@echo "Onboarding clusters, i.e. TSB CP rollouts..."
-	@make gcp_k8s
+	@$(MAKE) $*_k8s
 	@/bin/sh -c '\
 		index=0; \
-		jq -r '.gcp_k8s_regions[]' terraform.tfvars.json | while read -r region; do \
-		echo "cloud=gcp region=$$region cluster_id=$$index"; \
+		jq -r '.$*_k8s_regions[]' terraform.tfvars.json | while read -r region; do \
+		echo "cloud=$* region=$$region cluster_id=$$index"; \
 		cd "tsb/cp"; \
-		terraform workspace new gcp-$$index-$$region; \
-		terraform workspace select gcp-$$index-$$region; \
+		terraform workspace new $*-$$index-$$region; \
+		terraform workspace select $*-$$index-$$region; \
 		terraform init; \
-		terraform apply ${terraform_apply_args} -var-file="../../terraform.tfvars.json" -var=cloud=gcp -var=cluster_id=$$index; \
-		terraform workspace select default; \
-		let index++; \
-		cd "../.."; \
-		done; \
-		'
-	@make aws_k8s
-	@/bin/sh -c '\
-		index=0; \
-		jq -r '.aws_k8s_regions[]' terraform.tfvars.json | while read -r region; do \
-		echo "cloud=aws region=$$region cluster_id=$$index"; \
-		cd "tsb/cp"; \
-		terraform workspace new aws-$$index-$$region; \
-		terraform workspace select aws-$$index-$$region; \
-		terraform init; \
-		terraform apply ${terraform_apply_args} -var-file="../../terraform.tfvars.json" -var=cloud=aws -var=cluster_id=$$index; \
-		terraform workspace select default; \
-		let index++; \
-		cd "../.."; \
-		done; \
-		'
-	@make azure_k8s
-	@/bin/sh -c '\
-		index=0; \
-		jq -r '.azure_k8s_regions[]' terraform.tfvars.json | while read -r region; do \
-		echo "cloud=azure region=$$region cluster_id=$$index"; \
-		cd "tsb/cp"; \
-		terraform workspace new azure-$$index-$$region; \
-		terraform workspace select azure-$$index-$$region; \
-		terraform init; \
-		terraform apply ${terraform_apply_args} -var-file="../../terraform.tfvars.json" -var=cloud=azure -var=cluster_id=$$index; \
+		terraform apply ${terraform_apply_args} -var-file="../../terraform.tfvars.json" -var=cloud=$* -var=cluster_id=$$index; \
 		terraform workspace select default; \
 		let index++; \
 		cd "../.."; \
@@ -162,49 +132,40 @@ tsb: k8s tsb_mp tsb_cp  ## Deploys a full environment (MP+CP)
 	@echo "Magic is on the way..."
 
 .PHONY: argocd
-argocd:  ## Deploys ArgoCD
-	@echo "Refreshing k8s access tokens..."
-	@echo "Deploying ArgoCD on Management Plane..."
-	@make gcp_k8s
+argocd: argocd_gcp argocd_aws argocd_azure  ## Deploys ArgoCD
+argocd_%:
+	@echo "Deploying ArgoCD..."
+	@$(MAKE) $*_k8s
 	@/bin/sh -c '\
 		index=0; \
-		jq -r '.gcp_k8s_regions[]' terraform.tfvars.json | while read -r region; do \
-		echo "cloud=gcp region=$$region cluster_id=$$index"; \
+		jq -r '.$*_k8s_regions[]' terraform.tfvars.json | while read -r region; do \
+		echo "cloud=$* region=$$region cluster_id=$$index"; \
 		cd "addons/argocd"; \
-		terraform workspace new gcp-$$index-$$region; \
-		terraform workspace select gcp-$$index-$$region; \
+		terraform workspace new $*-$$index-$$region; \
+		terraform workspace select $*-$$index-$$region; \
 		terraform init; \
-		terraform apply ${terraform_apply_args} -var-file="../../terraform.tfvars.json" -var=cloud=gcp -var=cluster_id=$$index; \
+		terraform apply ${terraform_apply_args} -var-file="../../terraform.tfvars.json" -var=cloud=$* -var=cluster_id=$$index; \
 		terraform workspace select default; \
 		let index++; \
 		cd "../.."; \
 		done; \
 		'
-	@make aws_k8s
+
+.PHONY: eshop
+eshop: eshop_gcp eshop_aws eshop_azure  ## Deploys the eshop application
+eshop_%:
+	@echo "Deploying the eshop app in $*..."
+	@$(MAKE) $*_k8s
 	@/bin/sh -c '\
+		k8s_regions=`jq -c '.$*_k8s_regions' terraform.tfvars.json`; \
 		index=0; \
-		jq -r '.aws_k8s_regions[]' terraform.tfvars.json | while read -r region; do \
-		echo "cloud=aws region=$$region cluster_id=$$index"; \
-		cd "addons/argocd"; \
-		terraform workspace new aws-$$index-$$region; \
-		terraform workspace select aws-$$index-$$region; \
+		jq -r '.$*_k8s_regions[]' terraform.tfvars.json | while read -r region; do \
+		echo "cloud=$* region=$$region cluster_id=$$index"; \
+		cd "apps/eshop"; \
+		terraform workspace new $*-$$index-$$region; \
+		terraform workspace select $*-$$index-$$region; \
 		terraform init; \
-		terraform apply ${terraform_apply_args} -var-file="../../terraform.tfvars.json" -var=cloud=aws -var=cluster_id=$$index; \
-		terraform workspace select default; \
-		let index++; \
-		cd "../.."; \
-		done; \
-		'
-	@make azure_k8s
-	@/bin/sh -c '\
-		index=0; \
-		jq -r '.azure_k8s_regions[]' terraform.tfvars.json | while read -r region; do \
-		echo "cloud=azure region=$$region cluster_id=$$index"; \
-		cd "addons/argocd"; \
-		terraform workspace new azure-$$index-$$region; \
-		terraform workspace select azure-$$index-$$region; \
-		terraform init; \
-		terraform apply ${terraform_apply_args} -var-file="../../terraform.tfvars.json" -var=cloud=azure -var=cluster_id=$$index; \
+		terraform apply ${terraform_apply_args} -var=cloud=$* -var=cluster_id=$$index -var="k8s_regions=$$k8s_regions"; \
 		terraform workspace select default; \
 		let index++; \
 		cd "../.."; \
@@ -223,60 +184,26 @@ destroy:  ## Destroy the environment
 		rm -rf terraform.tfstate; \
 		cd "../../.."; \
 		'
+	@$(MAKE) destroy_gcp destroy_aws destroy_azure
+	@$(MAKE) destroy_status
+
+destroy_%:
 	@/bin/sh -c '\
 		index=0; \
 		name_prefix=`jq -r '.name_prefix' terraform.tfvars.json`; \
-		jq -r '.gcp_k8s_regions[]' terraform.tfvars.json | while read -r region; do \
-		cluster_name="gke-$$name_prefix-$$region-$$index"; \
-		echo "cloud=gcp region=$$region cluster_id=$$index cluster_name=$$cluster_name"; \
-		cd "infra/gcp"; \
-		terraform workspace select gcp-$$index-$$region; \
-		terraform destroy ${terraform_destroy_args} -var-file="../../terraform.tfvars.json" -var=gcp_k8s_region=$$region -var=cluster_name=$$cluster_name -var=cluster_id=$$index; \
+		jq -r '.$*_k8s_regions[]' terraform.tfvars.json | while read -r region; do \
+		echo "cloud=$* region=$$region cluster_id=$$index"; \
+		cd "infra/$*"; \
+		terraform workspace select $*-$$index-$$region; \
+		terraform destroy ${terraform_destroy_args} -var-file="../../terraform.tfvars.json" -var=$*_k8s_region=$$region -var=cluster_id=$$index; \
 		terraform workspace select default; \
-		terraform workspace delete ${terraform_workspace_args} gcp-$$index-$$region; \
+		terraform workspace delete ${terraform_workspace_args} $*-$$index-$$region; \
 		let index++; \
 		cd "../.."; \
 		done; \
 		'
-	@/bin/sh -c '\
-		index=0; \
-		name_prefix=`jq -r '.name_prefix' terraform.tfvars.json`; \
-		jq -r '.aws_k8s_regions[]' terraform.tfvars.json | while read -r region; do \
-		cluster_name="eks-$$name_prefix-$$region-$$index"; \
-		echo "cloud=aws region=$$region cluster_id=$$index cluster_name=$$cluster_name"; \
-		cd "infra/aws"; \
-		terraform workspace select aws-$$index-$$region; \
-		terraform destroy ${terraform_destroy_args} -var-file="../../terraform.tfvars.json" -var=aws_k8s_region=$$region -var=cluster_name=$$cluster_name -var=cluster_id=$$index; \
-		terraform workspace select default; \
-		terraform workspace delete ${terraform_workspace_args} aws-$$index-$$region; \
-		let index++; \
-		cd "../.."; \
-		done; \
-		'
-	@/bin/sh -c '\
-		index=0; \
-		name_prefix=`jq -r '.name_prefix' terraform.tfvars.json`; \
-		jq -r '.azure_k8s_regions[]' terraform.tfvars.json | while read -r region; do \
-		cluster_name="aks-$$name_prefix-$$region-$$index"; \
-		echo "cloud=azure region=$$region cluster_id=$$index cluster_name=$$cluster_name"; \
-		cd "infra/azure"; \
-		terraform workspace select azure-$$index-$$region; \
-		terraform destroy ${terraform_destroy_args} -var-file="../../terraform.tfvars.json" -var=azure_k8s_region=$$region -var=cluster_name=$$cluster_name -var=cluster_id=$$index; \
-		terraform workspace select default; \
-		terraform workspace delete ${terraform_workspace_args} azure-$$index-$$region; \
-		let index++; \
-		cd "../.."; \
-		done; \
-		'
-	@/bin/sh -c '\
-		cd "tsb/cp"; \
-		rm -rf terraform.tfstate.d/; \
-		rm -rf terraform.tfstate; \
-		cd "../.."; \
-		'
-	@/bin/sh -c '\
-		cd "addons/argocd"; \
-		rm -rf terraform.tfstate.d/; \
-		rm -rf terraform.tfstate; \
-		cd "../.."; \
-		'
+
+.PHONY: destroy_status
+destroy_status:
+	find . -name terraform.tfstate.d -exec rm -rf {} \;
+	find . -name terraform.tfstate -delete

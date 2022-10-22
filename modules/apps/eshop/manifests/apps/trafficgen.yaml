@@ -1,0 +1,43 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: trafficgen
+  labels:
+    istio-injection: enabled
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: trafficgenerator
+  namespace: trafficgen
+  labels:
+    app: trafficgenerator
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: trafficgenerator
+  template:
+    metadata:
+      labels:
+        app: trafficgenerator
+    spec:
+      containers:
+        - name: trafficgenerator
+          image: appropriate/curl
+          args:
+            - /bin/sh
+            - -c
+            - |
+              # Retry until everything is up and running to inject latency and fault
+              until curl -f -i -H "X-B3-Sampled: 0" http://${eshop_host}/proxy/orders/proxy/checkout.checkout/proxy/${payments_host}/latency/${payments_latency_ms} ; do
+                sleep 3
+              done
+              until curl -f -i -H "X-B3-Sampled: 0" http://${eshop_host}/proxy/orders/proxy/checkout.checkout/errors/${checkout_error_percentage} ; do
+                sleep 3
+              done
+              # Once we've configured the failures, start generating traffic
+              while :; do
+                curl -H "X-B3-Sampled: 1" "http://${eshop_host}/proxy/orders/proxy/checkout.checkout/proxy/${payments_host}/proxy/accounting"
+                sleep 30
+              done

@@ -1,0 +1,60 @@
+apiVersion: gateway.tsb.tetrate.io/v2
+kind: IngressGateway
+metadata:
+  name: payments-gateway
+  namespace: eshop-config
+  annotations:
+    tsb.tetrate.io/organization: tetrate
+    tsb.tetrate.io/tenant: eshop
+    tsb.tetrate.io/workspace: payments
+    tsb.tetrate.io/gatewayGroup: payments-gateways
+spec:
+  displayName: Payments Gateway
+  http:
+  - hostname: ${payments_host}
+    name: payments
+    port: 80
+    routing:
+      rules:
+      - route:
+          host: payments/payments.payments.svc.cluster.local
+          port: 80
+  workloadSelector:
+    labels:
+      app: tsb-gateway-payments
+    namespace: payments
+---
+apiVersion: gateway.tsb.tetrate.io/v2
+kind: IngressGateway
+metadata:
+  name: eshop-gateway
+  namespace: eshop-config
+  annotations:
+    tsb.tetrate.io/organization: tetrate
+    tsb.tetrate.io/tenant: eshop
+    tsb.tetrate.io/workspace: eshop
+    tsb.tetrate.io/gatewayGroup: eshop-gateways
+spec:
+  displayName: eShop Gateway
+  http:
+  - hostname: ${eshop_host}
+    name: eshop
+    port: 80
+    routing:
+      rules:
+      - route:
+          host: eshop/products.eshop.svc.cluster.local
+          port: 80
+    rateLimiting:
+      settings:
+        rules:
+          - dimensions:
+              - remoteAddress:
+                  value: '*'
+            limit:
+              requestsPerUnit: 3
+              unit: SECOND
+  workloadSelector:
+    labels:
+      app: tsb-gateway-eshop
+    namespace: eshop
