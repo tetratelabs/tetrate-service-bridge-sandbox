@@ -48,5 +48,5 @@ output "es_cacert" {
 }
 
 output "registry" {
-  value = local.infra[var.tsb_mp["cluster_id"]]["outputs"].registry
+  value = local.infra["outputs"].registry
 }
