@@ -185,7 +185,8 @@ destroy:  ## Destroy the environment
 		cd "../../.."; \
 		'
 	@$(MAKE) destroy_gcp destroy_aws destroy_azure
-	@$(MAKE) destroy_status
+	@$(MAKE) destroy_tfstate
+	@$(MAKE) destroy_tfcache
 
 destroy_%:
 	@/bin/sh -c '\
@@ -203,7 +204,12 @@ destroy_%:
 		done; \
 		'
 
-.PHONY: destroy_status
-destroy_status:
+.PHONY: destroy_tfstate
+destroy_tfstate:
 	find . -name terraform.tfstate.d -exec rm -rf {} \;
 	find . -name terraform.tfstate -delete
+
+.PHONY: destroy_tfcache
+destroy_tfcache:
+	find . -name .terraform -exec rm -rf {} \;
+	find . -name .terraform.lock.hcl -delete
