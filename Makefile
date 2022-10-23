@@ -206,10 +206,10 @@ destroy_%:
 
 .PHONY: destroy_tfstate
 destroy_tfstate:
-	find . -name terraform.tfstate.d -exec rm -rf {} \;
+	find . -name terraform.tfstate.d -exec rm -rf {} +
 	find . -name terraform.tfstate -delete
 
 .PHONY: destroy_tfcache
 destroy_tfcache:
-	find . -name .terraform -exec rm -rf {} \;
+	find . -name .terraform -exec rm -rf {} +
 	find . -name .terraform.lock.hcl -delete

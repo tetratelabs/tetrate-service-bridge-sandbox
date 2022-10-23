@@ -41,6 +41,16 @@ data "kubectl_path_documents" "trafficgen" {
   }
 }
 
+resource "kubernetes_namespace" "eshop" {
+  for_each = toset(["eshop", "checkout", "payments", "trafficgen"])
+  metadata {
+    name = each.value
+    labels = {
+      "istio-injection" = "enabled"
+    }
+  }
+}
+
 resource "kubectl_manifest" "services" {
   for_each = merge(
     data.kubectl_path_documents.services["eshop"].manifests,
@@ -50,4 +60,5 @@ resource "kubectl_manifest" "services" {
     data.kubectl_path_documents.trafficgen.manifests
   )
   yaml_body = each.value
+  depends_on = [kubernetes_namespace.eshop]
 }

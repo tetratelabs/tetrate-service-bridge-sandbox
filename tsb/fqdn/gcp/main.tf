@@ -11,5 +11,5 @@ module "register_fqdn" {
   fqdn          = var.fqdn
   address       = var.address
   project_id    = local.infra["outputs"].project_id
-  vpc_id        = local.infra["outputs"].vpc_id
+  vpc_id        = reverse(split("/", local.infra["outputs"].vpc_id))[0]
 }
