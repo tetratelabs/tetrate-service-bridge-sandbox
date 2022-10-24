@@ -18,8 +18,9 @@ A clear and concise description of what you expected to happen.
 ```json
 ```
 
-**Versions
-* terraform version
+**Versions**
+* Terraform  (```terraform version```
+* Environment (```sw_vers```, ```uname -a```)
 
 **Additional context**
 Add any other context about the problem here.
