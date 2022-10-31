@@ -39,7 +39,7 @@ azure_k8s: init  ## Deploys azure k8s cluster for MP and N-number of CPs(*) leve
 		terraform apply ${terraform_apply_args} -var-file="../../terraform.tfvars.json" -var=azure_k8s_region=$$region -var=cluster_name=$$cluster_name -var=cluster_id=$$index; \
 		terraform output ${terraform_output_args} | jq . > ../../outputs/terraform_outputs/terraform-azure-$$cluster_name-$$index.json; \
 		terraform workspace select default; \
-		let index++; \
+		index=$$((index+1)); \
 		cd "../.."; \
 		done; \
 		'
@@ -59,7 +59,7 @@ aws_k8s: init  ## Deploys EKS K8s cluster (CPs only)
 		terraform apply ${terraform_apply_args} -var-file="../../terraform.tfvars.json" -var=aws_k8s_region=$$region -var=cluster_name=$$cluster_name -var=cluster_id=$$index; \
 		terraform output ${terraform_output_args} | jq . > ../../outputs/terraform_outputs/terraform-aws-$$cluster_name-$$index.json; \
 		terraform workspace select default; \
-		let index++; \
+		index=$$((index+1)); \
 		cd "../.."; \
 		done; \
 		'
@@ -80,7 +80,7 @@ gcp_k8s: init  ## Deploys GKE K8s cluster (CPs only)
 		terraform apply ${terraform_apply_args} -var-file="../../terraform.tfvars.json" -var=gcp_k8s_region=$$region -var=cluster_name=$$cluster_name -var=cluster_id=$$index; \
 		terraform output ${terraform_output_args} | jq . > ../../outputs/terraform_outputs/terraform-gcp-$$cluster_name-$$index.json; \
 		terraform workspace select default; \
-		let index++; \
+		index=$$((index+1)); \
 		cd "../.."; \
 		done; \
 		'
@@ -122,7 +122,7 @@ tsb_cp_%:
 		terraform init; \
 		terraform apply ${terraform_apply_args} -var-file="../../terraform.tfvars.json" -var=cloud=$* -var=cluster_id=$$index; \
 		terraform workspace select default; \
-		let index++; \
+		index=$$((index+1)); \
 		cd "../.."; \
 		done; \
 		'
@@ -146,7 +146,7 @@ argocd_%:
 		terraform init; \
 		terraform apply ${terraform_apply_args} -var-file="../../terraform.tfvars.json" -var=cloud=$* -var=cluster_id=$$index; \
 		terraform workspace select default; \
-		let index++; \
+		index=$$((index+1)); \
 		cd "../.."; \
 		done; \
 		'
@@ -167,7 +167,7 @@ eshop_%:
 		terraform init; \
 		terraform apply ${terraform_apply_args} -var=cloud=$* -var=cluster_id=$$index -var="k8s_regions=$$k8s_regions"; \
 		terraform workspace select default; \
-		let index++; \
+		index=$$((index+1)); \
 		cd "../.."; \
 		done; \
 		'
@@ -199,7 +199,7 @@ destroy_%:
 		terraform destroy ${terraform_destroy_args} -var-file="../../terraform.tfvars.json" -var=$*_k8s_region=$$region -var=cluster_id=$$index; \
 		terraform workspace select default; \
 		terraform workspace delete ${terraform_workspace_args} $*-$$index-$$region; \
-		let index++; \
+		index=$$((index+1)); \
 		cd "../.."; \
 		done; \
 		'
