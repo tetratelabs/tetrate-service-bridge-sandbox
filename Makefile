@@ -7,12 +7,13 @@ terraform_workspace_args = -force
 terraform_output_args = -json
 
 # Functions
+.DEFAULT_GOAL := help
 
 .PHONY: all
 all: tsb
 
 .PHONY: help
-help : Makefile
+help: Makefile ## This help
 	@awk 'BEGIN {FS = ":.*##"; printf "Usage:\n"} \
 			/^[.a-zA-Z0-9_-]+:.*?##/ { printf "  \033[36mmake %-15s\033[0m %s\n", $$1, $$2 }' $(MAKEFILE_LIST)
 
