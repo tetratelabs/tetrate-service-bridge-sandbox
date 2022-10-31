@@ -76,7 +76,7 @@ Please refer to [tfvars collection](/tfvars_collection) for more examples, i.e. 
 | [mp-gke-cp-1aks-1eks-2gke.tfvars.json.sample](/tfvars_collection/mp-gke-cp-1aks-1eks-2gke.tfvars.json.sample)           | MP on GKE, CP on 1xAKS, 1xEKS, 2xGKE                        |
 | [mp-gke-cp-1aks-2gke.tfvars.json.sample](/tfvars_collection/mp-gke-cp-1aks-2gke.tfvars.json.sample)                     | MP on GKE, CP on 1xAKS, 2xGKE                               |
 | [mp-gke-cp-3gke.tfvars.json.sample](/tfvars_collection/mp-gke-cp-3gke.tfvars.json.sample)                               | MP on GKE, CP on 3xGKE                                      |
-| [mp-gke-cp-2aks-2eks-2gke.tfvars.json.sample](/mp-gke-cp-2aks-2eks-2gke.tfvars.json.sample)                             | MP on GKE, CP on 2xAKS, 2xEKS, 2xGKE within the same region |
+| [mp-gke-cp-2aks-2eks-2gke.tfvars.json.sample](/tfvars_collection/mp-gke-cp-2aks-2eks-2gke.tfvars.json.sample)                             | MP on GKE, CP on 2xAKS, 2xEKS, 2xGKE within the same region |
 
 ## Usage
 
