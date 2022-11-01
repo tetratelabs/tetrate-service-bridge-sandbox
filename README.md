@@ -128,7 +128,7 @@ make destroy
 
 ## Dev Environment (Tetrate Internal)
 
-[If you want to provision the latest master build](./DEVELOPMENT.md)
+[If you want to provision the latest master build](./DEVELOPMENT_BUILD.md)
 
 ## Usage notes
 
