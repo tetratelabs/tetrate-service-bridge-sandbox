@@ -4,7 +4,7 @@ If you want to provision the latest master build you have to:
 
 1. Provide ```tetrate_internal_cr``` variable as ```gcr.io/...```.
 2. Provide ```tetrate_internal_cr_token``` variable using ```gcloud auth print-access-token```
-3. Specify tsb_version that includes ```dev``` suffix, for example ```"tsb_version": "1.6.0-dev"
+3. Specify tsb_version that includes ```dev``` suffix, for example ```"tsb_version": "1.6.0-dev"```
 
 A complete reference example:
 
