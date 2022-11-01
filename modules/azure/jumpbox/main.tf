@@ -120,7 +120,7 @@ resource "azurerm_linux_virtual_machine" "jumpbox" {
   source_image_reference {
     publisher = "Canonical"
     offer     = "UbuntuServer"
-    sku       = "18.04-LTS"
+    sku       = "22.04-LTS"
     version   = "latest"
   }
 

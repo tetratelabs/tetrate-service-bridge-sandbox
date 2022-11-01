@@ -31,11 +31,11 @@ write_files:
       docker pull busybox
       docker tag busybox $PROJECT_CR/busybox
       docker push $PROJECT_CR/busybox
-      curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
-      helm repo add tetrate-tsb-helm 'https://charts.dl.tetrate.io/public/helm/charts/'
-      helm repo update
       export TSB_VERSION="${tsb_version}"
       if [[ "$TSB_VERSION" =~ .*"-dev" ]]; then
+        curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
+        helm repo add tetrate-tsb-helm 'https://charts.dl.tetrate.io/public/helm/charts/'
+        helm repo update
         curl -Lo "/usr/local/bin/tctl" "https://binaries.dl.tetrate.io/public/raw/versions/linux-amd64-next/tctl"
         chmod +x "/usr/local/bin/tctl"
         helm pull tetrate-tsb-helm/managementplane --version $TSB_VERSION --devel
