@@ -1,5 +1,4 @@
-image:
-  tag: ${tsb_version}
+image:%{ if length(regexall("dev", tsb_version)) == 0 }${"\n"}  tag: ${tsb_version}%{ endif }
   registry: ${registry}
 secrets:
   elasticsearch:

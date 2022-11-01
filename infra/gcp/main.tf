@@ -26,20 +26,22 @@ module "gcp_base" {
 }
 
 module "gcp_jumpbox" {
-  source                  = "../../modules/gcp/jumpbox"
-  count                   = var.gcp_k8s_region == null ? 0 : 1
-  name_prefix             = "${var.name_prefix}-${var.cluster_id}"
-  region                  = var.gcp_k8s_region
-  project_id              = var.gcp_project_id == null ? google_project.tsb[0].project_id : var.gcp_project_id
-  vpc_id                  = module.gcp_base[0].vpc_id
-  vpc_subnet              = module.gcp_base[0].vpc_subnets[0]
-  tsb_version             = var.tsb_version
-  jumpbox_username        = var.jumpbox_username
-  machine_type            = var.jumpbox_machine_type
-  tsb_image_sync_username = var.tsb_image_sync_username
-  tsb_image_sync_apikey   = var.tsb_image_sync_apikey
-  registry                = module.gcp_base[0].registry
-  output_path             = var.output_path
+  source                    = "../../modules/gcp/jumpbox"
+  count                     = var.gcp_k8s_region == null ? 0 : 1
+  name_prefix               = "${var.name_prefix}-${var.cluster_id}"
+  region                    = var.gcp_k8s_region
+  project_id                = var.gcp_project_id == null ? google_project.tsb[0].project_id : var.gcp_project_id
+  vpc_id                    = module.gcp_base[0].vpc_id
+  vpc_subnet                = module.gcp_base[0].vpc_subnets[0]
+  tsb_version               = var.tsb_version
+  tetrate_internal_cr       = var.tetrate_internal_cr
+  tetrate_internal_cr_token = var.tetrate_internal_cr_token
+  jumpbox_username          = var.jumpbox_username
+  machine_type              = var.jumpbox_machine_type
+  tsb_image_sync_username   = var.tsb_image_sync_username
+  tsb_image_sync_apikey     = var.tsb_image_sync_apikey
+  registry                  = module.gcp_base[0].registry
+  output_path               = var.output_path
 }
 
 module "gcp_k8s" {

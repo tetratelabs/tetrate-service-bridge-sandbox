@@ -114,11 +114,11 @@ The completion of the above steps will result in:
 [TSB MP Fastforward](./tsb/README.md#tsb_mp)<br>
 [TSB CP Fastforward](./tsb/README.md#tsb_cp)<br>
 
-## Usecases
+## Use Cases
 
 [ArgoCD GitOps](./addons/README.md#argocd)
 
-## CleanUp
+## Destroy
 
 When you are done with the environment, you can destroy it by running:
 
@@ -126,7 +126,11 @@ When you are done with the environment, you can destroy it by running:
 make destroy
 ```
 
-### Usage notes
+## Dev Environment (Tetrate Internal)
+
+[If you want to provision the latest master build](./DEVELOPMENT.md)
+
+## Usage notes
 
 - Terraform destroys only the resources it created (`make destroy`)
 - Terraform stores the `state` across workspaces in different folders locally
