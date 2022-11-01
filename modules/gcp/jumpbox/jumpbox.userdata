@@ -27,7 +27,7 @@ write_files:
       install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl
       ${docker_login}
       export PROJECT_CR="${registry}"
-      # to initialize GCR and use skopeo for TSB images sync below
+      # to initialize CR metadata and use skopeo for TSB images sync below
       docker pull busybox
       docker tag busybox $PROJECT_CR/busybox
       docker push $PROJECT_CR/busybox
