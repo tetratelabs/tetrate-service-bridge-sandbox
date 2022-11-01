@@ -7,6 +7,7 @@ packages:
   - vim
   - jq
   - awscli
+  - skopeo
 
 users:
   - default
@@ -21,19 +22,41 @@ users:
 
 write_files:
   - content: |
-      #!/bin/sh
-      curl -Lo "/usr/local/bin/tctl" "https://binaries.dl.tetrate.io/public/raw/versions/linux-amd64-${tsb_version}/tctl"
-      chmod +x "/usr/local/bin/tctl"
-      cp /usr/local/bin/tctl /usr/share/nginx/html/
+      #!/bin/bash
       curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
       install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl
       ${docker_login}
-      tctl install image-sync \
-        --username "${tsb_image_sync_username}" \
-        --apikey "${tsb_image_sync_apikey}" \
-        --registry "${registry}" \
-        --accept-eula \
-        --parallel
+      export PROJECT_CR="${registry}"
+      # to initialize GCR and use skopeo for TSB images sync below
+      docker pull busybox
+      docker tag busybox $PROJECT_CR/busybox
+      docker push $PROJECT_CR/busybox
+      curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
+      helm repo add tetrate-tsb-helm 'https://charts.dl.tetrate.io/public/helm/charts/'
+      helm repo update
+      export TSB_VERSION="${tsb_version}"
+      if [[ "$TSB_VERSION" =~ .*"-dev" ]]; then
+        curl -Lo "/usr/local/bin/tctl" "https://binaries.dl.tetrate.io/public/raw/versions/linux-amd64-next/tctl"
+        chmod +x "/usr/local/bin/tctl"
+        helm pull tetrate-tsb-helm/managementplane --version $TSB_VERSION --devel
+        tar zxvf managementplane-$TSB_VERSION.tgz
+        export TETRATE_INTERNAL_CR="${tetrate_internal_cr}"
+        export TETRATE_INTERNAL_CR_TOKEN="${tetrate_internal_cr_token}"
+        sed -i "s#containers.dl.tetrate.io#$TETRATE_INTERNAL_CR#g" managementplane/images.txt
+        for IMAGE in $(cat managementplane/images.txt)
+        do 
+          skopeo sync --src-registry-token $TETRATE_INTERNAL_CR_TOKEN --dest-authfile /root/.docker/config.json --src docker --dest docker $IMAGE $PROJECT_CR &
+        done
+      else
+        curl -Lo "/usr/local/bin/tctl" "https://binaries.dl.tetrate.io/public/raw/versions/linux-amd64-${tsb_version}/tctl"
+        chmod +x "/usr/local/bin/tctl"
+        tctl install image-sync \
+          --username "${tsb_image_sync_username}" \
+          --apikey "${tsb_image_sync_apikey}" \
+          --registry $PROJECT_CR \
+          --accept-eula \
+          --parallel
+      fi
       touch /tmp/cloud-init.done
     path: /opt/bootstrap.sh
     permissions: 0755

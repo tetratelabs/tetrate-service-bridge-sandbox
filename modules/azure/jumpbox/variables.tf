@@ -42,3 +42,10 @@ variable "tsb_version" {
 
 variable "output_path" {
 }
+
+variable "tetrate_internal_cr" {
+  default = ""
+}
+variable "tetrate_internal_cr_token" {
+  default = ""
+}

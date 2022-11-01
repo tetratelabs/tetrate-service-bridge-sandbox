@@ -223,13 +223,15 @@ resource "aws_instance" "jumpbox" {
   }
 
   user_data = base64encode(templatefile("${path.module}/jumpbox.userdata", {
-    jumpbox_username        = var.jumpbox_username
-    tsb_version             = var.tsb_version
-    tsb_image_sync_username = var.tsb_image_sync_username
-    tsb_image_sync_apikey   = var.tsb_image_sync_apikey
-    docker_login            = "aws ecr get-login-password --region ${data.aws_availability_zones.available.id} | docker login --username AWS --password-stdin ${var.registry}"
-    registry                = var.registry
-    pubkey                  = tls_private_key.generated.public_key_openssh
+    jumpbox_username          = var.jumpbox_username
+    tsb_version               = var.tsb_version
+    tsb_image_sync_username   = var.tsb_image_sync_username
+    tsb_image_sync_apikey     = var.tsb_image_sync_apikey
+    docker_login              = "aws ecr get-login-password --region ${data.aws_availability_zones.available.id} | docker login --username AWS --password-stdin ${var.registry}"
+    registry                  = var.registry
+    pubkey                    = tls_private_key.generated.public_key_openssh
+    tetrate_internal_cr       = var.tetrate_internal_cr
+    tetrate_internal_cr_token = var.tetrate_internal_cr_token
   }))
   iam_instance_profile = aws_iam_instance_profile.jumpbox_iam_profile.name
 
