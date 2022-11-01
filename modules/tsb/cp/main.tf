@@ -137,4 +137,10 @@ resource "helm_release" "dataplane" {
     name  = "image.tag"
     value = var.tsb_version
   }
+
+  values = [templatefile("${path.module}/manifests/tsb/dataplane-values.yaml.tmpl", {
+    registry                  = var.registry
+    tsb_version               = var.tsb_version
+  })]
+
 }
