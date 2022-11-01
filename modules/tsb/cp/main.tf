@@ -128,16 +128,6 @@ resource "helm_release" "dataplane" {
   namespace        = "istio-gateway"
   timeout          = 900
 
-  set {
-    name  = "image.registry"
-    value = var.registry
-  }
-
-  set {
-    name  = "image.tag"
-    value = var.tsb_version
-  }
-
   values = [templatefile("${path.module}/manifests/tsb/dataplane-values.yaml.tmpl", {
     registry                  = var.registry
     tsb_version               = var.tsb_version
