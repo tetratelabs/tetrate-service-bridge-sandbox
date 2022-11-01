@@ -23,7 +23,6 @@ users:
 write_files:
   - content: |
       #!/bin/bash
-      curl -Lo "/usr/local/bin/tctl" "https://binaries.dl.tetrate.io/public/raw/versions/linux-amd64-${tsb_version}/tctl"
       chmod +x "/usr/local/bin/tctl"
       cp /usr/local/bin/tctl /usr/share/nginx/html/
       curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
@@ -33,6 +32,7 @@ write_files:
       helm repo update
       export TSB_VERSION="${tsb_version}"
       if [[ "$TSB_VERSION" =~ .*"-dev" ]]; then
+        curl -Lo "/usr/local/bin/tctl" "https://binaries.dl.tetrate.io/public/raw/versions/linux-amd64-${tsb_version}/tctl"
         helm pull tetrate-tsb-helm/managementplane --version $TSB_VERSION --devel
         tar zxvf managementplane-$TSB_VERSION.tgz
         export TETRATE_INTERNAL_CR="${tetrate_internal_cr}"
@@ -44,6 +44,7 @@ write_files:
           skopeo sync --src-registry-token $TETRATE_INTERNAL_CR_TOKEN --dest-registry-token $TETRATE_INTERNAL_CR_TOKEN --src docker --dest docker $IMAGE $PROJECT_CR &
         done
       else
+        curl -Lo "/usr/local/bin/tctl" "https://binaries.dl.tetrate.io/public/raw/versions/linux-amd64-${tsb_version}/tctl"
         ${docker_login}
         tctl install image-sync \
           --username "${tsb_image_sync_username}" \
