@@ -51,13 +51,15 @@ resource "google_compute_instance" "jumpbox" {
 
   metadata = {
     user-data = templatefile("${path.module}/jumpbox.userdata", {
-      jumpbox_username        = var.jumpbox_username
-      tsb_version             = var.tsb_version
-      tsb_image_sync_username = var.tsb_image_sync_username
-      tsb_image_sync_apikey   = var.tsb_image_sync_apikey
-      docker_login            = "gcloud auth configure-docker -q"
-      registry                = var.registry
-      pubkey                  = tls_private_key.generated.public_key_openssh
+      jumpbox_username          = var.jumpbox_username
+      tsb_version               = var.tsb_version
+      tsb_image_sync_username   = var.tsb_image_sync_username
+      tsb_image_sync_apikey     = var.tsb_image_sync_apikey
+      docker_login              = "gcloud auth configure-docker -q"
+      registry                  = var.registry
+      pubkey                    = tls_private_key.generated.public_key_openssh
+      tetrate_internal_cr       = var.tetrate_internal_cr
+      tetrate_internal_cr_token = var.tetrate_internal_cr_token
     })
   }
 
@@ -75,12 +77,6 @@ resource "local_file" "tsbadmin_pem" {
   depends_on      = [tls_private_key.generated]
   file_permission = "0600"
 }
-
-/* resource "local_file" "ssh_jumpbox" {
-  content         = "/bin/sh gcloud compute ssh ${google_compute_instance.jumpbox.name} --project=${var.project_id} --zone=${data.google_compute_zones.available.names[0]}"
-  filename        = "ssh-to-gcp-jumpbox.sh"
-  file_permission = "0755"
-} */
 
 resource "local_file" "ssh_jumpbox" {
   content         = "ssh -i ${var.name_prefix}-gcp-${var.jumpbox_username}.pem -l ${var.jumpbox_username} ${google_compute_instance.jumpbox.network_interface[0].access_config[0].nat_ip}"

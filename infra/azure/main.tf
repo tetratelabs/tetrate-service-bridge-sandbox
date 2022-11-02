@@ -11,21 +11,23 @@ module "azure_base" {
 }
 
 module "azure_jumpbox" {
-  source                  = "../../modules/azure/jumpbox"
-  count                   = var.azure_k8s_region == null ? 0 : 1
-  name_prefix             = "${var.name_prefix}-${var.cluster_id}"
-  location                = var.azure_k8s_region
-  resource_group_name     = module.azure_base[0].resource_group_name
-  cidr                    = module.azure_base[0].cidr
-  vnet_subnet             = module.azure_base[0].vnet_subnets[0]
-  tsb_version             = var.tsb_version
-  jumpbox_username        = var.jumpbox_username
-  tsb_image_sync_username = var.tsb_image_sync_username
-  tsb_image_sync_apikey   = var.tsb_image_sync_apikey
-  registry                = module.azure_base[0].registry
-  registry_username       = module.azure_base[0].registry_username
-  registry_password       = module.azure_base[0].registry_password
-  output_path             = var.output_path
+  source                    = "../../modules/azure/jumpbox"
+  count                     = var.azure_k8s_region == null ? 0 : 1
+  name_prefix               = "${var.name_prefix}-${var.cluster_id}"
+  location                  = var.azure_k8s_region
+  resource_group_name       = module.azure_base[0].resource_group_name
+  cidr                      = module.azure_base[0].cidr
+  vnet_subnet               = module.azure_base[0].vnet_subnets[0]
+  tsb_version               = var.tsb_version
+  tetrate_internal_cr       = var.tetrate_internal_cr
+  tetrate_internal_cr_token = var.tetrate_internal_cr_token
+  jumpbox_username          = var.jumpbox_username
+  tsb_image_sync_username   = var.tsb_image_sync_username
+  tsb_image_sync_apikey     = var.tsb_image_sync_apikey
+  registry                  = module.azure_base[0].registry
+  registry_username         = module.azure_base[0].registry_username
+  registry_password         = module.azure_base[0].registry_password
+  output_path               = var.output_path
 }
 
 module "azure_k8s" {

@@ -101,15 +101,17 @@ resource "azurerm_linux_virtual_machine" "jumpbox" {
   network_interface_ids = [azurerm_network_interface.jumpbox_nic.id]
   admin_username        = var.jumpbox_username
   custom_data = base64encode(templatefile("${path.module}/jumpbox.userdata", {
-    jumpbox_username        = var.jumpbox_username
-    tsb_version             = var.tsb_version
-    tsb_image_sync_username = var.tsb_image_sync_username
-    tsb_image_sync_apikey   = var.tsb_image_sync_apikey
-    docker_login            = "docker login -u ${var.registry_username} -p ${var.registry_password} ${var.registry}"
-    registry                = var.registry
-    registry_admin          = var.registry_username
-    registry_password       = var.registry_password
-    pubkey                  = tls_private_key.generated.public_key_openssh
+    jumpbox_username          = var.jumpbox_username
+    tsb_version               = var.tsb_version
+    tsb_image_sync_username   = var.tsb_image_sync_username
+    tsb_image_sync_apikey     = var.tsb_image_sync_apikey
+    docker_login              = "docker login -u ${var.registry_username} -p ${var.registry_password} ${var.registry}"
+    registry                  = var.registry
+    registry_admin            = var.registry_username
+    registry_password         = var.registry_password
+    pubkey                    = tls_private_key.generated.public_key_openssh
+    tetrate_internal_cr       = var.tetrate_internal_cr
+    tetrate_internal_cr_token = var.tetrate_internal_cr_token
   }))
 
 
@@ -117,8 +119,8 @@ resource "azurerm_linux_virtual_machine" "jumpbox" {
 
   source_image_reference {
     publisher = "Canonical"
-    offer     = "UbuntuServer"
-    sku       = "18.04-LTS"
+    offer     = "0001-com-ubuntu-server-jammy"
+    sku       = "22_04-lts"
     version   = "latest"
   }
 
