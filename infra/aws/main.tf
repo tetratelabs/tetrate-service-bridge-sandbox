@@ -7,13 +7,13 @@ module "aws_base" {
   count       = var.aws_k8s_region == null ? 0 : 1
   name_prefix = "${var.name_prefix}-${var.cluster_id}"
   cidr        = cidrsubnet(var.cidr, 4, 4 + tonumber(var.cluster_id))
-  owner       = var.tsb_image_sync_username
+  owner       = "${var.tsb_image_sync_username}@tetrate.io"
 }
 
 module "aws_jumpbox" {
   source                    = "../../modules/aws/jumpbox"
   count                     = var.aws_k8s_region == null ? 0 : 1
-  owner                     = var.tsb_image_sync_username
+  owner                     = "${var.tsb_image_sync_username}@tetrate.io"
   name_prefix               = "${var.name_prefix}-${var.cluster_id}"
   region                    = var.aws_k8s_region
   vpc_id                    = module.aws_base[0].vpc_id
@@ -32,7 +32,7 @@ module "aws_jumpbox" {
 module "aws_k8s" {
   source       = "../../modules/aws/k8s"
   count        = var.aws_k8s_region == null ? 0 : 1
-  owner        = var.tsb_image_sync_username
+  owner        = "${var.tsb_image_sync_username}@tetrate.io"
   k8s_version  = var.aws_eks_k8s_version
   region       = var.aws_k8s_region
   vpc_id       = module.aws_base[0].vpc_id

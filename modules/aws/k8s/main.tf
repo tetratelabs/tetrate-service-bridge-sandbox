@@ -70,6 +70,12 @@ module "eks" {
     }
   }
 
+  tags = {
+    Name            = "${var.cluster_name}_tsb_sandbox_blue"
+    Environment     = "${var.name_prefix}_tsb"
+    "Tetrate:Owner" = var.owner
+  }
+
   putin_khuylo = true
 
 }
