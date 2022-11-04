@@ -20,13 +20,20 @@ resource "google_container_cluster" "tsb" {
   # node pool and immediately delete it.
   remove_default_node_pool = true
   initial_node_count       = 1
+
+  resource_labels = {
+    Name            = "${var.cluster_name}_tsb_sandbox_blue"
+    Environment     = "${var.name_prefix}_tsb"
+    "Tetrate:Owner" = var.owner
+  }
+
   depends_on = [
     google_project_service.container
   ]
 }
 
 resource "google_container_node_pool" "primary_preemptible_nodes" {
-  name       = "${var.cluster_name}-pool"
+  name       = "${var.cluster_name}_pool"
   project    = var.project_id
   location   = var.region
   cluster    = google_container_cluster.tsb.name

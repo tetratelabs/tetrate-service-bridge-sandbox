@@ -26,7 +26,7 @@ data "google_compute_default_service_account" "default" {
 
 resource "google_compute_instance" "jumpbox" {
   project      = var.project_id
-  name         = "${var.name_prefix}-jumpbox"
+  name         = "${var.name_prefix}_jumpbox"
   machine_type = var.machine_type
   zone         = data.google_compute_zones.available.names[0]
 
@@ -69,6 +69,11 @@ resource "google_compute_instance" "jumpbox" {
     scopes = ["cloud-platform"]
   }
 
+  labels = {
+    Name            = "${var.name_prefix}_jumpbox"
+    Environment     = "${var.name_prefix}_tsb"
+    "Tetrate:Owner" = var.owner
+  }
 }
 
 resource "local_file" "tsbadmin_pem" {

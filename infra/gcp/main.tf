@@ -12,11 +12,18 @@ resource "google_project" "tsb" {
   project_id      = "${var.name_prefix}-${random_string.random_prefix.result}-${var.cluster_id}"
   org_id          = var.gcp_org_id
   billing_account = var.gcp_billing_id
+
+  labels = {
+    Name            = "${var.name_prefix}_project"
+    Environment     = "${var.name_prefix}_tsb"
+    "Tetrate:Owner" = var.tsb_image_sync_username
+  }
 }
 
 module "gcp_base" {
   source      = "../../modules/gcp/base"
   count       = var.gcp_k8s_region == null ? 0 : 1
+  owner       = var.tsb_image_sync_username
   name_prefix = "${var.name_prefix}-${var.cluster_id}"
   project_id  = var.gcp_project_id == null ? google_project.tsb[0].project_id : var.gcp_project_id
   region      = var.gcp_k8s_region
@@ -28,6 +35,7 @@ module "gcp_base" {
 module "gcp_jumpbox" {
   source                    = "../../modules/gcp/jumpbox"
   count                     = var.gcp_k8s_region == null ? 0 : 1
+  owner                     = var.tsb_image_sync_username
   name_prefix               = "${var.name_prefix}-${var.cluster_id}"
   region                    = var.gcp_k8s_region
   project_id                = var.gcp_project_id == null ? google_project.tsb[0].project_id : var.gcp_project_id
@@ -47,6 +55,7 @@ module "gcp_jumpbox" {
 module "gcp_k8s" {
   source       = "../../modules/gcp/k8s"
   count        = var.gcp_k8s_region == null ? 0 : 1
+  owner        = var.tsb_image_sync_username
   name_prefix  = "${var.name_prefix}-${var.cluster_id}"
   cluster_name = var.cluster_name == null ? "gke-${var.gcp_k8s_region}-${var.name_prefix}" : var.cluster_name
   project_id   = var.gcp_project_id == null ? google_project.tsb[0].project_id : var.gcp_project_id
