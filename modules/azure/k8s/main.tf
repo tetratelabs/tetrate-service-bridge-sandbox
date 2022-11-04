@@ -29,7 +29,9 @@ resource "azurerm_kubernetes_cluster" "k8s" {
   }
 
   tags = {
-    owner = "${var.name_prefix}_tsb"
+    Name            = "${var.cluster_name}_tsb_sandbox_blue"
+    Environment     = "${var.name_prefix}_tsb"
+    "Tetrate:Owner" = var.owner
   }
 
 }
