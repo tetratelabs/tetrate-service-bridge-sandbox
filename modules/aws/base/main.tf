@@ -9,8 +9,9 @@ resource "aws_vpc" "tsb" {
   cidr_block           = var.cidr
   enable_dns_hostnames = true
   tags = {
-    Name  = "${var.name_prefix}-${random_string.random_prefix.result}_vpc"
-    Owner = "${var.name_prefix}_tsb"
+    Name            = "${var.name_prefix}-${random_string.random_prefix.result}_vpc"
+    Environment     = "${var.name_prefix}_tsb"
+    "Tetrate:Owner" = var.owner
   }
 }
 
@@ -23,8 +24,9 @@ resource "aws_subnet" "tsb" {
   vpc_id                  = aws_vpc.tsb.id
   map_public_ip_on_launch = "true"
   tags = {
-    Name  = "${var.name_prefix}-subnet-${data.aws_availability_zones.available.names[count.index]}"
-    Owner = "${var.name_prefix}_tsb"
+    Name            = "${var.name_prefix}-subnet-${data.aws_availability_zones.available.names[count.index]}"
+    Environment     = "${var.name_prefix}_tsb"
+    "Tetrate:Owner" = var.owner
   }
 }
 
@@ -32,8 +34,9 @@ resource "aws_internet_gateway" "tsb" {
   vpc_id = aws_vpc.tsb.id
 
   tags = {
-    Name  = "${var.name_prefix}_igw"
-    Owner = "${var.name_prefix}_tsb"
+    Name            = "${var.name_prefix}_igw"
+    Environment     = "${var.name_prefix}_tsb"
+    "Tetrate:Owner" = var.owner
   }
 }
 
@@ -47,8 +50,9 @@ resource "aws_route_table" "rt" {
   }
 
   tags = {
-    Name  = "${var.name_prefix}_rt"
-    Owner = "${var.name_prefix}_tsb"
+    Name            = "${var.name_prefix}_rt"
+    Environment     = "${var.name_prefix}_tsb"
+    "Tetrate:Owner" = var.owner
   }
 }
 
@@ -72,6 +76,12 @@ resource "aws_ecr_repository" "tsb" {
 
   image_scanning_configuration {
     scan_on_push = true
+  }
+
+  tags = {
+    Name            = "${var.name_prefix}_ecr"
+    Environment     = "${var.name_prefix}_tsb"
+    "Tetrate:Owner" = var.owner
   }
 }
 

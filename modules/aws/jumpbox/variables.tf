@@ -3,6 +3,7 @@ variable "name_prefix" {
 }
 
 variable "owner" {
+  description = "owner of this environment"
 }
 
 variable "region" {

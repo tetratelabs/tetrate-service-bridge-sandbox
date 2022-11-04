@@ -33,8 +33,9 @@ module "eks" {
       max_size     = 5
       desired_size = 3
       tags = {
+        Name            = "${var.cluster_name}_tsb_sandbox_blue"
+        Environment     = "${var.name_prefix}_tsb"
         "Tetrate:Owner" = var.owner
-        Name = "${var.cluster_name}_tsb_sandbox_blue"
       }
     }
   }
