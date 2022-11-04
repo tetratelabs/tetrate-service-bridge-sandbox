@@ -100,7 +100,7 @@ resource "tls_private_key" "generated" {
 }
 
 resource "azurerm_linux_virtual_machine" "jumpbox" {
-  name                  = "${var.name_prefix}_jumpbox_vm"
+  name                  = "${var.name_prefix}-jumpbox-vm"
   location              = var.location
   resource_group_name   = var.resource_group_name
   size                  = "Standard_F2s_v2"
@@ -148,7 +148,7 @@ resource "azurerm_linux_virtual_machine" "jumpbox" {
 
   # Up to 15 tags as per Azure
   tags = {
-    Name            = "${var.name_prefix}_jumpbox_vm"
+    Name            = "${var.name_prefix}-jumpbox-vm"
     Environment     = "${var.name_prefix}_tsb"
     "Tetrate:Owner" = var.owner
   }

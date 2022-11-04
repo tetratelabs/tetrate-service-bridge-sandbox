@@ -22,9 +22,9 @@ resource "google_container_cluster" "tsb" {
   initial_node_count       = 1
 
   resource_labels = {
-    Name            = "${var.cluster_name}_tsb_sandbox_blue"
-    Environment     = "${var.name_prefix}_tsb"
-    "Tetrate:Owner" = var.owner
+    name        = "${var.cluster_name}_tsb_sandbox_blue"
+    environment = "${var.name_prefix}_tsb"
+    owner       = var.owner
   }
 
   depends_on = [
@@ -33,7 +33,7 @@ resource "google_container_cluster" "tsb" {
 }
 
 resource "google_container_node_pool" "primary_preemptible_nodes" {
-  name       = "${var.cluster_name}_pool"
+  name       = "${var.cluster_name}-pool"
   project    = var.project_id
   location   = var.region
   cluster    = google_container_cluster.tsb.name
