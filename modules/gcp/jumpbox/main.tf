@@ -69,6 +69,11 @@ resource "google_compute_instance" "jumpbox" {
     scopes = ["cloud-platform"]
   }
 
+  labels = {
+    name        = "${var.name_prefix}-jumpbox"
+    environment = "${var.name_prefix}_tsb"
+    owner       = var.owner
+  }
 }
 
 resource "local_file" "tsbadmin_pem" {

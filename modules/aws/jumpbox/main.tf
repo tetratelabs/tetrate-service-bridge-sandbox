@@ -4,7 +4,7 @@ resource "aws_security_group" "jumpbox_sg" {
 
   tags = {
     Name            = "${var.name_prefix}_jumpbox_sg"
-    Owner           = "${var.name_prefix}_tsb"
+    Environment     = "${var.name_prefix}_tsb"
     "Tetrate:Owner" = var.owner
   }
 
@@ -166,11 +166,23 @@ resource "aws_iam_role" "jumpbox_iam_role" {
 }
 EOF
 
+  tags = {
+    Name            = "${var.name_prefix}_jumpbox_iam_role"
+    Environment     = "${var.name_prefix}_tsb"
+    "Tetrate:Owner" = var.owner
+  }
+
 }
 
 resource "aws_iam_instance_profile" "jumpbox_iam_profile" {
   name = "${var.name_prefix}_jumpbox_profile"
   role = aws_iam_role.jumpbox_iam_role.name
+
+  tags = {
+    Name            = "${var.name_prefix}_jumpbox_iam_prof"
+    Environment     = "${var.name_prefix}_tsb"
+    "Tetrate:Owner" = var.owner
+  }
 }
 
 
@@ -184,6 +196,12 @@ resource "tls_private_key" "generated" {
 resource "aws_key_pair" "tsbadmin_key_pair" {
   key_name   = "${var.name_prefix}_generated"
   public_key = tls_private_key.generated.public_key_openssh
+
+  tags = {
+    Name            = "${var.name_prefix}_tsbadmin_key"
+    Environment     = "${var.name_prefix}_tsb"
+    "Tetrate:Owner" = var.owner
+  }
 }
 
 data "aws_ami" "ubuntu" {
@@ -237,13 +255,13 @@ resource "aws_instance" "jumpbox" {
 
   tags = {
     Name            = "${var.name_prefix}_jumpbox"
-    Owner           = "${var.name_prefix}_tsb"
+    Environment     = "${var.name_prefix}_tsb"
     "Tetrate:Owner" = var.owner
   }
 
   volume_tags = {
     Name            = "${var.name_prefix}_jumpbox"
-    Owner           = "${var.name_prefix}_tsb"
+    Environment     = "${var.name_prefix}_tsb"
     "Tetrate:Owner" = var.owner
   }
 

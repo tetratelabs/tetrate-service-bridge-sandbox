@@ -7,9 +7,6 @@ variable "cluster_id" {
 variable "cluster_name" {
   default = null
 }
-variable "owner" {
-  default = "tsb-sandbox@tetrate.io"
-}
 
 variable "name_prefix" {
   description = "name prefix"

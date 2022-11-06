@@ -2,6 +2,10 @@ variable "name_prefix" {
   description = "name prefix"
 }
 
+variable "owner" {
+  description = "owner of this environment"
+}
+
 variable "region" {
   description = "region"
 }

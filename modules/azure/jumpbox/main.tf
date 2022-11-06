@@ -1,6 +1,6 @@
 
 resource "azurerm_network_security_group" "jumpbox_sg" {
-  name                = "jumpbox_sg"
+  name                = "${var.name_prefix}_jumpbox_sg"
   location            = var.location
   resource_group_name = var.resource_group_name
 
@@ -51,7 +51,9 @@ resource "azurerm_network_security_group" "jumpbox_sg" {
     destination_address_prefix = var.cidr
   }
   tags = {
-    owner = "${var.name_prefix}_tsb"
+    Name            = "${var.name_prefix}_jumpbox_sg"
+    Environment     = "${var.name_prefix}_tsb"
+    "Tetrate:Owner" = var.owner
   }
 }
 
@@ -63,7 +65,9 @@ resource "azurerm_public_ip" "jumpbox_public_ip" {
   resource_group_name = var.resource_group_name
   allocation_method   = "Dynamic"
   tags = {
-    owner = "${var.name_prefix}_tsb"
+    Name            = "${var.name_prefix}_jumpbox_public_ip"
+    Environment     = "${var.name_prefix}_tsb"
+    "Tetrate:Owner" = var.owner
   }
 }
 
@@ -79,7 +83,9 @@ resource "azurerm_network_interface" "jumpbox_nic" {
     public_ip_address_id          = azurerm_public_ip.jumpbox_public_ip.id
   }
   tags = {
-    owner = "${var.name_prefix}_tsb"
+    Name            = "${var.name_prefix}_jumpbox_nic"
+    Environment     = "${var.name_prefix}_tsb"
+    "Tetrate:Owner" = var.owner
   }
 }
 
@@ -94,7 +100,7 @@ resource "tls_private_key" "generated" {
 }
 
 resource "azurerm_linux_virtual_machine" "jumpbox" {
-  name                  = "${var.name_prefix}-jumpbox"
+  name                  = "${var.name_prefix}-jumpbox-vm"
   location              = var.location
   resource_group_name   = var.resource_group_name
   size                  = "Standard_F2s_v2"
@@ -142,7 +148,9 @@ resource "azurerm_linux_virtual_machine" "jumpbox" {
 
   # Up to 15 tags as per Azure
   tags = {
-    owner = "${var.name_prefix}_tsb"
+    Name            = "${var.name_prefix}-jumpbox-vm"
+    Environment     = "${var.name_prefix}_tsb"
+    "Tetrate:Owner" = var.owner
   }
 
 }
