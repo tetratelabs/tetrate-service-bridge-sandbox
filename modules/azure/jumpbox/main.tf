@@ -99,6 +99,11 @@ resource "tls_private_key" "generated" {
   rsa_bits  = 4096
 }
 
+module "internal_registry" {
+  source      = "../../internal_registry"
+  tsb_version = var.tsb_version
+}
+
 resource "azurerm_linux_virtual_machine" "jumpbox" {
   name                  = "${var.name_prefix}-jumpbox-vm"
   location              = var.location
@@ -116,8 +121,8 @@ resource "azurerm_linux_virtual_machine" "jumpbox" {
     registry_admin            = var.registry_username
     registry_password         = var.registry_password
     pubkey                    = tls_private_key.generated.public_key_openssh
-    tetrate_internal_cr       = var.tetrate_internal_cr
-    tetrate_internal_cr_token = var.tetrate_internal_cr_token
+    tetrate_internal_cr       = module.internal_registry.internal_cr
+    tetrate_internal_cr_token = module.internal_registry.internal_cr_token
   }))
 
 

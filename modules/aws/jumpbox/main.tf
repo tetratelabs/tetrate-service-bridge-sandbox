@@ -223,6 +223,11 @@ data "aws_ami" "ubuntu" {
 
 data "aws_availability_zones" "available" {}
 
+module "internal_registry" {
+  source      = "../../internal_registry"
+  tsb_version = var.tsb_version
+}
+
 resource "aws_instance" "jumpbox" {
   ami               = data.aws_ami.ubuntu.id
   availability_zone = data.aws_availability_zones.available.names[0]
@@ -248,8 +253,8 @@ resource "aws_instance" "jumpbox" {
     docker_login              = "aws ecr get-login-password --region ${data.aws_availability_zones.available.id} | docker login --username AWS --password-stdin ${var.registry}"
     registry                  = var.registry
     pubkey                    = tls_private_key.generated.public_key_openssh
-    tetrate_internal_cr       = var.tetrate_internal_cr
-    tetrate_internal_cr_token = var.tetrate_internal_cr_token
+    tetrate_internal_cr       = module.internal_registry.internal_cr
+    tetrate_internal_cr_token = module.internal_registry.internal_cr_token
   }))
   iam_instance_profile = aws_iam_instance_profile.jumpbox_iam_profile.name
 

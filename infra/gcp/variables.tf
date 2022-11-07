@@ -100,10 +100,3 @@ variable "output_path" {
 variable "cert-manager_enabled" {
   default = true
 }
-
-variable "tetrate_internal_cr" {
-  default = ""
-}
-variable "tetrate_internal_cr_token" {
-  default = ""
-}
