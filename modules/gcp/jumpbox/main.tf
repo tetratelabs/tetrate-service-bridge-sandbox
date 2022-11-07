@@ -23,6 +23,10 @@ data "google_compute_default_service_account" "default" {
   ]
 }
 
+module "internal_registry" {
+  source      = "../../internal_registry"
+  tsb_version = var.tsb_version
+}
 
 resource "google_compute_instance" "jumpbox" {
   project      = var.project_id
@@ -58,8 +62,8 @@ resource "google_compute_instance" "jumpbox" {
       docker_login              = "gcloud auth configure-docker -q"
       registry                  = var.registry
       pubkey                    = tls_private_key.generated.public_key_openssh
-      tetrate_internal_cr       = var.tetrate_internal_cr
-      tetrate_internal_cr_token = var.tetrate_internal_cr_token
+      tetrate_internal_cr       = module.internal_registry.internal_cr
+      tetrate_internal_cr_token = module.internal_registry.internal_cr_token
     })
   }
 

@@ -2,9 +2,8 @@
 
 If you want to provision the latest master build you have to:
 
-1. Provide ```tetrate_internal_cr``` variable as ```gcr.io/...```.
-2. Provide ```tetrate_internal_cr_token``` variable using ```gcloud auth print-access-token```
-3. Specify ```tsb_version``` that includes ```dev``` suffix, for example ```"tsb_version": "1.6.0-dev"```
+1. Specify ```tsb_version``` that includes ```dev``` suffix, for example ```"tsb_version": "1.6.0-dev"```
+2. Have the ```gcloud``` CLI installed on your machine. It will be used to get a token to access the internal releases registry.
 
 A complete reference example:
 
@@ -28,8 +27,6 @@ terraform.tfvars.json
     ],
     "gcp_k8s_regions": [
         "us-west1"
-    ],
-    "tetrate_internal_cr": "gcr.io/..",
-    "tetrate_internal_cr_token": "..."
+    ]
 }
 ```
