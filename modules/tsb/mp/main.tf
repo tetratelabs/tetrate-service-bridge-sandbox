@@ -87,12 +87,14 @@ resource "kubernetes_secret_v1" "iamsigningkey" {
 }
 
 resource "helm_release" "managementplane" {
-  name       = "managementplane"
-  repository = var.tsb_helm_repository
-  chart      = "managementplane"
-  version    = var.tsb_helm_version
-  namespace  = "tsb"
-  timeout    = 900
+  name                = "managementplane"
+  repository          = var.tsb_helm_repository
+  repository_username = var.tsb_helm_repository_username
+  repository_password = var.tsb_helm_repository_password
+  chart               = "managementplane"
+  version             = var.tsb_helm_version
+  namespace           = "tsb"
+  timeout             = 900
 
   values = [templatefile("${path.module}/manifests/tsb/managementplane-values.yaml.tmpl", {
     #tsb

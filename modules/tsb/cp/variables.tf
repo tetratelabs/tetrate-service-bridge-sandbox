@@ -29,6 +29,14 @@ variable "tsb_version" {
 variable "tsb_helm_repository" {
 }
 
+variable "tsb_helm_repository_username" {
+  default = ""
+}
+
+variable "tsb_helm_repository_password" {
+  default = ""
+}
+
 variable "tsb_helm_version" {
 }
 

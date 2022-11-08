@@ -47,6 +47,13 @@ variable "tsb_version" {
 variable "tsb_helm_repository" {
   default = "https://charts.dl.tetrate.io/public/helm/charts/"
 }
+variable "tsb_helm_repository_username" {
+  default = ""
+}
+
+variable "tsb_helm_repository_password" {
+  default = ""
+}
 variable "tsb_helm_version" {
   default = null
 }
