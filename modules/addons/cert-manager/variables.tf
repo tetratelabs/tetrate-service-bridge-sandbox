@@ -12,3 +12,7 @@ variable "k8s_client_token" {
 
 variable "cert-manager_enabled" {
 }
+
+variable "cert-manager_version" {
+  default = "1.9.1"
+}
