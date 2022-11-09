@@ -29,6 +29,9 @@ variable "tsb_image_sync_apikey" {
 
 variable "tsb_version" {
 }
+variable "tsb_helm_repository" {
+  default = ""
+}
 
 variable "jumpbox_username" {
 }

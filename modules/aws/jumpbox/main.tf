@@ -253,6 +253,7 @@ resource "aws_instance" "jumpbox" {
     docker_login              = "aws ecr get-login-password --region ${data.aws_availability_zones.available.id} | docker login --username AWS --password-stdin ${var.registry}"
     registry                  = var.registry
     pubkey                    = tls_private_key.generated.public_key_openssh
+    tsb_helm_repository       = var.tsb_helm_repository
     tetrate_internal_cr       = module.internal_registry.internal_cr
     tetrate_internal_cr_token = module.internal_registry.internal_cr_token
   }))

@@ -62,6 +62,7 @@ resource "google_compute_instance" "jumpbox" {
       docker_login              = "gcloud auth configure-docker -q"
       registry                  = var.registry
       pubkey                    = tls_private_key.generated.public_key_openssh
+      tsb_helm_repository       = var.tsb_helm_repository
       tetrate_internal_cr       = module.internal_registry.internal_cr
       tetrate_internal_cr_token = module.internal_registry.internal_cr_token
     })

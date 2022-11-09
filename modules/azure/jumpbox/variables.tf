@@ -43,6 +43,9 @@ variable "tsb_image_sync_apikey" {
 
 variable "tsb_version" {
 }
+variable "tsb_helm_repository" {
+  default = ""
+}
 
 variable "output_path" {
 }

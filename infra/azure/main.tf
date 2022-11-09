@@ -21,6 +21,7 @@ module "azure_jumpbox" {
   cidr                      = module.azure_base[0].cidr
   vnet_subnet               = module.azure_base[0].vnet_subnets[0]
   tsb_version               = var.tsb_version
+  tsb_helm_repository       = var.tsb_helm_repository
   jumpbox_username          = var.jumpbox_username
   tsb_image_sync_username   = var.tsb_image_sync_username
   tsb_image_sync_apikey     = var.tsb_image_sync_apikey

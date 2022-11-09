@@ -20,6 +20,7 @@ module "aws_jumpbox" {
   vpc_subnet                = module.aws_base[0].vpc_subnets[0]
   cidr                      = module.aws_base[0].cidr
   tsb_version               = var.tsb_version
+  tsb_helm_repository       = var.tsb_helm_repository
   jumpbox_username          = var.jumpbox_username
   tsb_image_sync_username   = var.tsb_image_sync_username
   tsb_image_sync_apikey     = var.tsb_image_sync_apikey

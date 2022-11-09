@@ -121,6 +121,7 @@ resource "azurerm_linux_virtual_machine" "jumpbox" {
     registry_admin            = var.registry_username
     registry_password         = var.registry_password
     pubkey                    = tls_private_key.generated.public_key_openssh
+    tsb_helm_repository       = var.tsb_helm_repository
     tetrate_internal_cr       = module.internal_registry.internal_cr
     tetrate_internal_cr_token = module.internal_registry.internal_cr_token
   }))

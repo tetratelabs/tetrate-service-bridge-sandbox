@@ -42,6 +42,7 @@ module "gcp_jumpbox" {
   vpc_id                    = module.gcp_base[0].vpc_id
   vpc_subnet                = module.gcp_base[0].vpc_subnets[0]
   tsb_version               = var.tsb_version
+  tsb_helm_repository       = var.tsb_helm_repository
   jumpbox_username          = var.jumpbox_username
   machine_type              = var.jumpbox_machine_type
   tsb_image_sync_username   = var.tsb_image_sync_username
