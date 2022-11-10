@@ -2,11 +2,11 @@
 
 set -e
 
-VERSION=$(jq -r '.tsb_version')
+TSB_VERSION=$(jq -r '.tsb_version')
 
-if [[ "${VERSION}" =~ .*"-dev" ]]; then
-    REGISTRY="gcr.io/tetrate-internal-containers"
-    TOKEN=$(gcloud auth print-access-token)
+if [[ "${TSB_VERSION}" =~ .*"-dev" ]]; then
+    TSB_GCR_INTERNAL_REGISTRY="gcr.io/tetrate-internal-containers"
+    TSB_GCR_INTERNAL_TOKEN=$(gcloud auth print-access-token)
 fi
 
-echo "{\"token\": \"${TOKEN}\",\"registry\":\"${REGISTRY}\"}"
+echo "{\"token\": \"${TSB_GCR_INTERNAL_TOKEN}\",\"registry\":\"${TSB_GCR_INTERNAL_REGISTRY}\"}"
