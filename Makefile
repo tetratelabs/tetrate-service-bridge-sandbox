@@ -1,15 +1,20 @@
 # Copyright (c) Tetrate, Inc 2021 All Rights Reserved.
-# 
+#
 # Default variables
 terraform_apply_args = -compact-warnings -auto-approve
-terraform_destroy_args = -compact-warnings -auto-approve 
+terraform_destroy_args = -compact-warnings -auto-approve
 terraform_workspace_args = -force
 terraform_output_args = -json
-#terraform_apply_args = 
+#terraform_apply_args =
 # Functions
 
 .PHONY: all
 all: tsb
+
+## main
+.PHONY: tsb
+tsb: k8s tsb_mp tsb_cp
+	@echo "Magic is on the way..."
 
 .PHONY: help
 help : Makefile
@@ -20,9 +25,13 @@ help : Makefile
 init:
 	@echo "Please refer to the latest instructions and terraform.tfvars.json file format at https://github.com/smarunich/tetrate-service-bridge-sandbox#usage"
 
-## k8s						 deploys k8s cluster for MP and N-number of CPs(*) 
+## k8s						 deploys k8s cluster for MP and N-number of CPs(*)
 .PHONY: k8s
 k8s: azure_k8s aws_k8s gcp_k8s
+
+## ocp						deploys ocp cluster for MP and N-number of CPs(*)
+.PHONY: ocp
+ocp: gcp_ocp 				# TODO: azure_ocp aws_ocp
 
 ## azure_k8s					 deploys azure k8s cluster for MP and N-number of CPs(*) leveraging AKS
 .PHONY: azure_k8s
@@ -89,6 +98,71 @@ gcp_k8s: init
 		done; \
 		'
 
+## azure_ocp					TODO: deploys azure ocp cluster for MP and N-number of CPs(*) leveraging AKS
+# .PHONY: azure_ocp
+# azure_k8s: init
+# 	@/bin/sh -c '\
+# 		index=0; \
+# 		name_prefix=`jq -r '.name_prefix' terraform.tfvars.json`; \
+# 		jq -r '.azure_ocp_regions[]' terraform.tfvars.json | while read -r region; do \
+# 		cluster_name="aks-$$name_prefix-$$region-$$index"; \
+# 		echo "cloud=azure region=$$region cluster_id=$$index cluster_name=$$cluster_name"; \
+# 		cd "infra/azure_ocp"; \
+# 		terraform workspace new azure-$$index-$$region; \
+# 		terraform workspace select azure-$$index-$$region; \
+# 		terraform init; \
+# 		terraform apply ${terraform_apply_args} -target module.azure_base -var-file="../../terraform.tfvars.json" -var=azure_k8s_region=$$region -var=cluster_name=$$cluster_name -var=cluster_id=$$index; \
+# 		terraform apply ${terraform_apply_args} -var-file="../../terraform.tfvars.json" -var=azure_k8s_region=$$region -var=cluster_name=$$cluster_name -var=cluster_id=$$index; \
+# 		terraform output ${terraform_output_args} | jq . > ../../outputs/terraform_outputs/terraform-azure-$$cluster_name-$$index.json; \
+# 		terraform workspace select default; \
+# 		let index++; \
+# 		cd "../.."; \
+# 		done; \
+# 		'
+
+## aws_ocp					TODO: deploys EKS ocp cluster (CPs only)
+# .PHONY: aws_ocp
+# aws_ocp: init
+# 	@/bin/sh -c '\
+# 		index=0; \
+# 		name_prefix=`jq -r '.name_prefix' terraform.tfvars.json`; \
+# 		jq -r '.aws_ocp_regions[]' terraform.tfvars.json | while read -r region; do \
+# 		cluster_name="eks-$$name_prefix-$$region-$$index"; \
+# 		echo "cloud=aws region=$$region cluster_id=$$index cluster_name=$$cluster_name"; \
+# 		cd "infra/aws_ocp"; \
+# 		terraform workspace new aws-$$index-$$region; \
+# 		terraform workspace select aws-$$index-$$region; \
+# 		terraform init; \
+# 		terraform apply ${terraform_apply_args} -var-file="../../terraform.tfvars.json" -var=aws_k8s_region=$$region -var=cluster_name=$$cluster_name -var=cluster_id=$$index; \
+# 		terraform output ${terraform_output_args} | jq . > ../../outputs/terraform_outputs/terraform-aws-$$cluster_name-$$index.json; \
+# 		terraform workspace select default; \
+# 		let index++; \
+# 		cd "../.."; \
+# 		done; \
+# 		'
+
+## gcp_ocp					 deploys GKE ocp cluster (CPs only)
+.PHONY: gcp_ocp
+gcp_ocp: init
+	@/bin/sh -c '\
+		index=0; \
+		name_prefix=`jq -r '.name_prefix' terraform.tfvars.json`; \
+		jq -r '.gcp_ocp_regions[]' terraform.tfvars.json | while read -r region; do \
+		cluster_name="gke-$$name_prefix-$$region-$$index"; \
+		echo "cloud=gcp region=$$region cluster_id=$$index cluster_name=$$cluster_name"; \
+		cd "infra/gcp_ocp"; \
+		terraform workspace new gcp-$$index-$$region; \
+		terraform workspace select gcp-$$index-$$region; \
+		terraform init; \
+		terraform apply ${terraform_apply_args} -target module.gcp_ocp_base -var-file="../../terraform.tfvars.json" -var=gcp_ocp_region=$$region -var=cluster_name=$$cluster_name -var=cluster_id=$$index; \
+		terraform apply ${terraform_apply_args} -var-file="../../terraform.tfvars.json" -var=gcp_ocp_region=$$region -var=cluster_name=$$cluster_name -var=cluster_id=$$index; \
+		terraform output ${terraform_output_args} | jq . > ../../outputs/terraform_outputs/terraform-gcp-$$cluster_name-$$index.json; \
+		terraform workspace select default; \
+		let index++; \
+		cd "../.."; \
+		done; \
+		'
+
 ## tsb_mp						 deploys MP
 .PHONY: tsb_mp
 tsb_mp:
@@ -108,7 +182,7 @@ tsb_mp:
 		cd "../.."; \
 		'
 
-## tsb_cp	                       		 onboards CP on AKS cluster with ID=1 
+## tsb_cp	                       		 onboards CP on AKS cluster with ID=1
 .PHONY: tsb_cp
 tsb_cp:
 	@echo "Refreshing k8s access tokens..."
@@ -158,10 +232,6 @@ tsb_cp:
 		cd "../.."; \
 		done; \
 		'
-
-.PHONY: tsb
-tsb: k8s tsb_mp tsb_cp
-	@echo "Magic is on the way..."
 
 ## argocd
 .PHONY: argocd
