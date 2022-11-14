@@ -251,7 +251,7 @@ resource "google_compute_instance" "jumpbox" {
       region                  = var.region
       # ssh_key                 = "${var.ssh_user}:${file(var.ssh_pub_key_file)}"
       ssh_key                 = var.ssh_key
-      google_service_account  = jsonencode("${base64decode(google_service_account_key.mykey.private_key)}")
+      google_service_account  = jsonencode(base64decode(google_service_account_key.mykey.private_key))
       # google_service_account = var.google_service_account
     })
   }

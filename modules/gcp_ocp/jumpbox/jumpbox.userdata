@@ -81,8 +81,7 @@ write_files:
       {}
     path: /opt/ocp/ocp_pull_secret.json
 
-  - content: |
-      ${google_service_account}
+  - content: ${google_service_account}
     path: /opt/ocp/google_service_account.json
 
   - content: |
