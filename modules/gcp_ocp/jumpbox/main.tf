@@ -36,8 +36,8 @@
 # }
 
 resource "google_dns_managed_zone" "ocp" {
-  name       = "ocp-gcp-cx-tetrate-info"
-  dns_name   = "ocp.gcp.cx.tetrate.info."
+  name       = "${var.name_prefix}-gcp-cx-tetrate-info"
+  dns_name   = "${var.name_prefix}.gcp.cx.tetrate.info."
   project    = var.project_id
   depends_on = [google_project_service.project-dns]
 }
@@ -47,17 +47,19 @@ data "google_dns_managed_zone" "zone" {
   name    = "gcp-cx-tetrate-info"
 }
 
-data "dns_ns_record_set" "ocp" {
-  host = var.address
-}
+# data "dns_ns_record_set" "ocp" {
+#   host = var.address
+# }
 
 resource "google_dns_record_set" "ocp_ns" {
   managed_zone = data.google_dns_managed_zone.zone.name
+  project = "dns-terraform-sandbox"
   name         = google_dns_managed_zone.ocp.dns_name
   type         = "NS"
   ttl          = 300
 
   rrdatas = google_dns_managed_zone.ocp.name_servers
+  depends_on = [google_dns_managed_zone.ocp]
 }
 
 data "google_compute_subnetwork" "wait_for_compute_apis_to_be_ready" {
