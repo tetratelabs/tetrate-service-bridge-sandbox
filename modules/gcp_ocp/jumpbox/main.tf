@@ -64,11 +64,23 @@ resource "google_project_iam_member" "dns_admin" {
   member  = "serviceAccount:${google_service_account.myaccount.email}"
 }
 
-resource "google_project_iam_member" "storage_buckets_create" {
+resource "google_project_iam_member" "owner" {
   project = var.project_id
-  role    = "roles/storage.buckets.create"
+  role    = "roles/owner"
   member  = "serviceAccount:${google_service_account.myaccount.email}"
 }
+
+# resource "google_service_account_iam_binding" "storage_buckets_create" {
+#   project = var.project_id
+#   role    = "roles/storage.buckets.create"
+#   member  = "serviceAccount:${google_service_account.myaccount.email}"
+# }
+
+# resource "google_service_account_iam_binding" "storage_buckets_delete" {
+#   project = var.project_id
+#   role    = "roles/storage.buckets.delete"
+#   member  = "serviceAccount:${google_service_account.myaccount.email}"
+# }
 
 resource "google_project_iam_member" "cloudbuild_builds_builder" {
   project = var.project_id
@@ -106,11 +118,11 @@ resource "google_project_iam_member" "compute_securityAdmin" {
 #   member  = "serviceAccount:${google_service_account.myaccount.email}"
 # }
 
-# resource "google_project_iam_member" "compute_storageAdmin" {
-#   project = var.project_id
-#   role    = "roles/compute.storageAdmin"
-#   member  = "serviceAccount:${google_service_account.myaccount.email}"
-# }
+resource "google_project_iam_member" "compute_storageAdmin" {
+  project = var.project_id
+  role    = "roles/compute.storageAdmin"
+  member  = "serviceAccount:${google_service_account.myaccount.email}"
+}
 
 resource "google_project_iam_member" "resourcemanager_projectIamAdmin" {
   project = var.project_id
@@ -118,11 +130,11 @@ resource "google_project_iam_member" "resourcemanager_projectIamAdmin" {
   member  = "serviceAccount:${google_service_account.myaccount.email}"
 }
 
-resource "google_project_iam_member" "resourcemanager_folderAdmin" {
-  project = var.project_id
-  role    = "roles/resourcemanager.folderAdmin"
-  member  = "serviceAccount:${google_service_account.myaccount.email}"
-}
+# resource "google_service_account_iam_binding" "resourcemanager_folderAdmin" {
+#   project = var.project_id
+#   role    = "roles/resourcemanager.folderAdmin"
+#   member  = "serviceAccount:${google_service_account.myaccount.email}"
+# }
 
 resource "google_project_iam_member" "resourcemanager_organizationAdmin" {
   project = var.project_id
