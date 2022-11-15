@@ -74,7 +74,7 @@ resource "tls_private_key" "iamsigningkey" {
 
 resource "kubernetes_secret_v1" "iamsigningkey" {
   metadata {
-    name      = "iam-signing-key"
+    name      = "custom-iam-signing-key"
     namespace = "tsb"
   }
 
