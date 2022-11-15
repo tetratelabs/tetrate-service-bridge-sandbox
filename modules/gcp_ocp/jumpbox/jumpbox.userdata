@@ -81,8 +81,7 @@ write_files:
       {}
     path: /opt/ocp/ocp_pull_secret.json
 
-  - content: |
-      ${google_service_account}
+  - content: ${google_service_account}
     path: /opt/ocp/google_service_account.json
 
   - content: |
@@ -117,8 +116,12 @@ write_files:
       tar xf $FILES_PATH/openshift-installer.tar.gz -C $FILES_PATH
       export GCLOUD_KEYFILE_JSON=/opt/ocp/google_service_account.json
       echo "GCLOUD_KEYFILE_JSON: $GCLOUD_KEYFILE_JSON" >> $FILES_PATH/install.log
+      # export GOOGLE_APPLICATION_CREDENTIALS=/opt/ocp/google_service_account.json
+      # echo "GOOGLE_APPLICATION_CREDENTIALS: $GOOGLE_APPLICATION_CREDENTIALS" >> $FILES_PATH/install.log
       cd $FILES_PATH/$CLUSTER_NAME
       # echo | pwd >> $FILES_PATH/install.log
+      cp /opt/ocp/files/install-config.yaml .
+      gcloud auth activate-service-account --key-file=$GCLOUD_KEYFILE_JSON >> $FILES_PATH/install.log
       echo "Installing OpenShift..." >> $FILES_PATH/install.log
       ../openshift-install create cluster --dir $FILES_PATH/$CLUSTER_NAME --log-level debug >> $FILES_PATH/install.log
       echo "Admin kubeconfig available at $FILES_PATH/$CLUSTER_NAME/auth/kubeconfig" >> $FILES_PATH/install.log

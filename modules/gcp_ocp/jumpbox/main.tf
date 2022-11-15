@@ -1,39 +1,6 @@
+# main.tf for jumpbox
+
 ## Public DNS Zone and domain validation
-
-# resource google_project_service siteverification {
-#   service = "siteverification.googleapis.com"
-# }
-
-# data "googlesiteverification_dns_token" "domain" {
-#   domain     = var.domain_name
-#   depends_on = [google_project_service.siteverification]
-# }
-
-# resource "google_dns_record_set" "domain" {
-#   managed_zone = google_dns_managed_zone.domain.name
-#   name         = "${data.googlesiteverification_dns_token.domain.record_name}."
-#   rrdatas      = [data.googlesiteverification_dns_token.domain.record_value]
-#   type         = data.googlesiteverification_dns_token.domain.record_type
-#   ttl          = 60
-# }
-
-# resource "googlesiteverification_dns" "domain" {
-#   domain     = var.domain_name
-#   token      = data.googlesiteverification_dns_token.domain.record_value
-#   depends_on = [aws_route53_record.domain_ns_records]
-# }
-
-# data "aws_route53_zone" "parent" {
-#   name = "${local.parent_domain_name}."
-# }
-
-# resource "aws_route53_record" "domain_ns_records" {
-#   zone_id = data.aws_route53_zone.parent.zone_id
-#   name    = "${var.domain_name}."
-#   type    = "NS"
-#   ttl     = "60"
-#   records = google_dns_managed_zone.domain.name_servers
-# }
 
 resource "google_dns_managed_zone" "ocp" {
   name       = "${var.name_prefix}-gcp-cx-tetrate-info"
@@ -46,10 +13,6 @@ data "google_dns_managed_zone" "zone" {
   project = "dns-terraform-sandbox"
   name    = "gcp-cx-tetrate-info"
 }
-
-# data "dns_ns_record_set" "ocp" {
-#   host = var.address
-# }
 
 resource "google_dns_record_set" "ocp_ns" {
   managed_zone = data.google_dns_managed_zone.zone.name
@@ -101,15 +64,21 @@ resource "google_project_iam_member" "dns_admin" {
   member  = "serviceAccount:${google_service_account.myaccount.email}"
 }
 
-resource "google_project_iam_member" "compute_instanceAdmin" {
+resource "google_project_iam_member" "storage_buckets_create" {
   project = var.project_id
-  role    = "roles/compute.instanceAdmin"
+  role    = "roles/storage.buckets.create"
   member  = "serviceAccount:${google_service_account.myaccount.email}"
 }
 
-resource "google_project_iam_member" "compute_networkAdmin" {
+resource "google_project_iam_member" "cloudbuild_builds_builder" {
   project = var.project_id
-  role    = "roles/compute.networkAdmin"
+  role    = "roles/cloudbuild.builds.builder"
+  member  = "serviceAccount:${google_service_account.myaccount.email}"
+}
+
+resource "google_project_iam_member" "compute_admin" {
+  project = var.project_id
+  role    = "roles/compute.admin"
   member  = "serviceAccount:${google_service_account.myaccount.email}"
 }
 
@@ -119,9 +88,51 @@ resource "google_project_iam_member" "compute_securityAdmin" {
   member  = "serviceAccount:${google_service_account.myaccount.email}"
 }
 
-resource "google_project_iam_member" "storage_admin" {
+# resource "google_project_iam_member" "compute_instanceAdmin" {
+#   project = var.project_id
+#   role    = "roles/compute.instanceAdmin"
+#   member  = "serviceAccount:${google_service_account.myaccount.email}"
+# }
+
+# resource "google_project_iam_member" "compute_networkAdmin" {
+#   project = var.project_id
+#   role    = "roles/compute.networkAdmin"
+#   member  = "serviceAccount:${google_service_account.myaccount.email}"
+# }
+
+# resource "google_project_iam_member" "compute_securityAdmin" {
+#   project = var.project_id
+#   role    = "roles/compute.securityAdmin"
+#   member  = "serviceAccount:${google_service_account.myaccount.email}"
+# }
+
+# resource "google_project_iam_member" "compute_storageAdmin" {
+#   project = var.project_id
+#   role    = "roles/compute.storageAdmin"
+#   member  = "serviceAccount:${google_service_account.myaccount.email}"
+# }
+
+resource "google_project_iam_member" "resourcemanager_projectIamAdmin" {
   project = var.project_id
-  role    = "roles/storage.admin"
+  role    = "roles/resourcemanager.projectIamAdmin"
+  member  = "serviceAccount:${google_service_account.myaccount.email}"
+}
+
+resource "google_project_iam_member" "resourcemanager_folderAdmin" {
+  project = var.project_id
+  role    = "roles/resourcemanager.folderAdmin"
+  member  = "serviceAccount:${google_service_account.myaccount.email}"
+}
+
+resource "google_project_iam_member" "resourcemanager_organizationAdmin" {
+  project = var.project_id
+  role    = "roles/resourcemanager.organizationAdmin"
+  member  = "serviceAccount:${google_service_account.myaccount.email}"
+}
+
+resource "google_project_iam_member" "iam_securityAdmin" {
+  project = var.project_id
+  role    = "roles/iam.securityAdmin"
   member  = "serviceAccount:${google_service_account.myaccount.email}"
 }
 
@@ -131,9 +142,9 @@ resource "google_project_iam_member" "iam_serviceAccountUser" {
   member  = "serviceAccount:${google_service_account.myaccount.email}"
 }
 
-resource "google_project_iam_member" "compute_viewer" {
+resource "google_project_iam_member" "iam_serviceAccount_admin" {
   project = var.project_id
-  role    = "roles/compute.viewer"
+  role    = "roles/iam.serviceAccountAdmin"
   member  = "serviceAccount:${google_service_account.myaccount.email}"
 }
 
@@ -244,14 +255,14 @@ resource "google_compute_instance" "jumpbox" {
       docker_login            = "gcloud auth configure-docker -q"
       registry                = var.registry
       pubkey                  = tls_private_key.generated.public_key_openssh
-      gcp_dns_domain          = var.gcp_dns_domain
+      gcp_dns_domain          = "${var.name_prefix}.gcp.cx.tetrate.info"
       ocp_pull_secret         = jsonencode({})
       cluster_name            = var.cluster_name
       project_id              = var.project_id
       region                  = var.region
       # ssh_key                 = "${var.ssh_user}:${file(var.ssh_pub_key_file)}"
       ssh_key                 = var.ssh_key
-      google_service_account  = jsonencode("${base64decode(google_service_account_key.mykey.private_key)}")
+      google_service_account  = jsonencode(base64decode(google_service_account_key.mykey.private_key))
       # google_service_account = var.google_service_account
     })
   }
