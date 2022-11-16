@@ -30,3 +30,6 @@ variable "eshop_owner" {
 
 variable "payments_owner" {
 }
+
+variable "enable_waf" {
+}

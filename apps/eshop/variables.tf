@@ -35,3 +35,7 @@ variable "eshop_owner" {
 variable "payments_owner" {
   default = "wusheng"
 }
+
+variable "enable_waf" {
+  default = false
+}

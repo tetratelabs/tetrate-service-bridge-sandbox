@@ -18,4 +18,5 @@ module "eshop" {
   tenant_owner               = var.tenant_owner
   eshop_owner                = var.eshop_owner
   payments_owner             = var.payments_owner
+  enable_waf                 = var.enable_waf
 }

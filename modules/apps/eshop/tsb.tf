@@ -35,6 +35,7 @@ data "kubectl_path_documents" "ingress_config" {
   vars    = {
     eshop_host     = var.eshop_host
     payments_host  = var.payments_host
+    enable_waf     = var.enable_waf
   }
 }
 
