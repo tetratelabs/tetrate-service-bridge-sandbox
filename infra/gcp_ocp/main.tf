@@ -39,12 +39,11 @@ module "gcp_ocp_jumpbox" {
   tsb_image_sync_apikey   = var.tsb_image_sync_apikey
   registry                = module.gcp_ocp_base[0].registry
   output_path             = var.output_path
-  ocp_pull_secret         = var.ocp_pull_secret
+  ocp_pull_secret         = file("${path.module}/../../ocp_pull_secret.json")
   gcp_dns_domain          = var.gcp_dns_domain
   cluster_name            = var.cluster_name
   ssh_key                 = var.ssh_key
   google_service_account  = var.google_service_account
-  # depends_on              = [module.gcp_ocp_register_fqdn[0]]
 }
 
 # module "gcp_ocp" {

@@ -64,6 +64,7 @@ resource "google_project_iam_member" "dns_admin" {
   member  = "serviceAccount:${google_service_account.myaccount.email}"
 }
 
+# TODO: remove owner role and trim to roles needed
 resource "google_project_iam_member" "owner" {
   project = var.project_id
   role    = "roles/owner"
@@ -268,14 +269,12 @@ resource "google_compute_instance" "jumpbox" {
       registry                = var.registry
       pubkey                  = tls_private_key.generated.public_key_openssh
       gcp_dns_domain          = "${var.name_prefix}.gcp.cx.tetrate.info"
-      ocp_pull_secret         = jsonencode({})
+      ocp_pull_secret         = var.ocp_pull_secret
       cluster_name            = var.cluster_name
       project_id              = var.project_id
       region                  = var.region
-      # ssh_key                 = "${var.ssh_user}:${file(var.ssh_pub_key_file)}"
       ssh_key                 = var.ssh_key
       google_service_account  = jsonencode(base64decode(google_service_account_key.mykey.private_key))
-      # google_service_account = var.google_service_account
     })
   }
 
@@ -307,6 +306,19 @@ resource "local_file" "tsbadmin_pem" {
 resource "local_file" "ssh_jumpbox" {
   content         = "ssh -i ${var.name_prefix}-gcp-${var.jumpbox_username}.pem -l ${var.jumpbox_username} ${google_compute_instance.jumpbox.network_interface[0].access_config[0].nat_ip}"
   filename        = "${var.output_path}/ssh-to-gcp-${var.name_prefix}-jumpbox.sh"
+  file_permission = "0755"
+}
+
+# WIP: generate sh script to get ocp kubeconfig TODO: fix google_compute_instance.zone error
+# resource "local_file" "get_ocp_kubeconfig" {
+#   content         = "/bin/sh gcloud compute scp --zone=${google_compute_instance.zone} ${var.name_prefix}-jumpbox:/opt/ocp/files/${var.cluster_name}/auth/kubeconfig ."
+#   filename        = "${var.output_path}/get-ocp-${var.name_prefix}-kubeconfig.sh"
+#   file_permission = "0755"
+# }
+# WIP: generate sh script to get ocp kubeconfig
+resource "local_file" "get_ocp_kubeconfig" {
+  content         = "/bin/sh gcloud compute scp ${var.name_prefix}-jumpbox:/opt/ocp/files/${var.cluster_name}/auth/kubeconfig ."
+  filename        = "${var.output_path}/get-ocp-${var.name_prefix}-kubeconfig.sh"
   file_permission = "0755"
 }
 

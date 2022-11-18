@@ -155,7 +155,7 @@ gcp_ocp: init
 		terraform workspace select gcp-$$index-$$region; \
 		terraform init; \
 		terraform apply ${terraform_apply_args} -target module.gcp_ocp_base -var-file="../../terraform.tfvars.json" -var=gcp_ocp_region=$$region -var=cluster_name=$$cluster_name -var=cluster_id=$$index; \
-		terraform apply ${terraform_apply_args} -var-file="../../terraform.tfvars.json" -var=gcp_ocp_region=$$region -var=cluster_name=$$cluster_name -var=cluster_id=$$index; \
+		terraform apply ${terraform_apply_args} -var-file="../../terraform.tfvars.json" -var=gcp_ocp_region=$$region -var=cluster_name=$$cluster_name -var=cluster_id=$$index; -var-file="../../ocp_pull_secret.json" \
 		terraform output ${terraform_output_args} | jq . > ../../outputs/terraform_outputs/terraform-gcp-$$cluster_name-$$index.json; \
 		terraform workspace select default; \
 		let index++; \
@@ -232,6 +232,21 @@ tsb_cp:
 		cd "../.."; \
 		done; \
 		'
+	@make gcp_ocp
+	@/bin/sh -c '\
+		index=0; \
+		jq -r '.gcp_ocp_regions[]' terraform.tfvars.json | while read -r region; do \
+		echo "cloud=gcp region=$$region cluster_id=$$index"; \
+		cd "tsb/cp"; \
+		terraform workspace new gcp-$$index-$$region; \
+		terraform workspace select gcp-$$index-$$region; \
+		terraform init; \
+		terraform apply ${terraform_apply_args} -var-file="../../terraform.tfvars.json" -var=cloud=gcp -var=cluster_id=$$index; \
+		terraform workspace select default; \
+		let index++; \
+		cd "../.."; \
+		done; \
+		'
 
 ## argocd
 .PHONY: argocd
@@ -278,6 +293,21 @@ argocd:
 		terraform workspace select azure-$$index-$$region; \
 		terraform init; \
 		terraform apply ${terraform_apply_args} -var-file="../../terraform.tfvars.json" -var=cloud=azure -var=cluster_id=$$index; \
+		terraform workspace select default; \
+		let index++; \
+		cd "../.."; \
+		done; \
+		'
+	@make gcp_ocp
+	@/bin/sh -c '\
+		index=0; \
+		jq -r '.gcp_ocp_regions[]' terraform.tfvars.json | while read -r region; do \
+		echo "cloud=gcp region=$$region cluster_id=$$index"; \
+		cd "addons/argocd"; \
+		terraform workspace new gcp-$$index-$$region; \
+		terraform workspace select gcp-$$index-$$region; \
+		terraform init; \
+		terraform apply ${terraform_apply_args} -var-file="../../terraform.tfvars.json" -var=cloud=gcp -var=cluster_id=$$index; \
 		terraform workspace select default; \
 		let index++; \
 		cd "../.."; \
@@ -337,6 +367,21 @@ destroy:
 		terraform destroy ${terraform_destroy_args} -var-file="../../terraform.tfvars.json" -var=azure_k8s_region=$$region -var=cluster_name=$$cluster_name -var=cluster_id=$$index; \
 		terraform workspace select default; \
 		terraform workspace delete ${terraform_workspace_args} azure-$$index-$$region; \
+		let index++; \
+		cd "../.."; \
+		done; \
+		'
+	@/bin/sh -c '\
+		index=0; \
+		name_prefix=`jq -r '.name_prefix' terraform.tfvars.json`; \
+		jq -r '.gcp_ocp_regions[]' terraform.tfvars.json | while read -r region; do \
+		cluster_name="gke-$$name_prefix-$$region-$$index"; \
+		echo "cloud=gcp region=$$region cluster_id=$$index cluster_name=$$cluster_name"; \
+		cd "infra/gcp_ocp"; \
+		terraform workspace select gcp-$$index-$$region; \
+		terraform destroy ${terraform_destroy_args} -var-file="../../terraform.tfvars.json" -var=gcp_ocp_regions=$$region -var=cluster_name=$$cluster_name -var=cluster_id=$$index; \
+		terraform workspace select default; \
+		terraform workspace delete ${terraform_workspace_args} gcp-$$index-$$region; \
 		let index++; \
 		cd "../.."; \
 		done; \

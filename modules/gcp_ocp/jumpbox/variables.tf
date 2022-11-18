@@ -35,6 +35,10 @@ variable "output_path" {
 variable "ocp_pull_secret" {
 }
 
+variable "ocp_pull_secret_file" {
+  default = ""
+}
+
 variable "gcp_dns_domain" {
 }
 

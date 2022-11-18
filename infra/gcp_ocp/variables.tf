@@ -60,6 +60,14 @@ variable "jumpbox_username" {
   default = "tsbadmin"
 }
 
+variable "ocp_pull_secret_file" {
+  default = ""
+}
+
+variable "ocp_pull_secret" {
+  default = ""
+}
+
 variable "gcp_ocp_regions" {
   default = []
 }
@@ -97,12 +105,6 @@ variable "output_path" {
 
 variable "cert-manager_enabled" {
   default = true
-}
-
-variable "ocp_pull_secret" {
-  type = string
-  sensitive = true
-  default = ""
 }
 
 variable "gcp_dns_domain" {

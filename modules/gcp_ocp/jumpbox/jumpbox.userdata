@@ -77,16 +77,8 @@ write_files:
         ${pubkey}
     path: /opt/ocp/files/install-config.yaml
 
-  - content: |
-      {}
-    path: /opt/ocp/ocp_pull_secret.json
-
   - content: ${google_service_account}
     path: /opt/ocp/google_service_account.json
-
-  - content: |
-      ${pubkey}
-    path: /opt/ocp/ssh_key
 
   - content: |
       #!/bin/sh
@@ -131,5 +123,5 @@ write_files:
     permissions: 0755
 
 runcmd:
-  # - /opt/bootstrap.sh
+  - /opt/bootstrap.sh
   - /opt/ocp/install_ocp.sh
