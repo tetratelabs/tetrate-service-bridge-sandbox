@@ -7,6 +7,7 @@ metadata:
     tsb.tetrate.io/organization: tetrate
 spec:
   description: dev
+  displayName: argocd
 ---
 apiVersion: tsb.tetrate.io/v2
 kind: Workspace
