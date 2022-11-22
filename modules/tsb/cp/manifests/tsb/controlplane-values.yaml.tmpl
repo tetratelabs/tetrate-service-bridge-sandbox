@@ -28,6 +28,13 @@ spec:
           env:
             - name: AUTO_RELOAD_PLUGIN_CERTS
               value: "true"
+        overlays:
+          - apiVersion: install.istio.io/v1alpha1
+            kind: IstioOperator
+            name: tsb-istiocontrolplane
+            patches:
+              - path: spec.meshConfig.defaultConfig.holdApplicationUntilProxyStarts
+                value: true
     xcp:
       centralAuthMode: JWT
     gitops:
