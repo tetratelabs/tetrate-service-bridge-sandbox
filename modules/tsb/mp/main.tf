@@ -67,25 +67,6 @@ data "kubernetes_secret" "istiod_cacerts" {
   depends_on = [time_sleep.warmup_90_seconds]
 }
 
-resource "tls_private_key" "iamsigningkey" {
-  algorithm = "RSA"
-  rsa_bits  = 4096
-}
-
-resource "kubernetes_secret_v1" "iamsigningkey" {
-  metadata {
-    name      = "custom-iam-signing-key"
-    namespace = "tsb"
-  }
-
-  data = {
-    "private.key" = tls_private_key.iamsigningkey.private_key_pem
-  }
-
-  type       = "kubernetes.io/generic"
-  depends_on = [kubernetes_namespace.tsb]
-}
-
 resource "helm_release" "managementplane" {
   name                = "managementplane"
   repository          = var.tsb_helm_repository
