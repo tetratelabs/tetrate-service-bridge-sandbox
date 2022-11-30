@@ -37,6 +37,18 @@ spec:
                 value: true
     xcp:
       centralAuthMode: JWT
+      configProtection: {}
+      enableHttpMeshInternalIdentityPropagation: true
+      kubeSpec:
+        overlays:
+          - apiVersion: install.xcp.tetrate.io/v1alpha1
+            kind: EdgeXcp
+            name: edge-xcp
+            patches:
+              - path: spec.components.edgeServer.kubeSpec.deployment.env[-1]
+                value:
+                  name: ENABLE_ENHANCED_EAST_WEST_ROUTING
+                  value: "true"
     gitops:
       enabled: true
       reconcileInterval: 600s
