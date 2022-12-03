@@ -13,6 +13,13 @@ output "registry" {
   value = "gcr.io/${var.project_id}"
 }
 
+output "registry_username" {
+  value = "_json_key"
+}
+output "registry_password" {
+  value = base64decode(google_service_account_key.gcr_pull_key.private_key)
+}
+
 output "cidr" {
   value = var.cidr
 }
