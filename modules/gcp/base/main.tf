@@ -91,3 +91,22 @@ resource "google_compute_firewall" "tsb" {
   }
 
 }
+
+resource "google_service_account" "gcr_pull" {
+  project = var.project_id
+  account_id = "${var.name_prefix}-gcr-pull"
+}
+resource "google_project_iam_member" "storage_viewer" {
+  project = var.project_id
+  role = "roles/storage.objectViewer"
+  member = "serviceAccount:${google_service_account.gcr_pull.email}"
+}
+resource "google_project_iam_member" "artifact_reader" {
+  project = var.project_id
+  role = "roles/artifactregistry.reader"
+  member = "serviceAccount:${google_service_account.gcr_pull.email}"
+}
+
+resource "google_service_account_key" "gcr_pull_key" {
+  service_account_id = google_service_account.gcr_pull.name
+}

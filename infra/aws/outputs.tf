@@ -2,6 +2,15 @@ output "registry" {
   value = module.aws_base[0].registry
 }
 
+output "registry_username" {
+  value = module.aws_base[0].registry_username
+}
+
+output "registry_password" {
+  value = module.aws_base[0].registry_password
+  sensitive = true
+}
+
 output "public_ip" {
   value = module.aws_jumpbox[0].public_ip
 }

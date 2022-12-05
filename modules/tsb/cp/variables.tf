@@ -72,7 +72,10 @@ variable "tsb_image_sync_apikey" {
 
 variable "registry" {
 }
-
+variable "registry_username" {
+}
+variable "registry_password" {
+}
 variable "es_host" {
 }
 

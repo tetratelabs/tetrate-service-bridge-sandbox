@@ -2,6 +2,15 @@ output "registry" {
   value = module.gcp_base[0].registry
 }
 
+output "registry_username" {
+  value = module.gcp_base[0].registry_username
+}
+
+output "registry_password" {
+  value = module.gcp_base[0].registry_password
+  sensitive = true
+}
+
 output "public_ip" {
   value = module.gcp_jumpbox[0].public_ip
 }

@@ -53,6 +53,8 @@ module "tsb_cp" {
   jumpbox_username                = var.jumpbox_username
   jumpbox_pkey                    = data.terraform_remote_state.infra.outputs.pkey
   registry                        = data.terraform_remote_state.infra.outputs.registry
+  registry_username               = data.terraform_remote_state.infra.outputs.registry_username
+  registry_password               = data.terraform_remote_state.infra.outputs.registry_password
   cluster_name                    = data.terraform_remote_state.infra.outputs.cluster_name
   k8s_host                        = data.terraform_remote_state.infra.outputs.host
   k8s_cluster_ca_certificate      = data.terraform_remote_state.infra.outputs.cluster_ca_certificate

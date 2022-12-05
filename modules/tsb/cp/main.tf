@@ -121,6 +121,31 @@ resource "kubernetes_secret_v1" "cacerts" {
   type       = "kubernetes.io/generic"
   depends_on = [helm_release.controlplane]
 }
+
+resource "kubernetes_secret_v1" "cr_pull_secret" {
+  metadata {
+    name      = "cr-pull-secret"
+    namespace = "istio-system"
+    annotations = {
+      clustername = var.cluster_name
+    }
+  }
+
+  data = {
+    ".dockerconfigjson" = jsonencode({
+      auths = {
+        "${var.registry}" = {
+          "username" = var.registry_username
+          "password" = var.registry_password
+        }
+      }
+    })
+  }
+
+  type       = "kubernetes.io/dockerconfigjson"
+  depends_on = [helm_release.controlplane]
+}
+
 resource "helm_release" "dataplane" {
   name                = "dataplane"
   repository          = var.tsb_helm_repository

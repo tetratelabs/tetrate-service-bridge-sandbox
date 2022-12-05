@@ -14,6 +14,14 @@ output "registry_id" {
   value = aws_ecr_repository.tsb.registry_id
 }
 
+output "registry_username" {
+  value = data.aws_ecr_authorization_token.token.user_name
+}
+
+output "registry_password" {
+  value = data.aws_ecr_authorization_token.token.password
+}
+
 output "cidr" {
   value = var.cidr
 }

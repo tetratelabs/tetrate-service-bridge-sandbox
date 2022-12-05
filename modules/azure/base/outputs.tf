@@ -18,16 +18,15 @@ output "registry" {
   value = azurerm_container_registry.acr.login_server
 }
 
+output "registry_id" {
+  value = azurerm_container_registry.acr.id
+}
 output "registry_username" {
   value = azurerm_container_registry.acr.admin_username
 }
 
 output "registry_password" {
   value = azurerm_container_registry.acr.admin_password
-}
-
-output "registry_id" {
-  value = azurerm_container_registry.acr.id
 }
 
 output "cidr" {

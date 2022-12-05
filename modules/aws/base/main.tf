@@ -85,3 +85,5 @@ resource "aws_ecr_repository" "tsb" {
   }
 }
 
+data "aws_ecr_authorization_token" "token" {
+}
