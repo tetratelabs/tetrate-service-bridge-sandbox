@@ -132,12 +132,17 @@ resource "kubernetes_secret_v1" "cr_pull_secret" {
   }
 
   data = {
-    "docker-server"    = var.registry
-    "docker-username"  = var.registry_username
-    "docker-password"  = var.registry_password
+    ".dockerconfigjson" = jsonencode({
+      auths = {
+        "${var.registry}" = {
+          "username" = var.registry_username
+          "password" = var.registry_password
+        }
+      }
+    })
   }
 
-  type       = "kubernetes.io/generic"
+  type       = "kubernetes.io/dockerconfigjson"
   depends_on = [helm_release.controlplane]
 }
 
