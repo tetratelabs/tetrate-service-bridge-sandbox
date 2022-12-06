@@ -61,6 +61,9 @@ module "gke_auth" {
   cluster_name         = google_container_cluster.tsb.name
   location             = var.region
   use_private_endpoint = false
+  depends_on = [
+    google_container_cluster.tsb
+  ]
 }
 
 resource "local_file" "kubeconfig" {
