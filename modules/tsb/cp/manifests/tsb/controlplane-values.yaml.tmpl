@@ -24,10 +24,6 @@ spec:
   components:
     istio:
       kubeSpec:
-        deployment:
-          env:
-            - name: AUTO_RELOAD_PLUGIN_CERTS
-              value: "true"
         overlays:
           - apiVersion: install.istio.io/v1alpha1
             kind: IstioOperator
@@ -49,6 +45,10 @@ spec:
                 value:
                   name: ENABLE_ENHANCED_EAST_WEST_ROUTING
                   value: "true"
+              - path: spec.components.edgeServer.kubeSpec.deployment.env[-1]
+                value:
+                  name: DISABLE_TIER1_TIER2_SEPARATION
+                  value: "true"
     gitops:
       enabled: true
       reconcileInterval: 600s
@@ -58,3 +58,6 @@ spec:
     oap:
       streamingLogEnabled: true  
   meshExpansion: {}
+  meshObservability:
+    settings:
+      apiEndpointMetricsEnabled: true  
