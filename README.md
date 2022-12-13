@@ -31,7 +31,7 @@ The `Makefile` in this directory provides ability to fastforward to anypoint of 
 
 ## Prerequisites
 
-- terraform >= 1.3.3
+- terraform >= 1.3.6
 - AWS role configured and assumed(Route53 is used for TSB MP FQDN)
 - (optional) Azure role configured and assumed
 - (optional) GCP role configured and assumed `gcloud auth application-default login`
