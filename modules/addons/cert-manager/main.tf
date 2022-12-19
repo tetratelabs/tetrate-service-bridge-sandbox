@@ -38,6 +38,11 @@ resource "helm_release" "cert_manager" {
     value = "ExperimentalCertificateSigningRequestControllers=true"
   }
 
+  set {
+    name  = "global.leaderElection.namespace"
+    value = "cert-manager"
+  }
+
 }
 
 resource "time_sleep" "wait_90_seconds" {

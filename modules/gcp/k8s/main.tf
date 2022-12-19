@@ -15,16 +15,21 @@ resource "google_container_cluster" "tsb" {
   network            = var.vpc_id
   subnetwork         = var.vpc_subnet
 
-  # We can't create a cluster with no node pool defined, but we want to only use
+  /* # We can't create a cluster with no node pool defined, but we want to only use
   # separately managed node pools. So we create the smallest possible default
   # node pool and immediately delete it.
-  remove_default_node_pool = true
+  remove_default_node_pool = true */
+
   initial_node_count       = 1
 
   resource_labels = {
     name        = "${var.cluster_name}_tsb_sandbox_blue"
     environment = "${var.name_prefix}_tsb"
     owner       = var.owner
+  }
+  
+  enable_autopilot = true
+  ip_allocation_policy {
   }
 
   depends_on = [
