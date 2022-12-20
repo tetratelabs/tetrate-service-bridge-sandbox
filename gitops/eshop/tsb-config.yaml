@@ -116,15 +116,15 @@ items:
           - route:
               host: gitops-eshop/products.gitops-eshop.svc.cluster.local
               port: 80
-        rateLimiting:
-          settings:
-            rules:
-              - dimensions:
-                  - remoteAddress:
-                      value: '*'
-                limit:
-                  requestsPerUnit: 3
-                  unit: SECOND
+        # rateLimiting:
+        #   settings:
+        #     rules:
+        #       - dimensions:
+        #           - remoteAddress:
+        #               value: '*'
+        #         limit:
+        #           requestsPerUnit: 3
+        #           unit: SECOND
       # waf:
       #   rules:
       #     - Include @recommended-conf         # Recommended basic setup
