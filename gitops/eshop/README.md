@@ -24,25 +24,3 @@ by configuring the environment variables as explained in the table at the end.
 * `nacx/nacx-pass`: Is a Creator on the eshop tenant.
 * `zack/zack-pass`: Is the owner of the eshop workspace.
 * `wusheng/wusheng-pass`: Is the owner of the payments workspace.
-
-## Deploy the application
-
-This assumes access to a TSB installation. The installation script will deploy all
-the obs-tester instances, configure TSB, the ingress gateways, and install a
-traffic generator.
-
-You can deploy it with the following command, from the repository root:
-
-```bash
-make eshop
-```
-
-You can configure the following environment variables as well to customize the installation:
-
-| Variable | Default value | Description |
-|---|---|---|
-| eshop_host | eshop.tetrate.io | Hostname to expose the main eshop app in an ingress gateway |
-| payments_host | payments.tetrate.io | Hostname to expose the main payments app in an ingress gateway |
-| tenant_owner | nacx | Username of the owner of the eShop tenant |
-| eshop_owner | zack | Username of the owner of the eShop workspace |
-| payments_owner | wusheng | Username of the owner of the payments workspace |

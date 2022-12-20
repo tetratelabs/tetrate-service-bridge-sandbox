@@ -2,7 +2,7 @@ apiVersion: install.tetrate.io/v1alpha1
 kind: IngressGateway
 metadata:
   name: tsb-gateway-eshop
-  namespace: eshop
+  namespace: gitops-eshop
 spec:
   kubeSpec:
     service:
@@ -12,7 +12,7 @@ apiVersion: install.tetrate.io/v1alpha1
 kind: IngressGateway
 metadata:
   name: tsb-gateway-payments
-  namespace: payments
+  namespace: gitops-eshop-payments
 spec:
   kubeSpec:
     service:
