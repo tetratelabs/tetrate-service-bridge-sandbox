@@ -152,27 +152,6 @@ argocd_%:
 		done; \
 		'
 
-.PHONY: eshop
-eshop: eshop_gcp eshop_aws eshop_azure  ## Deploys the eshop application
-eshop_%:
-	@echo "Deploying the eshop app in $*..."
-	@$(MAKE) $*_k8s
-	@/bin/sh -c '\
-		k8s_regions=`jq -c '.$*_k8s_regions' terraform.tfvars.json`; \
-		index=0; \
-		jq -r '.$*_k8s_regions[]' terraform.tfvars.json | while read -r region; do \
-		echo "cloud=$* region=$$region cluster_id=$$index"; \
-		cd "apps/eshop"; \
-		terraform workspace new $*-$$index-$$region; \
-		terraform workspace select $*-$$index-$$region; \
-		terraform init; \
-		terraform apply ${terraform_apply_args} -var=cloud=$* -var=cluster_id=$$index -var="k8s_regions=$$k8s_regions"; \
-		terraform workspace select default; \
-		index=$$((index+1)); \
-		cd "../.."; \
-		done; \
-		'
-
 .PHONY: destroy
 destroy:  ## Destroy the environment
 	@/bin/sh -c '\

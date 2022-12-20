@@ -1,12 +1,11 @@
-%{ for svc in split(",", services) }
 apiVersion: v1
 kind: Service
 metadata:
-  name: ${svc}
-  namespace: ${namespace}
+  name: payments
+  namespace: gitops-eshop-payments
   labels:
-    app: ${svc}
-    service: ${svc}
+    app: payments
+    service: payments
 spec:
   ports:
     - port: 80
@@ -16,36 +15,36 @@ spec:
       targetPort: 3000
       name: tcp
   selector:
-    app: ${svc}
+    app: payments
 ---
 apiVersion: v1
 kind: ServiceAccount
 metadata:
-  name: sa-${svc}
-  namespace: ${namespace}
+  name: sa-payments
+  namespace: gitops-eshop-payments
   labels:
-    app: ${svc}
+    app: payments
 ---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: ${svc}-v1
-  namespace: ${namespace}
+  name: payments-v1
+  namespace: gitops-eshop-payments
   labels:
-    app: ${svc}
+    app: payments
     version: v1
 spec:
   selector:
     matchLabels:
-      app: ${svc}
+      app: payments
       version: v1
   template:
     metadata:
       labels:
-        app: ${svc}
+        app: payments
         version: v1
     spec:
-      serviceAccountName: sa-${svc}
+      serviceAccountName: sa-payments
       containers:
         - name: obs-tester
           image: docker.io/nacx/obs-tester-server:1.0
@@ -62,11 +61,9 @@ spec:
             - '--zipkin-singlehost-spans' # Envoy does not work well with Zipkin's default shared spans
           env:
             - name: SVCNAME
-              value: ${svc}
+              value: payments
           ports:
             - name: http
               containerPort: 8000
             - name: tcp
               containerPort: 3000
----
-%{ endfor }
