@@ -36,6 +36,12 @@ spec:
       configProtection: {}
       enableHttpMeshInternalIdentityPropagation: false
       kubeSpec:
+        deployment:
+          env:
+            - name: ENABLE_GATEWAY_DELETE_HOLD
+              value: "true"
+            - name: GATEWAY_DELETE_HOLD_SECONDS
+              value: "20"
         overlays:
           - apiVersion: install.xcp.tetrate.io/v1alpha1
             kind: EdgeXcp
@@ -49,14 +55,6 @@ spec:
                 value:
                   name: DISABLE_TIER1_TIER2_SEPARATION
                   value: "true"
-              - path: spec.components.edgeServer.kubeSpec.deployment.env[-1]
-                value:
-                  name: ENABLE_GATEWAY_DELETE_HOLD
-                  value: "true"
-              - path: spec.components.edgeServer.kubeSpec.deployment.env[-1]
-                value:
-                  name: GATEWAY_DELETE_HOLD_SECONDS
-                  value: "30s"
     gitops:
       enabled: true
       reconcileInterval: 600s
