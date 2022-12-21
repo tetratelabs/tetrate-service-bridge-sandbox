@@ -40,7 +40,7 @@ spec:
   http:
     service:
       spec:
-        type: LoadBalancer
+        type: ClusterIP
   count: 1
   elasticsearchRef:
     name: tsb
