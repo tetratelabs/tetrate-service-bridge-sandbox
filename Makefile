@@ -152,7 +152,7 @@ argocd_%:
 		done; \
 		'
 
-.PHONY: argocd
+.PHONY: monitoring
 monitoring:  ## Deploys the TSB monitoring stack
 	@echo "Deploying TSB monitoring stack..."
 	@$(MAKE) k8s
