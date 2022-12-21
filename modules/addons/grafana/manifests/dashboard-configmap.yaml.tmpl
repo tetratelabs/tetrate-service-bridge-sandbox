@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: dashboard-${name}
+  namespace: ${namespace}
+  labels:
+    grafana_dashboard: "true"
+data:
+  ${dashboard_key}: |
+    ${dashboard_json}

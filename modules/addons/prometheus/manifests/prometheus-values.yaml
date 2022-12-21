@@ -1,0 +1,42 @@
+alertmanager:
+  enabled: false
+prometheus-pushgateway:
+  enabled: false
+prometheus-node-exporter:
+  enabled: false
+kube-state-metrics:
+  enabled: false
+
+server:
+  service:
+    servicePort: 9090
+
+# We disable the k8s default exporters here as we don't want to deploy a full Prometheus to avoid
+# using so many resources here.
+# It the exporters above are enabled, instead of directly configuring the `serverFiles` we should
+# be configuring the `extraScrapeConfigs` instead so that the default scraping configs would be used,
+# instead of being overwritten by just the TSB one.
+serverFiles:
+  prometheus.yml:
+    scrape_configs:
+      - job_name: 'tsb'
+        honor_timestamps: true
+        honor_labels: true
+        scrape_interval: 15s
+        scrape_timeout: 10s
+        metrics_path: '/metrics'
+        kubernetes_sd_configs:
+          - role: endpoints
+            namespaces:
+              names:
+                - tsb
+        relabel_configs:
+          - source_labels: [__meta_kubernetes_service_name, __meta_kubernetes_endpoint_port_name]
+            action: keep
+            regex: otel-collector;prometheus
+          # Add this by default to be able to reuse the cloud dashboards. There a namespace dimension for each
+          # customer is present in the metrics, so we want to configure this to emit one for 'alpha', which is the
+          # default value. This allows the scraping job to match the cloud dashboards and properly show metrics.
+          - source_labels: [__address__]
+            target_label: namespace
+            replacement: "tsb-alpha"
