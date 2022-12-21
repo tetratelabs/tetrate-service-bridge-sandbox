@@ -15,3 +15,7 @@ variable "admin_password" {
 
 variable "namespace" {
 }
+
+variable "dashboards" {
+    
+}

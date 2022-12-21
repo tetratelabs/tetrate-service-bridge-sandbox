@@ -14,19 +14,19 @@ provider "kubectl" {
 }
 
 data "kubectl_path_documents" "tsb_dashboards" {
-  for_each = fileset("${path.module}/dashboards", "*.json")
+  for_each = var.dashboards
   pattern  = "${path.module}/manifests/dashboard-configmap.yaml.tmpl"
   vars     = {
-    name           = replace(replace(each.value, ".json", ""), "_", "-")
+    name           = replace(replace(each.key, ".json", ""), "_", "-")
     namespace      = var.namespace
-    dashboard_key  = each.value
-    dashboard_json = indent(4, file("${path.module}/dashboards/${each.value}"))
+    dashboard_key  = each.key
+    dashboard_json = indent(4, each.value)
   }
 }
 
 resource "kubectl_manifest" "tsb_dashboards" {
-  for_each = fileset("${path.module}/dashboards", "*.json")
-  yaml_body  = data.kubectl_path_documents.tsb_dashboards[each.value].documents[0]
+  for_each = var.dashboards
+  yaml_body  = data.kubectl_path_documents.tsb_dashboards[each.key].documents[0]
 }
 
 resource "helm_release" "grafana" {

@@ -22,4 +22,6 @@ module "grafana" {
   k8s_client_token           = data.terraform_remote_state.infra.outputs.token
   namespace                  = "tsb-monitoring"
   admin_password             = var.tsb_password
+  
+  dashboards = {for d in fileset("${path.module}/dashboards", "*.json") : d => file("${path.module}/dashboards/${d}")}
 }
