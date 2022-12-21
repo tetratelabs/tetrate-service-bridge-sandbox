@@ -1,14 +1,5 @@
 ---
 apiVersion: tsb.tetrate.io/v2
-kind: Tenant
-metadata:
-  name: dev
-  annotations:
-    tsb.tetrate.io/organization: tetrate
-spec:
-  description: dev
----
-apiVersion: tsb.tetrate.io/v2
 kind: Workspace
 metadata:
   name: gitops-opa-s2s-httpbin-ws
