@@ -55,6 +55,10 @@ spec:
                 value:
                   name: DISABLE_TIER1_TIER2_SEPARATION
                   value: "true"
+              - path: spec.components.edgeServer.kubeSpec.deployment.env[-1]
+                value:
+                  name: ENABLE_DNS_RESOLUTION_AT_EDGE
+                  value: "true"
     gitops:
       enabled: true
       reconcileInterval: 600s
