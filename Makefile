@@ -209,5 +209,5 @@ destroy_tfcache:
 
 .PHONY: destroy_outputs
 destroy_outputs:
-	rm -f outputs/*.sh outputs/*-kubeconfig outputs/*.jwk outputs/*.pem
+	rm -f outputs/*-kubeconfig.sh outputs/*-jumpbox.sh outputs/*-kubeconfig outputs/*.jwk outputs/*.pem
 	rm -f outputs/terraform_outputs/*.json
