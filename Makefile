@@ -152,6 +152,19 @@ argocd_%:
 		done; \
 		'
 
+.PHONY: monitoring
+monitoring:  ## Deploys the TSB monitoring stack
+	@echo "Deploying TSB monitoring stack..."
+	@$(MAKE) k8s
+	@/bin/sh -c '\
+		cd "addons/monitoring"; \
+		terraform workspace select default; \
+		terraform init; \
+		terraform apply ${terraform_apply_args} -var-file="../../terraform.tfvars.json"; \
+		terraform workspace select default; \
+		cd "../.."; \
+		'
+
 .PHONY: destroy
 destroy:  ## Destroy the environment
 	@/bin/sh -c '\
@@ -193,3 +206,8 @@ destroy_tfstate:
 destroy_tfcache:
 	find . -name .terraform -exec rm -rf {} +
 	find . -name .terraform.lock.hcl -delete
+
+.PHONY: destroy_outputs
+destroy_outputs:
+	rm -f outputs/*-kubeconfig.sh outputs/*-jumpbox.sh outputs/*-kubeconfig outputs/*.jwk outputs/*.pem
+	rm -f outputs/terraform_outputs/*.json

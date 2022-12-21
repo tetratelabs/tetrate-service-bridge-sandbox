@@ -1,0 +1,2357 @@
+{
+  "annotations": {
+    "list": [
+      {
+        "builtIn": 1,
+        "datasource": "-- Grafana --",
+        "enable": true,
+        "hide": true,
+        "iconColor": "rgba(0, 211, 255, 1)",
+        "name": "Annotations & Alerts",
+        "type": "dashboard"
+      }
+    ]
+  },
+  "description": "Operational metrics to indicate Management Plane Controller (MPC) health.",
+  "editable": true,
+  "gnetId": null,
+  "graphTooltip": 0,
+  "id": 6,
+  "iteration": 1643815843909,
+  "links": [],
+  "panels": [
+    {
+      "collapsed": false,
+      "datasource": null,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 0
+      },
+      "id": 18,
+      "panels": [],
+      "title": "Config generation (TSB -> MPC -> XCP)",
+      "type": "row"
+    },
+    {
+      "aliasColors": {},
+      "bars": false,
+      "dashLength": 10,
+      "dashes": false,
+      "datasource": null,
+      "description": "Config update messages sent over the gRPC stream from TSB and received by MPC. \n\nThis metric can help understand how messages are queued in MPC when it is under load. The value for both metrics should always be the same. If the Received by MPC metric has a value lower than the TSB one, it means MPC is under load and cannot process all messages sent by TSB as fast as TSB is sending them.",
+      "fieldConfig": {
+        "defaults": {},
+        "overrides": []
+      },
+      "fill": 1,
+      "fillGradient": 0,
+      "gridPos": {
+        "h": 6,
+        "w": 8,
+        "x": 0,
+        "y": 1
+      },
+      "hiddenSeries": false,
+      "id": 28,
+      "legend": {
+        "avg": false,
+        "current": false,
+        "max": false,
+        "min": false,
+        "show": true,
+        "total": false,
+        "values": false
+      },
+      "lines": true,
+      "linewidth": 1,
+      "nullPointMode": "null",
+      "options": {
+        "alertThreshold": true
+      },
+      "percentage": false,
+      "pluginVersion": "7.5.2",
+      "pointradius": 2,
+      "points": false,
+      "renderer": "flot",
+      "seriesOverrides": [],
+      "spaceLength": 10,
+      "stack": false,
+      "steppedLine": false,
+      "targets": [
+        {
+          "exemplar": false,
+          "expr": "sum(increase(grpc_server_msg_sent_total{component=\"tsb\", grpc_method=\"GetAllConfigObjects\",namespace=\"tsb-$organization\"}[$mpcTimePeriod])) or on() vector(0)",
+          "interval": "",
+          "legendFormat": "Sent from TSB",
+          "refId": "A"
+        },
+        {
+          "exemplar": false,
+          "expr": "sum(increase(grpc_client_msg_received_total{component=\"mpc\", grpc_method=\"GetAllConfigObjects\",namespace=\"tsb-$organization\"}[$mpcTimePeriod])) or on() vector(0)",
+          "interval": "",
+          "legendFormat": "Received by MPC",
+          "refId": "B"
+        }
+      ],
+      "thresholds": [],
+      "timeFrom": null,
+      "timeRegions": [],
+      "timeShift": null,
+      "title": "Config Update Messages every $mpcTimePeriod",
+      "tooltip": {
+        "shared": true,
+        "sort": 0,
+        "value_type": "individual"
+      },
+      "type": "graph",
+      "xaxis": {
+        "buckets": null,
+        "mode": "time",
+        "name": null,
+        "show": true,
+        "values": []
+      },
+      "yaxes": [
+        {
+          "format": "short",
+          "label": null,
+          "logBase": 1,
+          "max": null,
+          "min": null,
+          "show": true
+        },
+        {
+          "format": "short",
+          "label": null,
+          "logBase": 1,
+          "max": null,
+          "min": null,
+          "show": true
+        }
+      ],
+      "yaxis": {
+        "align": false,
+        "alignLevel": null
+      }
+    },
+    {
+      "aliasColors": {},
+      "bars": false,
+      "dashLength": 10,
+      "dashes": false,
+      "datasource": null,
+      "description": "The number of configuration updates received by the Management Plane Controller (MPC) is to be processed and sent to XCP.\n\nTSB sends the config updates over a permanently connected gRPC stream to MPC, and this metric shows the number of messages received and processed by MPC on that stream.\n",
+      "fieldConfig": {
+        "defaults": {
+          "links": []
+        },
+        "overrides": []
+      },
+      "fill": 1,
+      "fillGradient": 0,
+      "gridPos": {
+        "h": 6,
+        "w": 7,
+        "x": 8,
+        "y": 1
+      },
+      "hiddenSeries": false,
+      "id": 13,
+      "legend": {
+        "avg": false,
+        "current": false,
+        "hideZero": true,
+        "max": false,
+        "min": false,
+        "show": true,
+        "total": false,
+        "values": false
+      },
+      "lines": true,
+      "linewidth": 1,
+      "nullPointMode": "null",
+      "options": {
+        "alertThreshold": true
+      },
+      "percentage": false,
+      "pluginVersion": "7.5.2",
+      "pointradius": 2,
+      "points": false,
+      "renderer": "flot",
+      "seriesOverrides": [],
+      "spaceLength": 10,
+      "stack": false,
+      "steppedLine": false,
+      "targets": [
+        {
+          "exemplar": false,
+          "expr": "sum(increase(permanent_stream_operation{name=\"ConfigUpdates\", error=\"\",namespace=\"tsb-$organization\"}[$mpcTimePeriod])) or on() vector(0)",
+          "hide": false,
+          "interval": "",
+          "legendFormat": "Successful",
+          "refId": "A"
+        },
+        {
+          "exemplar": false,
+          "expr": "sum(increase(permanent_stream_operation{name=\"ConfigUpdates\", error!=\"\",namespace=\"tsb-$organization\"}[$mpcTimePeriod])) or on() vector(0)",
+          "hide": false,
+          "interval": "",
+          "legendFormat": "Errors",
+          "refId": "B"
+        }
+      ],
+      "thresholds": [],
+      "timeFrom": null,
+      "timeRegions": [],
+      "timeShift": null,
+      "title": "Config updates processed every $mpcTimePeriod",
+      "tooltip": {
+        "shared": true,
+        "sort": 0,
+        "value_type": "individual"
+      },
+      "type": "graph",
+      "xaxis": {
+        "buckets": null,
+        "mode": "time",
+        "name": null,
+        "show": true,
+        "values": []
+      },
+      "yaxes": [
+        {
+          "format": "short",
+          "label": null,
+          "logBase": 1,
+          "max": null,
+          "min": "0",
+          "show": true
+        },
+        {
+          "format": "short",
+          "label": null,
+          "logBase": 1,
+          "max": null,
+          "min": null,
+          "show": true
+        }
+      ],
+      "yaxis": {
+        "align": false,
+        "alignLevel": null
+      }
+    },
+    {
+      "aliasColors": {},
+      "bars": false,
+      "dashLength": 10,
+      "dashes": false,
+      "datasource": null,
+      "description": "The number of connection (and reconnection) attempts on the config updates stream.\n\nTSB sends the config updates over a permanently connected gRPC stream to MPC. This metric shows the number of connections and reconnections that happened on that stream.\n",
+      "fieldConfig": {
+        "defaults": {
+          "links": []
+        },
+        "overrides": []
+      },
+      "fill": 1,
+      "fillGradient": 0,
+      "gridPos": {
+        "h": 6,
+        "w": 7,
+        "x": 15,
+        "y": 1
+      },
+      "hiddenSeries": false,
+      "id": 11,
+      "legend": {
+        "avg": false,
+        "current": false,
+        "hideZero": true,
+        "max": false,
+        "min": false,
+        "show": true,
+        "total": false,
+        "values": false
+      },
+      "lines": true,
+      "linewidth": 1,
+      "nullPointMode": "null",
+      "options": {
+        "alertThreshold": true
+      },
+      "percentage": false,
+      "pluginVersion": "7.5.2",
+      "pointradius": 2,
+      "points": false,
+      "renderer": "flot",
+      "seriesOverrides": [],
+      "spaceLength": 10,
+      "stack": false,
+      "steppedLine": false,
+      "targets": [
+        {
+          "exemplar": false,
+          "expr": "sum(increase(permanent_stream_connection_attempts{name=\"ConfigUpdates\", error=\"\",namespace=\"tsb-$organization\"}[$mpcTimePeriod])) or on() vector(0)",
+          "hide": false,
+          "interval": "",
+          "legendFormat": "Successful",
+          "refId": "A"
+        },
+        {
+          "exemplar": false,
+          "expr": "sum(increase(permanent_stream_connection_attempts{name=\"ConfigUpdates\", error!=\"\",namespace=\"tsb-$organization\"}[$mpcTimePeriod])) or on() vector(0)",
+          "hide": false,
+          "interval": "",
+          "legendFormat": "Errors",
+          "refId": "B"
+        }
+      ],
+      "thresholds": [],
+      "timeFrom": null,
+      "timeRegions": [],
+      "timeShift": null,
+      "title": "Config stream connection attempts every $mpcTimePeriod",
+      "tooltip": {
+        "shared": true,
+        "sort": 0,
+        "value_type": "individual"
+      },
+      "type": "graph",
+      "xaxis": {
+        "buckets": null,
+        "mode": "time",
+        "name": null,
+        "show": true,
+        "values": []
+      },
+      "yaxes": [
+        {
+          "format": "short",
+          "label": null,
+          "logBase": 1,
+          "max": null,
+          "min": "0",
+          "show": true
+        },
+        {
+          "format": "short",
+          "label": null,
+          "logBase": 1,
+          "max": null,
+          "min": null,
+          "show": true
+        }
+      ],
+      "yaxis": {
+        "align": false,
+        "alignLevel": null
+      }
+    },
+    {
+      "aliasColors": {},
+      "bars": false,
+      "dashLength": 10,
+      "dashes": false,
+      "datasource": null,
+      "description": "Time it took for configuration objects to be pushed to XCP.\n\nThis metric shows the time it takes for MPC to apply all the configuration objects in the XCP namespace once all the configuration objects have been received from TSB and translated into XCP objects.",
+      "fieldConfig": {
+        "defaults": {
+          "unit": "ms"
+        },
+        "overrides": []
+      },
+      "fill": 1,
+      "fillGradient": 0,
+      "gridPos": {
+        "h": 6,
+        "w": 11,
+        "x": 0,
+        "y": 7
+      },
+      "hiddenSeries": false,
+      "id": 24,
+      "legend": {
+        "avg": false,
+        "current": false,
+        "max": false,
+        "min": false,
+        "show": true,
+        "total": false,
+        "values": false
+      },
+      "lines": true,
+      "linewidth": 1,
+      "nullPointMode": "null",
+      "options": {
+        "alertThreshold": true
+      },
+      "percentage": false,
+      "pluginVersion": "7.5.2",
+      "pointradius": 2,
+      "points": false,
+      "renderer": "flot",
+      "seriesOverrides": [],
+      "spaceLength": 10,
+      "stack": false,
+      "steppedLine": false,
+      "targets": [
+        {
+          "exemplar": false,
+          "expr": "mpc_xcp_config_push_time{error=\"\",namespace=\"tsb-$organization\"} or on() vector(0)",
+          "interval": "",
+          "legendFormat": "Successful push",
+          "refId": "A"
+        },
+        {
+          "exemplar": false,
+          "expr": "mpc_xcp_config_push_time{error!=\"\",namespace=\"tsb-$organization\"} or on() vector(0)",
+          "interval": "",
+          "legendFormat": "Failed push",
+          "refId": "B"
+        }
+      ],
+      "thresholds": [],
+      "timeFrom": null,
+      "timeRegions": [],
+      "timeShift": null,
+      "title": "XCP Config Push Duration",
+      "tooltip": {
+        "shared": true,
+        "sort": 0,
+        "value_type": "individual"
+      },
+      "type": "graph",
+      "xaxis": {
+        "buckets": null,
+        "mode": "time",
+        "name": null,
+        "show": true,
+        "values": []
+      },
+      "yaxes": [
+        {
+          "format": "ms",
+          "label": null,
+          "logBase": 1,
+          "max": null,
+          "min": null,
+          "show": true
+        },
+        {
+          "format": "short",
+          "label": null,
+          "logBase": 1,
+          "max": null,
+          "min": null,
+          "show": true
+        }
+      ],
+      "yaxis": {
+        "align": false,
+        "alignLevel": null
+      }
+    },
+    {
+      "aliasColors": {},
+      "bars": false,
+      "dashLength": 10,
+      "dashes": false,
+      "datasource": "prometheus",
+      "description": "The number of resources that sent from TSB to MPC.\n\nThis metric shows the number of objects that are created, updated, and deleted as part of a configuration push from MPC to XCP.\n\nThis metric can be used together with the XCP push operations and push duration to get an understanding of how the amount of resources being pushed to XCP affects the time it takes for the entire configuration push operation to complete.",
+      "fieldConfig": {
+        "defaults": {},
+        "overrides": []
+      },
+      "fill": 1,
+      "fillGradient": 0,
+      "gridPos": {
+        "h": 6,
+        "w": 11,
+        "x": 11,
+        "y": 7
+      },
+      "hiddenSeries": false,
+      "id": 37,
+      "interval": "",
+      "legend": {
+        "avg": false,
+        "current": false,
+        "max": false,
+        "min": false,
+        "show": true,
+        "total": false,
+        "values": false
+      },
+      "lines": true,
+      "linewidth": 1,
+      "nullPointMode": "null",
+      "options": {
+        "alertThreshold": true
+      },
+      "percentage": false,
+      "pluginVersion": "7.5.2",
+      "pointradius": 2,
+      "points": false,
+      "renderer": "flot",
+      "seriesOverrides": [],
+      "spaceLength": 10,
+      "stack": false,
+      "steppedLine": false,
+      "targets": [
+        {
+          "expr": "mpc_tsb_config_received_count{namespace=\"tsb-$organization\"}",
+          "format": "time_series",
+          "instant": false,
+          "interval": "",
+          "legendFormat": "Received from TSB",
+          "refId": "D"
+        }
+      ],
+      "thresholds": [],
+      "timeFrom": null,
+      "timeRegions": [],
+      "timeShift": null,
+      "title": "TSB to MPC sent configs",
+      "tooltip": {
+        "shared": true,
+        "sort": 0,
+        "value_type": "individual"
+      },
+      "type": "graph",
+      "xaxis": {
+        "buckets": null,
+        "mode": "time",
+        "name": null,
+        "show": true,
+        "values": []
+      },
+      "yaxes": [
+        {
+          "format": "short",
+          "label": null,
+          "logBase": 1,
+          "max": null,
+          "min": null,
+          "show": true
+        },
+        {
+          "format": "short",
+          "label": null,
+          "logBase": 1,
+          "max": null,
+          "min": null,
+          "show": true
+        }
+      ],
+      "yaxis": {
+        "align": false,
+        "alignLevel": null
+      }
+    },
+    {
+      "aliasColors": {},
+      "bars": false,
+      "dashLength": 10,
+      "dashes": false,
+      "datasource": null,
+      "description": "Configuration updates received from TSB are processed by MPC and translated into XCP resources. This metric shows the conversion rate of TSB resources to XCP resources.\nIt gives a good idea of the number of resources of each type in the runtime configuration.\n",
+      "fieldConfig": {
+        "defaults": {
+          "links": []
+        },
+        "overrides": []
+      },
+      "fill": 1,
+      "fillGradient": 0,
+      "gridPos": {
+        "h": 7,
+        "w": 11,
+        "x": 0,
+        "y": 13
+      },
+      "hiddenSeries": false,
+      "id": 7,
+      "interval": "",
+      "legend": {
+        "alignAsTable": false,
+        "avg": false,
+        "current": false,
+        "hideZero": true,
+        "max": false,
+        "min": false,
+        "rightSide": true,
+        "show": true,
+        "total": false,
+        "values": false
+      },
+      "lines": true,
+      "linewidth": 1,
+      "nullPointMode": "null",
+      "options": {
+        "alertThreshold": true
+      },
+      "percentage": false,
+      "pluginVersion": "7.5.2",
+      "pointradius": 2,
+      "points": false,
+      "renderer": "flot",
+      "seriesOverrides": [],
+      "spaceLength": 10,
+      "stack": false,
+      "steppedLine": false,
+      "targets": [
+        {
+          "expr": "sum(rate(mpc_xcp_conversion_count{namespace=\"tsb-$organization\"}[1m])) by (resource)",
+          "hide": false,
+          "interval": "",
+          "legendFormat": "{{resource}}",
+          "refId": "A"
+        }
+      ],
+      "thresholds": [],
+      "timeFrom": null,
+      "timeRegions": [],
+      "timeShift": null,
+      "title": "XCP Resource conversion rate",
+      "tooltip": {
+        "shared": true,
+        "sort": 0,
+        "value_type": "individual"
+      },
+      "type": "graph",
+      "xaxis": {
+        "buckets": null,
+        "mode": "time",
+        "name": null,
+        "show": true,
+        "values": []
+      },
+      "yaxes": [
+        {
+          "format": "short",
+          "label": null,
+          "logBase": 1,
+          "max": null,
+          "min": "0",
+          "show": true
+        },
+        {
+          "format": "short",
+          "label": null,
+          "logBase": 1,
+          "max": null,
+          "min": null,
+          "show": true
+        }
+      ],
+      "yaxis": {
+        "align": false,
+        "alignLevel": null
+      }
+    },
+    {
+      "aliasColors": {},
+      "bars": false,
+      "dashLength": 10,
+      "dashes": false,
+      "datasource": "prometheus",
+      "description": "The number of resources that are pushed to XCP.\n\nThis metric shows the number of objects that are created, updated, and deleted as part of a configuration push from MPC to XCP.\nIt also shows how many fetch calls to the k8s api server are done.\n\nThis metric can be used together with the TSB tp MPC sent configs and XCP push operations and push duration to get an understanding of how the amount of resources being pushed to XCP affects the time it takes for the entire configuration push operation to complete.",
+      "fieldConfig": {
+        "defaults": {},
+        "overrides": []
+      },
+      "fill": 1,
+      "fillGradient": 0,
+      "gridPos": {
+        "h": 7,
+        "w": 11,
+        "x": 11,
+        "y": 13
+      },
+      "hiddenSeries": false,
+      "id": 26,
+      "interval": "",
+      "legend": {
+        "avg": false,
+        "current": false,
+        "max": false,
+        "min": false,
+        "show": true,
+        "total": false,
+        "values": false
+      },
+      "lines": true,
+      "linewidth": 1,
+      "nullPointMode": "null",
+      "options": {
+        "alertThreshold": true
+      },
+      "percentage": false,
+      "pluginVersion": "7.5.2",
+      "pointradius": 2,
+      "points": false,
+      "renderer": "flot",
+      "seriesOverrides": [],
+      "spaceLength": 10,
+      "stack": false,
+      "steppedLine": false,
+      "targets": [
+        {
+          "expr": "sum(mpc_xcp_config_create_ops{namespace=\"tsb-$organization\"})",
+          "format": "time_series",
+          "instant": false,
+          "interval": "",
+          "legendFormat": "Creates",
+          "refId": "A"
+        },
+        {
+          "expr": "sum(mpc_xcp_config_update_ops{namespace=\"tsb-$organization\"})",
+          "format": "time_series",
+          "interval": "",
+          "legendFormat": "Updates",
+          "refId": "B"
+        },
+        {
+          "expr": "sum(mpc_xcp_config_delete_ops{namespace=\"tsb-$organization\"})",
+          "format": "time_series",
+          "hide": false,
+          "interval": "",
+          "legendFormat": "Deletes",
+          "refId": "C"
+        },
+        {
+          "expr": "sum(mpc_xcp_config_fetch_ops{namespace=\"tsb-$organization\"})",
+          "hide": false,
+          "interval": "",
+          "legendFormat": "Lists",
+          "refId": "D"
+        }
+      ],
+      "thresholds": [],
+      "timeFrom": null,
+      "timeRegions": [],
+      "timeShift": null,
+      "title": "MPC to XCP pushed configs",
+      "tooltip": {
+        "shared": true,
+        "sort": 0,
+        "value_type": "individual"
+      },
+      "type": "graph",
+      "xaxis": {
+        "buckets": null,
+        "mode": "time",
+        "name": null,
+        "show": true,
+        "values": []
+      },
+      "yaxes": [
+        {
+          "format": "short",
+          "label": null,
+          "logBase": 1,
+          "max": null,
+          "min": null,
+          "show": true
+        },
+        {
+          "format": "short",
+          "label": null,
+          "logBase": 1,
+          "max": null,
+          "min": null,
+          "show": true
+        }
+      ],
+      "yaxis": {
+        "align": false,
+        "alignLevel": null
+      }
+    },
+    {
+      "aliasColors": {},
+      "bars": false,
+      "dashLength": 10,
+      "dashes": false,
+      "datasource": null,
+      "description": "Configuration updates received from TSB are processed by MPC and translated into XCP resources. This metric shows the conversion error rate of TSB resources to XCP resources.\nIt should always be zero. If there are errors reported in this graph, there are incompatibilities between the XCP resources and the TSB ones. This may be the result of mismatching version compatibility between TSB and XCP.\n",
+      "fieldConfig": {
+        "defaults": {
+          "links": []
+        },
+        "overrides": []
+      },
+      "fill": 1,
+      "fillGradient": 0,
+      "gridPos": {
+        "h": 7,
+        "w": 11,
+        "x": 0,
+        "y": 20
+      },
+      "hiddenSeries": false,
+      "id": 8,
+      "interval": "",
+      "legend": {
+        "avg": false,
+        "current": false,
+        "hideZero": true,
+        "max": false,
+        "min": false,
+        "rightSide": true,
+        "show": true,
+        "total": false,
+        "values": false
+      },
+      "lines": true,
+      "linewidth": 1,
+      "nullPointMode": "null",
+      "options": {
+        "alertThreshold": true
+      },
+      "percentage": false,
+      "pluginVersion": "7.5.2",
+      "pointradius": 2,
+      "points": false,
+      "renderer": "flot",
+      "seriesOverrides": [],
+      "spaceLength": 10,
+      "stack": false,
+      "steppedLine": false,
+      "targets": [
+        {
+          "expr": "sum(rate(mpc_xcp_conversion_count{namespace=\"tsb-$organization\", error != \"\"}[1m])) by (resource) or on() vector(0)",
+          "hide": false,
+          "interval": "",
+          "legendFormat": "{{resource}}",
+          "refId": "A"
+        }
+      ],
+      "thresholds": [],
+      "timeFrom": null,
+      "timeRegions": [],
+      "timeShift": null,
+      "title": "XCP Resource conversion error rate",
+      "tooltip": {
+        "shared": true,
+        "sort": 0,
+        "value_type": "individual"
+      },
+      "type": "graph",
+      "xaxis": {
+        "buckets": null,
+        "mode": "time",
+        "name": null,
+        "show": true,
+        "values": []
+      },
+      "yaxes": [
+        {
+          "format": "short",
+          "label": null,
+          "logBase": 1,
+          "max": null,
+          "min": "0",
+          "show": true
+        },
+        {
+          "format": "short",
+          "label": null,
+          "logBase": 1,
+          "max": null,
+          "min": null,
+          "show": true
+        }
+      ],
+      "yaxis": {
+        "align": false,
+        "alignLevel": null
+      }
+    },
+    {
+      "aliasColors": {},
+      "bars": false,
+      "dashLength": 10,
+      "dashes": false,
+      "datasource": null,
+      "description": "The number of resources that failed while pushing to XCP.\n\nThis metric shows the number of objects that fail when they are tried to be created, updated, and deleted as part of a configuration push from MPC to XCP.\nIt also shows the number of failed fetch calls to the k8s api server.\n\nThis metric can be used together with the MPC to TSB push configs and the XCP push operations and push duration to get an understanding of how the amount of resources being pushed to XCP affects the time it takes for the entire configuration push operation to complete.",
+      "fieldConfig": {
+        "defaults": {},
+        "overrides": []
+      },
+      "fill": 1,
+      "fillGradient": 0,
+      "gridPos": {
+        "h": 7,
+        "w": 11,
+        "x": 11,
+        "y": 20
+      },
+      "hiddenSeries": false,
+      "id": 36,
+      "interval": "",
+      "legend": {
+        "avg": false,
+        "current": false,
+        "max": false,
+        "min": false,
+        "show": true,
+        "total": false,
+        "values": false
+      },
+      "lines": true,
+      "linewidth": 1,
+      "nullPointMode": "null",
+      "options": {
+        "alertThreshold": true
+      },
+      "percentage": false,
+      "pluginVersion": "7.5.2",
+      "pointradius": 2,
+      "points": false,
+      "renderer": "flot",
+      "seriesOverrides": [],
+      "spaceLength": 10,
+      "stack": false,
+      "steppedLine": false,
+      "targets": [
+        {
+          "expr": "sum(mpc_xcp_config_create_ops_err)",
+          "interval": "",
+          "legendFormat": "Creates",
+          "refId": "A"
+        },
+        {
+          "expr": "sum(mpc_xcp_config_update_ops_err)",
+          "interval": "",
+          "legendFormat": "Updates",
+          "refId": "B"
+        },
+        {
+          "exemplar": false,
+          "expr": "sum(mpc_xcp_config_delete_ops_err{namespace=\"tsb-$organization\"})",
+          "interval": "",
+          "legendFormat": "Deletes",
+          "refId": "C"
+        },
+        {
+          "exemplar": false,
+          "expr": "sum(mpc_xcp_config_fetch_ops_err{namespace=\"tsb-$organization\"})",
+          "interval": "",
+          "legendFormat": "Lists",
+          "refId": "D"
+        }
+      ],
+      "thresholds": [],
+      "timeFrom": null,
+      "timeRegions": [],
+      "timeShift": null,
+      "title": "MCP to XCP pushed configs error",
+      "tooltip": {
+        "shared": true,
+        "sort": 0,
+        "value_type": "individual"
+      },
+      "type": "graph",
+      "xaxis": {
+        "buckets": null,
+        "mode": "time",
+        "name": null,
+        "show": true,
+        "values": []
+      },
+      "yaxes": [
+        {
+          "format": "short",
+          "label": null,
+          "logBase": 1,
+          "max": null,
+          "min": "0",
+          "show": true
+        },
+        {
+          "format": "short",
+          "label": null,
+          "logBase": 1,
+          "max": null,
+          "min": null,
+          "show": true
+        }
+      ],
+      "yaxis": {
+        "align": false,
+        "alignLevel": null
+      }
+    },
+    {
+      "collapsed": false,
+      "datasource": null,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 27
+      },
+      "id": 43,
+      "panels": [],
+      "title": "Config Status updates (XCP -> MPC -> TSB)",
+      "type": "row"
+    },
+    {
+      "aliasColors": {},
+      "bars": false,
+      "dashLength": 10,
+      "dashes": false,
+      "datasource": null,
+      "description": "Config Status update messages sent over the gRPC streams, from XCP to MPC to XCP.\n\nThis metric can help understand how messages are queued in TSB when it is under load. The value for both metrics should always be the same. If the Received by TSB metric has a value lower than the MPC one, it means TSB is under load and cannot process all messages sent by MPC as fast as MPC is sending them.\n\n",
+      "fieldConfig": {
+        "defaults": {},
+        "overrides": []
+      },
+      "fill": 1,
+      "fillGradient": 0,
+      "gridPos": {
+        "h": 6,
+        "w": 8,
+        "x": 0,
+        "y": 28
+      },
+      "hiddenSeries": false,
+      "id": 48,
+      "legend": {
+        "avg": false,
+        "current": false,
+        "max": false,
+        "min": false,
+        "show": true,
+        "total": false,
+        "values": false
+      },
+      "lines": true,
+      "linewidth": 1,
+      "nullPointMode": "null",
+      "options": {
+        "alertThreshold": true
+      },
+      "percentage": false,
+      "pluginVersion": "7.5.2",
+      "pointradius": 2,
+      "points": false,
+      "renderer": "flot",
+      "seriesOverrides": [],
+      "spaceLength": 10,
+      "stack": false,
+      "steppedLine": false,
+      "targets": [
+        {
+          "exemplar": false,
+          "expr": "sum(increase(grpc_client_msg_sent_total{grpc_method=\"PullStatus\",component=\"mpc\",namespace=\"tsb-$organization\"}[$mpcTimePeriod])) or on() vector(0)",
+          "hide": false,
+          "interval": "",
+          "legendFormat": "Sent from XCP",
+          "refId": "C"
+        },
+        {
+          "exemplar": false,
+          "expr": "sum(increase(grpc_client_msg_received_total{grpc_method=\"PullStatus\",component=\"mpc\",namespace=\"tsb-$organization\"}[$mpcTimePeriod])) or on() vector(0)",
+          "hide": false,
+          "interval": "",
+          "legendFormat": "Received by MPC",
+          "refId": "D"
+        },
+        {
+          "exemplar": false,
+          "expr": "sum(increase(grpc_client_msg_sent_total{grpc_method=\"PushStatus\",component=\"mpc\",namespace=\"tsb-$organization\"}[$mpcTimePeriod])) or on() vector(0)",
+          "interval": "",
+          "legendFormat": "Sent from MPC",
+          "refId": "A"
+        },
+        {
+          "exemplar": false,
+          "expr": "sum(increase(grpc_server_msg_received_total{grpc_method=\"PushStatus\", component=\"tsb\",namespace=\"tsb-$organization\"}[$mpcTimePeriod])) or on() vector(0)",
+          "interval": "",
+          "legendFormat": "Received by TSB",
+          "refId": "B"
+        }
+      ],
+      "thresholds": [],
+      "timeFrom": null,
+      "timeRegions": [],
+      "timeShift": null,
+      "title": "Config Status updates every $mpcTimePeriod",
+      "tooltip": {
+        "shared": true,
+        "sort": 0,
+        "value_type": "individual"
+      },
+      "type": "graph",
+      "xaxis": {
+        "buckets": null,
+        "mode": "time",
+        "name": null,
+        "show": true,
+        "values": []
+      },
+      "yaxes": [
+        {
+          "format": "short",
+          "label": null,
+          "logBase": 1,
+          "max": null,
+          "min": null,
+          "show": true
+        },
+        {
+          "format": "short",
+          "label": null,
+          "logBase": 1,
+          "max": null,
+          "min": null,
+          "show": true
+        }
+      ],
+      "yaxis": {
+        "align": false,
+        "alignLevel": null
+      }
+    },
+    {
+      "aliasColors": {},
+      "bars": false,
+      "dashLength": 10,
+      "dashes": false,
+      "datasource": null,
+      "description": "This is the number of config status updates that are processed by the Management Plane Controller (MPC), that are received from XCP and to be sent to TSB.\n\nThere are two gRPC streams, one that connects XCP to MPC and another one that connects MPC to TSB.",
+      "fieldConfig": {
+        "defaults": {},
+        "overrides": []
+      },
+      "fill": 1,
+      "fillGradient": 0,
+      "gridPos": {
+        "h": 6,
+        "w": 7,
+        "x": 8,
+        "y": 28
+      },
+      "hiddenSeries": false,
+      "id": 46,
+      "legend": {
+        "avg": false,
+        "current": false,
+        "hideZero": true,
+        "max": false,
+        "min": false,
+        "show": true,
+        "total": false,
+        "values": false
+      },
+      "lines": true,
+      "linewidth": 1,
+      "nullPointMode": "null",
+      "options": {
+        "alertThreshold": true
+      },
+      "percentage": false,
+      "pluginVersion": "7.5.2",
+      "pointradius": 2,
+      "points": false,
+      "renderer": "flot",
+      "seriesOverrides": [],
+      "spaceLength": 10,
+      "stack": false,
+      "steppedLine": false,
+      "targets": [
+        {
+          "exemplar": false,
+          "expr": "sum(increase(permanent_stream_operation{name=\"StatusPush\", error=\"\",namespace=\"tsb-$organization\"}[$mpcTimePeriod])) or on() vector(0)",
+          "hide": false,
+          "interval": "",
+          "legendFormat": "Successful MPC to TSB ops",
+          "refId": "A"
+        },
+        {
+          "exemplar": false,
+          "expr": "sum(increase(permanent_stream_operation{name=\"StatusPush\", error!=\"\",namespace=\"tsb-$organization\"}[$mpcTimePeriod])) or on() vector(0)",
+          "interval": "",
+          "legendFormat": "Errored MPC to TSB ops",
+          "refId": "B"
+        },
+        {
+          "exemplar": false,
+          "expr": "sum(increase(permanent_stream_operation{name=\"StatusPull\", error=\"\",namespace=\"tsb-$organization\"}[$mpcTimePeriod])) or on() vector(0)",
+          "hide": false,
+          "interval": "",
+          "legendFormat": "Successful XCP to MPC ops",
+          "refId": "C"
+        },
+        {
+          "exemplar": false,
+          "expr": "sum(increase(permanent_stream_operation{name=\"StatusPull\", error!=\"\",namespace=\"tsb-$organization\"}[$mpcTimePeriod])) or on() vector(0)",
+          "hide": false,
+          "interval": "",
+          "legendFormat": "Errored XCP to MPC ops",
+          "refId": "D"
+        }
+      ],
+      "thresholds": [],
+      "timeFrom": null,
+      "timeRegions": [],
+      "timeShift": null,
+      "title": "Config Status updates processed every $mpcTimePeriod",
+      "tooltip": {
+        "shared": true,
+        "sort": 0,
+        "value_type": "individual"
+      },
+      "type": "graph",
+      "xaxis": {
+        "buckets": null,
+        "mode": "time",
+        "name": null,
+        "show": true,
+        "values": []
+      },
+      "yaxes": [
+        {
+          "format": "short",
+          "label": null,
+          "logBase": 1,
+          "max": null,
+          "min": "0",
+          "show": true
+        },
+        {
+          "format": "short",
+          "label": null,
+          "logBase": 1,
+          "max": null,
+          "min": null,
+          "show": true
+        }
+      ],
+      "yaxis": {
+        "align": false,
+        "alignLevel": null
+      }
+    },
+    {
+      "aliasColors": {},
+      "bars": false,
+      "dashLength": 10,
+      "dashes": false,
+      "datasource": null,
+      "description": "The number of connection (and reconnection) attempts on the config status updates streams.\nMPC sends the config status updates over a permanently connected gRPC stream to TSB. At the same time, XCP sends them to MPC. This metric shows the number of connections and reconnections that happened on each stream.\n",
+      "fieldConfig": {
+        "defaults": {},
+        "overrides": []
+      },
+      "fill": 1,
+      "fillGradient": 0,
+      "gridPos": {
+        "h": 6,
+        "w": 7,
+        "x": 15,
+        "y": 28
+      },
+      "hiddenSeries": false,
+      "id": 47,
+      "legend": {
+        "avg": false,
+        "current": false,
+        "hideZero": true,
+        "max": false,
+        "min": false,
+        "show": true,
+        "total": false,
+        "values": false
+      },
+      "lines": true,
+      "linewidth": 1,
+      "nullPointMode": "null",
+      "options": {
+        "alertThreshold": true
+      },
+      "percentage": false,
+      "pluginVersion": "7.5.2",
+      "pointradius": 2,
+      "points": false,
+      "renderer": "flot",
+      "seriesOverrides": [],
+      "spaceLength": 10,
+      "stack": false,
+      "steppedLine": false,
+      "targets": [
+        {
+          "exemplar": false,
+          "expr": "sum(increase(permanent_stream_connection_attempts{name=\"StatusPull\", error=\"\", namespace=\"tsb-$organization\"}[$mpcTimePeriod])) or on() vector(0)",
+          "hide": false,
+          "interval": "",
+          "legendFormat": "Successful XCP to MPC attemps",
+          "refId": "C"
+        },
+        {
+          "exemplar": false,
+          "expr": "sum(increase(permanent_stream_connection_attempts{name=\"StatusPull\", error!=\"\", namespace=\"tsb-$organization\"}[$mpcTimePeriod])) or on() vector(0)",
+          "hide": false,
+          "interval": "",
+          "legendFormat": "Erroring XCP to MPC attemps",
+          "refId": "D"
+        },
+        {
+          "exemplar": false,
+          "expr": "sum(increase(permanent_stream_connection_attempts{name=\"StatusPush\", error=\"\", namespace=\"tsb-$organization\"}[$mpcTimePeriod])) or on() vector(0)",
+          "hide": false,
+          "interval": "",
+          "legendFormat": "Successful MPC to TSB attemps",
+          "refId": "A"
+        },
+        {
+          "exemplar": false,
+          "expr": "sum(increase(permanent_stream_connection_attempts{name=\"StatusPush\", error!=\"\", namespace=\"tsb-$organization\"}[$mpcTimePeriod])) or on() vector(0)",
+          "hide": false,
+          "interval": "",
+          "legendFormat": "Erroring MPC to TSB attemps",
+          "refId": "B"
+        }
+      ],
+      "thresholds": [],
+      "timeFrom": null,
+      "timeRegions": [],
+      "timeShift": null,
+      "title": "Config Status stream connection attempts every $mpcTimePeriod",
+      "tooltip": {
+        "shared": true,
+        "sort": 0,
+        "value_type": "individual"
+      },
+      "type": "graph",
+      "xaxis": {
+        "buckets": null,
+        "mode": "time",
+        "name": null,
+        "show": true,
+        "values": []
+      },
+      "yaxes": [
+        {
+          "format": "short",
+          "label": null,
+          "logBase": 1,
+          "max": null,
+          "min": "0",
+          "show": true
+        },
+        {
+          "format": "short",
+          "label": null,
+          "logBase": 1,
+          "max": null,
+          "min": null,
+          "show": true
+        }
+      ],
+      "yaxis": {
+        "align": false,
+        "alignLevel": null
+      }
+    },
+    {
+      "collapsed": false,
+      "datasource": null,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 34
+      },
+      "id": 20,
+      "panels": [],
+      "title": "Cluster updates (TSB -> MPC -> XCP)",
+      "type": "row"
+    },
+    {
+      "aliasColors": {},
+      "bars": false,
+      "dashLength": 10,
+      "dashes": false,
+      "datasource": null,
+      "description": "Cluster update messages sent over the gRPC stream from TSB and received by MPC. \n\nThis metric can help understand how messages are queued in MPC when it is under load. The value for both metrics should always be the same. If the Received by MPC metric has a value lower than the TSB one, it means MPC is under load and cannot process all messages sent by TSB as fast as TSB is sending them.",
+      "fieldConfig": {
+        "defaults": {},
+        "overrides": []
+      },
+      "fill": 1,
+      "fillGradient": 0,
+      "gridPos": {
+        "h": 6,
+        "w": 8,
+        "x": 0,
+        "y": 35
+      },
+      "hiddenSeries": false,
+      "id": 29,
+      "legend": {
+        "avg": false,
+        "current": false,
+        "max": false,
+        "min": false,
+        "show": true,
+        "total": false,
+        "values": false
+      },
+      "lines": true,
+      "linewidth": 1,
+      "nullPointMode": "null",
+      "options": {
+        "alertThreshold": true
+      },
+      "percentage": false,
+      "pluginVersion": "7.5.2",
+      "pointradius": 2,
+      "points": false,
+      "renderer": "flot",
+      "seriesOverrides": [],
+      "spaceLength": 10,
+      "stack": false,
+      "steppedLine": false,
+      "targets": [
+        {
+          "exemplar": false,
+          "expr": "sum(increase(grpc_server_msg_sent_total{component=\"tsb\", grpc_method=\"GetAllClusters\",namespace=\"tsb-$organization\"}[$mpcTimePeriod])) or on() vector(0)",
+          "interval": "",
+          "legendFormat": "Sent from TSB",
+          "refId": "A"
+        },
+        {
+          "exemplar": false,
+          "expr": "sum(increase(grpc_client_msg_received_total{component=\"mpc\", grpc_method=\"GetAllClusters\",namespace=\"tsb-$organization\"}[$mpcTimePeriod])) or on() vector(0)",
+          "interval": "",
+          "legendFormat": "Received by MPC",
+          "refId": "B"
+        }
+      ],
+      "thresholds": [],
+      "timeFrom": null,
+      "timeRegions": [],
+      "timeShift": null,
+      "title": "Cluster Update Messages every $mpcTimePeriod",
+      "tooltip": {
+        "shared": true,
+        "sort": 0,
+        "value_type": "individual"
+      },
+      "type": "graph",
+      "xaxis": {
+        "buckets": null,
+        "mode": "time",
+        "name": null,
+        "show": true,
+        "values": []
+      },
+      "yaxes": [
+        {
+          "format": "short",
+          "label": null,
+          "logBase": 1,
+          "max": null,
+          "min": null,
+          "show": true
+        },
+        {
+          "format": "short",
+          "label": null,
+          "logBase": 1,
+          "max": null,
+          "min": null,
+          "show": true
+        }
+      ],
+      "yaxis": {
+        "align": false,
+        "alignLevel": null
+      }
+    },
+    {
+      "aliasColors": {},
+      "bars": false,
+      "dashLength": 10,
+      "dashes": false,
+      "datasource": null,
+      "description": "The number of cluster updates received by the Management Plane Controller (MPC) that must be processed and sent to XCP.\n\nTSB sends the cluster updates (e.g. new onboarded clusters, deleted clusters) over a permanently connected gRPC stream to MPC. This metric shows the number of messages received and processed by MPC on that stream.\n",
+      "fieldConfig": {
+        "defaults": {
+          "links": []
+        },
+        "overrides": []
+      },
+      "fill": 1,
+      "fillGradient": 0,
+      "gridPos": {
+        "h": 6,
+        "w": 7,
+        "x": 8,
+        "y": 35
+      },
+      "hiddenSeries": false,
+      "id": 5,
+      "interval": "",
+      "legend": {
+        "avg": false,
+        "current": false,
+        "hideZero": true,
+        "max": false,
+        "min": false,
+        "show": true,
+        "total": false,
+        "values": false
+      },
+      "lines": true,
+      "linewidth": 1,
+      "nullPointMode": "null",
+      "options": {
+        "alertThreshold": true
+      },
+      "percentage": false,
+      "pluginVersion": "7.5.2",
+      "pointradius": 2,
+      "points": false,
+      "renderer": "flot",
+      "seriesOverrides": [],
+      "spaceLength": 10,
+      "stack": false,
+      "steppedLine": false,
+      "targets": [
+        {
+          "exemplar": false,
+          "expr": "sum(increase(permanent_stream_operation{name=\"ClusterPush\", error=\"\",namespace=\"tsb-$organization\"}[$mpcTimePeriod])) or on() vector(0)",
+          "hide": false,
+          "interval": "",
+          "legendFormat": "Successful",
+          "refId": "A"
+        },
+        {
+          "exemplar": false,
+          "expr": "sum(increase(permanent_stream_operation{name=\"ClusterPush\", error!=\"\",namespace=\"tsb-$organization\"}[$mpcTimePeriod])) or on() vector(0)",
+          "interval": "",
+          "legendFormat": "Errors",
+          "refId": "B"
+        }
+      ],
+      "thresholds": [],
+      "timeFrom": null,
+      "timeRegions": [],
+      "timeShift": null,
+      "title": "TSB Cluster updates processed every $mpcTimePeriod",
+      "tooltip": {
+        "shared": true,
+        "sort": 0,
+        "value_type": "individual"
+      },
+      "type": "graph",
+      "xaxis": {
+        "buckets": null,
+        "mode": "time",
+        "name": null,
+        "show": true,
+        "values": []
+      },
+      "yaxes": [
+        {
+          "format": "short",
+          "label": null,
+          "logBase": 1,
+          "max": null,
+          "min": "0",
+          "show": true
+        },
+        {
+          "format": "short",
+          "label": null,
+          "logBase": 1,
+          "max": null,
+          "min": null,
+          "show": true
+        }
+      ],
+      "yaxis": {
+        "align": false,
+        "alignLevel": null
+      }
+    },
+    {
+      "aliasColors": {},
+      "bars": false,
+      "dashLength": 10,
+      "dashes": false,
+      "datasource": null,
+      "description": "The number of connection (and reconnection) attempts on the cluster updates stream.\nTSB sends the cluster updates over a permanently connected gRPC stream to MPC. This metric shows the number of connections and reconnections that happened on that stream.\n",
+      "fieldConfig": {
+        "defaults": {
+          "links": []
+        },
+        "overrides": []
+      },
+      "fill": 1,
+      "fillGradient": 0,
+      "gridPos": {
+        "h": 6,
+        "w": 7,
+        "x": 15,
+        "y": 35
+      },
+      "hiddenSeries": false,
+      "id": 14,
+      "legend": {
+        "avg": false,
+        "current": false,
+        "hideZero": true,
+        "max": false,
+        "min": false,
+        "show": true,
+        "total": false,
+        "values": false
+      },
+      "lines": true,
+      "linewidth": 1,
+      "nullPointMode": "null",
+      "options": {
+        "alertThreshold": true
+      },
+      "percentage": false,
+      "pluginVersion": "7.5.2",
+      "pointradius": 2,
+      "points": false,
+      "renderer": "flot",
+      "seriesOverrides": [],
+      "spaceLength": 10,
+      "stack": false,
+      "steppedLine": false,
+      "targets": [
+        {
+          "exemplar": false,
+          "expr": "sum(increase(permanent_stream_connection_attempts{name=\"ClusterPush\", error=\"\",namespace=\"tsb-$organization\"}[$mpcTimePeriod])) or on() vector(0)",
+          "hide": false,
+          "interval": "",
+          "legendFormat": "Successful",
+          "refId": "A"
+        },
+        {
+          "exemplar": false,
+          "expr": "sum(increase(permanent_stream_connection_attempts{name=\"ClusterPush\", error!=\"\",namespace=\"tsb-$organization\"}[$mpcTimePeriod])) or on() vector(0)",
+          "hide": false,
+          "interval": "",
+          "legendFormat": "Errors",
+          "refId": "B"
+        }
+      ],
+      "thresholds": [],
+      "timeFrom": null,
+      "timeRegions": [],
+      "timeShift": null,
+      "title": "TSB Cluster stream connection attempts every $mpcTimePeriod",
+      "tooltip": {
+        "shared": true,
+        "sort": 0,
+        "value_type": "individual"
+      },
+      "type": "graph",
+      "xaxis": {
+        "buckets": null,
+        "mode": "time",
+        "name": null,
+        "show": true,
+        "values": []
+      },
+      "yaxes": [
+        {
+          "format": "short",
+          "label": null,
+          "logBase": 1,
+          "max": null,
+          "min": "0",
+          "show": true
+        },
+        {
+          "format": "short",
+          "label": null,
+          "logBase": 1,
+          "max": null,
+          "min": null,
+          "show": true
+        }
+      ],
+      "yaxis": {
+        "align": false,
+        "alignLevel": null
+      }
+    },
+    {
+      "collapsed": false,
+      "datasource": null,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 41
+      },
+      "id": 31,
+      "panels": [],
+      "title": "Cluster Updates (XCP -> MPC -> TSB)",
+      "type": "row"
+    },
+    {
+      "aliasColors": {},
+      "bars": false,
+      "dashLength": 10,
+      "dashes": false,
+      "datasource": null,
+      "description": "Cluster status update messages received from XCP over a gRPC stream.",
+      "fieldConfig": {
+        "defaults": {},
+        "overrides": []
+      },
+      "fill": 1,
+      "fillGradient": 0,
+      "gridPos": {
+        "h": 6,
+        "w": 8,
+        "x": 0,
+        "y": 42
+      },
+      "hiddenSeries": false,
+      "id": 41,
+      "legend": {
+        "avg": false,
+        "current": false,
+        "max": false,
+        "min": false,
+        "show": true,
+        "total": false,
+        "values": false
+      },
+      "lines": true,
+      "linewidth": 1,
+      "nullPointMode": "null",
+      "options": {
+        "alertThreshold": true
+      },
+      "percentage": false,
+      "pluginVersion": "7.5.2",
+      "pointradius": 2,
+      "points": false,
+      "renderer": "flot",
+      "seriesOverrides": [],
+      "spaceLength": 10,
+      "stack": false,
+      "steppedLine": false,
+      "targets": [
+        {
+          "exemplar": false,
+          "expr": "sum(increase(grpc_client_msg_received_total{component=\"mpc\", grpc_method=\"GetClusterState\", namespace=\"tsb-$organization\"}[$mpcTimePeriod])) or on() vector(0)",
+          "interval": "",
+          "legendFormat": "Received by MPC",
+          "refId": "B"
+        }
+      ],
+      "thresholds": [],
+      "timeFrom": null,
+      "timeRegions": [],
+      "timeShift": null,
+      "title": "Cluster Status Update from XCP every $mpcTimePeriod",
+      "tooltip": {
+        "shared": true,
+        "sort": 0,
+        "value_type": "individual"
+      },
+      "type": "graph",
+      "xaxis": {
+        "buckets": null,
+        "mode": "time",
+        "name": null,
+        "show": true,
+        "values": []
+      },
+      "yaxes": [
+        {
+          "format": "short",
+          "label": null,
+          "logBase": 1,
+          "max": null,
+          "min": null,
+          "show": true
+        },
+        {
+          "format": "short",
+          "label": null,
+          "logBase": 1,
+          "max": null,
+          "min": null,
+          "show": true
+        }
+      ],
+      "yaxis": {
+        "align": false,
+        "alignLevel": null
+      }
+    },
+    {
+      "aliasColors": {},
+      "bars": false,
+      "dashLength": 10,
+      "dashes": false,
+      "datasource": null,
+      "description": "The number of cluster status updates received by the Management Plane Controller (MPC) from XCP that must be processed and sent to TSB.\n\nXCP sends the cluster status updates (e.g. services deployed in the cluster) over a permanently connected gRPC stream to MPC. This metric shows the number of messages received and processed by MPC on that stream.\n",
+      "fieldConfig": {
+        "defaults": {
+          "links": []
+        },
+        "overrides": []
+      },
+      "fill": 1,
+      "fillGradient": 0,
+      "gridPos": {
+        "h": 6,
+        "w": 7,
+        "x": 8,
+        "y": 42
+      },
+      "hiddenSeries": false,
+      "id": 40,
+      "interval": "",
+      "legend": {
+        "avg": false,
+        "current": false,
+        "hideZero": true,
+        "max": false,
+        "min": false,
+        "show": true,
+        "total": false,
+        "values": false
+      },
+      "lines": true,
+      "linewidth": 1,
+      "nullPointMode": "null",
+      "options": {
+        "alertThreshold": true
+      },
+      "percentage": false,
+      "pluginVersion": "7.5.2",
+      "pointradius": 2,
+      "points": false,
+      "renderer": "flot",
+      "seriesOverrides": [],
+      "spaceLength": 10,
+      "stack": false,
+      "steppedLine": false,
+      "targets": [
+        {
+          "exemplar": false,
+          "expr": "sum(increase(permanent_stream_operation{name=\"ClusterStateFromXCP\", error=\"\", namespace=\"tsb-$organization\"}[$mpcTimePeriod])) or on() vector(0)",
+          "hide": false,
+          "interval": "",
+          "legendFormat": "Successful",
+          "refId": "A"
+        },
+        {
+          "exemplar": false,
+          "expr": "sum(increase(permanent_stream_operation{name=\"ClusterStateFromXCP\", error!=\"\", namespace=\"tsb-$organization\"}[$mpcTimePeriod])) or on() vector(0)",
+          "interval": "",
+          "legendFormat": "Errors",
+          "refId": "B"
+        }
+      ],
+      "thresholds": [],
+      "timeFrom": null,
+      "timeRegions": [],
+      "timeShift": null,
+      "title": "Cluster updates from XCP  processed every $mpcTimePeriod",
+      "tooltip": {
+        "shared": true,
+        "sort": 0,
+        "value_type": "individual"
+      },
+      "type": "graph",
+      "xaxis": {
+        "buckets": null,
+        "mode": "time",
+        "name": null,
+        "show": true,
+        "values": []
+      },
+      "yaxes": [
+        {
+          "format": "short",
+          "label": null,
+          "logBase": 1,
+          "max": null,
+          "min": "0",
+          "show": true
+        },
+        {
+          "format": "short",
+          "label": null,
+          "logBase": 1,
+          "max": null,
+          "min": null,
+          "show": true
+        }
+      ],
+      "yaxis": {
+        "align": false,
+        "alignLevel": null
+      }
+    },
+    {
+      "aliasColors": {},
+      "bars": false,
+      "dashLength": 10,
+      "dashes": false,
+      "datasource": null,
+      "description": "The number of connection (and reconnection) attempts on the cluster status updates from XCP stream.\nXCP sends the cluster status updates over a permanently connected gRPC stream to MPC. This metric shows the number of connections and reconnections that happened on that stream.\n",
+      "fieldConfig": {
+        "defaults": {
+          "links": []
+        },
+        "overrides": []
+      },
+      "fill": 1,
+      "fillGradient": 0,
+      "gridPos": {
+        "h": 6,
+        "w": 7,
+        "x": 15,
+        "y": 42
+      },
+      "hiddenSeries": false,
+      "id": 38,
+      "legend": {
+        "avg": false,
+        "current": false,
+        "hideZero": true,
+        "max": false,
+        "min": false,
+        "show": true,
+        "total": false,
+        "values": false
+      },
+      "lines": true,
+      "linewidth": 1,
+      "nullPointMode": "null",
+      "options": {
+        "alertThreshold": true
+      },
+      "percentage": false,
+      "pluginVersion": "7.5.2",
+      "pointradius": 2,
+      "points": false,
+      "renderer": "flot",
+      "seriesOverrides": [],
+      "spaceLength": 10,
+      "stack": false,
+      "steppedLine": false,
+      "targets": [
+        {
+          "exemplar": false,
+          "expr": "sum(increase(permanent_stream_connection_attempts{name=\"ClusterStateFromXCP\", error=\"\", namespace=\"tsb-$organization\"}[$mpcTimePeriod])) or on() vector(0)",
+          "hide": false,
+          "interval": "",
+          "legendFormat": "Successful",
+          "refId": "A"
+        },
+        {
+          "exemplar": false,
+          "expr": "sum(increase(permanent_stream_connection_attempts{name=\"ClusterStateFromXCP\", error!=\"\", namespace=\"tsb-$organization\"}[$mpcTimePeriod])) or on() vector(0)",
+          "hide": false,
+          "interval": "",
+          "legendFormat": "Errors",
+          "refId": "B"
+        }
+      ],
+      "thresholds": [],
+      "timeFrom": null,
+      "timeRegions": [],
+      "timeShift": null,
+      "title": "Cluster updates from XCP stream connection attempts every $mpcTimePeriod",
+      "tooltip": {
+        "shared": true,
+        "sort": 0,
+        "value_type": "individual"
+      },
+      "type": "graph",
+      "xaxis": {
+        "buckets": null,
+        "mode": "time",
+        "name": null,
+        "show": true,
+        "values": []
+      },
+      "yaxes": [
+        {
+          "format": "short",
+          "label": null,
+          "logBase": 1,
+          "max": null,
+          "min": "0",
+          "show": true
+        },
+        {
+          "format": "short",
+          "label": null,
+          "logBase": 1,
+          "max": null,
+          "min": null,
+          "show": true
+        }
+      ],
+      "yaxis": {
+        "align": false,
+        "alignLevel": null
+      }
+    },
+    {
+      "aliasColors": {},
+      "bars": false,
+      "dashLength": 10,
+      "dashes": false,
+      "datasource": null,
+      "description": "This is the number of cluster status updates that are processed by the Management Plane Controller (MPC) to be sent to TSB.\n\nMPC sends the cluster status updates over a gRPC stream that is permanently connected to TSB, and this metric shows the number of cluster updates that are processed by MPC and sent to TSB on that stream.",
+      "fieldConfig": {
+        "defaults": {
+          "links": []
+        },
+        "overrides": []
+      },
+      "fill": 1,
+      "fillGradient": 0,
+      "gridPos": {
+        "h": 6,
+        "w": 11,
+        "x": 0,
+        "y": 48
+      },
+      "hiddenSeries": false,
+      "id": 21,
+      "legend": {
+        "avg": false,
+        "current": false,
+        "hideZero": true,
+        "max": false,
+        "min": false,
+        "show": true,
+        "total": false,
+        "values": false
+      },
+      "lines": true,
+      "linewidth": 1,
+      "nullPointMode": "null",
+      "options": {
+        "alertThreshold": true
+      },
+      "percentage": false,
+      "pluginVersion": "7.5.2",
+      "pointradius": 2,
+      "points": false,
+      "renderer": "flot",
+      "seriesOverrides": [],
+      "spaceLength": 10,
+      "stack": false,
+      "steppedLine": false,
+      "targets": [
+        {
+          "exemplar": false,
+          "expr": "sum(increase(permanent_stream_operation{name=\"ClusterUpdates\", error=\"\",namespace=\"tsb-$organization\"}[$mpcTimePeriod])) or on() vector(0)",
+          "hide": false,
+          "interval": "",
+          "legendFormat": "Successful",
+          "refId": "A"
+        },
+        {
+          "exemplar": false,
+          "expr": "sum(increase(permanent_stream_operation{name=\"ClusterUpdates\", error!=\"\",namespace=\"tsb-$organization\"}[$mpcTimePeriod])) or on() vector(0)",
+          "interval": "",
+          "legendFormat": "Errors",
+          "refId": "B"
+        }
+      ],
+      "thresholds": [],
+      "timeFrom": null,
+      "timeRegions": [],
+      "timeShift": null,
+      "title": "XCP cluster status updates processed every $mpcTimePeriod",
+      "tooltip": {
+        "shared": true,
+        "sort": 0,
+        "value_type": "individual"
+      },
+      "type": "graph",
+      "xaxis": {
+        "buckets": null,
+        "mode": "time",
+        "name": null,
+        "show": true,
+        "values": []
+      },
+      "yaxes": [
+        {
+          "format": "short",
+          "label": null,
+          "logBase": 1,
+          "max": null,
+          "min": "0",
+          "show": true
+        },
+        {
+          "format": "short",
+          "label": null,
+          "logBase": 1,
+          "max": null,
+          "min": null,
+          "show": true
+        }
+      ],
+      "yaxis": {
+        "align": false,
+        "alignLevel": null
+      }
+    },
+    {
+      "aliasColors": {},
+      "bars": false,
+      "dashLength": 10,
+      "dashes": false,
+      "datasource": null,
+      "description": "The number of connection (and reconnection) attempts on the cluster status updates stream.\nMPC sends the cluster status updates over a permanently connected gRPC stream to TSB. This metric shows the number of connections and reconnections that happened on that stream.\n",
+      "fieldConfig": {
+        "defaults": {
+          "links": []
+        },
+        "overrides": []
+      },
+      "fill": 1,
+      "fillGradient": 0,
+      "gridPos": {
+        "h": 6,
+        "w": 11,
+        "x": 11,
+        "y": 48
+      },
+      "hiddenSeries": false,
+      "id": 22,
+      "legend": {
+        "avg": false,
+        "current": false,
+        "hideZero": true,
+        "max": false,
+        "min": false,
+        "show": true,
+        "total": false,
+        "values": false
+      },
+      "lines": true,
+      "linewidth": 1,
+      "nullPointMode": "null",
+      "options": {
+        "alertThreshold": true
+      },
+      "percentage": false,
+      "pluginVersion": "7.5.2",
+      "pointradius": 2,
+      "points": false,
+      "renderer": "flot",
+      "seriesOverrides": [],
+      "spaceLength": 10,
+      "stack": false,
+      "steppedLine": false,
+      "targets": [
+        {
+          "exemplar": false,
+          "expr": "sum(increase(permanent_stream_connection_attempts{name=\"ClusterUpdates\", error=\"\",namespace=\"tsb-$organization\"}[$mpcTimePeriod])) or on() vector(0)",
+          "hide": false,
+          "interval": "",
+          "legendFormat": "Successful",
+          "refId": "A"
+        },
+        {
+          "exemplar": false,
+          "expr": "sum(increase(permanent_stream_connection_attempts{name=\"ClusterUpdates\", error!=\"\",namespace=\"tsb-$organization\"}[$mpcTimePeriod])) or on() vector(0)",
+          "hide": false,
+          "interval": "",
+          "legendFormat": "Errors",
+          "refId": "B"
+        }
+      ],
+      "thresholds": [],
+      "timeFrom": null,
+      "timeRegions": [],
+      "timeShift": null,
+      "title": "Cluster status updates to TSB stream connection attempts every $mpcTimePeriod",
+      "tooltip": {
+        "shared": true,
+        "sort": 0,
+        "value_type": "individual"
+      },
+      "type": "graph",
+      "xaxis": {
+        "buckets": null,
+        "mode": "time",
+        "name": null,
+        "show": true,
+        "values": []
+      },
+      "yaxes": [
+        {
+          "format": "short",
+          "label": null,
+          "logBase": 1,
+          "max": null,
+          "min": "0",
+          "show": true
+        },
+        {
+          "format": "short",
+          "label": null,
+          "logBase": 1,
+          "max": null,
+          "min": null,
+          "show": true
+        }
+      ],
+      "yaxis": {
+        "align": false,
+        "alignLevel": null
+      }
+    }
+  ],
+  "refresh": "1m",
+  "schemaVersion": 27,
+  "style": "dark",
+  "tags": [],
+  "templating": {
+    "list": [
+      {
+        "auto": true,
+        "auto_count": 30,
+        "auto_min": "10s",
+        "current": {
+          "selected": false,
+          "text": "5m",
+          "value": "5m"
+        },
+        "description": null,
+        "error": null,
+        "hide": 0,
+        "label": "Time period between updates",
+        "name": "mpcTimePeriod",
+        "options": [
+          {
+            "selected": false,
+            "text": "auto",
+            "value": "$__auto_interval_mpcTimePeriod"
+          },
+          {
+            "selected": false,
+            "text": "1m",
+            "value": "1m"
+          },
+          {
+            "selected": true,
+            "text": "5m",
+            "value": "5m"
+          },
+          {
+            "selected": false,
+            "text": "10m",
+            "value": "10m"
+          },
+          {
+            "selected": false,
+            "text": "30m",
+            "value": "30m"
+          },
+          {
+            "selected": false,
+            "text": "1h",
+            "value": "1h"
+          },
+          {
+            "selected": false,
+            "text": "6h",
+            "value": "6h"
+          },
+          {
+            "selected": false,
+            "text": "12h",
+            "value": "12h"
+          },
+          {
+            "selected": false,
+            "text": "1d",
+            "value": "1d"
+          }
+        ],
+        "query": "1m,5m,10m,30m,1h,6h,12h,1d",
+        "queryValue": "",
+        "refresh": 2,
+        "skipUrlSync": false,
+        "type": "interval"
+      },
+      {
+        "allValue": null,
+        "current": {
+          "selected": false,
+          "text": "gap",
+          "value": "gap"
+        },
+        "datasource": null,
+        "definition": "label_values(mpc_xcp_config_push_time,namespace)",
+        "description": "Name of the customer",
+        "error": null,
+        "hide": 0,
+        "includeAll": false,
+        "label": "organization",
+        "multi": false,
+        "name": "organization",
+        "options": [],
+        "query": {
+          "query": "label_values(mpc_xcp_config_push_time,namespace)",
+          "refId": "StandardVariableQuery"
+        },
+        "refresh": 1,
+        "regex": "tsb-([\\S]+)",
+        "skipUrlSync": false,
+        "sort": 0,
+        "tagValuesQuery": "",
+        "tags": [],
+        "tagsQuery": "",
+        "type": "query",
+        "useTags": false
+      }
+    ]
+  },
+  "time": {
+    "from": "now-3h",
+    "to": "now"
+  },
+  "timepicker": {
+    "refresh_intervals": [
+      "5s",
+      "10s",
+      "30s",
+      "1m",
+      "5m",
+      "15m",
+      "30m",
+      "1h",
+      "2h",
+      "1d"
+    ]
+  },
+  "timezone": "utc",
+  "title": "MPC Operational Status",
+  "uid": "kJYomuxnk",
+  "version": 2
+}
