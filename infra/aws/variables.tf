@@ -71,7 +71,7 @@ variable "azure_k8s_regions" {
 }
 
 variable "aws_eks_k8s_version" {
-  default = "1.22"
+  default = "1.23"
 }
 
 variable "tsb_mp" {
