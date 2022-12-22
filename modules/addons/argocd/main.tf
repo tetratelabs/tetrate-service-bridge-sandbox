@@ -35,16 +35,10 @@ resource "helm_release" "argocd" {
     name  = "server.service.type"
     value = "LoadBalancer"
   }
-
-}
-
-data "kubectl_path_documents" "manifests_argocd_apps" {
-  pattern          = "${path.module}/manifests/*.yaml"
-  disable_template = true
 }
 
 resource "kubectl_manifest" "manifests_argocd_apps" {
-  count      = length(data.kubectl_path_documents.manifests_argocd_apps.documents)
-  yaml_body  = element(data.kubectl_path_documents.manifests_argocd_apps.documents, count.index)
+  for_each = var.applications
+  yaml_body  = each.value
   depends_on = [helm_release.argocd]
 }
