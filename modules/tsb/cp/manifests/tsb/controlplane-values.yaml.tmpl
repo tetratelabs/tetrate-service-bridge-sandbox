@@ -66,7 +66,12 @@ spec:
       certManager:
         managed: EXTERNAL
     oap:
-      streamingLogEnabled: true  
+      streamingLogEnabled: true
+    rateLimitServer:
+      domain: local
+      backend:
+        redis:
+          uri: ratelimit-redis.ratelimit.svc.cluster.local:6379
   meshExpansion: {}
   meshObservability:
     settings:
