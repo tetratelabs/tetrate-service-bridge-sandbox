@@ -102,5 +102,5 @@ variable "cert-manager_enabled" {
 }
 
 variable "preemptible_nodes" {
-  default = true
+  default = false
 }

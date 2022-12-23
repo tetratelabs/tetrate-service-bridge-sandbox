@@ -23,7 +23,7 @@ variable "region" {
 }
 
 variable "preemptible_nodes" {
-  default = true
+  default = false
 }
 
 variable "k8s_version" {
