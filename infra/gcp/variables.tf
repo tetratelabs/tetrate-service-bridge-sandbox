@@ -83,7 +83,7 @@ variable "gcp_billing_id" {
 }
 
 variable "gcp_gke_k8s_version" {
-  default = "1.22"
+  default = "1.24"
 }
 
 variable "tsb_mp" {
