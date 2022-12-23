@@ -142,3 +142,14 @@ make destroy
   if you own a domain that you can point to your GCP project, you can use any `fqdn` as long as it does _not_
   have the shared DNS suffix (gcp.cx.tetrate.info). In this case a public DNS zone will be created in the project
   for the configured DNS domain.
+
+### Repository structure
+
+| Directory | Description |
+| --------- | ----------- |
+| [addons](addons) | Terraform modules to deploy optional add-ons such as ArgoCD or the TSB monitoring stack. |
+| [gitops](gitops) | Example application configurations to be used with the ArgoCD addon. |
+| [infra](infra) | Infrastructure deployment modules. Provisioning of networking, jumpboxes and k8s clusters. |
+| [modules](modules) | Generic and reusable terraform modules. These should not contain any specific configuration. |
+| [outputs](outputs) | Terraform output values for the provisioned modules. |
+| [tsb](tsb) | TSB Terraform modules to deploy the TSB MP and TSB CPs. |

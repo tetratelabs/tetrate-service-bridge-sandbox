@@ -13,24 +13,7 @@ provider "kubectl" {
   load_config_file       = false
 }
 
-data "kubectl_path_documents" "tsb_dashboards" {
-  for_each = var.dashboards
-  pattern  = "${path.module}/manifests/dashboard-configmap.yaml.tmpl"
-  vars     = {
-    name           = replace(replace(each.key, ".json", ""), "_", "-")
-    namespace      = var.namespace
-    dashboard_key  = each.key
-    dashboard_json = indent(4, each.value)
-  }
-}
-
-resource "kubectl_manifest" "tsb_dashboards" {
-  for_each = var.dashboards
-  yaml_body  = data.kubectl_path_documents.tsb_dashboards[each.key].documents[0]
-}
-
 resource "helm_release" "grafana" {
-  depends_on       = [kubectl_manifest.tsb_dashboards]
   name             = "grafana"
   repository       = "https://grafana.github.io/helm-charts"
   chart            = "grafana"
@@ -44,4 +27,21 @@ resource "helm_release" "grafana" {
     name  = "adminPassword"
     value = var.admin_password
   }
+}
+
+data "kubectl_path_documents" "tsb_dashboards" {
+  for_each = var.dashboards
+  pattern  = "${path.module}/manifests/dashboard-configmap.yaml.tmpl"
+  vars     = {
+    name           = replace(replace(each.key, ".json", ""), "_", "-")
+    namespace      = var.namespace
+    dashboard_key  = each.key
+    dashboard_json = indent(4, each.value)
+  }
+}
+
+resource "kubectl_manifest" "tsb_dashboards" {
+  depends_on = [resource.helm_release.grafana]  # Make sure the namespace exists
+  for_each   = var.dashboards
+  yaml_body  = data.kubectl_path_documents.tsb_dashboards[each.key].documents[0]
 }
