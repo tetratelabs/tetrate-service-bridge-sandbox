@@ -66,7 +66,7 @@ variable "azure_k8s_region" {
 }
 
 variable "azure_aks_k8s_version" {
-  default = "1.25.4"
+  default = "1.24.6"
 }
 
 variable "tsb_mp" {
