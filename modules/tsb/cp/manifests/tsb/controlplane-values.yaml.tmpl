@@ -67,11 +67,13 @@ spec:
         managed: EXTERNAL
     oap:
       streamingLogEnabled: true
+    %{ if ratelimit_enabled }
     rateLimitServer:
       domain: local
       backend:
         redis:
           uri: ratelimit-redis.ratelimit.svc.cluster.local:6379
+    %{ endif }
   meshExpansion: {}
   meshObservability:
     settings:

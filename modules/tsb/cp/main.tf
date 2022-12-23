@@ -65,29 +65,6 @@ data "local_file" "service_account" {
   depends_on = [null_resource.jumpbox_tctl]
 }
 
-data "kubectl_path_documents" "ratelimit" {
-  pattern = "${path.module}/manifests/redis/ratelimit-redis.yaml.tmpl"
-  vars = {
-    password = var.tsb_password
-  }
-}
-
-resource "kubectl_manifest" "ratelimit" {
-  count     = length(data.kubectl_path_documents.ratelimit.documents)
-  yaml_body = element(data.kubectl_path_documents.ratelimit.documents, count.index)
-}
-
-resource "kubernetes_secret" "redis_password" {
-  metadata {
-    name      = "redis-credentials"
-    namespace = "istio-system"
-  }
-
-  data = {
-    REDIS_AUTH = var.tsb_password
-  }
-}
-
 resource "helm_release" "controlplane" {
   name                = "controlplane"
   repository          = var.tsb_helm_repository
@@ -109,6 +86,7 @@ resource "helm_release" "controlplane" {
     es_host                   = var.es_host
     es_username               = var.es_username
     es_password               = var.es_password
+    ratelimit_enabled         = var.ratelimit_enabled
   })]
 
   set {
