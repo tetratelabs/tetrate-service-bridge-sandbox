@@ -22,6 +22,10 @@ variable "vpc_subnet" {
 variable "region" {
 }
 
+variable "preemptible_nodes" {
+  default = true
+}
+
 variable "k8s_version" {
 }
 

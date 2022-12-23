@@ -100,3 +100,7 @@ variable "output_path" {
 variable "cert-manager_enabled" {
   default = true
 }
+
+variable "preemptible_nodes" {
+  default = true
+}

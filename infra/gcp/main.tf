@@ -52,16 +52,17 @@ module "gcp_jumpbox" {
 }
 
 module "gcp_k8s" {
-  source       = "../../modules/gcp/k8s"
-  count        = var.gcp_k8s_region == null ? 0 : 1
-  owner        = replace(var.tsb_image_sync_username, "/\\W+/", "-")
-  name_prefix  = "${var.name_prefix}-${var.cluster_id}"
-  cluster_name = var.cluster_name == null ? "gke-${var.gcp_k8s_region}-${var.name_prefix}" : var.cluster_name
-  project_id   = var.gcp_project_id == null ? google_project.tsb[0].project_id : var.gcp_project_id
-  vpc_id       = module.gcp_base[0].vpc_id
-  vpc_subnet   = module.gcp_base[0].vpc_subnets[0]
-  region       = var.gcp_k8s_region
-  k8s_version  = var.gcp_gke_k8s_version
-  output_path  = var.output_path
-  depends_on   = [module.gcp_jumpbox[0]]
+  source             = "../../modules/gcp/k8s"
+  count              = var.gcp_k8s_region == null ? 0 : 1
+  owner              = replace(var.tsb_image_sync_username, "/\\W+/", "-")
+  name_prefix        = "${var.name_prefix}-${var.cluster_id}"
+  cluster_name       = var.cluster_name == null ? "gke-${var.gcp_k8s_region}-${var.name_prefix}" : var.cluster_name
+  project_id         = var.gcp_project_id == null ? google_project.tsb[0].project_id : var.gcp_project_id
+  vpc_id             = module.gcp_base[0].vpc_id
+  vpc_subnet         = module.gcp_base[0].vpc_subnets[0]
+  region             = var.gcp_k8s_region
+  preemptible_nodes  = var.preemptible_nodes
+  k8s_version        = var.gcp_gke_k8s_version
+  output_path        = var.output_path
+  depends_on         = [module.gcp_jumpbox[0]]
 }

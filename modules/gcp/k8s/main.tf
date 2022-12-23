@@ -32,7 +32,7 @@ resource "google_container_cluster" "tsb" {
   ]
 }
 
-resource "google_container_node_pool" "primary_preemptible_nodes" {
+resource "google_container_node_pool" "primary_nodes" {
   name       = "${var.cluster_name}-pool"
   project    = var.project_id
   location   = var.region
@@ -40,7 +40,7 @@ resource "google_container_node_pool" "primary_preemptible_nodes" {
   node_count = 1
 
   node_config {
-    preemptible  = true
+    preemptible  = var.preemptible_nodes
     machine_type = "e2-standard-4"
 
     # Google recommends custom service accounts that have cloud-platform scope and permissions granted via IAM Roles.
