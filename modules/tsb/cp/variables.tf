@@ -103,5 +103,9 @@ variable "tier1_cluster" {
 variable "ratelimit_enabled" {
 }
 
+variable "redis_password" {
+}
+
 variable "output_path" {
 }
+

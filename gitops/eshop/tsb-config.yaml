@@ -133,7 +133,8 @@ items:
           - Include @crs-setup-conf           # Initialize the Core Rule Set
           - Include @owasp_crs/*.conf         # Load the Core Rule Set
           # Custom rule to deny requests with query parameter 'id=0'
-          - SecRule ARGS:id "@eq 0" "id:1, phase:1,deny, status:403,msg:'Invalid id',log,auditlog"
+          - SecRule ARGS:id "@eq 0" "id:1,phase:1,deny,status:403,msg:'Invalid id',log,auditlog"
+          - SecRule REQUEST_HEADERS:user-agent "@contains curl" "id:2,pass,log,logdata:'someone used curl to access'"
       workloadSelector:
         labels:
           app: tsb-gateway-eshop

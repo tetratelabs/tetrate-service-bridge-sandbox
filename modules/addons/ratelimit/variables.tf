@@ -10,15 +10,8 @@ variable "k8s_cluster_ca_certificate" {
 variable "k8s_client_token" {
 }
 
-variable "tsb_version" {
-}
-
-variable "registry" {
-}
-
-variable "password" {
+variable "redis_password" {
 }
 
 variable "enabled" {
-  default = true
 }

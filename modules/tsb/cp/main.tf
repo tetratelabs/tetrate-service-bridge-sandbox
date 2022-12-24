@@ -65,6 +65,19 @@ data "local_file" "service_account" {
   depends_on = [null_resource.jumpbox_tctl]
 }
 
+
+resource "kubernetes_secret" "redis_password" {
+  count = var.ratelimit_enabled ? 1 : 0
+  metadata {
+    name      = "redis-credentials"
+    namespace = "istio-system"
+  }
+
+  data = {
+    REDIS_AUTH = var.redis_password
+  }
+}
+
 resource "helm_release" "controlplane" {
   name                = "controlplane"
   repository          = var.tsb_helm_repository

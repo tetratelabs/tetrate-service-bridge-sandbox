@@ -72,7 +72,7 @@ spec:
       domain: local
       backend:
         redis:
-          uri: ratelimit-redis.ratelimit.svc.cluster.local:6379
+          uri: redis-master.ratelimit.svc.cluster.local:6379
     %{ endif }
   meshExpansion: {}
   meshObservability:
