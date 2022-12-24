@@ -31,7 +31,8 @@ make monitoring
 ```
 
 `grafana` is exposed using ClusterIP type. It can be accessed by port-forwarding port 3000 to the `grafana` pod
-in the `tsb-monitoring` namespace. The username is `admin` and password is variable `tsb_password` from `tfvar`.
+in the `tsb-monitoring` namespace. The username is `admin` and the password can be found in the
+`outputs/terraform_outputs/terraform-monitoring.json` file.
 
 ### Module Overview
 

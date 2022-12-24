@@ -29,7 +29,6 @@ module "ratelimit" {
   k8s_cluster_ca_certificate = data.terraform_remote_state.infra.outputs.cluster_ca_certificate
   k8s_client_token           = data.terraform_remote_state.infra.outputs.token
   enabled                    = var.ratelimit_enabled
-  redis_password             = var.tsb_password
 }
 
 module "tsb_cp" {

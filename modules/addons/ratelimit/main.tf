@@ -13,6 +13,10 @@ provider "kubectl" {
   load_config_file       = false
 }
 
+resource "random_password" "redis" {
+  length = 16
+}
+
 resource "helm_release" "redis" {
   count            = var.enabled ? 1 : 0
   name             = "redis"
@@ -24,7 +28,7 @@ resource "helm_release" "redis" {
 
   set {
     name  = "auth.password"
-    value = var.redis_password
+    value = random_password.redis.result
   }
   set {
     name  = "architecture"

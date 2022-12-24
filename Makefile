@@ -161,6 +161,7 @@ monitoring:  ## Deploys the TSB monitoring stack
 		terraform workspace select default; \
 		terraform init; \
 		terraform apply ${terraform_apply_args} -var-file="../../terraform.tfvars.json"; \
+		terraform output ${terraform_output_args} | jq . > ../../outputs/terraform_outputs/terraform-monitoring.json; \
 		terraform workspace select default; \
 		cd "../.."; \
 		'
