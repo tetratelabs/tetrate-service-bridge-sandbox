@@ -1,0 +1,123 @@
+---
+apiVersion: v1
+kind: List
+items:
+  - apiVersion: tsb.tetrate.io/v2
+    kind: Workspace
+    metadata:
+      name: gitops-tcp-echo-ws
+      annotations:
+        tsb.tetrate.io/organization: tetrate
+        tsb.tetrate.io/tenant: dev
+    spec:
+      namespaceSelector:
+        names:
+          - "*/gitops-tcp-echo"
+  - apiVersion: gateway.tsb.tetrate.io/v2
+    kind: Group
+    metadata:
+      name: gitops-tcp-echo-gg
+      annotations:
+        tsb.tetrate.io/organization: tetrate
+        tsb.tetrate.io/tenant: dev
+        tsb.tetrate.io/workspace: gitops-tcp-echo-ws
+    spec:
+      namespaceSelector:
+        names:
+          - "*/gitops-tcp-echo"
+      configMode: BRIDGED
+  - apiVersion: traffic.tsb.tetrate.io/v2
+    kind: Group
+    metadata:
+      name: gitops-tcp-echo-tg
+      annotations:
+        tsb.tetrate.io/organization: tetrate
+        tsb.tetrate.io/tenant: dev
+        tsb.tetrate.io/workspace: gitops-tcp-echo-ws
+    spec:
+      namespaceSelector:
+        names:
+          - "*/gitops-tcp-echo"
+      configMode: BRIDGED
+  - apiVersion: security.tsb.tetrate.io/v2
+    kind: Group
+    metadata:
+      name: gitops-tcp-echo-sg
+      annotations:
+        tsb.tetrate.io/organization: tetrate
+        tsb.tetrate.io/tenant: dev
+        tsb.tetrate.io/workspace: gitops-tcp-echo-ws
+    spec:
+      namespaceSelector:
+        names:
+          - "*/gitops-tcp-echo"
+      configMode: BRIDGED
+  - apiVersion: install.tetrate.io/v1alpha1
+    kind: IngressGateway
+    metadata:
+      name: gitops-tcp-echo-gw
+      namespace: gitops-tcp-echo
+    spec:
+      kubeSpec:
+        service:
+          type: LoadBalancer
+  - apiVersion: gateway.tsb.tetrate.io/v2
+    kind: IngressGateway
+    metadata:
+      name: gitops-tcp-echo-igw
+      annotations:
+        tsb.tetrate.io/organization: tetrate
+        tsb.tetrate.io/tenant: dev
+        tsb.tetrate.io/workspace: gitops-tcp-echo-ws
+        tsb.tetrate.io/gatewayGroup: gitops-tcp-echo-gg
+    spec:
+      workloadSelector:
+        namespace: gitops-tcp-echo
+        labels:
+          app: gitops-tcp-echo-gw
+      tcp:
+        - name: gitops-tcp-echo
+          port: 80
+          hostname: gitops-tcp-echo.tetrate.io
+          tls:
+            mode: DISABLED
+            secretName: ""
+          route:
+            host: gitops-tcp-echo/tcp-echo.gitops-tcp-echo.svc.cluster.local
+            port: 9000
+  - apiVersion: apps/v1
+    kind: Deployment
+    metadata:
+      labels:
+        app: trafficgenerator
+      name: trafficgenerator
+      namespace: gitops-tcp-echo
+    spec:
+      progressDeadlineSeconds: 600
+      replicas: 1
+      selector:
+        matchLabels:
+          app: trafficgenerator
+      strategy:
+        rollingUpdate:
+          maxSurge: 25%
+          maxUnavailable: 25%
+        type: RollingUpdate
+      template:
+        metadata:
+          labels:
+            app: trafficgenerator
+        spec:
+          containers:
+            - args:
+                - /bin/sh
+                - -c
+                - 'while true; do echo traffic | nc -N gitops-tcp-echo.tetrate.io 80; sleep 2; done'
+              image: nicolaka/netshoot
+              imagePullPolicy: Always
+              name: trafficgenerator
+              resources: {}
+              terminationMessagePath: /dev/termination-log
+              terminationMessagePolicy: File
+          dnsPolicy: ClusterFirst
+          restartPolicy: Always
