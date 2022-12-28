@@ -18,3 +18,8 @@ output "istiod_cacerts_tls_crt" {
 output "istiod_cacerts_tls_key" {
   value = data.kubernetes_secret.istiod_cacerts.data["tls.key"]
 }
+
+output "password" {
+  value     = coalesce(var.tsb_password, random_password.tsb.result)
+  sensitive = true
+}

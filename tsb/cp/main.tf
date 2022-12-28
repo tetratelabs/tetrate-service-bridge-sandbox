@@ -47,9 +47,10 @@ module "tsb_cp" {
   tsb_fqdn                        = var.tsb_fqdn
   tsb_org                         = var.tsb_org
   tsb_username                    = var.tsb_username
-  tsb_password                    = var.tsb_password
+  tsb_password                    = data.terraform_remote_state.tsb_mp.outputs.tsb_password
   tsb_cacert                      = data.terraform_remote_state.tsb_mp.outputs.tsb_cacert
   ratelimit_enabled               = var.ratelimit_enabled
+  ratelimit_namespace             = module.ratelimit.namespace
   redis_password                  = module.ratelimit.redis_password
   istiod_cacerts_tls_crt          = data.terraform_remote_state.tsb_mp.outputs.istiod_cacerts_tls_crt
   istiod_cacerts_tls_key          = data.terraform_remote_state.tsb_mp.outputs.istiod_cacerts_tls_key

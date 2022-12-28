@@ -14,5 +14,8 @@ variable "namespace" {
 }
 
 variable "dashboards" {
-    
+}
+
+variable "password" {
+  default = ""
 }

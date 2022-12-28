@@ -12,3 +12,7 @@ variable "k8s_client_token" {
 
 variable "enabled" {
 }
+
+variable "namespace" {
+  default = "tsb-ratelimit"
+}

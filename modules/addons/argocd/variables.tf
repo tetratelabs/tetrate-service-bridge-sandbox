@@ -11,6 +11,7 @@ variable "k8s_client_token" {
 }
 
 variable "password" {
+  default = ""
 }
 
 variable "applications" {

@@ -29,7 +29,7 @@ resource "helm_release" "grafana" {
 
   set {
     name  = "adminPassword"
-    value = random_password.grafana.result
+    value = coalesce(var.password, random_password.grafana.result)
   }
 }
 

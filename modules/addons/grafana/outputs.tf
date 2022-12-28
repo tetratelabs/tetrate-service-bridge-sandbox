@@ -1,5 +1,5 @@
 
-output "admin_password" {
-  value     = random_password.grafana.result
+output "password" {
+  value     = coalesce(var.password, random_password.grafana.result)
   sensitive = true
 }

@@ -146,6 +146,7 @@ argocd_%:
 		terraform workspace select $*-$$index-$$region; \
 		terraform init; \
 		terraform apply ${terraform_apply_args} -var-file="../../terraform.tfvars.json" -var=cloud=$* -var=cluster_id=$$index; \
+		terraform output ${terraform_output_args} | jq . > ../../outputs/terraform_outputs/terraform-argocd-$*-$$index.json; \
 		terraform workspace select default; \
 		index=$$((index+1)); \
 		cd "../.."; \
@@ -181,6 +182,7 @@ destroy:  ## Destroy the environment
 	@$(MAKE) destroy_gcp destroy_aws destroy_azure
 	@$(MAKE) destroy_tfstate
 	@$(MAKE) destroy_tfcache
+	@$(MAKE) destroy_outputs
 
 destroy_%:
 	@/bin/sh -c '\

@@ -68,6 +68,10 @@ data "kubernetes_secret" "istiod_cacerts" {
   depends_on = [time_sleep.warmup_90_seconds]
 }
 
+resource "random_password" "tsb" {
+  length = 16
+}
+
 resource "helm_release" "managementplane" {
   name                = "managementplane"
   repository          = var.tsb_helm_repository
@@ -82,7 +86,7 @@ resource "helm_release" "managementplane" {
     #tsb
     tsb_version  = var.tsb_version
     registry     = var.registry
-    tsb_password = var.tsb_password
+    tsb_password = coalesce(var.tsb_password, random_password.tsb.result)
     tsb_org      = var.tsb_org
     tsb_fqdn     = var.tsb_fqdn
     #eck

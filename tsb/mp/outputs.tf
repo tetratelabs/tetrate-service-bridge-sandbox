@@ -50,3 +50,8 @@ output "es_cacert" {
 output "registry" {
   value = local.infra["outputs"].registry
 }
+
+output "tsb_password" {
+  value     = module.tsb_mp.password
+  sensitive = true
+}

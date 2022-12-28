@@ -13,6 +13,10 @@ provider "kubectl" {
   load_config_file       = false
 }
 
+resource "random_password" "argocd" {
+  length = 16
+}
+
 resource "helm_release" "argocd" {
   name             = "argo-cd"
   repository       = "https://argoproj.github.io/argo-helm"
@@ -28,7 +32,7 @@ resource "helm_release" "argocd" {
 
   set {
     name  = "configs.secret.argocdServerAdminPassword"
-    value = bcrypt(var.password)
+    value = bcrypt(coalesce(var.password, random_password.argocd.result))
   }
 
   set {
