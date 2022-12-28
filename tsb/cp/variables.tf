@@ -12,6 +12,8 @@ variable "owner" {
 }
 
 locals {
+  infra = data.terraform_remote_state.infra
+
   k8s_regions = var.cloud == "aws" ? var.aws_k8s_regions : (
     var.cloud == "azure" ? var.azure_k8s_regions : var.gcp_k8s_regions
   )
@@ -37,6 +39,7 @@ variable "tsb_username" {
 }
 
 variable "tsb_password" {
+  default = ""
 }
 
 variable "tsb_version" {
@@ -127,5 +130,9 @@ variable "output_path" {
 }
 
 variable "cert-manager_enabled" {
+  default = true
+}
+
+variable "ratelimit_enabled" {
   default = true
 }

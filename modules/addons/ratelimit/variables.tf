@@ -10,9 +10,9 @@ variable "k8s_cluster_ca_certificate" {
 variable "k8s_client_token" {
 }
 
-variable "password" {
-  default = ""
+variable "enabled" {
 }
 
-variable "applications" {
+variable "namespace" {
+  default = "tsb-ratelimit"
 }

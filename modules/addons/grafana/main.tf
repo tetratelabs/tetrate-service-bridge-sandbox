@@ -13,6 +13,10 @@ provider "kubectl" {
   load_config_file       = false
 }
 
+resource "random_password" "grafana" {
+  length = 16
+}
+
 resource "helm_release" "grafana" {
   name             = "grafana"
   repository       = "https://grafana.github.io/helm-charts"
@@ -25,7 +29,7 @@ resource "helm_release" "grafana" {
 
   set {
     name  = "adminPassword"
-    value = var.admin_password
+    value = coalesce(var.password, random_password.grafana.result)
   }
 }
 

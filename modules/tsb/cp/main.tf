@@ -64,6 +64,7 @@ data "local_file" "service_account" {
   filename   = "${var.output_path}/${var.cluster_name}-service-account.jwk"
   depends_on = [null_resource.jumpbox_tctl]
 }
+
 resource "helm_release" "controlplane" {
   name                = "controlplane"
   repository          = var.tsb_helm_repository
@@ -85,6 +86,8 @@ resource "helm_release" "controlplane" {
     es_host                   = var.es_host
     es_username               = var.es_username
     es_password               = var.es_password
+    ratelimit_enabled         = var.ratelimit_enabled
+    ratelimit_namespace       = var.ratelimit_namespace
   })]
 
   set {
@@ -99,6 +102,19 @@ resource "helm_release" "controlplane" {
   set {
     name  = "secrets.elasticsearch.cacert"
     value = var.es_cacert
+  }
+}
+
+resource "kubernetes_secret" "redis_password" {
+  depends_on = [helm_release.controlplane]
+  count      = var.ratelimit_enabled ? 1 : 0
+  metadata {
+    name      = "redis-credentials"
+    namespace = "istio-system"
+  }
+
+  data = {
+    REDIS_AUTH = var.redis_password
   }
 }
 
@@ -161,5 +177,4 @@ resource "helm_release" "dataplane" {
     registry                  = var.registry
     tsb_version               = var.tsb_version
   })]
-
 }

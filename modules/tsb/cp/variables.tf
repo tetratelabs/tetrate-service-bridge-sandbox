@@ -100,5 +100,15 @@ variable "k8s_client_token" {
 variable "tier1_cluster" {
 }
 
+variable "ratelimit_enabled" {
+}
+
+variable "ratelimit_namespace" {
+}
+
+variable "redis_password" {
+}
+
 variable "output_path" {
 }
+

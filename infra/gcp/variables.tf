@@ -28,6 +28,7 @@ variable "tsb_username" {
 }
 
 variable "tsb_password" {
+  default = ""
 }
 
 variable "tsb_version" {

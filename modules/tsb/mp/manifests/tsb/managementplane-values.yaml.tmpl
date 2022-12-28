@@ -2,7 +2,7 @@ image:%{ if length(regexall("dev", tsb_version)) == 0 }${"\n"}  tag: ${tsb_versi
   registry: ${registry}
 secrets:
   tsb:
-    adminPassword: ${tsb_password}
+    adminPassword: "${tsb_password}"
   xcp: 
     autoGenerateCerts: true
     central: 

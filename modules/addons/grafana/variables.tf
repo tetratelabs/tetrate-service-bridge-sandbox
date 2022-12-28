@@ -10,12 +10,12 @@ variable "k8s_cluster_ca_certificate" {
 variable "k8s_client_token" {
 }
 
-variable "admin_password" {
-}
-
 variable "namespace" {
 }
 
 variable "dashboards" {
-    
+}
+
+variable "password" {
+  default = ""
 }
