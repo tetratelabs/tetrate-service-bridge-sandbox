@@ -19,3 +19,7 @@ variable "dashboards" {
 variable "password" {
   default = ""
 }
+
+variable "service_type" {
+  default = "ClusterIP"
+}

@@ -25,12 +25,10 @@ resource "helm_release" "grafana" {
   namespace        = var.namespace
   timeout          = 900
 
-  values = [file("${path.module}/manifests/grafana-values.yaml")]
-
-  set {
-    name  = "adminPassword"
-    value = coalesce(var.password, random_password.grafana.result)
-  }
+  values = [templatefile("${path.module}/manifests/grafana-values.yaml.tmpl", {
+    admin_password = coalesce(var.password, random_password.grafana.result)
+    service_type   = var.service_type
+  })]
 }
 
 data "kubectl_path_documents" "tsb_dashboards" {
