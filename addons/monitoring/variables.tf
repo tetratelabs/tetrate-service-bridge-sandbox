@@ -121,3 +121,7 @@ variable "output_path" {
 variable "cert-manager_enabled" {
   default = true
 }
+
+variable "grafana_service_type" {
+  default = "ClusterIP"
+}

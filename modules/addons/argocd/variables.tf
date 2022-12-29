@@ -16,3 +16,7 @@ variable "password" {
 
 variable "applications" {
 }
+
+variable "service_type" {
+  default = "ClusterIP"
+}
