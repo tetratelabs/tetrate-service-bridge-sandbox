@@ -24,6 +24,7 @@ module "vnet" {
   vnet_name           = "${var.name_prefix}_vnet"
   source              = "Azure/vnet/azurerm"
   vnet_location       = var.location
+  use_for_each        = false
   resource_group_name = azurerm_resource_group.tsb.name
   address_space       = [var.cidr]
   subnet_prefixes     = local.subnet_prefixes
