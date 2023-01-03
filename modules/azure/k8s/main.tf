@@ -10,7 +10,7 @@ resource "azurerm_kubernetes_cluster" "k8s" {
   private_cluster_enabled = false
 
   network_profile {
-    network_plugin = "azure"
+    network_plugin = "kubenet"
   }
 
   default_node_pool {
