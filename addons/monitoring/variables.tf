@@ -12,8 +12,10 @@ variable "owner" {
 }
 
 locals {
-  k8s_regions = var.cloud == "aws" ? var.aws_k8s_regions : (
-    var.cloud == "azure" ? var.azure_k8s_regions : var.gcp_k8s_regions
+  infra = data.terraform_remote_state.infra
+
+  k8s_regions = var.tsb_mp["cloud"] == "aws" ? var.aws_k8s_regions : (
+    var.tsb_mp["cloud"] == "azure" ? var.azure_k8s_regions : var.gcp_k8s_regions
   )
 }
 
@@ -120,6 +122,10 @@ variable "output_path" {
 
 variable "cert-manager_enabled" {
   default = true
+}
+
+variable "monitoring_namespace" {
+  default = "tsb-monitoring"
 }
 
 variable "grafana_service_type" {
