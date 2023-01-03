@@ -11,7 +11,7 @@ module "prometheus" {
   k8s_host                   = data.terraform_remote_state.infra.outputs.host
   k8s_cluster_ca_certificate = data.terraform_remote_state.infra.outputs.cluster_ca_certificate
   k8s_client_token           = data.terraform_remote_state.infra.outputs.token
-  namespace                  = "tsb-monitoring"
+  namespace                  = var.monitoring_namespace
 }
 
 module "grafana" {
@@ -20,7 +20,7 @@ module "grafana" {
   k8s_host                   = data.terraform_remote_state.infra.outputs.host
   k8s_cluster_ca_certificate = data.terraform_remote_state.infra.outputs.cluster_ca_certificate
   k8s_client_token           = data.terraform_remote_state.infra.outputs.token
-  namespace                  = "tsb-monitoring"
+  namespace                  = var.monitoring_namespace
   service_type               = var.grafana_service_type
   password                   = var.tsb_password
   
