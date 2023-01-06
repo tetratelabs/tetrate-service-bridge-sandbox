@@ -15,6 +15,9 @@ module "eks" {
   eks_managed_node_group_defaults = {
     disk_size      = 50
     instance_types = ["m5.xlarge"]
+    iam_role_additional_policies = {
+      AmazonEBSCSIDriverPolicy = "arn:aws:iam::aws:policy/service-role/AmazonEBSCSIDriverPolicy"
+    }
   }
 
   cluster_addons = {
