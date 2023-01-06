@@ -1,7 +1,7 @@
 data "aws_availability_zones" "available" {}
 module "eks" {
   source  = "terraform-aws-modules/eks/aws"
-  version = "~> 18.23.0"
+  version = "~> 19.0"
 
   cluster_name                    = var.cluster_name
   cluster_version                 = var.k8s_version
@@ -15,14 +15,24 @@ module "eks" {
   eks_managed_node_group_defaults = {
     disk_size      = 50
     instance_types = ["m5.xlarge"]
+    iam_role_additional_policies = {
+      AmazonEBSCSIDriverPolicy = "arn:aws:iam::aws:policy/service-role/AmazonEBSCSIDriverPolicy"
+    }
   }
 
   cluster_addons = {
     coredns = {
+      most_recent = true
       resolve_conflicts = "OVERWRITE"
     }
-    kube-proxy = {}
+    kube-proxy = {
+      most_recent = true
+    }
+    aws-ebs-csi-driver = {
+      most_recent = true
+    }
     vpc-cni = {
+      most_recent = true
       resolve_conflicts = "OVERWRITE"
     }
   }
