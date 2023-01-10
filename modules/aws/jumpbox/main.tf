@@ -274,16 +274,18 @@ resource "aws_instance" "jumpbox" {
 }
 
 resource "null_resource" "aws_cleanup" {
+  triggers = {
+    output_path = var.output_path
+    name_prefix = var.name_prefix
+  }
 
   provisioner "local-exec" {
     when = destroy
-    inline = [
-      "sh ${var.output_path}/${var.name_prefix}-aws-cleanup.sh"
-    ]
+    command = "sh ${self.triggers.output_path}/${self.triggers.name_prefix}-aws-cleanup.sh"
     on_failure = continue
   }
 
-  depends_on = [aws_instance.jumpbox, tls_private_key.generated, local_file.ssh_jumpbox]
+  depends_on = [ tls_private_key.generated, local_file.aws_cleanup]
 }
 
 resource "local_file" "tsbadmin_pem" {
