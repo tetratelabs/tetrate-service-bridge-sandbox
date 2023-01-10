@@ -299,7 +299,7 @@ resource "local_file" "ssh_jumpbox" {
   file_permission = "0755"
 }
 
-resource "local_file" "ssh_jumpbox" {
+resource "local_file" "aws_cleanup" {
   content         = templatefile("${path.module}/aws_cleanup.sh.tmpl", {
       vpc_id = var.vpc_id
       region = var.region
