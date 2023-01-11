@@ -13,7 +13,7 @@ spec:
     directory:
       recurse: true
     path: gitops/grpc
-    repoURL: https://github.com/smarunich/tetrate-service-bridge-sandbox.git
+    repoURL: https://github.com/tetrateio/tetrate-service-bridge-sandbox.git
     targetRevision: main
   syncPolicy:
     automated:
