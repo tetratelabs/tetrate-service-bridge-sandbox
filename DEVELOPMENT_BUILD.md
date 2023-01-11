@@ -3,7 +3,8 @@
 If you want to provision the latest master build you have to:
 
 1. Specify ```tsb_version``` that includes ```dev``` suffix, for example ```"tsb_version": "1.6.0-dev"```
-2. Provide ```dev``` helm repo details such as ```tsb_helm_repository``` url, ```tsb_helm_repository_username``` and ```tsb_helm_repository_password```
+2. Provide ```dev``` helm repo details such as ```tsb_helm_repository``` url, ```tsb_helm_repository_username``` and ```tsb_helm_repository_password```.
+   Note: tetrands can use cloudsmith's repository in `tsb_helm_repository`.
 3. Have the ```gcloud``` CLI installed on your machine. It will be used to get a token to access the internal releases registry.
 
 A complete reference example:

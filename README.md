@@ -33,7 +33,7 @@ The `Makefile` in this directory provides ability to fastforward to anypoint of 
 ## Prerequisites
 
 - terraform >= 1.3.6
-- AWS role configured and assumed(Route53 is used for TSB MP FQDN)
+- AWS role configured and assumed (Route53 is used for TSB MP FQDN)
 - (optional) Azure role configured and assumed
 - (optional) GCP role configured and assumed `gcloud auth application-default login`
 
@@ -77,11 +77,11 @@ Please refer to [tfvars collection](/tfvars_collection) for more examples, i.e. 
 | [mp-gke-cp-1aks-1eks-2gke.tfvars.json.sample](/tfvars_collection/mp-gke-cp-1aks-1eks-2gke.tfvars.json.sample)           | MP on GKE, CP on 1xAKS, 1xEKS, 2xGKE                        |
 | [mp-gke-cp-1aks-2gke.tfvars.json.sample](/tfvars_collection/mp-gke-cp-1aks-2gke.tfvars.json.sample)                     | MP on GKE, CP on 1xAKS, 2xGKE                               |
 | [mp-gke-cp-3gke.tfvars.json.sample](/tfvars_collection/mp-gke-cp-3gke.tfvars.json.sample)                               | MP on GKE, CP on 3xGKE                                      |
-| [mp-gke-cp-2aks-2eks-2gke.tfvars.json.sample](/tfvars_collection/mp-gke-cp-2aks-2eks-2gke.tfvars.json.sample)                             | MP on GKE, CP on 2xAKS, 2xEKS, 2xGKE within the same region |
+| [mp-gke-cp-2aks-2eks-2gke.tfvars.json.sample](/tfvars_collection/mp-gke-cp-2aks-2eks-2gke.tfvars.json.sample            | MP on GKE, CP on 2xAKS, 2xEKS, 2xGKE within the same region |
 
 ## Usage
 
-All `Make` commands should be executed from root of repo as this is where `Make` file is.
+All `Make` commands should be executed from root of repo as this is where the `Makefile` is.
 
 1. a) Stand up full demo
 
@@ -127,6 +127,11 @@ When you are done with the environment, you can destroy it by running:
 make destroy
 ```
 
+For a quicker destroy for development purposes, you can:
+
+- manually delete the clusters via CLI or web consoles 
+- run `make destroy_local` to delete the terraform data
+
 ## Dev Environment (Tetrate Internal)
 
 [If you want to provision the latest master build](./DEVELOPMENT_BUILD.md)
@@ -138,10 +143,12 @@ make destroy
 - Cleanup of aws objects created by K8s loadbalancer services (ELB+SGs) is currently manual effort
 - When using GCP, it is possible to use the DNS of the current project instead of the shared one. This may
   be convenient if you don't have permissions to create DNS records in the shared DNS project. To have the
-  DNS records created in your project, just use any `fqdn` you want that ends in `.private`. Alternatively,
-  if you own a domain that you can point to your GCP project, you can use any `fqdn` as long as it does _not_
-  have the shared DNS suffix (gcp.cx.tetrate.info). In this case a public DNS zone will be created in the project
-  for the configured DNS domain.
+  DNS records created in your project, just use any `fqdn` you want that ends in `.private`. Note that
+  `.private` domains won't work in multicluster scenarios, since XCP Edges need a public name to connect to
+  Central.
+  Alternatively, if you own a domain that you can point to your GCP project, you can use any `fqdn` as long
+  as it does _not_ have the shared DNS suffix (gcp.cx.tetrate.info). In this case a public DNS zone will be
+  created in the project for the configured DNS domain.
 
 ### Repository structure
 

@@ -168,7 +168,10 @@ monitoring:  ## Deploys the TSB monitoring stack
 		'
 
 .PHONY: destroy
-destroy:  ## Destroy the environment
+destroy: destroy_remote destroy_local
+
+.PHONY: destroy_remote
+destroy_remote:  ## Destroy the environment
 	@/bin/sh -c '\
 		cloud=`jq -r '.tsb_mp.cloud' terraform.tfvars.json`; \
 		fqdn=`jq -r '.tsb_fqdn' terraform.tfvars.json`; \
@@ -180,6 +183,9 @@ destroy:  ## Destroy the environment
 		cd "../../.."; \
 		'
 	@$(MAKE) destroy_gcp destroy_aws destroy_azure
+
+.PHONY: destroy_local
+destroy_local:
 	@$(MAKE) destroy_tfstate
 	@$(MAKE) destroy_tfcache
 	@$(MAKE) destroy_outputs
