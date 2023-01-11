@@ -42,7 +42,7 @@ The `Makefile` in this directory provides ability to fastforward to anypoint of 
 1. Clone the repo
 
 ```bash
-git clone https://github.com/smarunich/tetrate-service-bridge-sandbox.git
+git clone https://github.com/tetrateio/tetrate-service-bridge-sandbox.git
 ```
 
 2. Copy `terraform.tfvars.json.sample` to the root directory as `terraform.tfvars.json`
