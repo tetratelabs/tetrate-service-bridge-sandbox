@@ -28,6 +28,7 @@ resource "helm_release" "grafana" {
   values = [templatefile("${path.module}/manifests/grafana-values.yaml.tmpl", {
     admin_password = coalesce(var.password, random_password.grafana.result)
     service_type   = var.service_type
+    service_port   = var.service_port
   })]
 }
 
@@ -46,4 +47,10 @@ resource "kubectl_manifest" "tsb_dashboards" {
   depends_on = [resource.helm_release.grafana]  # Make sure the namespace exists
   for_each   = var.dashboards
   yaml_body  = data.kubectl_path_documents.tsb_dashboards[each.key].documents[0]
+}
+
+resource "local_file" "ssh_tunnel" {
+  content         = "kubectl port-forward $(kubectl get pod -lapp.kubernetes.io/name=grafana -n tsb-monitoring -o  jsonpath='{.items[0].metadata.name}') ${var.service_port}:3000 -n tsb-monitoring"
+  filename        = "${var.output_path}/ssh-tunnel-to-grafana.sh"
+  file_permission = "0755"
 }

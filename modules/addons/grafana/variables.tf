@@ -23,3 +23,11 @@ variable "password" {
 variable "service_type" {
   default = "ClusterIP"
 }
+
+variable "service_port" {
+  default = 3000
+}
+
+variable "output_path" {
+  default = "../../outputs"
+}
