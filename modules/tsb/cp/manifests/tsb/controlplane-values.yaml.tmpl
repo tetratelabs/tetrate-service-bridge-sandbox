@@ -66,7 +66,15 @@ spec:
       certManager:
         managed: EXTERNAL
     oap:
+        oap:
+          streamingLogEnabled: true
+
       streamingLogEnabled: true
+      kubeSpec:
+        deployment:
+          env:
+          - name: SW_CORE_PERSISTENT_PERIOD
+            value: "5"
     %{ if ratelimit_enabled }
     rateLimitServer:
       domain: local
