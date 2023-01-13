@@ -161,20 +161,3 @@ resource "kubernetes_secret_v1" "cr_pull_secret" {
   type       = "kubernetes.io/dockerconfigjson"
   depends_on = [helm_release.controlplane]
 }
-
-resource "helm_release" "dataplane" {
-  name                = "dataplane"
-  repository          = var.tsb_helm_repository
-  repository_username = var.tsb_helm_repository_username
-  repository_password = var.tsb_helm_repository_password
-  chart               = "dataplane"
-  version             = var.tsb_helm_version
-  create_namespace    = true
-  namespace           = "istio-gateway"
-  timeout             = 900
-
-  values = [templatefile("${path.module}/manifests/tsb/dataplane-values.yaml.tmpl", {
-    registry                  = var.registry
-    tsb_version               = var.tsb_version
-  })]
-}

@@ -22,19 +22,20 @@ spec:
     clusterName: ${cluster_name}
     selfSigned: true
   components:
-    istio:
-      kubeSpec:
-        overlays:
-          - apiVersion: install.istio.io/v1alpha1
-            kind: IstioOperator
-            name: tsb-istiocontrolplane
-            patches:
-              - path: spec.meshConfig.defaultConfig.holdApplicationUntilProxyStarts
-                value: true
     xcp:
       centralAuthMode: JWT
       configProtection: {}
       enableHttpMeshInternalIdentityPropagation: false
+      isolationBoundaries:
+      - name: global
+        revisions:
+        - name: global
+      - name: dev
+        revisions:
+        - name: dev-stable
+      - name: qa
+        revisions:
+        - name: qa-stable
       kubeSpec:
         deployment:
           env:
@@ -82,4 +83,4 @@ operator:
   deployment:
     env:
     - name: ISTIO_ISOLATION_BOUNDARIES
-      value: "false"
+      value: "true"
