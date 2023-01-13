@@ -19,6 +19,7 @@ items:
         tsb.tetrate.io/organization: tetrate
         tsb.tetrate.io/tenant: dev
     spec:
+      isolationBoundary: qa
       namespaceSelector:
         names:
           - "*/gitops-bookinfo-qa"

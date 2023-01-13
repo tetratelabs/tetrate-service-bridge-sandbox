@@ -2,7 +2,7 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: gitops-bookinfo
+  name: gitops-bookinfo-dev
   namespace: argocd
 spec:
   destination:
