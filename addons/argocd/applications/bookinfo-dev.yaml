@@ -6,15 +6,15 @@ metadata:
   namespace: argocd
 spec:
   destination:
-    namespace: gitops-bookinfo
+    namespace: gitops-bookinfo-dev
     server: https://kubernetes.default.svc
   project: default
   source:
     directory:
       recurse: true
-    path: gitops/bookinfo
+    path: gitops/bookinfo-dev
     repoURL: https://github.com/tetrateio/tetrate-service-bridge-sandbox.git
-    targetRevision: main
+    targetRevision: release-1.6.x-ib
   syncPolicy:
     automated:
       prune: false

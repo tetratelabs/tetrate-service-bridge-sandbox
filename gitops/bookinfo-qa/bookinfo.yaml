@@ -30,8 +30,8 @@ apiVersion: v1
 kind: Namespace
 metadata:
   labels:
-    istio-injection: enabled
-  name: gitops-bookinfo
+    istio.io/rev: qa-stable
+  name: gitops-bookinfo-qa
 ---
 ##################################################################################################
 # Details service

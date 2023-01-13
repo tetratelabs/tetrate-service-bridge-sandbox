@@ -3,14 +3,14 @@ apiVersion: v1
 kind: Namespace
 metadata:
   labels:
-    istio-injection: enabled
+    istio.io/rev: global
   name: gitops-opa-s2s-httpbin
 ---
 apiVersion: v1
 kind: Namespace
 metadata:
   labels:
-    istio-injection: enabled
+    istio.io/rev: global
   name: gitops-opa-s2s-sleep
 ---
 apiVersion: v1

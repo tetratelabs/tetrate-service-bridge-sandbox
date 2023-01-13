@@ -4,6 +4,7 @@ metadata:
   name: tsb-gateway-eshop
   namespace: gitops-eshop
 spec:
+  revision: global
   kubeSpec:
     service:
       type: LoadBalancer
@@ -14,6 +15,7 @@ metadata:
   name: tsb-gateway-payments
   namespace: gitops-eshop-payments
 spec:
+  revision: global
   kubeSpec:
     service:
       type: LoadBalancer

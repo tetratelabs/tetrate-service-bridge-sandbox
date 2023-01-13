@@ -30,8 +30,8 @@ apiVersion: v1
 kind: Namespace
 metadata:
   labels:
-    istio.io/rev: global
-  name: gitops-direct-bookinfo
+    istio.io/rev: dev-stable
+  name: gitops-bookinfo-dev
 ---
 ##################################################################################################
 # Details service
@@ -335,8 +335,11 @@ spec:
       serviceAccountName: bookinfo-productpage
       containers:
         - name: productpage
-          image: docker.io/istio/examples-bookinfo-productpage-v1:1.16.2
+          image: docker.io/chirauki/productpage:latest
           imagePullPolicy: IfNotPresent
+          env:
+            - name: DETAILS_HOSTNAME
+              value: gitops-details.tetrate.io
           ports:
             - containerPort: 9080
           volumeMounts:
