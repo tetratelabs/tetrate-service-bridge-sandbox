@@ -185,7 +185,7 @@ destroy_remote:  ## Destroy the environment
 	@$(MAKE) destroy_gcp destroy_aws destroy_azure
 
 .PHONY: destroy_local
-destroy_local:
+destroy_local:  ## Destroy the local Terraform state and cache
 	@$(MAKE) destroy_tfstate
 	@$(MAKE) destroy_tfcache
 	@$(MAKE) destroy_outputs
