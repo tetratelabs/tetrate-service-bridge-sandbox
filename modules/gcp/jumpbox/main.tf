@@ -81,6 +81,20 @@ resource "google_compute_instance" "jumpbox" {
   }
 }
 
+resource "null_resource" "gcp_cleanup" {
+  triggers = {
+    project_id = var.project_id
+  }
+
+  provisioner "local-exec" {
+    when = destroy
+    command = "sh ${path.module}/gcp-cleanup.sh ${self.triggers.project_id}"
+    on_failure = continue
+  }
+  depends_on = [ tls_private_key.generated ]
+}
+
+
 resource "local_file" "tsbadmin_pem" {
   content         = tls_private_key.generated.private_key_pem
   filename        = "${var.output_path}/${var.name_prefix}-gcp-${var.jumpbox_username}.pem"
