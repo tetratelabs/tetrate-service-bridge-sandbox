@@ -81,6 +81,7 @@ resource "google_compute_instance" "jumpbox" {
   }
 }
 
+# GCP project deletion will fail, if there are any outstanding PVCs left post GKE cluster deletion, i.e. PVC for Postgres and Elasticsearch post TSB MP deletion
 resource "null_resource" "gcp_cleanup" {
   triggers = {
     project_id = var.project_id
