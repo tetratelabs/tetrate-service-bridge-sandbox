@@ -14,16 +14,22 @@ The `Makefile` in this directory provides ability to fastforward to anypoint of 
 
 ```mermaid
   graph TD;
-      A[make tsb] --> B[make k8s]
-      B[make k8s] --> C[make aws_k8s]
-      B[make k8s] --> CC[make azure_k8s]
-      B[make k8s] --> CCC[make gcp_k8s]
-      C[make aws_k8s] --> D[make tsb_mp]
-      CC[make azure_k8s] --> D[make tsb_mp]
-      CCC[make gcp_k8s] --> D[make tsb_mp]
-      D[make tsb_mp] --> DD[make tsb_cp]
-      D[make tsb_mp] --> G[make argocd]
-      D[make tsb_mp] --> H[make monitoring]
+      tsb[make tsb] --> k8s[make k8s]
+      k8s --> aws[make aws_k8s]
+      k8s --> azure[make azure_k8s]
+      k8s --> gcp[make gcp_k8s]
+      aws --> mp[make tsb_mp]
+      azure --> mp
+      gcp --> mp
+      mp --> cp[make tsb_cp]
+      subgraph Add-Ons
+        monitoring[make monitoring]
+        argocd[make argocd]
+        external-dns[make external-dns]
+      end
+      cp --> argocd
+      cp --> external-dns
+      mp --> monitoring
 ```
 
 # Getting Started
