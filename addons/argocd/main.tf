@@ -14,5 +14,5 @@ module "argocd" {
   service_type               = var.argocd_service_type
   password                   = var.tsb_password
 
-  applications = {for a in fileset("${path.module}/applications", "*.yaml") : a => file("${path.module}/applications/${a}")}
+  applications = var.argocd_include_example_apps ? {for a in fileset("${path.module}/applications", "*.yaml") : a => file("${path.module}/applications/${a}")} : {}
 }

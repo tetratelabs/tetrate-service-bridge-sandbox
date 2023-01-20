@@ -24,8 +24,6 @@ The `Makefile` in this directory provides ability to fastforward to anypoint of 
       D[make tsb_mp] --> DD[make tsb_cp]
       D[make tsb_mp] --> G[make argocd]
       D[make tsb_mp] --> H[make monitoring]
-      D[make tsb_mp] --> F[make keycloak]
-      style F fill:lightgrey
 ```
 
 # Getting Started

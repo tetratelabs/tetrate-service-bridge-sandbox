@@ -1,0 +1,79 @@
+apiVersion: rbac.tsb.tetrate.io/v2
+kind: AccessBindings
+metadata:
+  name: eshop-tenant
+  namespace: gitops-eshop-config
+  annotations:
+    argocd.argoproj.io/sync-wave: "50"
+    tsb.tetrate.io/fqn: organizations/tetrate/tenants/eshop
+spec:
+  allow:
+  - role: rbac/creator
+    subjects:
+    - user: organizations/tetrate/users/nacx
+  - role: rbac/tenant-reader
+    subjects:
+    - team: organizations/tetrate/teams/eshop-team
+    - team: organizations/tetrate/teams/payments-team
+---
+apiVersion: rbac.tsb.tetrate.io/v2
+kind: AccessBindings
+metadata:
+  name: payments-workspace
+  namespace: gitops-eshop-config
+  annotations:
+    argocd.argoproj.io/sync-wave: "50"
+    tsb.tetrate.io/fqn: organizations/tetrate/tenants/eshop/workspaces/payments
+spec:
+  allow:
+  - role: rbac/admin
+    subjects:
+    - user: organizations/tetrate/users/nacx
+  - role: rbac/creator
+    subjects:
+    - team: organizations/tetrate/teams/payments-team
+---
+apiVersion: rbac.tsb.tetrate.io/v2
+kind: AccessBindings
+metadata:
+  name: eshop-workspace
+  namespace: gitops-eshop-config
+  annotations:
+    argocd.argoproj.io/sync-wave: "50"
+    tsb.tetrate.io/fqn: organizations/tetrate/tenants/eshop/workspaces/eshop
+spec:
+  allow:
+  - role: rbac/admin
+    subjects:
+    - user: organizations/tetrate/users/nacx
+  - role: rbac/creator
+    subjects:
+    - team: organizations/tetrate/teams/eshop-team
+---
+apiVersion: rbac.tsb.tetrate.io/v2
+kind: AccessBindings
+metadata:
+  name: payments-gateways
+  namespace: gitops-eshop-config
+  annotations:
+    argocd.argoproj.io/sync-wave: "50"
+    tsb.tetrate.io/fqn: organizations/tetrate/tenants/eshop/workspaces/payments/gatewaygroups/payments-gateways
+spec:
+  allow:
+  - role: rbac/admin
+    subjects:
+    - team: organizations/tetrate/teams/payments-team
+---
+apiVersion: rbac.tsb.tetrate.io/v2
+kind: AccessBindings
+metadata:
+  name: eshop-gateways
+  namespace: gitops-eshop-config
+  annotations:
+    argocd.argoproj.io/sync-wave: "50"
+    tsb.tetrate.io/fqn: organizations/tetrate/tenants/eshop/workspaces/eshop/gatewaygroups/eshop-gateways
+spec:
+  allow:
+  - role: rbac/admin
+    subjects:
+    - team: organizations/tetrate/teams/eshop-team

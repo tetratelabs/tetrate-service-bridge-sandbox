@@ -125,3 +125,7 @@ variable "cert-manager_enabled" {
 variable "argocd_service_type" {
   default = "LoadBalancer"
 }
+
+variable "argocd_include_example_apps" {
+  default = true
+}

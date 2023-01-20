@@ -13,8 +13,8 @@ spec:
     directory:
       recurse: true
     path: gitops/eshop
-    repoURL: https://github.com/tetrateio/tetrate-service-bridge-sandbox.git
-    targetRevision: main
+    repoURL: https://github.com/nacx/tetrate-service-bridge-sandbox.git
+    targetRevision: cleanup
   syncPolicy:
     automated:
       prune: false
