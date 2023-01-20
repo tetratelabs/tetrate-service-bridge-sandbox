@@ -1,0 +1,21 @@
+
+policy: upsert-only
+registry: txt
+txtOwnerId: ${dns_owner_id}
+
+# Since we are enabling the Istio Gateway source, it is important to set this filter
+# so we don't create DNS records for any random or internal hostnames defined in
+# the TSB IngressGateways.
+domainFilters:
+  - ${dns_zone}
+
+sources:
+  - service
+  - ingress
+  - istio-gateway
+
+provider: google
+google:
+  project: ${google_project}
+  serviceAccountKey: |
+    ${google_service_account_key}

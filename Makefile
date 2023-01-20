@@ -12,20 +12,13 @@ terraform_output_args = -json
 .PHONY: all
 all: tsb
 
-.PHONY: help
-help: Makefile ## This help
-	@awk 'BEGIN {FS = ":.*##"; printf "Usage:\n"} \
-			/^[.a-zA-Z0-9_-]+:.*?##/ { printf "  \033[36mmake %-15s\033[0m %s\n", $$1, $$2 }' $(MAKEFILE_LIST)
-
-.PHONY: init
-init:  ## Terraform init
-	@echo "Please refer to the latest instructions and terraform.tfvars.json file format at https://github.com/tetrateio/tetrate-service-bridge-sandbox#usage"
+##@ Infrastructure provisioning
 
 .PHONY: k8s
 k8s: azure_k8s aws_k8s gcp_k8s  ## Deploys k8s cluster for MP and N-number of CPs(*) 
 
 .PHONY: azure_k8s
-azure_k8s: init  ## Deploys azure k8s cluster for MP and N-number of CPs(*) leveraging AKS
+azure_k8s:  ## Deploys azure k8s cluster for MP and N-number of CPs(*) leveraging AKS
 	@/bin/sh -c '\
 		index=0; \
 		name_prefix=`jq -r '.name_prefix' terraform.tfvars.json`; \
@@ -46,7 +39,7 @@ azure_k8s: init  ## Deploys azure k8s cluster for MP and N-number of CPs(*) leve
 		'
 
 .PHONY: aws_k8s
-aws_k8s: init  ## Deploys EKS K8s cluster (CPs only)
+aws_k8s:  ## Deploys EKS K8s cluster (CPs only)
 	@/bin/sh -c '\
 		index=0; \
 		name_prefix=`jq -r '.name_prefix' terraform.tfvars.json`; \
@@ -66,7 +59,7 @@ aws_k8s: init  ## Deploys EKS K8s cluster (CPs only)
 		'
 
 .PHONY: gcp_k8s
-gcp_k8s: init  ## Deploys GKE K8s cluster (CPs only)
+gcp_k8s:  ## Deploys GKE K8s cluster (CPs only)
 	@/bin/sh -c '\
 		index=0; \
 		name_prefix=`jq -r '.name_prefix' terraform.tfvars.json`; \
@@ -86,8 +79,14 @@ gcp_k8s: init  ## Deploys GKE K8s cluster (CPs only)
 		done; \
 		'
 
+##@ TSB installation
+
+.PHONY: tsb
+tsb: k8s tsb_mp tsb_cp  ## Deploys a full environment (Infra+MP+CP)
+	@echo "Magic is on the way..."
+
 .PHONY: tsb_mp
-tsb_mp:  ## Deploys MP
+tsb_mp:  ## Deploys the TSB Management Plane
 	@echo "Refreshing k8s access tokens..."
 	@$(MAKE) k8s
 	@echo "Deploying TSB Management Plane..."
@@ -103,7 +102,6 @@ tsb_mp:  ## Deploys MP
 		fqdn=`jq -r '.tsb_fqdn' ../../terraform.tfvars.json`; \
 		address=`jq -r "if .ingress_ip.value != \"\" then .ingress_ip.value else .ingress_hostname.value end" ../../outputs/terraform_outputs/terraform-tsb-mp.json`; \
 		terraform -chdir=../fqdn/$$cloud init; \
-		terraform -chdir=../fqdn/$$cloud apply ${terraform_apply_args} -var-file="../../../terraform.tfvars.json" -var=address=$$address -var=fqdn=$$fqdn; \
 		terraform workspace select default; \
 		cd "../.."; \
 		'
@@ -128,9 +126,21 @@ tsb_cp_%:
 		done; \
 		'
 
-.PHONY: tsb
-tsb: k8s tsb_mp tsb_cp  ## Deploys a full environment (MP+CP)
-	@echo "Magic is on the way..."
+##@ Add-on installation
+
+.PHONY: monitoring
+monitoring:  ## Deploys the TSB monitoring stack
+	@echo "Deploying TSB monitoring stack..."
+	@$(MAKE) k8s
+	@/bin/sh -c '\
+		cd "addons/monitoring"; \
+		terraform workspace select default; \
+		terraform init; \
+		terraform apply ${terraform_apply_args} -var-file="../../terraform.tfvars.json"; \
+		terraform output ${terraform_output_args} | jq . > ../../outputs/terraform_outputs/terraform-monitoring.json; \
+		terraform workspace select default; \
+		cd "../.."; \
+		'
 
 .PHONY: argocd
 argocd: argocd_gcp argocd_aws argocd_azure  ## Deploys ArgoCD
@@ -153,22 +163,35 @@ argocd_%:
 		done; \
 		'
 
-.PHONY: monitoring
-monitoring:  ## Deploys the TSB monitoring stack
-	@echo "Deploying TSB monitoring stack..."
-	@$(MAKE) k8s
+.PHONY: external-dns
+external-dns: external-dns_gcp  ## Deploys External DNS
+external-dns_%:
+	@echo "Deploying External DNS..."
+	@$(MAKE) $*_k8s
 	@/bin/sh -c '\
-		cd "addons/monitoring"; \
+		cd "addons/external-dns/$*/credentials"; \
 		terraform workspace select default; \
 		terraform init; \
-		terraform apply ${terraform_apply_args} -var-file="../../terraform.tfvars.json"; \
-		terraform output ${terraform_output_args} | jq . > ../../outputs/terraform_outputs/terraform-monitoring.json; \
+		terraform apply ${terraform_apply_args} -var-file="../../../../terraform.tfvars.json"; \
+		cd "../../../.."; \
+		index=0; \
+		jq -r '.$*_k8s_regions[]' terraform.tfvars.json | while read -r region; do \
+		echo "cloud=$* region=$$region cluster_id=$$index"; \
+		cd "addons/external-dns/$*"; \
+		terraform workspace new $*-$$index-$$region; \
+		terraform workspace select $*-$$index-$$region; \
+		terraform init; \
+		terraform apply ${terraform_apply_args} -var-file="../../../terraform.tfvars.json" -var=cluster_id=$$index; \
 		terraform workspace select default; \
-		cd "../.."; \
+		index=$$((index+1)); \
+		cd "../../.."; \
+		done; \
 		'
 
+##@ Clenaup
+
 .PHONY: destroy
-destroy: destroy_remote destroy_local
+destroy: destroy_remote destroy_local  ## Destroy the environment and the local Terraform state and cache
 
 .PHONY: destroy_remote
 destroy_remote:  ## Destroy the environment
@@ -220,3 +243,11 @@ destroy_tfcache:
 destroy_outputs:
 	rm -f outputs/*-kubeconfig.sh outputs/*-jumpbox.sh outputs/*-kubeconfig outputs/*.jwk outputs/*.pem
 	rm -f outputs/terraform_outputs/*.json
+
+##@ Others
+
+.PHONY: help
+help: Makefile  ## Prints this help
+	@awk 'BEGIN {FS = ":.*##"; printf "Usage:\n  make \033[36m<target>\033[0m\n"} \
+			/^[.a-zA-Z0-9_-]+:.*?##/ { printf "  \033[36m%-15s\033[0m %s\n", $$1, $$2 } \
+			/^##@/ { printf "\n\033[1m%s\033[0m\n", substr($$0, 5) }' $(MAKEFILE_LIST)
