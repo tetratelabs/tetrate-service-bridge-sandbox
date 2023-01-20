@@ -12,7 +12,7 @@
 Deploy Argo CD for gitops demo
 
 ```bash
-# Deploys Argocd on all Clusters
+# Deploys Argo CD on all clusters
 make argocd
 ```
 
@@ -21,6 +21,16 @@ and the password can be found in the `outputs/terraform_outputs/terraform-argocd
 (defaults to the `tsb_password` if set).
 
 For details about the deployed applications, take a look at the manifests in the `applications` folder.
+
+## External DNS
+
+Deploy External DNS in each cluster to automatically watch Istio Gateways and register the
+public hostnames in the DNS provider.
+
+```bash
+# Deploys External DNS on all clusters
+make external-dns
+```
 
 ## TSB monitoring stack
 
@@ -39,10 +49,14 @@ in the `tsb-monitoring` namespace. The username is `admin` and the password can 
 ### Module Overview
 
 #### module.argocd (`make argocd`)
-* Deploys ArgoCD
+* Deploys ArgoCD on all clusters.
 * bookinfo demo app using ArgoCD with related TSB components.
 * grpc demo app using ArgoCD with related TSB components.
 * eshop demo app using ArgoCD with related TSB components.
+
+#### module.external-dns (`make external-dns`)
+* Deploys External DNS on all clusters.
+* configures it to watch Istio Gateways.
 
 #### module.monitoring (`make monitoring`)
 * Deploys the TSB monitoring stack.
