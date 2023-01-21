@@ -48,8 +48,3 @@ in the `tsb-monitoring` namespace. The username is `admin` and the password can 
 * Deploys the TSB monitoring stack.
 * prometheus configured to scrape all the TSB and XCP components.
 * grafana with TSB operational dashboards preloaded and configured.
-
-#### keycloak (In progress)
-* module.keycloak-helm - deploys keycloak.
-* module.keycloak-provider - configs keycloak for JWT-based external authorization demo.
-* module.app_bookinfo - deploys bookinfo.
