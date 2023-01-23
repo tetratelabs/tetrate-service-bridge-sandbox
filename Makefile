@@ -102,6 +102,7 @@ tsb_mp:  ## Deploys the TSB Management Plane
 		fqdn=`jq -r '.tsb_fqdn' ../../terraform.tfvars.json`; \
 		address=`jq -r "if .ingress_ip.value != \"\" then .ingress_ip.value else .ingress_hostname.value end" ../../outputs/terraform_outputs/terraform-tsb-mp.json`; \
 		terraform -chdir=../fqdn/$$cloud init; \
+		terraform -chdir=../fqdn/$$cloud apply ${terraform_apply_args} -var-file="../../../terraform.tfvars.json" -var=address=$$address -var=fqdn=$$fqdn; \
 		terraform workspace select default; \
 		cd "../.."; \
 		'
