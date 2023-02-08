@@ -51,7 +51,7 @@ Please refer to [tfvars collection](/tfvars_collection) for more examples, i.e. 
 {
   "name_prefix": "<YOUR UNIQUE PREFIX NAME TO BE CREATED>",
   "tsb_fqdn": "<YOUR UNIQUE PREFIX NAME TO BE CREATED>.cx.tetrate.info",
-  "tsb_version": "1.5.0",
+  "tsb_version": "1.6.0",
   "tsb_image_sync_username": "<TSB_REPO_USERNAME>",
   "tsb_image_sync_apikey": "<TSB_REPO_APIKEY>",
   "tsb_password": "Tetrate123",
@@ -62,7 +62,9 @@ Please refer to [tfvars collection](/tfvars_collection) for more examples, i.e. 
   "tsb_org": "tetrate",
   "aws_k8s_regions": [],
   "azure_k8s_regions": ["eastus"],
-  "gcp_k8s_regions": ["us-west1", "us-east1"]
+  "gcp_k8s_regions": ["us-west1", "us-east1"],
+  "tetrate_owner": "username",
+  "tetrate_team": "function:team"
 }
 ```
 

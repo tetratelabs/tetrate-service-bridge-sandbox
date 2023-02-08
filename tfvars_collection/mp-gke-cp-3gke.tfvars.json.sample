@@ -18,6 +18,8 @@
         "us-west1",
         "us-east1",
         "us-central1"
-    ]
+    ],
+    "tetrate_owner": "username",
+    "tetrate_team": "function:team"
 }
 
