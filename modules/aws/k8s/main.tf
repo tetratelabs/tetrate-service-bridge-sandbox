@@ -42,11 +42,7 @@ module "eks" {
       min_size     = 3
       max_size     = 5
       desired_size = 3
-      tags = {
-        Name            = "${var.cluster_name}_tsb_sandbox_blue"
-        Environment     = "${var.name_prefix}_tsb"
-        "Tetrate:Owner" = var.owner
-      }
+      tags = var.tags
     }
   }
 
@@ -80,11 +76,7 @@ module "eks" {
     }
   }
 
-  tags = {
-    Name            = "${var.cluster_name}_tsb_sandbox_blue"
-    Environment     = "${var.name_prefix}_tsb"
-    "Tetrate:Owner" = var.owner
-  }
+  tags = var.tags
 
   putin_khuylo = true
 

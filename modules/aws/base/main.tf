@@ -1,18 +1,10 @@
-resource "random_string" "random_prefix" {
-  length  = 4
-  special = false
-  lower   = true
-  upper   = false
-  numeric = false
-}
 resource "aws_vpc" "tsb" {
   cidr_block           = var.cidr
   enable_dns_hostnames = true
-  tags = {
-    Name            = "${var.name_prefix}-${random_string.random_prefix.result}_vpc"
+  tags = merge({
+    Name            = "${var.name_prefix}-vpc"
     Environment     = "${var.name_prefix}_tsb"
-    "Tetrate:Owner" = var.owner
-  }
+  }, var.tags)
 }
 
 data "aws_availability_zones" "available" {}
@@ -23,21 +15,18 @@ resource "aws_subnet" "tsb" {
   cidr_block              = cidrsubnet(var.cidr, 4, count.index)
   vpc_id                  = aws_vpc.tsb.id
   map_public_ip_on_launch = "true"
-  tags = {
+  tags = merge({
     Name            = "${var.name_prefix}-subnet-${data.aws_availability_zones.available.names[count.index]}"
     Environment     = "${var.name_prefix}_tsb"
-    "Tetrate:Owner" = var.owner
-  }
+  }, var.tags)
 }
 
 resource "aws_internet_gateway" "tsb" {
   vpc_id = aws_vpc.tsb.id
-
-  tags = {
+  tags = merge({
     Name            = "${var.name_prefix}_igw"
     Environment     = "${var.name_prefix}_tsb"
-    "Tetrate:Owner" = var.owner
-  }
+  }, var.tags)
 }
 
 
@@ -49,11 +38,10 @@ resource "aws_route_table" "rt" {
     gateway_id = aws_internet_gateway.tsb.id
   }
 
-  tags = {
+  tags = merge({
     Name            = "${var.name_prefix}_rt"
     Environment     = "${var.name_prefix}_tsb"
-    "Tetrate:Owner" = var.owner
-  }
+  }, var.tags)
 }
 
 
@@ -71,18 +59,15 @@ resource "random_string" "random" {
 }
 
 resource "aws_ecr_repository" "tsb" {
-  name                 = "tsbecr${var.name_prefix}${random_string.random.result}"
-  image_tag_mutability = "MUTABLE"
-
+  name                 = replace("tsbecr${var.name_prefix}${random_string.random.result}","-","")
   image_scanning_configuration {
     scan_on_push = true
   }
 
-  tags = {
+  tags = merge({
     Name            = "${var.name_prefix}_ecr"
     Environment     = "${var.name_prefix}_tsb"
-    "Tetrate:Owner" = var.owner
-  }
+  }, var.tags)
 }
 
 data "aws_ecr_authorization_token" "token" {
