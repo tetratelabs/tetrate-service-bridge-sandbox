@@ -106,11 +106,12 @@ variable "tetrate_customer" {
     default = "internal"
 }
 locals {
-  tags = {
+  default_tags = {
        "tetrate:owner"    = var.tetrate_owner
        "tetrate:team"     = var.tetrate_team
        "tetrate:purpose"  = var.tetrate_purpose
        "tetrate:lifespan" = var.tetrate_lifespan
        "tetrate:customer" = var.tetrate_customer
+       "Environment"      = var.name_prefix
   }
 }

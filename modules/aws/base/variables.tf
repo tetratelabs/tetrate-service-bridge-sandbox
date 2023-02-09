@@ -13,6 +13,3 @@ variable "min_az_count" {
 variable "max_az_count" {
   default = 3
 }
-variable "tags" {
-  type = map 
-}

@@ -42,7 +42,6 @@ module "eks" {
       min_size     = 3
       max_size     = 5
       desired_size = 3
-      tags = var.tags
     }
   }
 
@@ -75,8 +74,6 @@ module "eks" {
       cidr_blocks = ["0.0.0.0/0"]
     }
   }
-
-  tags = var.tags
 
   putin_khuylo = true
 

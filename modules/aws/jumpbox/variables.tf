@@ -37,5 +37,5 @@ variable "output_path" {
 }
 
 variable "tags" {
-  type = map 
+  type = map
 }

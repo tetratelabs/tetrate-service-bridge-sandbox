@@ -21,7 +21,3 @@ variable "k8s_version" {
 
 variable "output_path" {
 }
-
-variable "tags" {
-  type = map 
-}

@@ -1,5 +1,8 @@
 provider "aws" {
   region = var.aws_k8s_region
+  default_tags {
+    tags = local.default_tags
+  }
 }
 resource "random_string" "random_id" {
   length  = 4
@@ -13,7 +16,6 @@ module "aws_base" {
   count       = var.aws_k8s_region == null ? 0 : 1
   name_prefix = "${var.name_prefix}-${var.cluster_id}-${random_string.random_id.result}"
   cidr        = cidrsubnet(var.cidr, 4, 4 + tonumber(var.cluster_id))
-  tags        = local.tags
 }
 module "aws_jumpbox" {
   source                    = "../../modules/aws/jumpbox"
@@ -29,8 +31,8 @@ module "aws_jumpbox" {
   tsb_image_sync_username   = var.tsb_image_sync_username
   tsb_image_sync_apikey     = var.tsb_image_sync_apikey
   registry                  = module.aws_base[0].registry
+  tags                      = local.default_tags
   output_path               = var.output_path
-  tags                      = local.tags
 }
 
 module "aws_k8s" {
@@ -43,6 +45,5 @@ module "aws_k8s" {
   name_prefix  = "${var.name_prefix}-${var.cluster_id}-${random_string.random_id.result}"
   cluster_name = var.cluster_name == null ? "eks-${var.aws_k8s_region}-${var.name_prefix}" : var.cluster_name
   output_path  = var.output_path
-  tags         = local.tags
   depends_on   = [module.aws_jumpbox[0]]
 }

@@ -1,10 +1,9 @@
 resource "aws_vpc" "tsb" {
   cidr_block           = var.cidr
   enable_dns_hostnames = true
-  tags = merge({
-    Name            = "${var.name_prefix}-vpc"
-    Environment     = "${var.name_prefix}_tsb"
-  }, var.tags)
+  tags = {
+    Name = "${var.name_prefix}_vpc"
+  }
 }
 
 data "aws_availability_zones" "available" {}
@@ -15,18 +14,16 @@ resource "aws_subnet" "tsb" {
   cidr_block              = cidrsubnet(var.cidr, 4, count.index)
   vpc_id                  = aws_vpc.tsb.id
   map_public_ip_on_launch = "true"
-  tags = merge({
-    Name            = "${var.name_prefix}-subnet-${data.aws_availability_zones.available.names[count.index]}"
-    Environment     = "${var.name_prefix}_tsb"
-  }, var.tags)
+  tags = {
+    Name = "${var.name_prefix}_subnet_${data.aws_availability_zones.available.names[count.index]}"
+  }
 }
 
 resource "aws_internet_gateway" "tsb" {
   vpc_id = aws_vpc.tsb.id
-  tags = merge({
-    Name            = "${var.name_prefix}_igw"
-    Environment     = "${var.name_prefix}_tsb"
-  }, var.tags)
+  tags = {
+    Name = "${var.name_prefix}_igw"
+  }
 }
 
 
@@ -38,10 +35,9 @@ resource "aws_route_table" "rt" {
     gateway_id = aws_internet_gateway.tsb.id
   }
 
-  tags = merge({
-    Name            = "${var.name_prefix}_rt"
-    Environment     = "${var.name_prefix}_tsb"
-  }, var.tags)
+  tags = {
+    Name = "${var.name_prefix}_rt"
+  }
 }
 
 
@@ -64,10 +60,9 @@ resource "aws_ecr_repository" "tsb" {
     scan_on_push = true
   }
 
-  tags = merge({
-    Name            = "${var.name_prefix}_ecr"
-    Environment     = "${var.name_prefix}_tsb"
-  }, var.tags)
+  tags = {
+    Name = "${var.name_prefix}_ecr"
+  }
 }
 
 data "aws_ecr_authorization_token" "token" {

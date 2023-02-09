@@ -31,10 +31,17 @@ The `Makefile` in this directory provides ability to fastforward to anypoint of 
 ## Prerequisites
 
 - terraform >= 1.3.6
-- AWS role configured and assumed (Route53 is used for TSB MP FQDN)
+- (optional) AWS role configured and assumed (Route53 is used for TSB MP FQDN)
 - (optional) Azure role configured and assumed
 - (optional) GCP role configured and assumed `gcloud auth application-default login`
-
+- please refer for the Cloud [Tagging Requirements](https://github.com/tetrateio/tetrate/blob/master/cloud/docs/misc/tags.md) 
+  ```s
+       "tetrate:owner"    = var.tetrate_owner
+       "tetrate:team"     = var.tetrate_team
+       "tetrate:purpose"  = var.tetrate_purpose
+       "tetrate:lifespan" = var.tetrate_lifespan
+       "tetrate:customer" = var.tetrate_customer
+  ```
 ## Setup
 
 1. Clone the repo
