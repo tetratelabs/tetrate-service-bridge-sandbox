@@ -42,6 +42,7 @@ module "eks" {
       min_size     = 3
       max_size     = 5
       desired_size = 3
+      tags = var.tags
     }
   }
 
@@ -75,6 +76,7 @@ module "eks" {
     }
   }
 
+  tags = var.tags
   putin_khuylo = true
 
 }
