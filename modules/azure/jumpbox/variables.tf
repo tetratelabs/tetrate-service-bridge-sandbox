@@ -1,11 +1,6 @@
 variable "name_prefix" {
   description = "name prefix"
 }
-
-variable "owner" {
-  description = "owner of this environment"
-}
-
 variable "location" {
   description = "location"
 }
@@ -48,4 +43,8 @@ variable "tsb_helm_repository" {
 }
 
 variable "output_path" {
+}
+
+variable "tags" {
+  type = map
 }
