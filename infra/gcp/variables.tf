@@ -105,3 +105,28 @@ variable "cert-manager_enabled" {
 variable "preemptible_nodes" {
   default = false
 }
+variable "tetrate_owner" {
+    default = null
+}
+variable "tetrate_team" {
+    default = null
+}
+variable "tetrate_purpose" {
+    default = "demo"
+}
+variable "tetrate_lifespan" {
+    default = "oneoff"
+}
+variable "tetrate_customer" {
+    default = "internal"
+}
+locals {
+  default_tags = {
+       "tetrate:owner"    = replace(var.tetrate_owner, "/\\W+/", "-")
+       "tetrate:team"     = var.tetrate_team
+       "tetrate:purpose"  = var.tetrate_purpose
+       "tetrate:lifespan" = var.tetrate_lifespan
+       "tetrate:customer" = var.tetrate_customer
+       "Environment"      = var.name_prefix
+  }
+}

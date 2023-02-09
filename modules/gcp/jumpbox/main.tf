@@ -74,11 +74,9 @@ resource "google_compute_instance" "jumpbox" {
     scopes = ["cloud-platform"]
   }
 
-  labels = {
+  labels = merge(var.tags, {
     name        = "${var.name_prefix}-jumpbox"
-    environment = "${var.name_prefix}_tsb"
-    owner       = var.owner
-  }
+  })
 }
 
 # GCP project deletion will fail, if there are any outstanding PVCs left post GKE cluster deletion, i.e. PVC for Postgres and Elasticsearch post TSB MP deletion
