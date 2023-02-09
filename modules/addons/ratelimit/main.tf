@@ -9,7 +9,7 @@ provider "helm" {
 resource "random_password" "redis" {
   length = 16
   # Do not use the ':' character here as it will be read as Basic Auth and tokenized as <user>:<password>
-  override_special = "!@#$%&*()-_=+[]{}<>?"
+  special = false
 }
 
 resource "helm_release" "redis" {
