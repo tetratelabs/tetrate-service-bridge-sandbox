@@ -32,6 +32,8 @@ A complete reference example:
     ],
     "gcp_k8s_regions": [
         "us-west1"
-    ]
+    ],
+    "tetrate_owner": "username",
+    "tetrate_team": "function:team"
 }
 ```

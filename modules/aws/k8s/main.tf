@@ -18,6 +18,10 @@ module "eks" {
     iam_role_additional_policies = {
       AmazonEBSCSIDriverPolicy = "arn:aws:iam::aws:policy/service-role/AmazonEBSCSIDriverPolicy"
     }
+
+    tags = merge(var.tags, {
+      Name = "${var.name_prefix}_default"
+    })
   }
 
   cluster_addons = {
@@ -42,12 +46,10 @@ module "eks" {
       min_size     = 3
       max_size     = 5
       desired_size = 3
-      tags = {
-        Name            = "${var.cluster_name}_tsb_sandbox_blue"
-        Environment     = "${var.name_prefix}_tsb"
-        "Tetrate:Owner" = var.owner
-      }
     }
+    tags = merge(var.tags, {
+      Name = "${var.name_prefix}_sandbox_blue"
+    })
   }
 
   cluster_security_group_additional_rules = {
@@ -79,12 +81,10 @@ module "eks" {
       cidr_blocks = ["0.0.0.0/0"]
     }
   }
-
-  tags = {
-    Name            = "${var.cluster_name}_tsb_sandbox_blue"
-    Environment     = "${var.name_prefix}_tsb"
-    "Tetrate:Owner" = var.owner
-  }
+  
+  tags = merge(var.tags, {
+    Name = "${var.cluster_name}"
+  })
 
   putin_khuylo = true
 

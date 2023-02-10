@@ -3,9 +3,7 @@ resource "aws_security_group" "jumpbox_sg" {
   vpc_id      = var.vpc_id
 
   tags = {
-    Name            = "${var.name_prefix}_jumpbox_sg"
-    Environment     = "${var.name_prefix}_tsb"
-    "Tetrate:Owner" = var.owner
+    Name = "${var.name_prefix}_jumpbox_sg"
   }
 
   ingress {
@@ -179,13 +177,9 @@ resource "aws_iam_role" "jumpbox_iam_role" {
   ]
 }
 EOF
-
   tags = {
-    Name            = "${var.name_prefix}_jumpbox_iam_role"
-    Environment     = "${var.name_prefix}_tsb"
-    "Tetrate:Owner" = var.owner
+    Name = "${var.name_prefix}_jumpbox_iam_role"
   }
-
 }
 
 resource "aws_iam_instance_profile" "jumpbox_iam_profile" {
@@ -193,9 +187,7 @@ resource "aws_iam_instance_profile" "jumpbox_iam_profile" {
   role = aws_iam_role.jumpbox_iam_role.name
 
   tags = {
-    Name            = "${var.name_prefix}_jumpbox_iam_prof"
-    Environment     = "${var.name_prefix}_tsb"
-    "Tetrate:Owner" = var.owner
+    Name = "${var.name_prefix}_jumpbox_profile"
   }
 }
 
@@ -212,9 +204,7 @@ resource "aws_key_pair" "tsbadmin_key_pair" {
   public_key = tls_private_key.generated.public_key_openssh
 
   tags = {
-    Name            = "${var.name_prefix}_tsbadmin_key"
-    Environment     = "${var.name_prefix}_tsb"
-    "Tetrate:Owner" = var.owner
+    Name = "${var.name_prefix}_tsbadmin_key"
   }
 }
 
@@ -274,16 +264,12 @@ resource "aws_instance" "jumpbox" {
   iam_instance_profile = aws_iam_instance_profile.jumpbox_iam_profile.name
 
   tags = {
-    Name            = "${var.name_prefix}_jumpbox"
-    Environment     = "${var.name_prefix}_tsb"
-    "Tetrate:Owner" = var.owner
+    Name = "${var.name_prefix}_jumpbox"
   }
 
-  volume_tags = {
-    Name            = "${var.name_prefix}_jumpbox"
-    Environment     = "${var.name_prefix}_tsb"
-    "Tetrate:Owner" = var.owner
-  }
+  volume_tags = merge(var.tags, {
+    Name = "${var.name_prefix}_jumpbox"
+  })
 
 }
 
@@ -304,14 +290,14 @@ resource "null_resource" "aws_cleanup" {
 
 resource "local_file" "tsbadmin_pem" {
   content         = tls_private_key.generated.private_key_pem
-  filename        = "${var.output_path}/${var.name_prefix}-aws-${var.jumpbox_username}.pem"
+  filename        = "${var.output_path}/${regex("\\w+-\\d","${var.name_prefix}")}-aws-${var.jumpbox_username}.pem"
   depends_on      = [tls_private_key.generated]
   file_permission = "0600"
 }
 
 resource "local_file" "ssh_jumpbox" {
-  content         = "ssh -i ${var.name_prefix}-aws-${var.jumpbox_username}.pem -l ${var.jumpbox_username} ${aws_instance.jumpbox.public_ip}"
-  filename        = "${var.output_path}/ssh-to-aws-${var.name_prefix}-jumpbox.sh"
+  content         = "ssh -i ${regex("\\w+-\\d","${var.name_prefix}")}-aws-${var.jumpbox_username}.pem -l ${var.jumpbox_username} ${aws_instance.jumpbox.public_ip}"
+  filename        = "${var.output_path}/ssh-to-aws-${regex("\\w+-\\d","${var.name_prefix}")}-jumpbox.sh"
   file_permission = "0755"
 }
 

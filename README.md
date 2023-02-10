@@ -31,10 +31,17 @@ The `Makefile` in this directory provides ability to fastforward to anypoint of 
 ## Prerequisites
 
 - terraform >= 1.3.6
-- AWS role configured and assumed (Route53 is used for TSB MP FQDN)
+- (optional) AWS role configured and assumed (Route53 is used for TSB MP FQDN)
 - (optional) Azure role configured and assumed
 - (optional) GCP role configured and assumed `gcloud auth application-default login`
-
+- please refer for the Cloud [Tagging Requirements](https://github.com/tetrateio/tetrate/blob/master/cloud/docs/misc/tags.md) 
+  ```s
+       "tetrate:owner"    = var.tetrate_owner
+       "tetrate:team"     = var.tetrate_team
+       "tetrate:purpose"  = var.tetrate_purpose
+       "tetrate:lifespan" = var.tetrate_lifespan
+       "tetrate:customer" = var.tetrate_customer
+  ```
 ## Setup
 
 1. Clone the repo
@@ -51,7 +58,7 @@ Please refer to [tfvars collection](/tfvars_collection) for more examples, i.e. 
 {
   "name_prefix": "<YOUR UNIQUE PREFIX NAME TO BE CREATED>",
   "tsb_fqdn": "<YOUR UNIQUE PREFIX NAME TO BE CREATED>.cx.tetrate.info",
-  "tsb_version": "1.5.0",
+  "tsb_version": "1.6.0",
   "tsb_image_sync_username": "<TSB_REPO_USERNAME>",
   "tsb_image_sync_apikey": "<TSB_REPO_APIKEY>",
   "tsb_password": "Tetrate123",
@@ -62,7 +69,9 @@ Please refer to [tfvars collection](/tfvars_collection) for more examples, i.e. 
   "tsb_org": "tetrate",
   "aws_k8s_regions": [],
   "azure_k8s_regions": ["eastus"],
-  "gcp_k8s_regions": ["us-west1", "us-east1"]
+  "gcp_k8s_regions": ["us-west1", "us-east1"],
+  "tetrate_owner": "Change me! (https://github.com/tetrateio/tetrate/blob/master/cloud/docs/misc/tags.md)",
+  "tetrate_team": "Change me! (https://github.com/tetrateio/tetrate/blob/master/cloud/docs/misc/tags.md)"
 }
 ```
 

@@ -1,11 +1,6 @@
 variable "name_prefix" {
   description = "name prefix"
 }
-
-variable "owner" {
-  description = "owner of this environment"
-}
-
 variable "cluster_name" {
   description = "cluster name"
 }
@@ -30,4 +25,8 @@ variable "k8s_version" {
 }
 
 variable "output_path" {
+}
+
+variable "tags" {
+  type = map
 }
