@@ -52,7 +52,7 @@ module "tsb_cp" {
   ratelimit_enabled               = var.ratelimit_enabled
   ratelimit_namespace             = module.ratelimit.namespace
   redis_password                  = module.ratelimit.redis_password
-  id_propagation_enabled          = var.id_propagation_enabled
+  identity_propagation_enabled    = var.identity_propagation_enabled
   istiod_cacerts_tls_crt          = data.terraform_remote_state.tsb_mp.outputs.istiod_cacerts_tls_crt
   istiod_cacerts_tls_key          = data.terraform_remote_state.tsb_mp.outputs.istiod_cacerts_tls_key
   tsb_image_sync_username         = var.tsb_image_sync_username

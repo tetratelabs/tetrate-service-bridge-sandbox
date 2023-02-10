@@ -112,5 +112,5 @@ variable "redis_password" {
 variable "output_path" {
 }
 
-variable "id_propagation_enabled" {
+variable "identity_propagation_enabled" {
 }

@@ -38,9 +38,7 @@ spec:
     xcp:
       centralAuthMode: JWT
       configProtection: {}
-      %{ if id_propagation_enabled }
-      enableHttpMeshInternalIdentityPropagation: true
-      %{ endif }
+      enableHttpMeshInternalIdentityPropagation: ${identity_propagation_enabled}
       kubeSpec:
         deployment:
           env:

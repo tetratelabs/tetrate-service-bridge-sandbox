@@ -137,6 +137,6 @@ variable "ratelimit_enabled" {
   default = true
 }
 
-variable "id_propagation_enabled" {
+variable "identity_propagation_enabled" {
   default = false
 }
