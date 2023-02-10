@@ -122,11 +122,11 @@ variable "tetrate_customer" {
 }
 locals {
   default_tags = {
-       "tetrate:owner"    = replace(var.tetrate_owner, "/\\W+/", "-")
-       "tetrate:team"     = var.tetrate_team
-       "tetrate:purpose"  = var.tetrate_purpose
-       "tetrate:lifespan" = var.tetrate_lifespan
-       "tetrate:customer" = var.tetrate_customer
-       "Environment"      = var.name_prefix
+       tetrate_owner     = replace(var.tetrate_owner, "/\\W+/", "-")
+       tetrate_team      = replace(var.tetrate_team, "/\\W+/", "-")
+       tetrate_purpose   = var.tetrate_purpose
+       tetrate_lifespan  = var.tetrate_lifespan
+       tetrate_customer  = var.tetrate_customer
+       environment       = var.name_prefix
   }
 }
