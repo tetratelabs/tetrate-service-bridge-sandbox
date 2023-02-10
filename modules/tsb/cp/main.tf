@@ -88,6 +88,7 @@ resource "helm_release" "controlplane" {
     es_password               = var.es_password
     ratelimit_enabled         = var.ratelimit_enabled
     ratelimit_namespace       = var.ratelimit_namespace
+    id_propagation_enabled    = var.id_propagation_enabled
   })]
 
   set {
