@@ -70,8 +70,8 @@ Please refer to [tfvars collection](/tfvars_collection) for more examples, i.e. 
   "aws_k8s_regions": [],
   "azure_k8s_regions": ["eastus"],
   "gcp_k8s_regions": ["us-west1", "us-east1"],
-  "tetrate_owner": "username",
-  "tetrate_team": "function:team"
+  "tetrate_owner": "Change me! (https://github.com/tetrateio/tetrate/blob/master/cloud/docs/misc/tags.md)",
+  "tetrate_team": "Change me! (https://github.com/tetrateio/tetrate/blob/master/cloud/docs/misc/tags.md)"
 }
 ```
 
