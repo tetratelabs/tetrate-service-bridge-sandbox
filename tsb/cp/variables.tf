@@ -136,3 +136,7 @@ variable "cert-manager_enabled" {
 variable "ratelimit_enabled" {
   default = true
 }
+
+variable "identity_propagation_enabled" {
+  default = false
+}
