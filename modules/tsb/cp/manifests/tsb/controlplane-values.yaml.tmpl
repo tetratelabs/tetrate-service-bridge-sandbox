@@ -9,7 +9,7 @@ secrets:
     JWK: '${serviceaccount_jwk}'
 spec:
   hub: ${registry}
-  %{ if id_propagation_enabled }
+  %{ if identity_propagation_enabled }
   imagePullSecrets:
   - name: cr-pull-secret
   %{ endif }
