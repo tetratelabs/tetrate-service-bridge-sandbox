@@ -44,7 +44,7 @@ variable "tsb_fqdn" {
   default = "toa.sandbox.tetrate.io"
 }
 variable "dns_zone" {
-  default = .sandbox.tetrate.io"
+  default = "sandbox.tetrate.io"
 }
 
 variable "tsb_org" {
