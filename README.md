@@ -154,7 +154,7 @@ For a quicker destroy for development purposes, you can:
   `.private` domains won't work in multicluster scenarios, since XCP Edges need a public name to connect to
   Central.
   Alternatively, if you own a domain that you can point to your GCP project, you can use any `fqdn` as long
-  as it does _not_ have the shared DNS suffix (gcp.azure.sandbox.tetrate.io). In this case a public DNS zone will be
+  as it does _not_ have the shared DNS suffix (gcp.sandbox.tetrate.io). In this case a public DNS zone will be
   created in the project for the configured DNS domain.
 
 ### Repository structure
