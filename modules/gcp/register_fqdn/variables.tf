@@ -11,7 +11,7 @@ variable "vpc_id" {
 }
 
 locals {
-  shared_zone   = endswith(var.fqdn, ".gcp.cx.tetrate.info")
+  shared_zone   = endswith(var.fqdn, ".gcp.sandbox.tetrate.io")
   private_zone  = endswith(var.fqdn, ".private")
   public_zone   = !local.shared_zone && !local.private_zone
 

@@ -93,6 +93,8 @@ tsb_mp:  ## Deploys MP
 	@echo "Deploying TSB Management Plane..."
 	@/bin/sh -c '\
 		cloud=`jq -r '.tsb_mp.cloud' terraform.tfvars.json`; \
+		# to account sandbox.tetrate.io as a default domain for GCP
+		dns_provider=`jq -r '.tsb_fqdn' terraform.tfvars.json | cut -d"." -f2 | sed 's/sandbox/gcp/g'`;\
 		cd "tsb/mp"; \
 		terraform workspace select default; \
 		terraform init; \
@@ -102,8 +104,8 @@ tsb_mp:  ## Deploys MP
 		terraform output ${terraform_output_args} | jq . > ../../outputs/terraform_outputs/terraform-tsb-mp.json; \
 		fqdn=`jq -r '.tsb_fqdn' ../../terraform.tfvars.json`; \
 		address=`jq -r "if .ingress_ip.value != \"\" then .ingress_ip.value else .ingress_hostname.value end" ../../outputs/terraform_outputs/terraform-tsb-mp.json`; \
-		terraform -chdir=../fqdn/$$cloud init; \
-		terraform -chdir=../fqdn/$$cloud apply ${terraform_apply_args} -var-file="../../../terraform.tfvars.json" -var=address=$$address -var=fqdn=$$fqdn; \
+		terraform -chdir=../fqdn/$$dns_provider init; \
+		terraform -chdir=../fqdn/$$dns_provider apply ${terraform_apply_args} -var-file="../../../terraform.tfvars.json" -var=address=$$address -var=fqdn=$$fqdn; \
 		terraform workspace select default; \
 		cd "../.."; \
 		'
