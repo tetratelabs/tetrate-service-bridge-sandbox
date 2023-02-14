@@ -41,10 +41,10 @@ variable "tsb_helm_version" {
   default = null
 }
 variable "tsb_fqdn" {
-  default = "toa.cx.tetrate.info"
+  default = "toa.sandbox.tetrate.io"
 }
 variable "dns_zone" {
-  default = "cx.tetrate.info"
+  default = .sandbox.tetrate.io"
 }
 
 variable "tsb_org" {

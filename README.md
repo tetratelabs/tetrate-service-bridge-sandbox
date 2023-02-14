@@ -57,7 +57,7 @@ Please refer to [tfvars collection](/tfvars_collection) for more examples, i.e. 
 ```json
 {
   "name_prefix": "<YOUR UNIQUE PREFIX NAME TO BE CREATED>",
-  "tsb_fqdn": "<YOUR UNIQUE PREFIX NAME TO BE CREATED>.cx.tetrate.info",
+  "tsb_fqdn": "<YOUR UNIQUE PREFIX NAME TO BE CREATED>.azure.sandbox.tetrate.io",
   "tsb_version": "1.6.0",
   "tsb_image_sync_username": "<TSB_REPO_USERNAME>",
   "tsb_image_sync_apikey": "<TSB_REPO_APIKEY>",
@@ -154,7 +154,7 @@ For a quicker destroy for development purposes, you can:
   `.private` domains won't work in multicluster scenarios, since XCP Edges need a public name to connect to
   Central.
   Alternatively, if you own a domain that you can point to your GCP project, you can use any `fqdn` as long
-  as it does _not_ have the shared DNS suffix (gcp.cx.tetrate.info). In this case a public DNS zone will be
+  as it does _not_ have the shared DNS suffix (gcp.azure.sandbox.tetrate.io). In this case a public DNS zone will be
   created in the project for the configured DNS domain.
 
 ### Repository structure
