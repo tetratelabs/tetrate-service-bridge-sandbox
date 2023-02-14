@@ -93,8 +93,7 @@ tsb_mp:  ## Deploys MP
 	@echo "Deploying TSB Management Plane..."
 	@/bin/sh -c '\
 		cloud=`jq -r '.tsb_mp.cloud' terraform.tfvars.json`; \
-		# to account sandbox.tetrate.io as a default domain for GCP
-		dns_provider=`jq -r '.tsb_fqdn' terraform.tfvars.json | cut -d"." -f2 | sed 's/sandbox/gcp/g'`;\
+		dns_provider=`jq -r '.tsb_fqdn' terraform.tfvars.json | cut -d"." -f2 | sed 's/sandbox/gcp/g'`; \
 		cd "tsb/mp"; \
 		terraform workspace select default; \
 		terraform init; \
