@@ -34,6 +34,13 @@ module "eks" {
     }
     aws-ebs-csi-driver = {
       most_recent = true
+      configuration_values = <<EOT
+        {
+          "controller": {
+            "extraVolumeTags": ${jsonencode(var.tags)}
+          }
+        }
+      EOT
     }
     vpc-cni = {
       most_recent = true
