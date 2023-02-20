@@ -93,7 +93,8 @@ tsb_mp:  ## Deploys MP
 	@echo "Deploying TSB Management Plane..."
 	@/bin/sh -c '\
 		cloud=`jq -r '.tsb_mp.cloud' terraform.tfvars.json`; \
-		dns_provider=`jq -r '.tsb_fqdn' terraform.tfvars.json | cut -d"." -f2 | sed 's/sandbox/gcp/g'`; \
+		dns_provider=`jq -r '.dns_provider' terraform.tfvars.json`; \
+		[ "$$dns_provider" == "null" ] && dns_provider=`jq -r '.tsb_fqdn' terraform.tfvars.json | cut -d"." -f2 | sed 's/sandbox/gcp/g'`; \
 		cd "tsb/mp"; \
 		terraform workspace select default; \
 		terraform init; \
