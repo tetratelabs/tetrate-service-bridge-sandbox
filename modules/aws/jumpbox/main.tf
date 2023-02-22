@@ -2,9 +2,9 @@ resource "aws_security_group" "jumpbox_sg" {
   description = "Allow incoming connections to the lab jumpbox."
   vpc_id      = var.vpc_id
 
-  tags = {
+  tags = merge(var.tags, {
     Name = "${var.name_prefix}_jumpbox_sg"
-  }
+  })
 
   ingress {
     from_port   = 22
@@ -177,18 +177,18 @@ resource "aws_iam_role" "jumpbox_iam_role" {
   ]
 }
 EOF
-  tags = {
+  tags = merge(var.tags, {
     Name = "${var.name_prefix}_jumpbox_iam_role"
-  }
+  })
 }
 
 resource "aws_iam_instance_profile" "jumpbox_iam_profile" {
   name = "${var.name_prefix}_jumpbox_profile"
   role = aws_iam_role.jumpbox_iam_role.name
 
-  tags = {
+  tags = merge(var.tags, {
     Name = "${var.name_prefix}_jumpbox_profile"
-  }
+  })
 }
 
 
@@ -203,9 +203,9 @@ resource "aws_key_pair" "tsbadmin_key_pair" {
   key_name   = "${var.name_prefix}_generated"
   public_key = tls_private_key.generated.public_key_openssh
 
-  tags = {
+  tags = merge(var.tags, {
     Name = "${var.name_prefix}_tsbadmin_key"
-  }
+  })
 }
 
 data "aws_ami" "ubuntu" {
@@ -263,9 +263,9 @@ resource "aws_instance" "jumpbox" {
   }))
   iam_instance_profile = aws_iam_instance_profile.jumpbox_iam_profile.name
 
-  tags = {
+  tags = merge(var.tags, {
     Name = "${var.name_prefix}_jumpbox"
-  }
+  })
 
   volume_tags = merge(var.tags, {
     Name = "${var.name_prefix}_jumpbox"

@@ -1,9 +1,14 @@
 provider "aws" {
   region = var.aws_k8s_region
-  default_tags {
-    tags = local.default_tags
-  }
+
+  # Re-enable this once https://github.com/hashicorp/terraform-provider-aws/issues/19583
+  # is fixed. Until then, the workaround is to manually merge
+  # the tags in every resource.
+  # default_tags {
+  #   tags = local.default_tags
+  # }
 }
+
 resource "random_string" "random_id" {
   length  = 4
   special = false
@@ -11,12 +16,15 @@ resource "random_string" "random_id" {
   upper   = false
   numeric = false
 }
+
 module "aws_base" {
   source      = "../../modules/aws/base"
   count       = var.aws_k8s_region == null ? 0 : 1
   name_prefix = "${var.name_prefix}-${var.cluster_id}-${random_string.random_id.result}"
   cidr        = cidrsubnet(var.cidr, 4, 4 + tonumber(var.cluster_id))
+  tags        = local.default_tags
 }
+
 module "aws_jumpbox" {
   source                    = "../../modules/aws/jumpbox"
   count                     = var.aws_k8s_region == null ? 0 : 1
