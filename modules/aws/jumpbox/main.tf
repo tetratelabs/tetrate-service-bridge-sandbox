@@ -254,8 +254,10 @@ resource "aws_instance" "jumpbox" {
     tsb_version               = var.tsb_version
     tsb_image_sync_username   = var.tsb_image_sync_username
     tsb_image_sync_apikey     = var.tsb_image_sync_apikey
-    docker_login              = "aws ecr get-login-password --region ${data.aws_availability_zones.available.id} | docker login --username AWS --password-stdin ${var.registry}"
+    docker_login              = "aws ecr get-login-password --region ${var.region} | docker login --username AWS --password-stdin ${var.registry}"
     registry                  = var.registry
+    registry_name             = var.registry_name
+    region                    = var.region
     pubkey                    = tls_private_key.generated.public_key_openssh
     tsb_helm_repository       = var.tsb_helm_repository
     tetrate_internal_cr       = module.internal_registry.internal_cr
@@ -302,9 +304,10 @@ resource "local_file" "ssh_jumpbox" {
 }
 
 resource "local_file" "aws_cleanup" {
-  content         = templatefile("${path.module}/aws_cleanup.sh.tmpl", {
-      vpc_id = var.vpc_id
-      region = var.region
+  content = templatefile("${path.module}/aws_cleanup.sh.tmpl", {
+    vpc_id        = var.vpc_id
+    region        = var.region
+    registry_name = var.registry_name
   })
   filename        = "${var.output_path}/${var.name_prefix}-aws-cleanup.sh"
   file_permission = "0755"

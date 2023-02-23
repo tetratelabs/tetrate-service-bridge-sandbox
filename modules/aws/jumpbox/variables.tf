@@ -16,7 +16,8 @@ variable "cidr" {
 
 variable "registry" {
 }
-
+variable "registry_name" {
+}
 
 variable "jumpbox_username" {
 }

@@ -179,6 +179,7 @@ destroy_remote:  ## Destroy the environment
 		address=`jq -r "if .ingress_ip.value != \"\" then .ingress_ip.value else .ingress_hostname.value end" outputs/terraform_outputs/terraform-tsb-mp.json`; \
 		cd "tsb/fqdn/$$cloud"; \
 		terraform destroy ${terraform_apply_args} -var-file="../../../terraform.tfvars.json" -var=address=$$address -var=fqdn=$$fqdn; \
+		[ $$? -ne 0 ] && exit 1; \
 		rm -rf terraform.tfstate.d/; \
 		rm -rf terraform.tfstate; \
 		cd "../../.."; \
@@ -200,8 +201,7 @@ destroy_%:
 		cd "infra/$*"; \
 		terraform workspace select $*-$$index-$$region; \
 		terraform destroy ${terraform_destroy_args} -var-file="../../terraform.tfvars.json" -var=$*_k8s_region=$$region -var=cluster_id=$$index; \
-		terraform workspace select default; \
-		terraform workspace delete ${terraform_workspace_args} $*-$$index-$$region; \
+		[ $$? -eq 0 ] && terraform workspace select default && terraform workspace delete ${terraform_workspace_args} $*-$$index-$$region; \
 		index=$$((index+1)); \
 		cd "../.."; \
 		done; \
@@ -219,5 +219,5 @@ destroy_tfcache:
 
 .PHONY: destroy_outputs
 destroy_outputs:
-	rm -f outputs/*-kubeconfig.sh outputs/*-jumpbox.sh outputs/*-kubeconfig outputs/*.jwk outputs/*.pem
+	rm -f outputs/*-kubeconfig.sh outputs/*-jumpbox.sh outputs/*-kubeconfig outputs/*.jwk outputs/*.pem outputs/*-cleanup.sh
 	rm -f outputs/terraform_outputs/*.json

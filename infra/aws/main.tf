@@ -39,6 +39,7 @@ module "aws_jumpbox" {
   tsb_image_sync_username   = var.tsb_image_sync_username
   tsb_image_sync_apikey     = var.tsb_image_sync_apikey
   registry                  = module.aws_base[0].registry
+  registry_name             = module.aws_base[0].registry_name
   tags                      = local.default_tags
   output_path               = var.output_path
 }
