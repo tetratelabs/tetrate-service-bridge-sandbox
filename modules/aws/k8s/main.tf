@@ -52,9 +52,6 @@ module "eks" {
       max_size     = 5
       desired_size = 3
     }
-    tags = merge(var.tags, {
-      Name = "${var.name_prefix}_sandbox_blue"
-    })
   }
 
   cluster_security_group_additional_rules = {
