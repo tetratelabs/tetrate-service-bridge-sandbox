@@ -29,7 +29,7 @@ write_files:
       #!/bin/bash
       curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
       install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl
-      ${docker_login}
+      aws ecr get-login-password --region ${region} | docker login --username AWS --password-stdin ${registry}
       if [[ ! -z "${tetrate_internal_cr}" ]]; then
         curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
         helm repo add tetrate-tsb-helm "${tsb_helm_repository}"
@@ -39,7 +39,9 @@ write_files:
         helm pull tetrate-tsb-helm/managementplane --version ${tsb_version} --devel
         tar zxvf managementplane-${tsb_version}.tgz
         for IMAGE in $(cut -d/ -f2- managementplane/images.txt)
-        do 
+        do
+          IMGNAME=$(echo $IMAGE | cut -d: -f1)
+          aws ecr create-repository --repository-name ${registry_name}/$IMGNAME --region ${region} || true
           skopeo copy --src-registry-token "${tetrate_internal_cr_token}" --dest-authfile /root/.docker/config.json \
             docker://${tetrate_internal_cr}/$IMAGE \
             docker://${registry}/$IMAGE &
