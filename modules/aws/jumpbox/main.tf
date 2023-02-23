@@ -254,6 +254,7 @@ resource "aws_instance" "jumpbox" {
     tsb_version               = var.tsb_version
     tsb_image_sync_username   = var.tsb_image_sync_username
     tsb_image_sync_apikey     = var.tsb_image_sync_apikey
+    docker_login              = "aws ecr get-login-password --region ${var.region} | docker login --username AWS --password-stdin ${var.registry}"
     registry                  = var.registry
     registry_name             = var.registry_name
     region                    = var.region

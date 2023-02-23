@@ -29,7 +29,7 @@ write_files:
       #!/bin/bash
       curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
       install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl
-      aws ecr get-login-password --region ${region} | docker login --username AWS --password-stdin ${registry}
+      ${docker_login}
       if [[ ! -z "${tetrate_internal_cr}" ]]; then
         curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
         helm repo add tetrate-tsb-helm "${tsb_helm_repository}"
