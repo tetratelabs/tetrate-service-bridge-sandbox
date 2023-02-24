@@ -94,7 +94,7 @@ variable "tetrate_owner" {
     default = null
 }
 variable "tetrate_team" {
-    default = null
+    default = "tetrate-service-bridge-sandbox"
 }
 variable "tetrate_purpose" {
     default = "demo"
@@ -107,11 +107,11 @@ variable "tetrate_customer" {
 }
 locals {
   default_tags = {
-       "tetrate:owner"    = var.tetrate_owner
+       "tetrate:owner"    = coalesce(var.tetrate_owner, replace(var.tsb_image_sync_username, "/\\W+/", "-"))
        "tetrate:team"     = var.tetrate_team
        "tetrate:purpose"  = var.tetrate_purpose
        "tetrate:lifespan" = var.tetrate_lifespan
        "tetrate:customer" = var.tetrate_customer
-       "Environment"      = var.name_prefix
+       "environment"      = var.name_prefix
   }
 }
