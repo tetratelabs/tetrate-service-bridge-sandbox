@@ -26,6 +26,14 @@ data "google_compute_default_service_account" "default" {
 module "internal_registry" {
   source      = "../../internal_registry"
   tsb_version = var.tsb_version
+  # The internal registry token is needed only if the TSB version is a development version, and only once when the
+  # jumpbox bootstraps the first time. It is not needed later as all images are already pushed to the registry (and
+  # cloud-init won't run again anyway).
+  # Since the token is short-lived, successive calls to this module would cause the jumpbox to reconcile, restart, and
+  # eventually changing the IP address, etc, unnecessarily.
+  # By setting this, subsequent calls to this module will return the token returned on the initial run, if present, avoiding
+  # the jumbox reconcile.
+  cached_by   = "${var.name_prefix}-internal-registry.tfstate.tokencache"
 }
 
 resource "google_compute_instance" "jumpbox" {
