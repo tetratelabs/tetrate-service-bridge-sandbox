@@ -1,7 +1,7 @@
 resource "google_service_account" "external_dns" {
   count        = var.external_dns_enabled == true ? 1 : 0
   project      = var.project_id
-  account_id   = "${var.cluster_name}-external-dns"
+  account_id   = "${var.name_prefix}-external-dns"
 }
 
 resource "google_dns_managed_zone" "cluster" {
