@@ -43,7 +43,7 @@ module "azure_k8s" {
   resource_group_name = module.azure_base[0].resource_group_name
   location            = var.azure_k8s_region
   name_prefix         = "${var.name_prefix}-${var.cluster_id}"
-  cluster_name        = var.cluster_name == null ? "aks-${var.azure_k8s_region}-${var.name_prefix}" : var.cluster_name
+  cluster_name        = coalesce(var.cluster_name, "aks-${var.azure_k8s_region}-${var.name_prefix}")
   vnet_subnet         = module.azure_base[0].vnet_subnets[0]
   registry_id         = module.azure_base[0].registry_id
   output_path         = var.output_path
@@ -52,9 +52,9 @@ module "azure_k8s" {
 }
 
 module "external_dns" {
-  source                     = "../../modules/azure/external-dns"
+  source                     = "../../modules/addons/azure/external-dns"
   name_prefix                = "${var.name_prefix}-${var.cluster_id}"
-  cluster_name               = var.cluster_name == null ? "aks-${var.azure_k8s_region}-${var.name_prefix}" : var.cluster_name
+  cluster_name               = coalesce(var.cluster_name, "aks-${var.azure_k8s_region}-${var.name_prefix}")
   k8s_host                   = module.azure_k8s[0].host
   k8s_cluster_ca_certificate = module.azure_k8s[0].cluster_ca_certificate
   k8s_client_token           = module.azure_k8s[0].token
@@ -63,5 +63,5 @@ module "external_dns" {
   sources                    = var.external_dns_sources
   annotation_filter          = var.external_dns_annotation_filter
   label_filter               = var.external_dns_label_filter
-  external_dns_enabled       = var.external_dns_enabled == true ?  true : false
+  external_dns_enabled       = var.external_dns_enabled
 }

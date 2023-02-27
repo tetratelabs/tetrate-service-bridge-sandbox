@@ -144,7 +144,7 @@ variable "external_dns_label_filter" {
 }
 
 variable "external_dns_sources" {
-  default = "service,ingress,istio-gateway"
+  default = "service"
 }
 
 variable "external_dns_gcp_dns_zone" {

@@ -52,7 +52,7 @@ module "aws_k8s" {
   vpc_id       = module.aws_base[0].vpc_id
   vpc_subnets  = module.aws_base[0].vpc_subnets
   name_prefix  = "${var.name_prefix}-${var.cluster_id}-${random_string.random_id.result}"
-  cluster_name = var.cluster_name == null ? "eks-${var.aws_k8s_region}-${var.name_prefix}" : var.cluster_name
+  cluster_name = coalesce(var.cluster_name, "eks-${var.aws_k8s_region}-${var.name_prefix}")
   output_path  = var.output_path
   tags         = local.default_tags
   depends_on   = [module.aws_jumpbox[0]]

@@ -27,7 +27,7 @@ module "gcp_base" {
   source      = "../../modules/gcp/base"
   count       = var.gcp_k8s_region == null ? 0 : 1
   name_prefix = "${var.name_prefix}-${var.cluster_id}"
-  project_id  = var.gcp_project_id == null ? google_project.tsb[0].project_id : var.gcp_project_id
+  project_id  = coalesce(google_project.tsb[0].project_id, var.gcp_project_id)
   region      = var.gcp_k8s_region
   org_id      = var.gcp_org_id
   billing_id  = var.gcp_billing_id
@@ -57,7 +57,7 @@ module "gcp_k8s" {
   source             = "../../modules/gcp/k8s"
   count              = var.gcp_k8s_region == null ? 0 : 1
   name_prefix        = "${var.name_prefix}-${var.cluster_id}"
-  cluster_name       = var.cluster_name == null ? "gke-${var.gcp_k8s_region}-${var.name_prefix}" : var.cluster_name
+  cluster_name       = coalesce(var.cluster_name, "gke-${var.gcp_k8s_region}-${var.name_prefix}")
   project_id         = coalesce(var.gcp_project_id, google_project.tsb[0].project_id)
   vpc_id             = module.gcp_base[0].vpc_id
   vpc_subnet         = module.gcp_base[0].vpc_subnets[0]
@@ -70,9 +70,9 @@ module "gcp_k8s" {
 }
 
 module "external_dns" {
-  source                     = "../../modules/gcp/external-dns"
+  source                     = "../../modules/addons/gcp/external-dns"
   name_prefix                = "${var.name_prefix}-${var.cluster_id}"
-  cluster_name               = var.cluster_name == null ? "gke-${var.gcp_k8s_region}-${var.name_prefix}" : var.cluster_name
+  cluster_name               = coalesce(var.cluster_name, "gke-${var.gcp_k8s_region}-${var.name_prefix}")
   k8s_host                   = module.gcp_k8s[0].host
   k8s_cluster_ca_certificate = module.gcp_k8s[0].cluster_ca_certificate
   k8s_client_token           = module.gcp_k8s[0].token
@@ -81,5 +81,5 @@ module "external_dns" {
   sources                    = var.external_dns_sources
   annotation_filter          = var.external_dns_annotation_filter
   label_filter               = var.external_dns_label_filter
-  external_dns_enabled       = var.external_dns_enabled == true ?  true : false
+  external_dns_enabled       = var.external_dns_enabled
 }
