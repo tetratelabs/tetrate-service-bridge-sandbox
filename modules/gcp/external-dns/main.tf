@@ -1,14 +1,14 @@
 resource "google_service_account" "external_dns" {
   count        = var.external_dns_enabled == true ? 1 : 0
   project      = var.project_id
-  account_id   = "${var.name_prefix}-external-dns"
+  account_id   = "${var.cluster_name}-external-dns"
 }
 
 resource "google_dns_managed_zone" "cluster" {
   count      = var.external_dns_enabled == true ? 1 : 0
   project    = var.project_id
-  name       = "${var.name_prefix}-${local.zone_name}"
-  dns_name   = "${var.name_prefix}.${local.dns_name}."
+  name       = "${var.cluster_name}-${local.zone_name}"
+  dns_name   = "${var.cluster_name}.${local.dns_name}."
 }
 
 data "google_dns_managed_zone" "shared" {

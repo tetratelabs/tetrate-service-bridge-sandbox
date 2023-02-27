@@ -1,7 +1,7 @@
 resource "azurerm_dns_zone" "cluster" {
   count               = var.external_dns_enabled == true ? 1 : 0
   resource_group_name = var.resource_group_name
-  name                = "${var.name_prefix}.${local.dns_name}"
+  name                = "${var.cluster_name}.${local.dns_name}"
 }
 
 data "azurerm_dns_zone" "shared" {
@@ -12,7 +12,7 @@ data "azurerm_dns_zone" "shared" {
 
 resource "azurerm_dns_ns_record" "ns" {
   count               = local.shared_zone && var.external_dns_enabled == true ? 1 : 0
-  name                = "${var.name_prefix}.${local.dns_name}"
+  name                = "${var.cluster_name}.${local.dns_name}"
   zone_name           = data.azurerm_dns_zone.shared[0].name
   resource_group_name = "dns-terraform-sandbox"
   ttl                 = 300
