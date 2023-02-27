@@ -39,7 +39,7 @@ module "gcp_jumpbox" {
   count                     = var.gcp_k8s_region == null ? 0 : 1
   name_prefix               = "${var.name_prefix}-${var.cluster_id}"
   region                    = var.gcp_k8s_region
-  project_id                = var.gcp_project_id == null ? google_project.tsb[0].project_id : var.gcp_project_id
+  project_id                = coalesce(var.gcp_project_id, google_project.tsb[0].project_id)
   vpc_id                    = module.gcp_base[0].vpc_id
   vpc_subnet                = module.gcp_base[0].vpc_subnets[0]
   tsb_version               = var.tsb_version
@@ -58,7 +58,7 @@ module "gcp_k8s" {
   count              = var.gcp_k8s_region == null ? 0 : 1
   name_prefix        = "${var.name_prefix}-${var.cluster_id}"
   cluster_name       = var.cluster_name == null ? "gke-${var.gcp_k8s_region}-${var.name_prefix}" : var.cluster_name
-  project_id         = var.gcp_project_id == null ? google_project.tsb[0].project_id : var.gcp_project_id
+  project_id         = coalesce(var.gcp_project_id, google_project.tsb[0].project_id)
   vpc_id             = module.gcp_base[0].vpc_id
   vpc_subnet         = module.gcp_base[0].vpc_subnets[0]
   region             = var.gcp_k8s_region
@@ -67,4 +67,19 @@ module "gcp_k8s" {
   output_path        = var.output_path
   tags               = local.default_tags
   depends_on         = [module.gcp_jumpbox[0]]
+}
+
+module "external_dns" {
+  source                     = "../../modules/gcp/external-dns"
+  name_prefix                = "${var.name_prefix}-${var.cluster_id}"
+  cluster_name               = var.cluster_name == null ? "gke-${var.gcp_k8s_region}-${var.name_prefix}" : var.cluster_name
+  k8s_host                   = module.gcp_k8s[0].host
+  k8s_cluster_ca_certificate = module.gcp_k8s[0].cluster_ca_certificate
+  k8s_client_token           = module.gcp_k8s[0].token
+  project_id                 = coalesce(var.gcp_project_id, google_project.tsb[0].project_id)
+  dns_zone                   = replace(var.tsb_fqdn, "/^[^\\.]+\\./", "") # Remove the first part of the fqdn
+  sources                    = var.external_dns_sources
+  annotation_filter          = var.external_dns_annotation_filter
+  label_filter               = var.external_dns_label_filter
+  external_dns_enabled       = var.external_dns_enabled == true ?  true : false
 }
