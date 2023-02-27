@@ -77,7 +77,7 @@ module "external_dns" {
   k8s_cluster_ca_certificate = module.gcp_k8s[0].cluster_ca_certificate
   k8s_client_token           = module.gcp_k8s[0].token
   project_id                 = coalesce(var.gcp_project_id, google_project.tsb[0].project_id)
-  dns_zone                   = replace(var.tsb_fqdn, "/^[^\\.]+\\./", "") # Remove the first part of the fqdn
+  dns_zone                   = var.external_dns_gcp_dns_zone
   sources                    = var.external_dns_sources
   annotation_filter          = var.external_dns_annotation_filter
   label_filter               = var.external_dns_label_filter

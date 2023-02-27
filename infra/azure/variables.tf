@@ -110,3 +110,23 @@ locals {
        "environment"      = var.name_prefix
   }
 }
+
+variable "external_dns_enabled" {
+  default = true
+}
+
+variable "external_dns_annotation_filter" {
+  default = ""
+}
+
+variable "external_dns_label_filter" {
+  default = ""
+}
+
+variable "external_dns_sources" {
+  default = "service,ingress,istio-gateway"
+}
+
+variable "external_dns_azure_dns_zone" {
+  default = "azure.sandbox.tetrate.io"
+}
