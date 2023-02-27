@@ -16,7 +16,7 @@ resource "azurerm_dns_ns_record" "ns" {
   zone_name           = data.azurerm_dns_zone.shared[0].name
   resource_group_name = "dns-terraform-sandbox"
   ttl                 = 300
-  records             = data.azurerm_dns_zone.shared[0].name_servers
+  records             = azurerm_dns_zone.cluster[0].name_servers
 }
 
 data "azurerm_client_config" "this" {}
