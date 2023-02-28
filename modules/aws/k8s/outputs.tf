@@ -25,3 +25,7 @@ output "cluster_name" {
 output "locality_region" {
   value = var.region
 }
+
+output "oidc_provider_arn" {
+  value = module.eks.oidc_provider_arn
+}

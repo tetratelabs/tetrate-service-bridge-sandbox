@@ -57,3 +57,22 @@ module "aws_k8s" {
   tags         = local.default_tags
   depends_on   = [module.aws_jumpbox[0]]
 }
+
+module "external_dns" {
+  source                     = "../../modules/addons/aws/external-dns"
+  name_prefix                = "${var.name_prefix}-${var.cluster_id}"
+  cluster_name               = coalesce(var.cluster_name, "eks-${var.aws_k8s_region}-${var.name_prefix}")
+  k8s_host                   = module.aws_k8s[0].host
+  k8s_cluster_ca_certificate = module.aws_k8s[0].cluster_ca_certificate
+  k8s_client_token           = module.aws_k8s[0].token
+  region                     = var.aws_k8s_region
+  vpc_id                     = module.aws_base[0].vpc_id
+  dns_zone                   = var.external_dns_aws_dns_zone
+  sources                    = var.external_dns_sources
+  annotation_filter          = var.external_dns_annotation_filter
+  label_filter               = var.external_dns_label_filter
+  interval                   = var.external_dns_interval
+  tags                       = local.default_tags
+  oidc_provider_arn          = module.aws_k8s[0].oidc_provider_arn
+  external_dns_enabled       = var.external_dns_enabled
+}

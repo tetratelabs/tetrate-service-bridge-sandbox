@@ -115,3 +115,26 @@ locals {
        "environment"      = var.name_prefix
   }
 }
+variable "external_dns_enabled" {
+  default = true
+}
+
+variable "external_dns_annotation_filter" {
+  default = ""
+}
+
+variable "external_dns_label_filter" {
+  default = ""
+}
+
+variable "external_dns_sources" {
+  default = "service"
+}
+
+variable "external_dns_interval" {
+  default = "5s"
+}
+
+variable "external_dns_aws_dns_zone" {
+  default = "aws.sandbox.tetrate.io"
+}
