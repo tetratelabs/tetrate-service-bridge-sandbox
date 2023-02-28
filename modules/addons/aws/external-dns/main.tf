@@ -34,15 +34,17 @@ provider "helm" {
 
 module "external_dns_helm" {
   source = "lablabs/eks-external-dns/aws"
-  enabled           = var.external_dns_enabled
-  argo_enabled      = false
-  argo_helm_enabled = false
+  enabled                  = var.external_dns_enabled
+  argo_enabled             = false
+  argo_helm_enabled        = false
+  irsa_assume_role_enabled = false
 
   cluster_identity_oidc_issuer     = data.aws_eks_cluster.cluster.identity[0].oidc[0].issuer
   cluster_identity_oidc_issuer_arn = var.oidc_provider_arn
   irsa_tags                        = var.tags
 
-  helm_release_name       = "external-dns"
+  # helm_release_name is used when naming IAM roles
+  helm_release_name       = "${var.cluster_name}-external-dns"
   helm_repo_url           = "https://charts.bitnami.com/bitnami"
   helm_chart_name         = "external-dns"
   helm_create_namespace   = true
@@ -61,7 +63,4 @@ module "external_dns_helm" {
     "provider" : "aws"
     "interval" : var.interval
   })
-
 }
-
-

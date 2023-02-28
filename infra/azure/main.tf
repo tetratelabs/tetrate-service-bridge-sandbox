@@ -63,6 +63,7 @@ module "external_dns" {
   sources                    = var.external_dns_sources
   annotation_filter          = var.external_dns_annotation_filter
   label_filter               = var.external_dns_label_filter
+  interval                   = var.external_dns_interval
   tags                       = local.default_tags 
   external_dns_enabled       = var.external_dns_enabled
 }
