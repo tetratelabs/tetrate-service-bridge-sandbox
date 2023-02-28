@@ -127,6 +127,10 @@ variable "external_dns_sources" {
   default = "service"
 }
 
+variable "external_dns_interval" {
+  default = "5s"
+}
+
 variable "external_dns_azure_dns_zone" {
   default = "azure.sandbox.tetrate.io"
 }

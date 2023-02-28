@@ -40,14 +40,3 @@ resource "azurerm_role_assignment" "attach_acr" {
   principal_id                     = azurerm_kubernetes_cluster.k8s.kubelet_identity[0].object_id
   skip_service_principal_aad_check = true
 }
-
-data "azurerm_resource_group" "this" {
-  name = var.resource_group_name
-}
-
-resource "azurerm_role_assignment" "external_dns" {
-  scope                            = data.azurerm_resource_group.this.id
-  role_definition_name             = "DNS Zone Contributor"
-  principal_id                     = azurerm_kubernetes_cluster.k8s.kubelet_identity[0].object_id
-  skip_service_principal_aad_check = true
-}

@@ -18,6 +18,10 @@ variable "k8s_cluster_ca_certificate" {
 variable "k8s_client_token" {
 }
 
+variable "tags" {
+  type = map
+}
+
 variable "dns_zone" {
 }
 
@@ -28,6 +32,9 @@ variable "label_filter" {
 }
 
 variable "sources" {
+}
+
+variable "interval" {
 }
 
 variable "external_dns_enabled" {

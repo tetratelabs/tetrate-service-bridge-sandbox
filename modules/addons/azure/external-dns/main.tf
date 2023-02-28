@@ -1,7 +1,27 @@
+data "azurerm_resource_group" "this" {
+  name = var.resource_group_name
+}
+
+data "azurerm_kubernetes_cluster" "this" {
+  name                = var.cluster_name
+  resource_group_name = var.resource_group_name
+}
+
+resource "azurerm_role_assignment" "external_dns" {
+  count                            = var.external_dns_enabled == true ? 1 : 0
+  scope                            = data.azurerm_resource_group.this.id
+  role_definition_name             = "DNS Zone Contributor"
+  principal_id                     = data.azurerm_kubernetes_cluster.this.kubelet_identity[0].object_id
+  skip_service_principal_aad_check = true
+}
+
 resource "azurerm_dns_zone" "cluster" {
   count               = var.external_dns_enabled == true ? 1 : 0
   resource_group_name = var.resource_group_name
   name                = "${var.cluster_name}.${local.dns_name}"
+  tags                = merge(var.tags, {
+          Name = "${var.cluster_name}.${local.dns_name}"
+  })
 }
 
 data "azurerm_dns_zone" "shared" {
@@ -17,6 +37,9 @@ resource "azurerm_dns_ns_record" "ns" {
   resource_group_name = "dns-terraform-sandbox"
   ttl                 = 300
   records             = azurerm_dns_zone.cluster[0].name_servers
+  tags                = merge(var.tags, {
+          Name = "${var.cluster_name}.${local.dns_name}"
+  })
 }
 
 data "azurerm_client_config" "this" {}
@@ -75,6 +98,11 @@ resource "helm_release" "external_dns" {
   set {
     name  = "labelFilter"
     value = var.label_filter
+  }
+
+  set {
+    name  = "interval"
+    value = var.interval
   }
 
   values = [templatefile("${path.module}/manifests/values.yaml.tmpl", {

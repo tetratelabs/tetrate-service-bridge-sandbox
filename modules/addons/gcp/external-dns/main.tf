@@ -9,6 +9,9 @@ resource "google_dns_managed_zone" "cluster" {
   project    = var.project_id
   name       = "${var.cluster_name}-${local.zone_name}"
   dns_name   = "${var.cluster_name}.${local.dns_name}."
+  labels     = merge(var.tags, {
+          name = "${var.cluster_name}-${local.zone_name}"
+  })
 }
 
 data "google_dns_managed_zone" "shared" {
@@ -24,8 +27,7 @@ resource "google_dns_record_set" "ns" {
   name         = google_dns_managed_zone.cluster[0].dns_name
   type         = "NS"
   ttl          = 300
-
-  rrdatas = google_dns_managed_zone.cluster[0].name_servers
+  rrdatas      = google_dns_managed_zone.cluster[0].name_servers
 }
 
 resource "google_project_iam_member" "dns_admin" {
@@ -94,6 +96,11 @@ resource "helm_release" "external_dns" {
   set {
     name  = "labelFilter"
     value = var.label_filter
+  }
+
+  set {
+    name  = "interval"
+    value = var.interval
   }
 
   values = [templatefile("${path.module}/manifests/values.yaml.tmpl", {
