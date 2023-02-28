@@ -61,7 +61,7 @@ module "aws_k8s" {
 module "external_dns" {
   source                     = "../../modules/addons/aws/external-dns"
   name_prefix                = "${var.name_prefix}-${var.cluster_id}"
-  cluster_name               = coalesce(var.cluster_name, "eks-${var.aws_k8s_region}-${var.name_prefix}")
+  cluster_name               = module.aws_k8s[0].cluster_name
   k8s_host                   = module.aws_k8s[0].host
   k8s_cluster_ca_certificate = module.aws_k8s[0].cluster_ca_certificate
   k8s_client_token           = module.aws_k8s[0].token

@@ -72,7 +72,7 @@ module "gcp_k8s" {
 module "external_dns" {
   source                     = "../../modules/addons/gcp/external-dns"
   name_prefix                = "${var.name_prefix}-${var.cluster_id}"
-  cluster_name               = coalesce(var.cluster_name, "gke-${var.gcp_k8s_region}-${var.name_prefix}")
+  cluster_name               = module.gcp_k8s[0].cluster_name
   k8s_host                   = module.gcp_k8s[0].host
   k8s_cluster_ca_certificate = module.gcp_k8s[0].cluster_ca_certificate
   k8s_client_token           = module.gcp_k8s[0].token
