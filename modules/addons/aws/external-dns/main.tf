@@ -51,7 +51,7 @@ module "external_dns_helm" {
     "policy": "upsert-only"
     "registry" : "txt"
     "txtOwnerId" : var.cluster_name
-    "domainFilters": [aws_route53_zone.cluster[0].name]
+    "domainFilters": [try(aws_route53_zone.cluster[0].name,"")]
     "sources": [var.sources]
     "annotationFilter": var.annotation_filter
     "labelFilter": var.label_filter
