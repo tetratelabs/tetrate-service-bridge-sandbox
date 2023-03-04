@@ -112,7 +112,7 @@ locals {
 }
 
 variable "external_dns_enabled" {
-  default = true
+  default = false
 }
 
 variable "external_dns_annotation_filter" {

@@ -28,7 +28,7 @@ provider "helm" {
 }
 
 module "external_dns_helm" {
-  source = "lablabs/eks-external-dns/aws"
+  source                   = "lablabs/eks-external-dns/aws"
   enabled                  = var.external_dns_enabled
   argo_enabled             = false
   argo_helm_enabled        = false
