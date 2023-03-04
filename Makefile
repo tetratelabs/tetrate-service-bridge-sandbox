@@ -205,6 +205,7 @@ destroy_%:
 		cluster_name=`terraform output cluster_name | jq . -r`; \
 		terraform state rm "module.external_dns.helm_release.external_dns[0]"; \
 		terraform state rm "module.external_dns.module.external_dns_helm.helm_release.this[0]"; \
+		terraform state rm "module.external_dns.aws_route53_zone.cluster[0]"; \
 		terraform destroy ${terraform_destroy_args} -var-file="../../terraform.tfvars.json" -var=$*_k8s_region=$$region -var=cluster_id=$$index -var=cluster_name=$$cluster_name; \
 		[ $$? -eq 0 ] && terraform workspace select default && terraform workspace delete ${terraform_workspace_args} $*-$$index-$$region; \
 		index=$$((index+1)); \
