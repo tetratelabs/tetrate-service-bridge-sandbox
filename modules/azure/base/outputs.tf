@@ -14,6 +14,10 @@ output "resource_group_name" {
   value = azurerm_resource_group.tsb.name
 }
 
+output "resource_group_id" {
+  value = azurerm_resource_group.tsb.id
+}
+
 output "registry" {
   value = azurerm_container_registry.acr.login_server
 }

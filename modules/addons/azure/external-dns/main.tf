@@ -1,17 +1,8 @@
-data "azurerm_resource_group" "this" {
-  name = var.resource_group_name
-}
-
-data "azurerm_kubernetes_cluster" "this" {
-  name                = var.cluster_name
-  resource_group_name = var.resource_group_name
-}
-
 resource "azurerm_role_assignment" "external_dns" {
   count                            = var.external_dns_enabled == true ? 1 : 0
-  scope                            = data.azurerm_resource_group.this.id
+  scope                            = var.resource_group_id
   role_definition_name             = "DNS Zone Contributor"
-  principal_id                     = data.azurerm_kubernetes_cluster.this.kubelet_identity[0].object_id
+  principal_id                     = var.kubelet_identity[0].object_id
   skip_service_principal_aad_check = true
 }
 
@@ -32,7 +23,7 @@ data "azurerm_dns_zone" "shared" {
 
 resource "azurerm_dns_ns_record" "ns" {
   count               = local.shared_zone && var.external_dns_enabled == true ? 1 : 0
-  name                = "${var.cluster_name}.${local.dns_name}"
+  name                = "${var.cluster_name}"
   zone_name           = data.azurerm_dns_zone.shared[0].name
   resource_group_name = "dns-terraform-sandbox"
   ttl                 = 300

@@ -9,6 +9,9 @@ variable "cluster_name" {
 variable "resource_group_name" {
 }
 
+variable "resource_group_id" {
+}
+
 variable "k8s_host" {
 }
 
@@ -16,6 +19,9 @@ variable "k8s_cluster_ca_certificate" {
 }
 
 variable "k8s_client_token" {
+}
+
+variable "kubelet_identity" {
 }
 
 variable "tags" {

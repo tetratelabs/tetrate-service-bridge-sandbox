@@ -179,6 +179,7 @@ destroy_remote:  ## Destroy the environment
 		fqdn=`jq -r '.tsb_fqdn' terraform.tfvars.json`; \
 		address=`jq -r "if .ingress_ip.value != \"\" then .ingress_ip.value else .ingress_hostname.value end" outputs/terraform_outputs/terraform-tsb-mp.json`; \
 		cd "tsb/fqdn/$$cloud"; \
+		terraform init; \
 		terraform destroy ${terraform_apply_args} -var-file="../../../terraform.tfvars.json" -var=address=$$address -var=fqdn=$$fqdn; \
 		[ $$? -ne 0 ] && exit 1; \
 		rm -rf terraform.tfstate.d/; \
