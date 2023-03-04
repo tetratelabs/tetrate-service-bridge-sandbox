@@ -54,3 +54,7 @@ locals {
 variable "oidc_provider_arn" {
   default = ""
 }
+
+variable "cluster_oidc_issuer_url" {
+  default = ""
+}

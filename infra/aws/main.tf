@@ -74,5 +74,7 @@ module "external_dns" {
   interval                   = var.external_dns_interval
   tags                       = local.default_tags
   oidc_provider_arn          = module.aws_k8s[0].oidc_provider_arn
+  cluster_oidc_issuer_url    = module.aws_k8s[0].cluster_oidc_issuer_url
   external_dns_enabled       = var.external_dns_enabled
+
 }

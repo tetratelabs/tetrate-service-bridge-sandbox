@@ -19,11 +19,6 @@ resource "aws_route53_record" "ns" {
   ttl     = 300
   records = aws_route53_zone.cluster[0].name_servers
 }
-
-data "aws_eks_cluster" "cluster" {
-  name = var.cluster_name
-}
-
 provider "helm" {
   kubernetes {
     host                   = var.k8s_host
@@ -40,7 +35,7 @@ module "external_dns_helm" {
   irsa_assume_role_enabled = false
   irsa_role_name_prefix    = var.cluster_name
 
-  cluster_identity_oidc_issuer     = data.aws_eks_cluster.cluster.identity[0].oidc[0].issuer
+  cluster_identity_oidc_issuer     = var.cluster_oidc_issuer_url
   cluster_identity_oidc_issuer_arn = var.oidc_provider_arn
   irsa_tags                        = var.tags
 

@@ -153,7 +153,11 @@ resource "aws_iam_role_policy" "jumpbox_iam_policy" {
               "ecr:InitiateLayerUpload",
               "ecr:UploadLayerPart",
               "ecr:CompleteLayerUpload",
-              "ecr:PutImage"
+              "ecr:PutImage",
+              "route53:ChangeResourceRecordSets",
+              "route53:ChangeTagsForResource",
+              "route53:ListResourceRecordSets",
+              "route53:ListHostedZone"
             ],
             "Resource": "*"
         }
@@ -316,6 +320,7 @@ resource "local_file" "aws_cleanup" {
     vpc_id        = var.vpc_id
     region        = var.region
     registry_name = var.registry_name
+    name_prefix   = "eks-${regex("^[^-]+", var.name_prefix)}"
   })
   filename        = "${var.output_path}/${var.name_prefix}-aws-cleanup.sh"
   file_permission = "0755"

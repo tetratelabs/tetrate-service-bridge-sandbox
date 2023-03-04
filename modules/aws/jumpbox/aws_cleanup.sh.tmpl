@@ -3,6 +3,34 @@
 export REGION="${region}"
 export VPC_ID="${vpc_id}"
 export REPO_PREFIX="${registry_name}"
+export ZONE_NAME_PREFIX="${name_prefix}"
+
+
+echo 'Destroying Hosted zones...'
+zone_ids=$(aws route53 list-hosted-zones --query "HostedZones[?starts_with(Name, '$ZONE_NAME_PREFIX')].Id" --output text)
+
+if [ -z "$zone_ids" ]; then
+  echo "No hosted zones found with name starting with $ZONE_NAME_PREFIX"
+else
+  echo "Deleting DNS records within hosted zones with names starting with $ZONE_NAME_PREFIX:"
+  for zone_id in $zone_ids
+  do
+    zone_name=$(aws route53 get-hosted-zone --id $zone_id --query "HostedZone.Name" --output text)
+    echo "Deleting DNS records in hosted zone with ID $zone_id and name $zone_name"
+
+    record_sets=$(aws route53 list-resource-record-sets --hosted-zone-id $zone_id --query "ResourceRecordSets[?Type != 'NS' && Type != 'SOA']")
+
+    if [ -z "$record_sets" ]; then
+      echo "No DNS records found in hosted zone with ID $zone_id"
+    else
+      aws route53 change-resource-record-sets --hosted-zone-id $zone_id --change-batch "{\"Changes\": $(echo $record_sets | jq "{ \"Action\": \"DELETE\", \"ResourceRecordSet\": . }")}"
+      echo "Deleted DNS records in hosted zone with ID $zone_id and name $zone_name"
+    fi
+
+    aws route53 delete-hosted-zone --id $zone_id
+    echo "Deleted hosted zone with ID $zone_id and name $zone_name"
+  done
+fi
 
 echo 'Destroying ECR repositories...'
 for repo in $(aws ecr describe-repositories --region $REGION --query 'repositories[*].repositoryName' --no-paginate --output text); do
