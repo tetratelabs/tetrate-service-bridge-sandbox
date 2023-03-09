@@ -34,7 +34,7 @@ azure_k8s: init  ## Deploys azure k8s cluster for MP and N-number of CPs(*) leve
 		cluster_name="aks-$$name_prefix-$$region-$$index"; \
 		echo "cloud=azure region=$$region cluster_id=$$index cluster_name=$$cluster_name"; \
 		cd "infra/azure"; \
-		terraform workspace new azure-$$index-$$region; \
+		terraform workspace new azure-$$index-$$region || true; \
 		terraform workspace select azure-$$index-$$region; \
 		terraform init; \
 		terraform apply ${terraform_apply_args} -target module.azure_base -var-file="../../terraform.tfvars.json" -var=azure_k8s_region=$$region -var=cluster_name=$$cluster_name -var=cluster_id=$$index; \
@@ -56,7 +56,7 @@ aws_k8s: init  ## Deploys EKS K8s cluster (CPs only)
 		cluster_name="eks-$$name_prefix-$$region-$$index"; \
 		echo "cloud=aws region=$$region cluster_id=$$index cluster_name=$$cluster_name"; \
 		cd "infra/aws"; \
-		terraform workspace new aws-$$index-$$region; \
+		terraform workspace new aws-$$index-$$region || true; \
 		terraform workspace select aws-$$index-$$region; \
 		terraform init; \
 		terraform apply ${terraform_apply_args} -var-file="../../terraform.tfvars.json" -var=aws_k8s_region=$$region -var=cluster_name=$$cluster_name -var=cluster_id=$$index; \
@@ -77,7 +77,7 @@ gcp_k8s: init  ## Deploys GKE K8s cluster (CPs only)
 		cluster_name="gke-$$name_prefix-$$region-$$index"; \
 		echo "cloud=gcp region=$$region cluster_id=$$index cluster_name=$$cluster_name"; \
 		cd "infra/gcp"; \
-		terraform workspace new gcp-$$index-$$region; \
+		terraform workspace new gcp-$$index-$$region || true; \
 		terraform workspace select gcp-$$index-$$region; \
 		terraform init; \
 		terraform apply ${terraform_apply_args} -target module.gcp_base -var-file="../../terraform.tfvars.json" -var=gcp_k8s_region=$$region -var=cluster_name=$$cluster_name -var=cluster_id=$$index; \
@@ -125,7 +125,7 @@ tsb_cp_%:
 		jq -r '.$*_k8s_regions[]' terraform.tfvars.json | while read -r region; do \
 		echo "cloud=$* region=$$region cluster_id=$$index"; \
 		cd "tsb/cp"; \
-		terraform workspace new $*-$$index-$$region; \
+		terraform workspace new $*-$$index-$$region || true; \
 		terraform workspace select $*-$$index-$$region; \
 		terraform init; \
 		terraform apply ${terraform_apply_args} -var-file="../../terraform.tfvars.json" -var=cloud=$* -var=cluster_id=$$index; \
@@ -150,7 +150,7 @@ argocd_%:
 		jq -r '.$*_k8s_regions[]' terraform.tfvars.json | while read -r region; do \
 		echo "cloud=$* region=$$region cluster_id=$$index"; \
 		cd "addons/argocd"; \
-		terraform workspace new $*-$$index-$$region; \
+		terraform workspace new $*-$$index-$$region || true; \
 		terraform workspace select $*-$$index-$$region; \
 		terraform init; \
 		terraform apply ${terraform_apply_args} -var-file="../../terraform.tfvars.json" -var=cloud=$* -var=cluster_id=$$index; \
@@ -187,7 +187,7 @@ external-dns_%:
 		jq -r '.$*_k8s_regions[]' terraform.tfvars.json | while read -r region; do \
 		echo "cloud=$* region=$$region cluster_id=$$index"; \
 		cd "addons/$*/external-dns"; \
-		terraform workspace new $*-$$index-$$region; \
+		terraform workspace new $*-$$index-$$region || true; \
 		terraform workspace select $*-$$index-$$region; \
 		terraform init; \
 		terraform apply ${terraform_apply_args} -var-file="../../../terraform.tfvars.json" -var=cloud=$* -var=cluster_id=$$index; \
@@ -207,7 +207,7 @@ destroy_external-dns_%:
 		jq -r '.$*_k8s_regions[]' terraform.tfvars.json | while read -r region; do \
 		echo "cloud=$* region=$$region cluster_id=$$index"; \
 		cd "addons/$*/external-dns"; \
-		terraform workspace new $*-$$index-$$region; \
+		terraform workspace new $*-$$index-$$region || true; \
 		terraform workspace select $*-$$index-$$region; \
 		terraform init; \
 		terraform destroy ${terraform_apply_args} -var-file="../../../terraform.tfvars.json" -var=cloud=$* -var=cluster_id=$$index; \
