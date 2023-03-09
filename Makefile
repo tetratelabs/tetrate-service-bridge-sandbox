@@ -189,7 +189,7 @@ external-dns_%:
 		done; \
 		'
 
-destroy_external-dns: external-dns_gcp external-dns_aws external-dns_azure  ## Deploys external-dns
+destroy_external-dns: destroy_external-dns_gcp destroy_external-dns_aws destroy_external-dns_azure  ## Destroys external-dns
 destroy_external-dns_%:
 	@echo "Deploying external-dns..."
 	@$(MAKE) $*_k8s
@@ -225,7 +225,7 @@ destroy_remote:  ## Destroy the environment
 		rm -rf terraform.tfstate; \
 		cd "../../.."; \
 		'
-	@$(MAKE) destroy_external-dns_gcp destroy_external-dns_aws destroy_external-dns_azure
+	@$(MAKE) destroy_external-dns
 	@$(MAKE) destroy_gcp destroy_aws destroy_azure
 
 .PHONY: destroy_local

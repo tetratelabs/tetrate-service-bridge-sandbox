@@ -109,7 +109,7 @@ resource "null_resource" "gcp_cleanup" {
 
   provisioner "local-exec" {
     when = destroy
-    command = "sh ${path.module}/gcp-cleanup.sh ${self.triggers.project_id}"
+    command = "sh ${path.module}/external-dns-gcp-cleanup.sh ${self.triggers.project_id}"
     on_failure = continue
   }
   depends_on = [ google_dns_managed_zone.cluster ]
