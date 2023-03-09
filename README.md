@@ -19,8 +19,11 @@ The `Makefile` in this directory provides ability to fastforward to anypoint of 
       B[make k8s] --> CC[make azure_k8s]
       B[make k8s] --> CCC[make gcp_k8s]
       C[make aws_k8s] --> D[make tsb_mp]
+      C[make aws_k8s] --> E[make external-dns_aws]
       CC[make azure_k8s] --> D[make tsb_mp]
+      CC[make azure_k8s] --> EE[make external-dns_azure]
       CCC[make gcp_k8s] --> D[make tsb_mp]
+      CCC[make gcp_k8s] --> EEE[make external-dns_gcp]
       D[make tsb_mp] --> DD[make tsb_cp]
       D[make tsb_mp] --> G[make argocd]
       D[make tsb_mp] --> H[make monitoring]
@@ -118,13 +121,14 @@ The completion of the above steps will result in:
 
 ## Deployment Scenarios
 
-[Infra Staging](./infra/README.md)<br>
-[TSB MP Fastforward](./tsb/README.md#tsb_mp)<br>
-[TSB CP Fastforward](./tsb/README.md#tsb_cp)<br>
+* [Infrastructure Staging](./infra/README.md)<br>
+* [TSB Management Plane Rollout](./tsb/README.md#tsb_mp)<br>
+* [TSB Control Plane Cluster Onboarding](./tsb/README.md#tsb_cp)<br>
 
-## Use Cases
+## Use Cases and Addons
 
-[ArgoCD GitOps](./addons/README.md#argocd)
+* [ArgoCD GitOps](./addons/README.md#argocd)
+* [external-dns](./addons/README.md#external-dns)
 
 ## Destroy
 

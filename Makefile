@@ -169,6 +169,45 @@ monitoring:  ## Deploys the TSB monitoring stack
 		cd "../.."; \
 		'
 
+.PHONY: external-dns
+external-dns: external-dns_gcp external-dns_aws external-dns_azure  ## Deploys external-dns
+external-dns_%:
+	@echo "Deploying external-dns..."
+	@$(MAKE) $*_k8s
+	@/bin/sh -c '\
+		index=0; \
+		jq -r '.$*_k8s_regions[]' terraform.tfvars.json | while read -r region; do \
+		echo "cloud=$* region=$$region cluster_id=$$index"; \
+		cd "addons/$*/external-dns"; \
+		terraform workspace new $*-$$index-$$region; \
+		terraform workspace select $*-$$index-$$region; \
+		terraform init; \
+		terraform apply ${terraform_apply_args} -var-file="../../../terraform.tfvars.json" -var=cloud=$* -var=cluster_id=$$index; \
+		terraform workspace select default; \
+		index=$$((index+1)); \
+		cd "../.."; \
+		done; \
+		'
+
+destroy_external-dns: destroy_external-dns_gcp destroy_external-dns_aws destroy_external-dns_azure ## Destroys external-dns
+destroy_external-dns_%:
+	@echo "Deploying external-dns..."
+	@$(MAKE) $*_k8s
+	@/bin/sh -c '\
+		index=0; \
+		jq -r '.$*_k8s_regions[]' terraform.tfvars.json | while read -r region; do \
+		echo "cloud=$* region=$$region cluster_id=$$index"; \
+		cd "addons/$*/external-dns"; \
+		terraform workspace new $*-$$index-$$region; \
+		terraform workspace select $*-$$index-$$region; \
+		terraform init; \
+		terraform destroy ${terraform_apply_args} -var-file="../../../terraform.tfvars.json" -var=cloud=$* -var=cluster_id=$$index; \
+		terraform workspace select default; \
+		index=$$((index+1)); \
+		cd "../.."; \
+		done; \
+		'
+
 .PHONY: destroy
 destroy: destroy_remote destroy_local
 
@@ -179,12 +218,14 @@ destroy_remote:  ## Destroy the environment
 		fqdn=`jq -r '.tsb_fqdn' terraform.tfvars.json`; \
 		address=`jq -r "if .ingress_ip.value != \"\" then .ingress_ip.value else .ingress_hostname.value end" outputs/terraform_outputs/terraform-tsb-mp.json`; \
 		cd "tsb/fqdn/$$cloud"; \
+		terraform init; \
 		terraform destroy ${terraform_apply_args} -var-file="../../../terraform.tfvars.json" -var=address=$$address -var=fqdn=$$fqdn; \
 		[ $$? -ne 0 ] && exit 1; \
 		rm -rf terraform.tfstate.d/; \
 		rm -rf terraform.tfstate; \
 		cd "../../.."; \
 		'
+	@$(MAKE) destroy_external-dns
 	@$(MAKE) destroy_gcp destroy_aws destroy_azure
 
 .PHONY: destroy_local
@@ -201,7 +242,8 @@ destroy_%:
 		echo "cloud=$* region=$$region cluster_id=$$index"; \
 		cd "infra/$*"; \
 		terraform workspace select $*-$$index-$$region; \
-		terraform destroy ${terraform_destroy_args} -var-file="../../terraform.tfvars.json" -var=$*_k8s_region=$$region -var=cluster_id=$$index; \
+		cluster_name=`terraform output cluster_name | jq . -r`; \
+		terraform destroy ${terraform_destroy_args} -var-file="../../terraform.tfvars.json" -var=$*_k8s_region=$$region -var=cluster_id=$$index -var=cluster_name=$$cluster_name; \
 		[ $$? -eq 0 ] && terraform workspace select default && terraform workspace delete ${terraform_workspace_args} $*-$$index-$$region; \
 		index=$$((index+1)); \
 		cd "../.."; \

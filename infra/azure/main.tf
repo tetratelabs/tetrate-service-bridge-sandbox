@@ -43,7 +43,7 @@ module "azure_k8s" {
   resource_group_name = module.azure_base[0].resource_group_name
   location            = var.azure_k8s_region
   name_prefix         = "${var.name_prefix}-${var.cluster_id}"
-  cluster_name        = var.cluster_name == null ? "aks-${var.azure_k8s_region}-${var.name_prefix}" : var.cluster_name
+  cluster_name        = coalesce(var.cluster_name, "aks-${var.azure_k8s_region}-${var.name_prefix}")
   vnet_subnet         = module.azure_base[0].vnet_subnets[0]
   registry_id         = module.azure_base[0].registry_id
   output_path         = var.output_path

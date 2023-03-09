@@ -153,7 +153,11 @@ resource "aws_iam_role_policy" "jumpbox_iam_policy" {
               "ecr:InitiateLayerUpload",
               "ecr:UploadLayerPart",
               "ecr:CompleteLayerUpload",
-              "ecr:PutImage"
+              "ecr:PutImage",
+              "route53:ChangeResourceRecordSets",
+              "route53:ChangeTagsForResource",
+              "route53:ListResourceRecordSets",
+              "route53:ListHostedZone"
             ],
             "Resource": "*"
         }
