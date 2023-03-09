@@ -43,7 +43,7 @@ For example, where the cluster name is `gke-r161rc1p1-us-east1-0` and `var.exter
 
 ### General Defaults 
 
-```json
+```hcl
 variable "external_dns_annotation_filter" {
   default = ""
 }
@@ -63,7 +63,7 @@ variable "external_dns_interval" {
 
 #### GCP Defaults
 
-```json
+```hcl
 variable "external_dns_gcp_dns_zone" {
   default = "gcp.sandbox.tetrate.io"
 }
@@ -71,7 +71,7 @@ variable "external_dns_gcp_dns_zone" {
 
 #### Azure Defaults
 
-```json
+```hcl
 variable "external_dns_azure_dns_zone" {
   default = "azure.sandbox.tetrate.io"
 }
