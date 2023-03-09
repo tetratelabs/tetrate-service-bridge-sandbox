@@ -27,6 +27,7 @@ k8s: azure_k8s aws_k8s gcp_k8s  ## Deploys k8s cluster for MP and N-number of CP
 .PHONY: azure_k8s
 azure_k8s: init  ## Deploys azure k8s cluster for MP and N-number of CPs(*) leveraging AKS
 	@/bin/sh -c '\
+		set -e; \
 		index=0; \
 		name_prefix=`jq -r '.name_prefix' terraform.tfvars.json`; \
 		jq -r '.azure_k8s_regions[]' terraform.tfvars.json | while read -r region; do \
@@ -48,6 +49,7 @@ azure_k8s: init  ## Deploys azure k8s cluster for MP and N-number of CPs(*) leve
 .PHONY: aws_k8s
 aws_k8s: init  ## Deploys EKS K8s cluster (CPs only)
 	@/bin/sh -c '\
+		set -e; \
 		index=0; \
 		name_prefix=`jq -r '.name_prefix' terraform.tfvars.json`; \
 		jq -r '.aws_k8s_regions[]' terraform.tfvars.json | while read -r region; do \
@@ -68,6 +70,7 @@ aws_k8s: init  ## Deploys EKS K8s cluster (CPs only)
 .PHONY: gcp_k8s
 gcp_k8s: init  ## Deploys GKE K8s cluster (CPs only)
 	@/bin/sh -c '\
+		set -e; \
 		index=0; \
 		name_prefix=`jq -r '.name_prefix' terraform.tfvars.json`; \
 		jq -r '.gcp_k8s_regions[]' terraform.tfvars.json | while read -r region; do \
@@ -92,6 +95,7 @@ tsb_mp:  ## Deploys MP
 	@$(MAKE) k8s
 	@echo "Deploying TSB Management Plane..."
 	@/bin/sh -c '\
+		set -e; \
 		cloud=`jq -r '.tsb_mp.cloud' terraform.tfvars.json`; \
 		dns_provider=`jq -r '.dns_provider' terraform.tfvars.json`; \
 		[ "$$dns_provider" == "null" ] && dns_provider=`jq -r '.tsb_fqdn' terraform.tfvars.json | cut -d"." -f2 | sed 's/sandbox/gcp/g'`; \
@@ -116,6 +120,7 @@ tsb_cp_%:
 	@echo "Onboarding clusters, i.e. TSB CP rollouts..."
 	@$(MAKE) $*_k8s
 	@/bin/sh -c '\
+		set -e; \
 		index=0; \
 		jq -r '.$*_k8s_regions[]' terraform.tfvars.json | while read -r region; do \
 		echo "cloud=$* region=$$region cluster_id=$$index"; \
@@ -140,6 +145,7 @@ argocd_%:
 	@echo "Deploying ArgoCD..."
 	@$(MAKE) $*_k8s
 	@/bin/sh -c '\
+		set -e; \
 		index=0; \
 		jq -r '.$*_k8s_regions[]' terraform.tfvars.json | while read -r region; do \
 		echo "cloud=$* region=$$region cluster_id=$$index"; \
@@ -160,6 +166,7 @@ monitoring:  ## Deploys the TSB monitoring stack
 	@echo "Deploying TSB monitoring stack..."
 	@$(MAKE) k8s
 	@/bin/sh -c '\
+		set -e; \
 		cd "addons/monitoring"; \
 		terraform workspace select default; \
 		terraform init; \
@@ -175,6 +182,7 @@ external-dns_%:
 	@echo "Deploying external-dns..."
 	@$(MAKE) $*_k8s
 	@/bin/sh -c '\
+		set -e; \
 		index=0; \
 		jq -r '.$*_k8s_regions[]' terraform.tfvars.json | while read -r region; do \
 		echo "cloud=$* region=$$region cluster_id=$$index"; \
@@ -194,6 +202,7 @@ destroy_external-dns_%:
 	@echo "Deploying external-dns..."
 	@$(MAKE) $*_k8s
 	@/bin/sh -c '\
+		set -e; \
 		index=0; \
 		jq -r '.$*_k8s_regions[]' terraform.tfvars.json | while read -r region; do \
 		echo "cloud=$* region=$$region cluster_id=$$index"; \
@@ -214,13 +223,13 @@ destroy: destroy_remote destroy_local
 .PHONY: destroy_remote
 destroy_remote:  ## Destroy the environment
 	@/bin/sh -c '\
+		set -e; \
 		cloud=`jq -r '.tsb_mp.cloud' terraform.tfvars.json`; \
 		fqdn=`jq -r '.tsb_fqdn' terraform.tfvars.json`; \
 		address=`jq -r "if .ingress_ip.value != \"\" then .ingress_ip.value else .ingress_hostname.value end" outputs/terraform_outputs/terraform-tsb-mp.json`; \
 		cd "tsb/fqdn/$$cloud"; \
 		terraform init; \
 		terraform destroy ${terraform_apply_args} -var-file="../../../terraform.tfvars.json" -var=address=$$address -var=fqdn=$$fqdn; \
-		[ $$? -ne 0 ] && exit 1; \
 		rm -rf terraform.tfstate.d/; \
 		rm -rf terraform.tfstate; \
 		cd "../../.."; \
@@ -236,6 +245,7 @@ destroy_local:  ## Destroy the local Terraform state and cache
 
 destroy_%:
 	@/bin/sh -c '\
+		set -e; \
 		index=0; \
 		name_prefix=`jq -r '.name_prefix' terraform.tfvars.json`; \
 		jq -r '.$*_k8s_regions[]' terraform.tfvars.json | while read -r region; do \
@@ -244,7 +254,8 @@ destroy_%:
 		terraform workspace select $*-$$index-$$region; \
 		cluster_name=`terraform output cluster_name | jq . -r`; \
 		terraform destroy ${terraform_destroy_args} -var-file="../../terraform.tfvars.json" -var=$*_k8s_region=$$region -var=cluster_id=$$index -var=cluster_name=$$cluster_name; \
-		[ $$? -eq 0 ] && terraform workspace select default && terraform workspace delete ${terraform_workspace_args} $*-$$index-$$region; \
+		terraform workspace select default; \
+		terraform workspace delete ${terraform_workspace_args} $*-$$index-$$region; \
 		index=$$((index+1)); \
 		cd "../.."; \
 		done; \
