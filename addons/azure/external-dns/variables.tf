@@ -26,10 +26,8 @@ locals {
 }
 
 variable "tetrate_owner" {
-  default = null
 }
 variable "tetrate_team" {
-  default = "tetrate-service-bridge-sandbox"
 }
 variable "tetrate_purpose" {
   default = "demo"

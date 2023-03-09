@@ -1,6 +1,3 @@
-
-
-
 data "aws_availability_zones" "available" {}
 module "eks" {
   source  = "terraform-aws-modules/eks/aws"

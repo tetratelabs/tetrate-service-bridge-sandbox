@@ -106,10 +106,8 @@ variable "preemptible_nodes" {
   default = false
 }
 variable "tetrate_owner" {
-    default = null
 }
 variable "tetrate_team" {
-    default = "tetrate-service-bridge-sandbox"
 }
 variable "tetrate_purpose" {
     default = "demo"

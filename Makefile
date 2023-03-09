@@ -189,7 +189,7 @@ external-dns_%:
 		done; \
 		'
 
-destroy_external-dns: destroy_external-dns_gcp destroy_external-dns_aws destroy_external-dns_azure  ## Destroys external-dns
+destroy_external-dns: destroy_external-dns_gcp destroy_external-dns_aws destroy_external-dns_azure ## Destroys external-dns
 destroy_external-dns_%:
 	@echo "Deploying external-dns..."
 	@$(MAKE) $*_k8s

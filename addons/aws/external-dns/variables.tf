@@ -26,10 +26,8 @@ locals {
 }
 
 variable "tetrate_owner" {
-  default = null
 }
 variable "tetrate_team" {
-  default = "tetrate-service-bridge-sandbox"
 }
 variable "tetrate_purpose" {
   default = "demo"
@@ -69,6 +67,5 @@ variable "external_dns_interval" {
 }
 
 variable "external_dns_aws_dns_zone" {
-  default = "aws.sandbox.tetrate.io"
 }
 
