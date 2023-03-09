@@ -93,7 +93,7 @@ terraform.tfvars.json:
 make external_dns
 ```
 
-or per cloud
+or per cloud, for example GCP:
 
 ```bash
 make external_dns_gcp
@@ -105,7 +105,7 @@ make external_dns_gcp
 make destroy_external_dns
 ```
 
-or per cloud
+or per cloud, for example GCP:
 
 ```bash
 make destroy_external_dns_gcp

@@ -121,14 +121,14 @@ The completion of the above steps will result in:
 
 ## Deployment Scenarios
 
-[Infrastructure Staging](./infra/README.md)<br>
-[TSB Management Plane Rollout](./tsb/README.md#tsb_mp)<br>
-[TSB Control Plane Cluster Onboarding](./tsb/README.md#tsb_cp)<br>
+* [Infrastructure Staging](./infra/README.md)<br>
+* [TSB Management Plane Rollout](./tsb/README.md#tsb_mp)<br>
+* [TSB Control Plane Cluster Onboarding](./tsb/README.md#tsb_cp)<br>
 
 ## Use Cases and Addons
 
-[ArgoCD GitOps](./addons/README.md#argocd)
-[external-dns](./addons/README.md#external-dns)
+* [ArgoCD GitOps](./addons/README.md#argocd)
+* [external-dns](./addons/README.md#external-dns)
 
 ## Destroy
 
