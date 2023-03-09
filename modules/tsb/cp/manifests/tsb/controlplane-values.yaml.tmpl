@@ -35,6 +35,15 @@ spec:
             patches:
               - path: spec.meshConfig.defaultConfig.holdApplicationUntilProxyStarts
                 value: true
+              - path: spec.components.ingressGateways[name:vmgateway].k8s.overlays[-1]
+                value:
+                  apiVersion: v1
+                  kind: Service
+                  name: vmgateway
+                  patches:
+                    - path: metadata.annotations
+                      value:
+                        external-dns.alpha.kubernetes.io/hostname: ${vm_endpoint}
     xcp:
       centralAuthMode: JWT
       configProtection: {}
@@ -78,7 +87,13 @@ spec:
         redis:
           uri: redis-master.${ratelimit_namespace}.svc.cluster.local:6379
     %{ endif }
-  meshExpansion: {}
+  meshExpansion:
+    onboarding:
+      localRepository: {}
+      endpoint:
+        hosts:
+          - ${vm_endpoint}
+        secretName: vm-onboarding
   meshObservability:
     settings:
       apiEndpointMetricsEnabled: true  

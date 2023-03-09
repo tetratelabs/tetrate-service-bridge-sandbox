@@ -89,6 +89,7 @@ resource "helm_release" "controlplane" {
     ratelimit_enabled               = var.ratelimit_enabled
     ratelimit_namespace             = var.ratelimit_namespace
     identity_propagation_enabled    = var.identity_propagation_enabled
+    vm_endpoint                     = "vms.${var.cluster_name}.${regep("[^\\.]*\\.(.*)", var.tsb_fqdn)}"
   })]
 
   set {
