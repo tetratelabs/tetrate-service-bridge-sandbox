@@ -114,3 +114,6 @@ variable "output_path" {
 
 variable "identity_propagation_enabled" {
 }
+
+variable "vm_endpoint" {
+}

@@ -65,6 +65,18 @@ data "local_file" "service_account" {
   depends_on = [null_resource.jumpbox_tctl]
 }
 
+data "kubectl_path_documents" "vm_certs" {
+  pattern = "${path.module}/manifests/cert-manager/vm-onboarding-cert.yaml.tmpl"
+  vars = {
+    vm_endpoint = var.vm_endpoint
+  }
+}
+
+resource "kubectl_manifest" "vm_certs" {
+  count     = length(data.kubectl_path_documents.vm_certs.documents)
+  yaml_body = element(data.kubectl_path_documents.vm_certs.documents, count.index)
+}
+
 resource "helm_release" "controlplane" {
   name                = "controlplane"
   repository          = var.tsb_helm_repository
@@ -89,7 +101,7 @@ resource "helm_release" "controlplane" {
     ratelimit_enabled               = var.ratelimit_enabled
     ratelimit_namespace             = var.ratelimit_namespace
     identity_propagation_enabled    = var.identity_propagation_enabled
-    vm_endpoint                     = "vms.${var.cluster_name}.${regep("[^\\.]*\\.(.*)", var.tsb_fqdn)}"
+    vm_endpoint                     = var.vm_endpoint
   })]
 
   set {

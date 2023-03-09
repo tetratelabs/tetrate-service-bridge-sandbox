@@ -140,3 +140,7 @@ variable "ratelimit_enabled" {
 variable "identity_propagation_enabled" {
   default = false
 }
+
+variable "vm_endpoint" {
+  default = "vms.${var.cluster_name}.${regep("[^\\.]*\\.(.*)", var.tsb_fqdn)}"
+}

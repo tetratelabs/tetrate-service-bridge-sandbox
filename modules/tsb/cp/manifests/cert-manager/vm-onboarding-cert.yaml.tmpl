@@ -1,0 +1,16 @@
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: vm-onboarding
+  namespace: istio-system
+spec:
+  secretName: vm-onboarding
+  duration: 21600h # 900d
+  usages:
+  - server auth
+  dnsNames:
+  - ${vm_endpoint}
+  issuerRef:
+    name: selfsigned-ca
+    kind: ClusterIssuer
