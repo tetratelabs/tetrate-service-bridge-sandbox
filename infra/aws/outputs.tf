@@ -46,3 +46,11 @@ output "locality_region" {
 output "vpc_id" {
   value = module.aws_base[0].vpc_id
 }
+
+output "oidc_provider_arn" {
+  value = module.aws_k8s[0].oidc_provider_arn
+}
+
+output "cluster_oidc_issuer_url" {
+  value = module.aws_k8s[0].cluster_oidc_issuer_url
+}

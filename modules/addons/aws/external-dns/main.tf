@@ -1,5 +1,4 @@
 resource "aws_route53_zone" "cluster" {
-  count  = var.external_dns_enabled == true ? 1 : 0
   name   = "${var.cluster_name}.${var.dns_zone}"
   tags   = merge(var.tags, {
           Name = "${var.cluster_name}.${var.dns_zone}"
@@ -7,17 +6,15 @@ resource "aws_route53_zone" "cluster" {
 }
 
 data "aws_route53_zone" "shared" {
-  count  = local.shared_zone && var.external_dns_enabled == true ? 1 : 0
   name   = var.dns_zone
 }
 
 resource "aws_route53_record" "ns" {
-  count   = local.shared_zone && var.external_dns_enabled == true ? 1 : 0
-  zone_id = data.aws_route53_zone.shared[0].zone_id
-  name    = aws_route53_zone.cluster[0].name
+  zone_id = data.aws_route53_zone.shared.zone_id
+  name    = aws_route53_zone.cluster.name
   type    = "NS"
   ttl     = 300
-  records = aws_route53_zone.cluster[0].name_servers
+  records = aws_route53_zone.cluster.name_servers
 }
 provider "helm" {
   kubernetes {
@@ -29,7 +26,6 @@ provider "helm" {
 
 module "external_dns_helm" {
   source                   = "lablabs/eks-external-dns/aws"
-  enabled                  = var.external_dns_enabled
   argo_enabled             = false
   argo_helm_enabled        = false
   irsa_assume_role_enabled = false
@@ -51,11 +47,34 @@ module "external_dns_helm" {
     "policy": "upsert-only"
     "registry" : "txt"
     "txtOwnerId" : var.cluster_name
-    "domainFilters": [try(aws_route53_zone.cluster[0].name,"")]
+    "domainFilters": [aws_route53_zone.cluster.name]
     "sources": [var.sources]
     "annotationFilter": var.annotation_filter
     "labelFilter": var.label_filter
     "provider" : "aws"
     "interval" : var.interval
   })
+}
+
+resource "local_file" "aws_cleanup" {
+  content = templatefile("${path.module}/external-dns_aws_cleanup.sh.tmpl", {
+    name_prefix   = "eks-${regex(".+-",var.name_prefix)}"
+  })
+  filename        = "${var.output_path}/${var.name_prefix}-external-dns-aws-cleanup.sh"
+  file_permission = "0755"
+}
+
+resource "null_resource" "aws_cleanup" {
+  triggers = {
+    output_path = var.output_path
+    name_prefix = var.name_prefix
+  }
+
+  provisioner "local-exec" {
+    when = destroy
+    command = "sh ${self.triggers.output_path}/${self.triggers.name_prefix}-external-dns-aws-cleanup.sh"
+    on_failure = continue
+  }
+
+  depends_on = [ local_file.aws_cleanup, aws_route53_zone.cluster ]
 }

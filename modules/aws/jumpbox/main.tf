@@ -320,7 +320,6 @@ resource "local_file" "aws_cleanup" {
     vpc_id        = var.vpc_id
     region        = var.region
     registry_name = var.registry_name
-    name_prefix   = "eks-${regex("^[^-]+", var.name_prefix)}"
   })
   filename        = "${var.output_path}/${var.name_prefix}-aws-cleanup.sh"
   file_permission = "0755"
