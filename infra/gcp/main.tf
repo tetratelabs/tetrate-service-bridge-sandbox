@@ -68,20 +68,3 @@ module "gcp_k8s" {
   tags               = local.default_tags
   depends_on         = [module.gcp_jumpbox[0]]
 }
-
-module "external_dns" {
-  source                     = "../../modules/addons/gcp/external-dns"
-  name_prefix                = "${var.name_prefix}-${var.cluster_id}"
-  cluster_name               = module.gcp_k8s[0].cluster_name
-  k8s_host                   = module.gcp_k8s[0].host
-  k8s_cluster_ca_certificate = module.gcp_k8s[0].cluster_ca_certificate
-  k8s_client_token           = module.gcp_k8s[0].token
-  project_id                 = coalesce(var.gcp_project_id, google_project.tsb[0].project_id)
-  dns_zone                   = var.external_dns_gcp_dns_zone
-  sources                    = var.external_dns_sources
-  annotation_filter          = var.external_dns_annotation_filter
-  label_filter               = var.external_dns_label_filter
-  interval                   = var.external_dns_interval
-  tags                       = local.default_tags
-  external_dns_enabled       = var.external_dns_enabled
-}
