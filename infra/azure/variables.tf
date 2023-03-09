@@ -110,27 +110,3 @@ locals {
        "environment"      = var.name_prefix
   }
 }
-
-variable "external_dns_enabled" {
-  default = false
-}
-
-variable "external_dns_annotation_filter" {
-  default = ""
-}
-
-variable "external_dns_label_filter" {
-  default = ""
-}
-
-variable "external_dns_sources" {
-  default = "service"
-}
-
-variable "external_dns_interval" {
-  default = "5s"
-}
-
-variable "external_dns_azure_dns_zone" {
-  default = "azure.sandbox.tetrate.io"
-}

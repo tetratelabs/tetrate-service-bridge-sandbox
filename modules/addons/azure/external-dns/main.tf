@@ -1,5 +1,4 @@
 resource "azurerm_role_assignment" "external_dns" {
-  count                            = var.external_dns_enabled == true ? 1 : 0
   scope                            = var.resource_group_id
   role_definition_name             = "DNS Zone Contributor"
   principal_id                     = var.kubelet_identity[0].object_id
@@ -7,7 +6,6 @@ resource "azurerm_role_assignment" "external_dns" {
 }
 
 resource "azurerm_dns_zone" "cluster" {
-  count               = var.external_dns_enabled == true ? 1 : 0
   resource_group_name = var.resource_group_name
   name                = "${var.cluster_name}.${local.dns_name}"
   tags                = merge(var.tags, {
@@ -16,18 +14,16 @@ resource "azurerm_dns_zone" "cluster" {
 }
 
 data "azurerm_dns_zone" "shared" {
-  count               = local.shared_zone && var.external_dns_enabled == true ? 1 : 0
   resource_group_name = "dns-terraform-sandbox"
   name                = var.dns_zone
 }
 
 resource "azurerm_dns_ns_record" "ns" {
-  count               = local.shared_zone && var.external_dns_enabled == true ? 1 : 0
   name                = "${var.cluster_name}"
-  zone_name           = data.azurerm_dns_zone.shared[0].name
+  zone_name           = data.azurerm_dns_zone.shared.name
   resource_group_name = "dns-terraform-sandbox"
   ttl                 = 300
-  records             = azurerm_dns_zone.cluster[0].name_servers
+  records             = azurerm_dns_zone.cluster.name_servers
   tags                = merge(var.tags, {
           Name = "${var.cluster_name}.${local.dns_name}"
   })
@@ -44,7 +40,6 @@ provider "helm" {
 }
 
 resource "helm_release" "external_dns" {
-  count            = var.external_dns_enabled == true ? 1 : 0
   name             = "external-dns"
   repository       = "https://charts.bitnami.com/bitnami"
   chart            = "external-dns"
@@ -73,7 +68,7 @@ resource "helm_release" "external_dns" {
 
   set {
     name  = "domainFilters"
-    value = "{${azurerm_dns_zone.cluster[0].name}}"
+    value = "{${azurerm_dns_zone.cluster.name}}"
   }
 
   set {

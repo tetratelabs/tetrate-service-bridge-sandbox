@@ -50,22 +50,3 @@ module "azure_k8s" {
   tags                = local.default_tags 
   depends_on          = [module.azure_jumpbox[0]]
 }
-
-module "external_dns" {
-  source                     = "../../modules/addons/azure/external-dns"
-  name_prefix                = "${var.name_prefix}-${var.cluster_id}"
-  cluster_name               = module.azure_k8s[0].cluster_name
-  k8s_host                   = module.azure_k8s[0].host
-  k8s_cluster_ca_certificate = module.azure_k8s[0].cluster_ca_certificate
-  k8s_client_token           = module.azure_k8s[0].token
-  kubelet_identity           = module.azure_k8s[0].kubelet_identity 
-  resource_group_name        = module.azure_base[0].resource_group_name
-  resource_group_id          = module.azure_base[0].resource_group_id
-  dns_zone                   = var.external_dns_azure_dns_zone
-  sources                    = var.external_dns_sources
-  annotation_filter          = var.external_dns_annotation_filter
-  label_filter               = var.external_dns_label_filter
-  interval                   = var.external_dns_interval
-  tags                       = local.default_tags 
-  external_dns_enabled       = var.external_dns_enabled
-}

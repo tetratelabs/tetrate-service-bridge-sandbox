@@ -6,6 +6,9 @@ variable "cluster_name" {
   description = "cluster name"
 }
 
+variable "output_path" {
+}
+
 variable "resource_group_name" {
 }
 
@@ -43,13 +46,7 @@ variable "sources" {
 variable "interval" {
 }
 
-variable "external_dns_enabled" {
-}
-
 locals {
-  shared_zone   = endswith(var.dns_zone, "azure.sandbox.tetrate.io")
-  private_zone  = endswith(var.dns_zone, ".private")
-
   dns_name      = var.dns_zone
   zone_name     = replace(local.dns_name, ".", "-")
 }
