@@ -193,7 +193,7 @@ external-dns_%:
 		terraform apply ${terraform_apply_args} -var-file="../../../terraform.tfvars.json" -var=cloud=$* -var=cluster_id=$$index; \
 		terraform workspace select default; \
 		index=$$((index+1)); \
-		cd "../.."; \
+		cd "../../.."; \
 		done; \
 		'
 
@@ -213,7 +213,7 @@ destroy_external-dns_%:
 		terraform destroy ${terraform_apply_args} -var-file="../../../terraform.tfvars.json" -var=cloud=$* -var=cluster_id=$$index; \
 		terraform workspace select default; \
 		index=$$((index+1)); \
-		cd "../.."; \
+		cd "../../.."; \
 		done; \
 		'
 

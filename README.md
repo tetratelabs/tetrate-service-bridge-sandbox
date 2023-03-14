@@ -14,19 +14,33 @@ The `Makefile` in this directory provides ability to fastforward to anypoint of 
 
 ```mermaid
   graph TD;
-      A[make tsb] --> B[make k8s]
-      B[make k8s] --> C[make aws_k8s]
-      B[make k8s] --> CC[make azure_k8s]
-      B[make k8s] --> CCC[make gcp_k8s]
-      C[make aws_k8s] --> D[make tsb_mp]
-      C[make aws_k8s] --> E[make external-dns_aws]
-      CC[make azure_k8s] --> D[make tsb_mp]
-      CC[make azure_k8s] --> EE[make external-dns_azure]
-      CCC[make gcp_k8s] --> D[make tsb_mp]
-      CCC[make gcp_k8s] --> EEE[make external-dns_gcp]
-      D[make tsb_mp] --> DD[make tsb_cp]
-      D[make tsb_mp] --> G[make argocd]
-      D[make tsb_mp] --> H[make monitoring]
+      tsb[make tsb] --> k8s[make k8s]
+      k8s --> aws[make aws_k8s]
+      k8s --> azure[make azure_k8s]
+      k8s --> gcp[make gcp_k8s]
+      aws --> mp[make tsb_mp]
+      azure --> mp
+      gcp --> mp
+      mp --> cp[make tsb_cp]
+      subgraph Add-Ons
+        monitoring[make monitoring]
+        argocd[make argocd]
+        subgraph external-dns
+          extdns[make external-dns]
+          extdns-aws[make external-dns_aws]
+          extdns-azure[make external-dns_azure]
+          extdns-gcp[make external-dns_gcp]
+         end
+      end
+      cp --> argocd
+      mp --> monitoring
+      aws --> extdns-aws
+      azure --> extdns-azure
+      gcp --> extdns-gcp
+      extdns --> extdns-aws
+      extdns --> extdns-azure
+      extdns --> extdns-gcp
+      style external-dns fill:#fcecbb,font-weight:bold;
 ```
 
 # Getting Started

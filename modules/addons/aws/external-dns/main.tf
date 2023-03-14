@@ -16,6 +16,7 @@ resource "aws_route53_record" "ns" {
   ttl     = 300
   records = aws_route53_zone.cluster.name_servers
 }
+
 provider "helm" {
   kubernetes {
     host                   = var.k8s_host
