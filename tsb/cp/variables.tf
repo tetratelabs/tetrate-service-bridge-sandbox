@@ -142,5 +142,5 @@ variable "identity_propagation_enabled" {
 }
 
 variable "vm_endpoint" {
-  default = "vms.${var.cluster_name}.${regex("[^\\.]*\\.(.*)", var.tsb_fqdn)}"
+  default = null
 }
