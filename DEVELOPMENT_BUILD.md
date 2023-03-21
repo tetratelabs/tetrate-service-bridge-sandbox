@@ -13,6 +13,7 @@ A complete reference example:
 ```json
 {
     "name_prefix": "",
+    "dns_provider": "",
     "tsb_fqdn": "",
     "tsb_version": "1.6.0-dev",
     "tsb_helm_repository": "",
