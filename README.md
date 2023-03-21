@@ -74,6 +74,7 @@ Please refer to [tfvars collection](/tfvars_collection) for more examples, i.e. 
 ```json
 {
   "name_prefix": "<YOUR UNIQUE PREFIX NAME TO BE CREATED>",
+  "dns_provider": "azure",
   "tsb_fqdn": "<YOUR UNIQUE PREFIX NAME TO BE CREATED>.azure.sandbox.tetrate.io",
   "tsb_version": "1.6.0",
   "tsb_image_sync_username": "<TSB_REPO_USERNAME>",
