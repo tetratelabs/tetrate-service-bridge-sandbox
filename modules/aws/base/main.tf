@@ -1,3 +1,4 @@
+data "aws_region" "current" {}
 resource "aws_vpc" "tsb" {
   cidr_block           = var.cidr
   enable_dns_hostnames = true
@@ -66,4 +67,33 @@ resource "aws_ecr_repository" "tsb" {
 }
 
 data "aws_ecr_authorization_token" "token" {
+}
+
+resource "null_resource" "aws_cleanup" {
+  triggers = {
+    output_path = var.output_path
+    name_prefix = var.name_prefix
+  }
+
+  provisioner "local-exec" {
+    when = destroy
+    command = "sh ${self.triggers.output_path}/${self.triggers.name_prefix}-aws-cleanup.sh"
+    on_failure = continue
+  }
+
+  depends_on = [ aws_internet_gateway.tsb ]
+
+}
+
+resource "local_file" "aws_cleanup" {
+  content = templatefile("${path.module}/aws_cleanup.sh.tmpl", {
+    vpc_id        = aws_vpc.tsb.id
+    region        = data.aws_region.current.name
+    registry_name = aws_ecr_repository.tsb.name
+  })
+  filename        = "${var.output_path}/${var.name_prefix}-aws-cleanup.sh"
+  file_permission = "0755"
+  lifecycle {
+    prevent_destroy = true
+  }
 }

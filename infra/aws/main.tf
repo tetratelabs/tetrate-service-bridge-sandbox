@@ -23,6 +23,7 @@ module "aws_base" {
   name_prefix = "${var.name_prefix}-${var.cluster_id}-${random_string.random_id.result}"
   cidr        = cidrsubnet(var.cidr, 4, 4 + tonumber(var.cluster_id))
   tags        = local.default_tags
+  output_path = var.output_path
 }
 
 module "aws_jumpbox" {
@@ -56,4 +57,11 @@ module "aws_k8s" {
   output_path  = var.output_path
   tags         = local.default_tags
   depends_on   = [module.aws_jumpbox[0]]
+}
+
+module "aws_k8s_auth_token" {
+  source       = "../../modules/aws/k8s_auth_token"
+  count        = var.aws_k8s_region == null ? 0 : 1
+  cluster_name = module.aws_k8s[0].cluster_name
+  depends_on = [ module.aws_k8s[0].cluster_name ]
 }
