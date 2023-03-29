@@ -120,8 +120,8 @@ variable "tetrate_customer" {
 }
 locals {
   default_tags = {
-       tetrate_owner     = coalesce(var.tetrate_owner, replace(var.tsb_image_sync_username, "/\\W+/", "-"))
-       tetrate_team      = replace(var.tetrate_team, "/\\W+/", "-")
+       tetrate_owner     = replace(coalesce(var.tetrate_owner, var.tsb_image_sync_username), "/\\W+/", "_"))
+       tetrate_team      = replace(var.tetrate_team, "/\\W+/", "_")
        tetrate_purpose   = var.tetrate_purpose
        tetrate_lifespan  = var.tetrate_lifespan
        tetrate_customer  = var.tetrate_customer
