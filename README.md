@@ -6,11 +6,11 @@
 
 ## About
 
-The intention is to create a go-to demo from deploying underlying infra environment to deploying MP and CP and additional addons around usecases
+The intention is to create a go-to demo from deploying underlying infra environment to deploying MP and CP and additional addons around use-cases.
 
 ## Overview
 
-The `Makefile` in this directory provides ability to fastforward to anypoint of the automated provisioning of the TSB demo
+The `Makefile` in this directory provides ability to fast-forward to any point of the automated provisioning of the TSB demo
 
 ```mermaid
   graph TD;
@@ -37,7 +37,7 @@ The `Makefile` in this directory provides ability to fastforward to anypoint of 
 - (optional) AWS role configured and assumed (Route53 is used for TSB MP FQDN)
 - (optional) Azure role configured and assumed
 - (optional) GCP role configured and assumed `gcloud auth application-default login`
-- please refer for the Cloud [Tagging Requirements](https://github.com/tetrateio/tetrate/blob/master/cloud/docs/misc/tags.md) 
+- please refer for the Cloud [Tagging Requirements](https://github.com/tetrateio/tetrate/blob/master/cloud/docs/gcp/labels.md)
   ```s
        "tetrate:owner"    = var.tetrate_owner
        "tetrate:team"     = var.tetrate_team
@@ -73,8 +73,8 @@ Please refer to [tfvars collection](/tfvars_collection) for more examples, i.e. 
   "aws_k8s_regions": [],
   "azure_k8s_regions": ["eastus"],
   "gcp_k8s_regions": ["us-west1", "us-east1"],
-  "tetrate_owner": "Change me! (https://github.com/tetrateio/tetrate/blob/master/cloud/docs/misc/tags.md)",
-  "tetrate_team": "Change me! (https://github.com/tetrateio/tetrate/blob/master/cloud/docs/misc/tags.md)"
+  "tetrate_owner": "Change me! (https://github.com/tetrateio/tetrate/blob/master/cloud/docs/gcp/labels.md)",
+  "tetrate_team": "Change me! (https://github.com/tetrateio/tetrate/blob/master/cloud/docs/gcp/labels.md)"
 }
 ```
 
@@ -140,7 +140,7 @@ make destroy
 
 For a quicker destroy for development purposes, you can:
 
-- manually delete the clusters via CLI or web consoles 
+- manually delete the clusters via CLI or web consoles
 - run `make destroy_local` to delete the terraform data
 
 ## Dev Environment (Tetrate Internal)
@@ -151,11 +151,11 @@ For a quicker destroy for development purposes, you can:
 
 - Terraform destroys only the resources it created (`make destroy`)
 - Terraform stores the `state` across workspaces in different folders locally
-- Cleanup of aws objects created by K8s loadbalancer services (ELB+SGs) is currently manual effort
+- Cleanup of aws objects created by K8s load balancer services (ELB+SGs) is currently manual effort
 - When using GCP, it is possible to use the DNS of the current project instead of the shared one. This may
   be convenient if you don't have permissions to create DNS records in the shared DNS project. To have the
   DNS records created in your project, just use any `fqdn` you want that ends in `.private`. Note that
-  `.private` domains won't work in multicluster scenarios, since XCP Edges need a public name to connect to
+  `.private` domains won't work in multi-cluster scenarios, since XCP Edges need a public name to connect to
   Central.
   Alternatively, if you own a domain that you can point to your GCP project, you can use any `fqdn` as long
   as it does _not_ have the shared DNS suffix (gcp.sandbox.tetrate.io). In this case a public DNS zone will be
