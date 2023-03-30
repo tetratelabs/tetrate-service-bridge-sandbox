@@ -2,7 +2,7 @@
 
 # Default variables
 terraform_apply_args = -compact-warnings -auto-approve
-terraform_destroy_args = -compact-warnings -auto-approve 
+terraform_destroy_args = -compact-warnings -auto-approve
 terraform_workspace_args = -force
 terraform_output_args = -json
 
@@ -22,7 +22,11 @@ init:  ## Terraform init
 	@echo "Please refer to the latest instructions and terraform.tfvars.json file format at https://github.com/tetrateio/tetrate-service-bridge-sandbox#usage"
 
 .PHONY: k8s
-k8s: azure_k8s aws_k8s gcp_k8s  ## Deploys k8s cluster for MP and N-number of CPs(*) 
+k8s: azure_k8s aws_k8s gcp_k8s  ## Deploys k8s cluster for MP and N-number of CPs(*)
+
+## ocp						deploys ocp cluster for MP and N-number of CPs(*)
+.PHONY: ocp
+ocp: gcp_ocp 				# TODO: azure_ocp aws_ocp
 
 .PHONY: azure_k8s
 azure_k8s: init  ## Deploys azure k8s cluster for MP and N-number of CPs(*) leveraging AKS
@@ -82,6 +86,28 @@ gcp_k8s: init  ## Deploys GKE K8s cluster (CPs only)
 		terraform output ${terraform_output_args} | jq . > ../../outputs/terraform_outputs/terraform-gcp-$$cluster_name-$$index.json; \
 		terraform workspace select default; \
 		index=$$((index+1)); \
+		cd "../.."; \
+		done; \
+		'
+
+## gcp_ocp					 deploys GKE ocp cluster (CPs only)
+.PHONY: gcp_ocp
+gcp_ocp: init
+	@/bin/sh -c '\
+		index=0; \
+		name_prefix=`jq -r '.name_prefix' terraform.tfvars.json`; \
+		jq -r '.gcp_ocp_regions[]' terraform.tfvars.json | while read -r region; do \
+		cluster_name="gke-$$name_prefix-$$region-$$index"; \
+		echo "cloud=gcp region=$$region cluster_id=$$index cluster_name=$$cluster_name"; \
+		cd "infra/gcp_ocp"; \
+		terraform workspace new gcp-$$index-$$region; \
+		terraform workspace select gcp-$$index-$$region; \
+		terraform init; \
+		terraform apply ${terraform_apply_args} -target module.gcp_ocp_base -var-file="../../terraform.tfvars.json" -var=gcp_ocp_region=$$region -var=cluster_name=$$cluster_name -var=cluster_id=$$index; \
+		terraform apply ${terraform_apply_args} -var-file="../../terraform.tfvars.json" -var=gcp_ocp_region=$$region -var=cluster_name=$$cluster_name -var=cluster_id=$$index; -var-file="../../ocp_pull_secret.json" \
+		terraform output ${terraform_output_args} | jq . > ../../outputs/terraform_outputs/terraform-gcp-$$cluster_name-$$index.json; \
+		terraform workspace select default; \
+		let index++; \
 		cd "../.."; \
 		done; \
 		'

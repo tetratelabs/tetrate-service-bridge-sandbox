@@ -1,0 +1,136 @@
+#cloud-config
+repo_update: true
+repo_upgrade: all
+package_update: true
+package_upgrade: true
+packages:
+  - language-pack-en
+  - docker.io
+  - nginx
+  - tmux
+  - vim
+  - jq
+  - awscli
+  - gcloud
+  - skopeo
+
+users:
+  - default
+  - name: ${jumpbox_username}
+    gecos: TSB
+    lock_passwd: true
+    shell: /bin/bash
+    sudo: ALL=(ALL) NOPASSWD:ALL
+    groups: admin, docker
+    ssh_authorized_keys:
+      - ${pubkey}
+
+write_files:
+  - content: |
+      #!/bin/sh
+      curl -Lo "/usr/local/bin/tctl" "https://binaries.dl.tetrate.io/public/raw/versions/linux-amd64-${tsb_version}/tctl"
+      chmod +x "/usr/local/bin/tctl"
+      cp /usr/local/bin/tctl /usr/share/nginx/html/
+      curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
+      install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl
+      ${docker_login}
+      tctl install image-sync \
+        --username "${tsb_image_sync_username}" \
+        --apikey "${tsb_image_sync_apikey}" \
+        --registry "${registry}" \
+        --accept-eula \
+        --parallel
+      touch /tmp/cloud-init.done
+    path: /opt/bootstrap.sh
+    permissions: 0755
+
+  - content: |
+      ubuntu ALL=(ALL) NOPASSWD:ALL
+    path: /etc/sudoers.d/ubuntu
+
+  - content: |
+      apiVersion: v1
+      baseDomain: ${gcp_dns_domain}
+      compute:
+        - hyperthreading: Enabled
+          name: worker
+          platform: {}
+          replicas: 3
+      controlPlane:
+        hyperthreading: Enabled
+        name: master
+        platform: {}
+        replicas: 3
+      metadata:
+        creationTimestamp: null
+        name: ${cluster_name}
+      networking:
+        clusterNetwork:
+          - cidr: 10.128.0.0/14
+            hostPrefix: 23
+        machineCIDR: 10.0.0.0/16
+        networkType: OpenShiftSDN
+        serviceNetwork:
+          - 172.30.0.0/16
+      platform:
+        gcp:
+          ProjectID: ${project_id}
+          region: ${region}
+      publish: External
+      pullSecret: '${ocp_pull_secret}'
+      sshKey: |
+        ${pubkey}
+    path: /opt/ocp/files/install-config.yaml
+
+  - content: ${google_service_account}
+    path: /opt/ocp/google_service_account.json
+
+  - content: |
+      #!/bin/sh
+      FILES_PATH=/opt/ocp/files
+      mkdir -p $FILES_PATH
+      touch $FILES_PATH/install.log
+      echo "Starting OCP logs" >> $FILES_PATH/install.log
+      OC_INSTALLER_URL=https://mirror.openshift.com/pub/openshift-v4/x86_64/clients/ocp/4.10.33/openshift-install-linux-4.10.33.tar.gz
+      OC_VERSION=4.10.33
+      CLUSTER_NAME=${cluster_name}
+      mkdir -p $FILES_PATH/$CLUSTER_NAME
+      TAG_PROJECT=${project_id}
+      TAG_ENVIRONMENT=dev
+      TAG_OWNER=${tetrate_owner}
+      GCP_DNS_DOMAIN=${gcp_dns_domain}
+      GCP_REGION=${region}
+      echo "GCP_REGION=${region}" >> $FILES_PATH/install.log
+      GCP_PROJECT_ID=${project_id}
+      # PULL_SECRET="$(cat /opt/ocp/ocp_pull_secret.json)"
+      # echo "PULL_SECRET: $PULL_SECRET" >> $FILES_PATH/install.log
+      # envsubst '$OCP_PULL_SECRET' < $FILES_PATH/../gcp-install-config.yaml > $FILES_PATH/install-config.yaml
+      # echo "SSH_KEY: $(cat ~/.ssh/authorized_keys | tail -1)" >> $FILES_PATH/install.log
+      # SSH_KEY=$(cat ~/.ssh/authorized_keys | tail -1)
+      # echo "SSH_KEY: $SSH_KEY" >> $FILES_PATH/install.log
+      # envsubst '$SSH_KEY' < $FILES_PATH/install-config.yaml > $FILES_PATH/install-config.yaml
+      curl -sLk -o $FILES_PATH/openshift-installer.tar.gz --url $OC_INSTALLER_URL
+      tar xf $FILES_PATH/openshift-installer.tar.gz -C $FILES_PATH
+      export GCLOUD_KEYFILE_JSON=/opt/ocp/google_service_account.json
+      echo "GCLOUD_KEYFILE_JSON: $GCLOUD_KEYFILE_JSON" >> $FILES_PATH/install.log
+      # export GOOGLE_APPLICATION_CREDENTIALS=/opt/ocp/google_service_account.json
+      # echo "GOOGLE_APPLICATION_CREDENTIALS: $GOOGLE_APPLICATION_CREDENTIALS" >> $FILES_PATH/install.log
+      cd $FILES_PATH/$CLUSTER_NAME
+      # echo | pwd >> $FILES_PATH/install.log
+      cp /opt/ocp/files/install-config.yaml .
+      gcloud auth activate-service-account --key-file=$GCLOUD_KEYFILE_JSON >> $FILES_PATH/install.log
+      echo "Installing OpenShift..." >> $FILES_PATH/install.log
+      ../openshift-install create cluster --dir $FILES_PATH/$CLUSTER_NAME --log-level=debug >> $FILES_PATH/install.log
+      echo "Admin kubeconfig available at $FILES_PATH/$CLUSTER_NAME/auth/kubeconfig" >> $FILES_PATH/install.log
+      echo "Password for kubeadmin user at $FILES_PATH/$CLUSTER_NAME/auth/kubeadmin-password" >> $FILES_PATH/install.log
+      touch /tmp/cloud-init.done
+    path: /opt/ocp/install_ocp.sh
+    permissions: 0755
+
+  - content: |
+      ubuntu ALL=(ALL) NOPASSWD:ALL
+    path: /etc/sudoers.d/ubuntu
+
+runcmd:
+  - /opt/bootstrap.sh
+  - /opt/ocp/install_ocp.sh
