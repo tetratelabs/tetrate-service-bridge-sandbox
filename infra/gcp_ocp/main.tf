@@ -54,23 +54,11 @@ module "gcp_ocp_jumpbox" {
   tags                    = local.default_tags
   ocp_pull_secret         = file("${path.module}/../../ocp_pull_secret.json")
   gcp_dns_domain          = var.gcp_dns_domain
-  cluster_name            = var.cluster_name
+  # cluster_name            = var.cluster_name
+  cluster_name            = coalesce(var.cluster_name, "gke-${var.gcp_ocp_region}-${var.name_prefix}")
+  preemptible_nodes       = var.preemptible_nodes
+  k8s_version             = var.gcp_gke_k8s_version
   ssh_key                 = var.ssh_key
   google_service_account  = var.google_service_account
+  compute_zone            = var.compute_zone
 }
-
-# module "gcp_ocp" {
-#   source             = "../../modules/gcp/k8s"
-#   count              = var.gcp_k8s_region == null ? 0 : 1
-#   name_prefix        = "${var.name_prefix}-${var.cluster_id}"
-#   cluster_name       = coalesce(var.cluster_name, "gke-${var.gcp_k8s_region}-${var.name_prefix}")
-#   project_id         = coalesce(var.gcp_project_id, google_project.tsb[0].project_id)
-#   vpc_id             = module.gcp_base[0].vpc_id
-#   vpc_subnet         = module.gcp_base[0].vpc_subnets[0]
-#   region             = var.gcp_k8s_region
-#   preemptible_nodes  = var.preemptible_nodes
-#   k8s_version        = var.gcp_gke_k8s_version
-#   output_path        = var.output_path
-#   tags               = local.default_tags
-#   depends_on         = [module.gcp_jumpbox[0]]
-# }

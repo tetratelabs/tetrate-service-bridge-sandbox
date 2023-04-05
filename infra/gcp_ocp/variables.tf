@@ -125,6 +125,10 @@ variable "myaccount" {
   default = ""
 }
 
+variable "compute_zone" {
+  default = "us-west1-a"
+}
+
 variable "preemptible_nodes" {
   default = false
 }
@@ -141,6 +145,7 @@ variable "tetrate_lifespan" {
 variable "tetrate_customer" {
     default = "internal"
 }
+
 locals {
   default_tags = {
        tetrate_owner     = coalesce(var.tetrate_owner, replace(var.tsb_image_sync_username, "/\\W+/", "-"))

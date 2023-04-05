@@ -24,10 +24,6 @@ init:  ## Terraform init
 .PHONY: k8s
 k8s: azure_k8s aws_k8s gcp_k8s  ## Deploys k8s cluster for MP and N-number of CPs(*)
 
-## ocp						deploys ocp cluster for MP and N-number of CPs(*)
-.PHONY: ocp
-ocp: gcp_ocp 				# TODO: azure_ocp aws_ocp
-
 .PHONY: azure_k8s
 azure_k8s: init  ## Deploys azure k8s cluster for MP and N-number of CPs(*) leveraging AKS
 	@/bin/sh -c '\
@@ -90,7 +86,13 @@ gcp_k8s: init  ## Deploys GKE K8s cluster (CPs only)
 		done; \
 		'
 
-## gcp_ocp					 deploys GKE ocp cluster (CPs only)
+# Start of Openshift goals ---------------------------------------------
+
+## ocp						deploys ocp cluster for MP and N-number of CPs(*)
+.PHONY: ocp
+ocp: gcp_ocp 				# TODO: azure_ocp aws_ocp
+
+## gcp_ocp					 deploys GKE ocp cluster
 .PHONY: gcp_ocp
 gcp_ocp: init
 	@/bin/sh -c '\
@@ -107,10 +109,91 @@ gcp_ocp: init
 		terraform apply ${terraform_apply_args} -var-file="../../terraform.tfvars.json" -var=gcp_ocp_region=$$region -var=cluster_name=$$cluster_name -var=cluster_id=$$index; -var-file="../../ocp_pull_secret.json" \
 		terraform output ${terraform_output_args} | jq . > ../../outputs/terraform_outputs/terraform-gcp-$$cluster_name-$$index.json; \
 		terraform workspace select default; \
-		let index++; \
+		index=$$((index+1)); \
 		cd "../.."; \
 		done; \
 		'
+
+## gcp_ocp					 Destroys GKE ocp cluster
+.PHONY: destroy_gcp_ocp
+destroy_gcp_ocp:
+	@/bin/sh -c '\
+		index=0; \
+		name_prefix=`jq -r '.name_prefix' terraform.tfvars.json`; \
+		jq -r '.gcp_ocp_regions[]' terraform.tfvars.json | while read -r region; do \
+		cluster_name="gke-$$name_prefix-$$region-$$index"; \
+		echo "cloud=gcp region=$$region cluster_id=$$index cluster_name=$$cluster_name"; \
+		cd "infra/gcp_ocp"; \
+		terraform workspace select gcp-$$index-$$region; \
+		terraform destroy ${terraform_destroy_args} -var-file="../../terraform.tfvars.json" -var=gcp_ocp_regions=$$region -var=cluster_name=$$cluster_name -var=cluster_id=$$index; \
+		terraform workspace select default; \
+		terraform workspace delete ${terraform_workspace_args} gcp-$$index-$$region; \
+		index=$$((index+1)); \
+		cd "../.."; \
+		done; \
+		'
+
+.PHONY: ocp_tsb_mp
+ocp_tsb_mp:  ## Deploys MP on the OCP cluster
+	@echo "Refreshing ocp access tokens..."
+	@$(MAKE) ocp
+	@echo "Deploying TSB Management Plane on Openshift..."
+	@/bin/sh -c '\
+		cloud=`jq -r '.tsb_mp.cloud' terraform.tfvars.json`; \
+		dns_provider=`jq -r '.dns_provider' terraform.tfvars.json`; \
+		[ "$$dns_provider" == "null" ] && dns_provider=`jq -r '.tsb_fqdn' terraform.tfvars.json | cut -d"." -f2 | sed 's/sandbox/gcp/g'`; \
+		cd "tsb/mp"; \
+		terraform workspace select default; \
+		terraform init; \
+		terraform apply ${terraform_apply_args} -target=module.cert-manager -target=module.es -target="data.terraform_remote_state.infra" -var-file="../../terraform.tfvars.json"; \
+		terraform apply ${terraform_apply_args} -target=module.tsb_mp.kubectl_manifest.manifests_certs -target="data.terraform_remote_state.infra" -var-file="../../terraform.tfvars.json"; \
+		terraform apply ${terraform_apply_args} -var-file="../../terraform.tfvars.json"; \
+		terraform output ${terraform_output_args} | jq . > ../../outputs/terraform_outputs/terraform-tsb-mp.json; \
+		fqdn=`jq -r '.tsb_fqdn' ../../terraform.tfvars.json`; \
+		address=`jq -r "if .ingress_ip.value != \"\" then .ingress_ip.value else .ingress_hostname.value end" ../../outputs/terraform_outputs/terraform-tsb-mp.json`; \
+		terraform -chdir=../fqdn/$$dns_provider init; \
+		terraform -chdir=../fqdn/$$dns_provider apply ${terraform_apply_args} -var-file="../../../terraform.tfvars.json" -var=address=$$address -var=fqdn=$$fqdn; \
+		terraform workspace select default; \
+		cd "../.."; \
+		'
+
+.PHONY: ocp_tsb_cp
+ocp_tsb_cp: ocp_tsb_cp_gcp # tsb_cp_aws tsb_cp_azure  ## Onboards Control Plane clusters
+ocp_tsb_cp_%:
+	@echo "Onboarding OCP clusters, i.e. TSB CP rollouts..."
+	@$(MAKE) $*_ocp
+	@/bin/sh -c '\
+		index=0; \
+		jq -r '.$*_ocp_regions[]' terraform.tfvars.json | while read -r region; do \
+		echo "cloud=$* region=$$region cluster_id=$$index"; \
+		cd "tsb/cp"; \
+		terraform workspace new $*-$$index-$$region; \
+		terraform workspace select $*-$$index-$$region; \
+		terraform init; \
+		terraform apply ${terraform_apply_args} -var-file="../../terraform.tfvars.json" -var=cloud=$* -var=cluster_id=$$index; \
+		terraform workspace select default; \
+		index=$$((index+1)); \
+		cd "../.."; \
+		done; \
+		'
+
+destroy_%:
+	@/bin/sh -c '\
+		index=0; \
+		name_prefix=`jq -r '.name_prefix' terraform.tfvars.json`; \
+		jq -r '.$*_ocp_regions[]' terraform.tfvars.json | while read -r region; do \
+		echo "cloud=$* region=$$region cluster_id=$$index"; \
+		cd "infra/$*_ocp"; \
+		terraform workspace select $*-$$index-$$region; \
+		cluster_name=`terraform output cluster_name | jq . -r`; \
+		terraform destroy ${terraform_destroy_args} -var-file="../../terraform.tfvars.json" -var=$*_ocp_region=$$region -var=cluster_id=$$index -var=cluster_name=$$cluster_name; \
+		[ $$? -eq 0 ] && terraform workspace select default && terraform workspace delete ${terraform_workspace_args} $*-$$index-$$region; \
+		index=$$((index+1)); \
+		cd "../.."; \
+		done; \
+		'
+
+# End of Openshift goals ---------------------------------------------
 
 .PHONY: tsb_mp
 tsb_mp:  ## Deploys MP
@@ -217,7 +300,7 @@ external-dns_%:
 
 destroy_external-dns: destroy_external-dns_gcp destroy_external-dns_aws destroy_external-dns_azure ## Destroys external-dns
 destroy_external-dns_%:
-	@echo "Deploying external-dns..."
+	@echo "Destroying external-dns..."
 	@$(MAKE) $*_k8s
 	@/bin/sh -c '\
 		index=0; \
@@ -235,7 +318,7 @@ destroy_external-dns_%:
 		'
 
 .PHONY: destroy
-destroy: destroy_remote destroy_local
+destroy: destroy_remote destroy_local # destroy_gcp_ocp
 
 .PHONY: destroy_remote
 destroy_remote:  ## Destroy the environment

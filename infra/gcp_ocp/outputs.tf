@@ -20,22 +20,22 @@ output "pkey" {
   sensitive = true
 }
 
-# output "cluster_name" {
-#   value = module.gcp_ocp[0].cluster_name
-# }
+output "cluster_name" {
+  value = module.gcp_ocp_jumpbox[0].cluster_name
+}
 
 # output "host" {
-#   value     = module.gcp_ocp[0].host
+#   value     = module.gcp_ocp_jumpbox[0].host
 #   sensitive = true
 # }
 
 # output "cluster_ca_certificate" {
-#   value     = module.gcp_ocp[0].cluster_ca_certificate
+#   value     = module.gcp_ocp_jumpbox[0].cluster_ca_certificate
 #   sensitive = true
 # }
 
 # output "token" {
-#   value     = module.gcp_ocp[0].token
+#   value     = module.gcp_ocp_jumpbox[0].token
 #   sensitive = true
 # }
 

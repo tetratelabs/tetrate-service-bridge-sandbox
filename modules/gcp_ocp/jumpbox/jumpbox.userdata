@@ -87,7 +87,7 @@ write_files:
 
   - content: |
       #!/bin/sh
-      FILES_PATH=/opt/ocp/files
+      export FILES_PATH=/opt/ocp/files
       mkdir -p $FILES_PATH
       touch $FILES_PATH/install.log
       echo "Starting OCP logs" >> $FILES_PATH/install.log
@@ -120,9 +120,12 @@ write_files:
       cp /opt/ocp/files/install-config.yaml .
       gcloud auth activate-service-account --key-file=$GCLOUD_KEYFILE_JSON >> $FILES_PATH/install.log
       echo "Installing OpenShift..." >> $FILES_PATH/install.log
-      ../openshift-install create cluster --dir $FILES_PATH/$CLUSTER_NAME --log-level=debug >> $FILES_PATH/install.log
+      ../openshift-install create cluster --dir $FILES_PATH/$CLUSTER_NAME --log-level debug >> $FILES_PATH/install.log
+      cat $FILES_PATH/$CLUSTER_NAME/.openshift_install.log >> $FILES_PATH/install.log
+      echo "OpenShift installed finalized..." >> $FILES_PATH/install.log
       echo "Admin kubeconfig available at $FILES_PATH/$CLUSTER_NAME/auth/kubeconfig" >> $FILES_PATH/install.log
       echo "Password for kubeadmin user at $FILES_PATH/$CLUSTER_NAME/auth/kubeadmin-password" >> $FILES_PATH/install.log
+      echo "OCP UI should be available at: https://console-openshift-console.apps.${cluster_name}.${gcp_dns_domain}/""
       touch /tmp/cloud-init.done
     path: /opt/ocp/install_ocp.sh
     permissions: 0755

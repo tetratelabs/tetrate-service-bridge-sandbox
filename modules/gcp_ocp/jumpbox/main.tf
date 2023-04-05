@@ -2,6 +2,14 @@
 
 ## Public DNS Zone and domain validation
 
+data "google_dns_managed_zone" "zone" {
+  # project = "dns-terraform-sandbox"
+  # name    = "gcp-sandbox-tetrate-io"
+  count = local.shared_zone ? 1 : 0
+  project = "dns-terraform-sandbox"
+  name = local.zone_name
+}
+
 resource "google_dns_managed_zone" "ocp" {
   name       = "${var.name_prefix}-gcp-sandbox-tetrate-io"
   dns_name   = "${var.name_prefix}.gcp.sandbox.tetrate.io."
@@ -9,20 +17,22 @@ resource "google_dns_managed_zone" "ocp" {
   depends_on = [google_project_service.project-dns]
 }
 
-data "google_dns_managed_zone" "zone" {
-  project = "dns-terraform-sandbox"
-  name    = "gcp-sandbox-tetrate-io"
-}
-
 resource "google_dns_record_set" "ocp_ns" {
-  managed_zone = data.google_dns_managed_zone.zone.name
+  count = local.shared_zone ? 1 : 0
   project = "dns-terraform-sandbox"
+  managed_zone = data.google_dns_managed_zone.zone[0].name
+
   name         = google_dns_managed_zone.ocp.dns_name
   type         = "NS"
   ttl          = 300
-
   rrdatas = google_dns_managed_zone.ocp.name_servers
   depends_on = [google_dns_managed_zone.ocp]
+
+  # name = "${var.fqdn}."
+  # type = "A"
+  # ttl  = 300
+
+  # rrdatas = [data.dns_a_record_set.tsb.addrs[0]]
 }
 
 data "google_compute_subnetwork" "wait_for_compute_apis_to_be_ready" {
@@ -289,6 +299,7 @@ resource "google_compute_instance" "jumpbox" {
       region                  = var.region
       ssh_key                 = var.ssh_key
       tetrate_owner           = var.tetrate_owner
+      compute_zone            = var.compute_zone
       google_service_account  = jsonencode(base64decode(google_service_account_key.mykey.private_key))
     })
   }
@@ -312,11 +323,12 @@ resource "google_compute_instance" "jumpbox" {
 resource "null_resource" "gcp_cleanup" {
   triggers = {
     project_id = var.project_id
+    compute_zone = var.compute_zone
   }
 
   provisioner "local-exec" {
     when = destroy
-    command = "sh ${path.module}/gcp-cleanup.sh ${self.triggers.project_id}"
+    command = "sh ${path.module}/gcp-cleanup.sh ${self.triggers.project_id} ${self.triggers.compute_zone} ${self.triggers.name_prefix} ${self.triggers.cluster_name}"
     on_failure = continue
   }
   depends_on = [ tls_private_key.generated ]
@@ -351,7 +363,12 @@ resource "local_file" "ssh_jumpbox" {
 # }
 # WIP: generate sh script to get ocp kubeconfig
 resource "local_file" "get_ocp_kubeconfig" {
-  content         = "/bin/sh gcloud compute scp ${var.name_prefix}-jumpbox:/opt/ocp/files/${var.cluster_name}/auth/kubeconfig ."
+  # content         = "/bin/sh gcloud config set project ${self.triggers.project_id} gcloud compute scp --zone ${google_compute_instance.jumpbox.zone} ${var.name_prefix}-jumpbox:/opt/ocp/files/${var.cluster_name}/auth/kubeconfig ."
+  content = <<-EOT
+    #/bin/sh
+    gcloud config set project ${var.project_id}
+    gcloud compute scp --zone ${google_compute_instance.jumpbox.zone} ${var.name_prefix}-jumpbox:/opt/ocp/files/${var.cluster_name}/auth/kubeconfig .
+  EOT
   filename        = "${var.output_path}/get-ocp-${var.name_prefix}-kubeconfig.sh"
   file_permission = "0755"
 }

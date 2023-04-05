@@ -5,6 +5,9 @@ variable "name_prefix" {
 variable "region" {
 }
 
+variable "compute_zone" {
+}
+
 variable "project_id" {
 }
 
@@ -75,8 +78,11 @@ variable "fqdn" {
   default = "gcp.sandbox.tetrate.io"
 }
 
-variable "address" {
-  default = "gcp.sandbox.tetrate.io."
+variable "preemptible_nodes" {
+  default = false
+}
+
+variable "k8s_version" {
 }
 
 variable "ssh_user" {
@@ -89,4 +95,14 @@ variable "ssh_pub_key_file" {
 
 variable "tetrate_owner" {
   default = "michael@tetrate.io"
+}
+
+locals {
+  shared_zone   = endswith(var.fqdn, "sandbox.tetrate.io")
+  private_zone  = endswith(var.fqdn, ".private")
+  public_zone   = !local.shared_zone && !local.private_zone
+
+  # If the dns_zone is not set, remove the first part of the FQDN and use it
+  dns_name      = coalesce(var.dns_zone, replace(var.fqdn, "/^[^\\.]+\\./", ""))
+  zone_name     = replace(local.dns_name, ".", "-")
 }
