@@ -115,7 +115,7 @@ tsb_mp:  ## Deploys MP
 		'
 
 .PHONY: tsb_cp
-tsb_cp: tsb_cp_gcp tsb_cp_aws tsb_cp_azure  ## Onboards Control Plane clusters
+tsb_cp: tsb_cp_aws tsb_cp_azure tsb_cp_gcp ## Onboards Control Plane clusters
 tsb_cp_%:
 	@echo "Onboarding clusters, i.e. TSB CP rollouts..."
 	@$(MAKE) $*_k8s
@@ -140,7 +140,7 @@ tsb: k8s tsb_mp tsb_cp  ## Deploys a full environment (MP+CP)
 	@echo "Magic is on the way..."
 
 .PHONY: argocd
-argocd: argocd_gcp argocd_aws argocd_azure  ## Deploys ArgoCD
+argocd: argocd_aws argocd_azure argocd_gcp ## Deploys ArgoCD
 argocd_%:
 	@echo "Deploying ArgoCD..."
 	@$(MAKE) $*_k8s
@@ -177,7 +177,7 @@ monitoring:  ## Deploys the TSB monitoring stack
 		'
 
 .PHONY: external-dns
-external-dns: external-dns_gcp external-dns_aws external-dns_azure  ## Deploys external-dns
+external-dns: external-dns_aws external-dns_azure external-dns_gcp ## Deploys external-dns
 external-dns_%:
 	@echo "Deploying external-dns..."
 	@$(MAKE) $*_k8s
@@ -197,7 +197,7 @@ external-dns_%:
 		done; \
 		'
 
-destroy_external-dns: destroy_external-dns_gcp destroy_external-dns_aws destroy_external-dns_azure ## Destroys external-dns
+destroy_external-dns: destroy_external-dns_aws destroy_external-dns_azure destroy_external-dns_gcp ## Destroys external-dns
 destroy_external-dns_%:
 	@echo "Deploying external-dns..."
 	@$(MAKE) $*_k8s
@@ -235,7 +235,7 @@ destroy_remote:  ## Destroy the environment
 		cd "../../.."; \
 		'
 	@$(MAKE) destroy_external-dns
-	@$(MAKE) destroy_gcp destroy_aws destroy_azure
+	@$(MAKE) destroy_aws destroy_azure destroy_gcp
 
 .PHONY: destroy_local
 destroy_local:  ## Destroy the local Terraform state and cache
