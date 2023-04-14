@@ -1,7 +1,7 @@
 {
     "name_prefix": "<YOUR UNIQUE PREFIX NAME TO BE CREATED>",
     "dns_provider": "aws",
-    "tsb_fqdn": "<YOUR UNIQUE PREFIX NAME TO BE CREATED>.sandbox.tetrate.io",
+    "tsb_fqdn": "<YOUR UNIQUE PREFIX NAME TO BE CREATED>.<YOUR_AWS_ACCT_PREFIX>.sandbox.tetrate.io",
     "tsb_version": "1.6.0",
     "tsb_image_sync_username": "<TSB_REPO_USERNAME>",
     "tsb_image_sync_apikey": "<TSB_REPO_APIKEY>",
