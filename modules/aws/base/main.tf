@@ -93,7 +93,8 @@ resource "local_file" "aws_cleanup" {
   })
   filename        = "${var.output_path}/${var.name_prefix}-aws-cleanup.sh"
   file_permission = "0755"
+  
   lifecycle {
-    prevent_destroy = true
+    create_before_destroy = true
   }
 }
