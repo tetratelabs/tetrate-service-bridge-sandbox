@@ -13,5 +13,3 @@ variable "azure_k8s_region" {
 locals {
   k8s_region = var.azure_k8s_region
 }
-
-  
