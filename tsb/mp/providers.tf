@@ -8,23 +8,23 @@ terraform {
 }
 
 provider "kubernetes" {
-  host                   = local.infra["outputs"].host
-  cluster_ca_certificate = base64decode(local.infra["outputs"].cluster_ca_certificate)
-  token                  = local.infra["outputs"].token
+  host                   = data.terraform_remote_state.infra.outputs.host
+  cluster_ca_certificate = base64decode(data.terraform_remote_state.infra.outputs.cluster_ca_certificate)
+  token                  = data.terraform_remote_state.infra.outputs.token
 }
 
 provider "helm" {
   kubernetes {
-    host                   = local.infra["outputs"].host
-    cluster_ca_certificate = base64decode(local.infra["outputs"].cluster_ca_certificate)
-    token                  = local.infra["outputs"].token
+    host                   = data.terraform_remote_state.infra.outputs.host
+    cluster_ca_certificate = base64decode(data.terraform_remote_state.infra.outputs.cluster_ca_certificate)
+    token                  = data.terraform_remote_state.infra.outputs.token
   }
 }
 
 provider "kubectl" {
-  host                   = local.infra["outputs"].host
-  cluster_ca_certificate = base64decode(local.infra["outputs"].cluster_ca_certificate)
-  token                  = local.infra["outputs"].token
+  host                   = data.terraform_remote_state.infra.outputs.host
+  cluster_ca_certificate = base64decode(data.terraform_remote_state.infra.outputs.cluster_ca_certificate)
+  token                  = data.terraform_remote_state.infra.outputs.token
   load_config_file       = false
 }
 

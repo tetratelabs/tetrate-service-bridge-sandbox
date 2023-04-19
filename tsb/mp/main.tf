@@ -8,7 +8,7 @@ data "terraform_remote_state" "infra" {
 data "terraform_remote_state" "k8s_auth" {
   backend = "local"
   config = {
-    path = "../../infra/k8s_auth/${var.tsb_mp["cloud"]}/k8s_auth/terraform.tfstate.d/${var.tsb_mp["cloud"]}-${var.tsb_mp["cluster_id"]}-${local.k8s_regions[tonumber(var.tsb_mp["cluster_id"])]}/terraform.tfstate"
+    path = "../../infra/${var.tsb_mp["cloud"]}/k8s_auth/terraform.tfstate.d/${var.tsb_mp["cloud"]}-${var.tsb_mp["cluster_id"]}-${local.k8s_regions[tonumber(var.tsb_mp["cluster_id"])]}/terraform.tfstate"
   }
 }
 
