@@ -14,18 +14,18 @@ data "terraform_remote_state" "k8s_auth" {
 
 module "cert-manager" {
   source                     = "../../modules/addons/cert-manager"
-  cluster_name               = data.terraform_remote_state.infra.cluster_name
-  k8s_host                   = data.terraform_remote_state.infra.host
-  k8s_cluster_ca_certificate = data.terraform_remote_state.infra.cluster_ca_certificate
+  cluster_name               = data.terraform_remote_state.infra.outputs.cluster_name
+  k8s_host                   = data.terraform_remote_state.infra.outputs.host
+  k8s_cluster_ca_certificate = data.terraform_remote_state.infra.outputs.cluster_ca_certificate
   k8s_client_token           = data.terraform_remote_state.k8s_auth.outputs.token
   cert-manager_enabled       = var.cert-manager_enabled
 }
 
 module "es" {
   source                     = "../../modules/addons/elastic"
-  cluster_name               = data.terraform_remote_state.infra.cluster_name
-  k8s_host                   = data.terraform_remote_state.infra.host
-  k8s_cluster_ca_certificate = data.terraform_remote_state.infra.cluster_ca_certificate
+  cluster_name               = data.terraform_remote_state.infra.outputs.cluster_name
+  k8s_host                   = data.terraform_remote_state.infra.outputs.host
+  k8s_cluster_ca_certificate = data.terraform_remote_state.infra.outputs.cluster_ca_certificate
   k8s_client_token           = data.terraform_remote_state.k8s_auth.outputs.token
 }
 
@@ -47,9 +47,9 @@ module "tsb_mp" {
   es_username                     = module.es.es_username
   es_password                     = module.es.es_password
   es_cacert                       = module.es.es_cacert
-  registry                        = data.terraform_remote_state.infra.registry
-  cluster_name                    = data.terraform_remote_state.infra.cluster_name
-  k8s_host                        = data.terraform_remote_state.infra.host
-  k8s_cluster_ca_certificate      = data.terraform_remote_state.infra.cluster_ca_certificate
+  registry                        = data.terraform_remote_state.infra.outputs.registry
+  cluster_name                    = data.terraform_remote_state.infra.outputs.cluster_name
+  k8s_host                        = data.terraform_remote_state.infra.outputs.host
+  k8s_cluster_ca_certificate      = data.terraform_remote_state.infra.outputs.cluster_ca_certificate
   k8s_client_token                = data.terraform_remote_state.k8s_auth.outputs.token
 }
