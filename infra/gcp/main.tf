@@ -3,6 +3,7 @@ provider "google" {
   default_labels = {
   } */
 }
+
 resource "random_string" "random_prefix" {
   length  = 4
   special = false
@@ -69,11 +70,3 @@ module "gcp_k8s" {
   depends_on         = [module.gcp_jumpbox[0]]
 }
 
-module "gcp_k8s_auth_token" {
-  source       = "../../modules/gcp/k8s_auth_token"
-  count        = var.gcp_k8s_region == null ? 0 : 1
-  cluster_name = module.gcp_k8s[0].cluster_name
-  project_id   = coalesce(var.gcp_project_id, google_project.tsb[0].project_id)
-  region       = module.gcp_k8s[0].locality_region
-  depends_on = [ module.gcp_k8s[0].cluster_name ]
-}

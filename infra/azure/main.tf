@@ -50,10 +50,3 @@ module "azure_k8s" {
   tags                = local.default_tags 
   depends_on          = [module.azure_jumpbox[0]]
 }
-
-module "azure_k8s_auth_token" {
-  source              = "../../modules/azure/k8s_auth_token"
-  count               = var.azure_k8s_region == null ? 0 : 1
-  cluster_name        = module.azure_k8s[0].cluster_name
-  resource_group_name = module.azure_base[0].resource_group_name
-}

@@ -58,10 +58,3 @@ module "aws_k8s" {
   tags         = local.default_tags
   depends_on   = [module.aws_jumpbox[0]]
 }
-
-module "aws_k8s_auth_token" {
-  source       = "../../modules/aws/k8s_auth_token"
-  count        = var.aws_k8s_region == null ? 0 : 1
-  cluster_name = module.aws_k8s[0].cluster_name
-  depends_on = [ module.aws_k8s[0].cluster_name ]
-}

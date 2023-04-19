@@ -35,7 +35,7 @@ output "cluster_ca_certificate" {
 }
 
 output "token" {
-  value     = module.aws_k8s_auth_token[0].token
+  value     = module.aws_k8s[0].token
   sensitive = true
 }
 

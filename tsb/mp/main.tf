@@ -5,21 +5,28 @@ data "terraform_remote_state" "infra" {
   }
 }
 
+data "terraform_remote_state" "k8s_auth" {
+  backend = "local"
+  config = {
+    path = "../../infra/k8s_auth/${var.tsb_mp["cloud"]}/k8s_auth/terraform.tfstate.d/${var.tsb_mp["cloud"]}-${var.tsb_mp["cluster_id"]}-${local.k8s_regions[tonumber(var.tsb_mp["cluster_id"])]}/terraform.tfstate"
+  }
+}
+
 module "cert-manager" {
   source                     = "../../modules/addons/cert-manager"
-  cluster_name               = local.infra["outputs"].cluster_name
-  k8s_host                   = local.infra["outputs"].host
-  k8s_cluster_ca_certificate = local.infra["outputs"].cluster_ca_certificate
-  k8s_client_token           = local.infra["outputs"].token
+  cluster_name               = data.terraform_remote_state.infra.cluster_name
+  k8s_host                   = data.terraform_remote_state.infra.host
+  k8s_cluster_ca_certificate = data.terraform_remote_state.infra.cluster_ca_certificate
+  k8s_client_token           = data.terraform_remote_state.k8s_auth.outputs.token
   cert-manager_enabled       = var.cert-manager_enabled
 }
 
 module "es" {
   source                     = "../../modules/addons/elastic"
-  cluster_name               = local.infra["outputs"].cluster_name
-  k8s_host                   = local.infra["outputs"].host
-  k8s_cluster_ca_certificate = local.infra["outputs"].cluster_ca_certificate
-  k8s_client_token           = local.infra["outputs"].token
+  cluster_name               = data.terraform_remote_state.infra.cluster_name
+  k8s_host                   = data.terraform_remote_state.infra.host
+  k8s_cluster_ca_certificate = data.terraform_remote_state.infra.cluster_ca_certificate
+  k8s_client_token           = data.terraform_remote_state.k8s_auth.outputs.token
 }
 
 module "tsb_mp" {
@@ -40,9 +47,9 @@ module "tsb_mp" {
   es_username                     = module.es.es_username
   es_password                     = module.es.es_password
   es_cacert                       = module.es.es_cacert
-  registry                        = local.infra["outputs"].registry
-  cluster_name                    = local.infra["outputs"].cluster_name
-  k8s_host                        = local.infra["outputs"].host
-  k8s_cluster_ca_certificate      = local.infra["outputs"].cluster_ca_certificate
-  k8s_client_token                = local.infra["outputs"].token
+  registry                        = data.terraform_remote_state.infra.registry
+  cluster_name                    = data.terraform_remote_state.infra.cluster_name
+  k8s_host                        = data.terraform_remote_state.infra.host
+  k8s_cluster_ca_certificate      = data.terraform_remote_state.infra.cluster_ca_certificate
+  k8s_client_token                = data.terraform_remote_state.k8s_auth.outputs.token
 }
