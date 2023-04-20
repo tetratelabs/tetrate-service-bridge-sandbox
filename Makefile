@@ -184,7 +184,7 @@ argocd_%:
 .PHONY: fluxcd
 fluxcd: fluxcd_aws fluxcd_azure fluxcd_gcp ## Deploys ArgoCD
 fluxcd_%:
-	@echo "Deploying ArgoCD..."
+	@echo "Deploying FluxCD..."
 	@$(MAKE) k8s_auth_$*
 	@/bin/sh -c '\
 		set -e; \
