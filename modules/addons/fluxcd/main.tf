@@ -16,8 +16,11 @@ resource "helm_release" "fluxcd" {
   description      = var.cluster_name
 }
 
-resource "kubectl_manifest" "manifests_fluxcd_apps" {
-  for_each   = var.applications
-  yaml_body  = each.value
-  depends_on = [helm_release.fluxcd]
+data "kubectl_path_documents" "applications" {
+    pattern = var.applications
+}
+
+resource "kubectl_manifest" "applications" {
+    for_each  = toset(data.kubectl_path_documents.applications.documents)
+    yaml_body = each.value
 }
