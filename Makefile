@@ -104,6 +104,7 @@ k8s_auth_%:
 		terraform init; \
 		terraform apply -refresh=false ${terraform_apply_args} -var-file="../../../terraform.tfvars.json" -var=$*_k8s_region=$$region -var=cluster_id=$$index; \
 		terraform workspace select default; \
+		index=$$((index+1)); \
 		cd "../../.."; \
 		done; \
 		'
