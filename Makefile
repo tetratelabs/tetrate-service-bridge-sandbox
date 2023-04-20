@@ -89,10 +89,30 @@ gcp_k8s: init  ## Deploys GKE K8s cluster (CPs only)
 		done; \
 		'
 
+.PHONY: k8s_auth
+k8s_auth: k8s_auth_gcp k8s_auth_aws k8s_auth_azure  ## Refreshes k8s auth token
+k8s_auth_%:
+	@echo "Refreshing k8s_auth..."
+	@/bin/sh -c '\
+		set -e; \
+		index=0; \
+		jq -r '.$*_k8s_regions[]' terraform.tfvars.json | while read -r region; do \
+		echo "cloud=$* region=$$region cluster_id=$$index"; \
+		cd "infra/$*/k8s_auth"; \
+		terraform workspace new $*-$$index-$$region || true; \
+		terraform workspace select $*-$$index-$$region; \
+		terraform init; \
+		terraform apply -refresh=false ${terraform_apply_args} -var-file="../../../terraform.tfvars.json" -var=$*_k8s_region=$$region -var=cluster_id=$$index; \
+		terraform workspace select default; \
+		index=$$((index+1)); \
+		cd "../../.."; \
+		done; \
+		'
+
 .PHONY: tsb_mp
 tsb_mp:  ## Deploys MP
 	@echo "Refreshing k8s access tokens..."
-	@$(MAKE) k8s
+	@$(MAKE) k8s_auth
 	@echo "Deploying TSB Management Plane..."
 	@/bin/sh -c '\
 		set -e; \
@@ -118,7 +138,7 @@ tsb_mp:  ## Deploys MP
 tsb_cp: tsb_cp_aws tsb_cp_azure tsb_cp_gcp ## Onboards Control Plane clusters
 tsb_cp_%:
 	@echo "Onboarding clusters, i.e. TSB CP rollouts..."
-	@$(MAKE) $*_k8s
+	@$(MAKE) k8s_auth_$*
 	@/bin/sh -c '\
 		set -e; \
 		index=0; \
@@ -143,7 +163,7 @@ tsb: k8s tsb_mp tsb_cp  ## Deploys a full environment (MP+CP)
 argocd: argocd_aws argocd_azure argocd_gcp ## Deploys ArgoCD
 argocd_%:
 	@echo "Deploying ArgoCD..."
-	@$(MAKE) $*_k8s
+	@$(MAKE) k8s_auth_$*
 	@/bin/sh -c '\
 		set -e; \
 		index=0; \
@@ -164,7 +184,7 @@ argocd_%:
 .PHONY: monitoring
 monitoring:  ## Deploys the TSB monitoring stack
 	@echo "Deploying TSB monitoring stack..."
-	@$(MAKE) k8s
+	@$(MAKE) k8s_auth
 	@/bin/sh -c '\
 		set -e; \
 		cd "addons/monitoring"; \
@@ -180,7 +200,7 @@ monitoring:  ## Deploys the TSB monitoring stack
 external-dns: external-dns_aws external-dns_azure external-dns_gcp ## Deploys external-dns
 external-dns_%:
 	@echo "Deploying external-dns..."
-	@$(MAKE) $*_k8s
+	@$(MAKE) k8s_auth_$*
 	@/bin/sh -c '\
 		set -e; \
 		index=0; \
@@ -200,7 +220,7 @@ external-dns_%:
 destroy_external-dns: destroy_external-dns_aws destroy_external-dns_azure destroy_external-dns_gcp ## Destroys external-dns
 destroy_external-dns_%:
 	@echo "Deploying external-dns..."
-	@$(MAKE) $*_k8s
+	@$(MAKE) k8s_auth_$*
 	@/bin/sh -c '\
 		set -e; \
 		index=0; \

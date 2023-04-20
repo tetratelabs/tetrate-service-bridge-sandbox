@@ -23,6 +23,7 @@ module "aws_base" {
   name_prefix = "${var.name_prefix}-${var.cluster_id}-${random_string.random_id.result}"
   cidr        = cidrsubnet(var.cidr, 4, 4 + tonumber(var.cluster_id))
   tags        = local.default_tags
+  output_path = var.output_path
 }
 
 module "aws_jumpbox" {

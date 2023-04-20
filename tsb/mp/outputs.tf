@@ -48,7 +48,7 @@ output "es_cacert" {
 }
 
 output "registry" {
-  value = local.infra["outputs"].registry
+  value = data.terraform_remote_state.infra.outputs.registry
 }
 
 output "tsb_password" {

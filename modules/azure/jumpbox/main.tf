@@ -61,7 +61,7 @@ resource "azurerm_public_ip" "jumpbox_public_ip" {
   name                = "${var.name_prefix}_jumpbox_public_ip"
   location            = var.location
   resource_group_name = var.resource_group_name
-  allocation_method   = "Dynamic"
+  allocation_method   = "Static"
   tags = merge(var.tags, {
     Name            = "${var.name_prefix}_jumpbox_public_ip"
   })

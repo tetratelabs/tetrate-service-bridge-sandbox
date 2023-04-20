@@ -3,6 +3,7 @@ provider "google" {
   default_labels = {
   } */
 }
+
 resource "random_string" "random_prefix" {
   length  = 4
   special = false
@@ -68,3 +69,4 @@ module "gcp_k8s" {
   tags               = local.default_tags
   depends_on         = [module.gcp_jumpbox[0]]
 }
+

@@ -14,6 +14,9 @@ variable "max_az_count" {
   default = 3
 }
 
+variable "output_path" {
+}
+
 variable "tags" {
   type = map
 }
