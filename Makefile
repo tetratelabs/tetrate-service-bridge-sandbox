@@ -222,7 +222,6 @@ destroy_external-dns_%:
 	@echo "Deploying external-dns..."
 	@$(MAKE) k8s_auth_$*
 	@/bin/sh -c '\
-		set -e; \
 		index=0; \
 		jq -r '.$*_k8s_regions[]' terraform.tfvars.json | while read -r region; do \
 		echo "cloud=$* region=$$region cluster_id=$$index"; \
@@ -243,7 +242,6 @@ destroy: destroy_remote destroy_local
 .PHONY: destroy_remote
 destroy_remote:  ## Destroy the environment
 	@/bin/sh -c '\
-		set -e; \
 		cloud=`jq -r '.tsb_mp.cloud' terraform.tfvars.json`; \
 		fqdn=`jq -r '.tsb_fqdn' terraform.tfvars.json`; \
 		address=`jq -r "if .ingress_ip.value != \"\" then .ingress_ip.value else .ingress_hostname.value end" outputs/terraform_outputs/terraform-tsb-mp.json`; \
@@ -265,7 +263,6 @@ destroy_local:  ## Destroy the local Terraform state and cache
 
 destroy_%:
 	@/bin/sh -c '\
-		set -e; \
 		index=0; \
 		name_prefix=`jq -r '.name_prefix' terraform.tfvars.json`; \
 		jq -r '.$*_k8s_regions[]' terraform.tfvars.json | while read -r region; do \
