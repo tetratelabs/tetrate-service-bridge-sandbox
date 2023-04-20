@@ -15,3 +15,9 @@ resource "helm_release" "fluxcd" {
   timeout          = 900
   description      = var.cluster_name
 }
+
+resource "kubectl_manifest" "manifests_fluxcd_apps" {
+  for_each   = var.applications
+  yaml_body  = each.value
+  depends_on = [helm_release.fluxcd]
+}
