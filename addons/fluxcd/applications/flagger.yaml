@@ -36,6 +36,7 @@ spec:
         kind: HelmRepository
         name: flagger
   values:
-    nodeSelector:
-      kubernetes.io/os: linux
-
+    metricsServer: "http://prometheus.istio-system:9090"
+    meshProvider: "istio"
+    configTracking:
+      enabled: true
