@@ -23,8 +23,9 @@ The `Makefile` in this directory provides ability to fast-forward to any point o
       gcp --> mp
       mp --> cp[make tsb_cp]
       subgraph Add-Ons
-        monitoring[make monitoring]
+        tsb-monitoring[make tsb-monitoring]
         argocd[make argocd]
+        fluxcd[make fluxcd]
         subgraph external-dns
           extdns[make external-dns]
           extdns-aws[make external-dns_aws]
@@ -143,6 +144,7 @@ The completion of the above steps will result in:
 ## Use Cases and Addons
 
 * [ArgoCD GitOps](./addons/README.md#argocd)
+* [FluxCD GitOps](./addons/README.md#fluxcd)
 * [external-dns](./addons/README.md#external-dns)
 
 ## Destroy

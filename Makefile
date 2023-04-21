@@ -203,17 +203,17 @@ fluxcd_%:
 		done; \
 		'
 
-.PHONY: monitoring
-monitoring:  ## Deploys the TSB monitoring stack
+.PHONY: tsb-monitoring
+tsb-monitoring:  ## Deploys the TSB monitoring stack
 	@echo "Deploying TSB monitoring stack..."
 	@$(MAKE) k8s_auth
 	@/bin/sh -c '\
 		set -e; \
-		cd "addons/monitoring"; \
+		cd "addons/tsb-monitoring"; \
 		terraform workspace select default; \
 		terraform init; \
 		terraform apply ${terraform_apply_args} -var-file="../../terraform.tfvars.json"; \
-		terraform output ${terraform_output_args} | jq . > ../../outputs/terraform_outputs/terraform-monitoring.json; \
+		terraform output ${terraform_output_args} | jq . > ../../outputs/terraform_outputs/terraform-tsb-monitoring.json; \
 		terraform workspace select default; \
 		cd "../.."; \
 		'

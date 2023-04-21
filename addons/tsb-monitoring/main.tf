@@ -13,7 +13,7 @@ data "terraform_remote_state" "k8s_auth" {
 }
 
 module "prometheus" {
-  source                     = "../../modules/addons/prometheus"
+  source                     = "../../modules/addons/tsb-prometheus"
   cluster_name               = data.terraform_remote_state.infra.outputs.cluster_name
   k8s_host                   = data.terraform_remote_state.infra.outputs.host
   k8s_cluster_ca_certificate = data.terraform_remote_state.infra.outputs.cluster_ca_certificate
@@ -22,7 +22,7 @@ module "prometheus" {
 }
 
 module "grafana" {
-  source                     = "../../modules/addons/grafana"
+  source                     = "../../modules/addons/tsb-grafana"
   cluster_name               = data.terraform_remote_state.infra.outputs.cluster_name
   k8s_host                   = data.terraform_remote_state.infra.outputs.host
   k8s_cluster_ca_certificate = data.terraform_remote_state.infra.outputs.cluster_ca_certificate
