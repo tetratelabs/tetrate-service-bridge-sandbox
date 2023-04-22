@@ -34,7 +34,8 @@ The `Makefile` in this directory provides ability to fast-forward to any point o
          end
       end
       cp --> argocd
-      mp --> monitoring
+      cp --> fluxcd
+      mp --> tsb-monitoring
       aws --> extdns-aws
       azure --> extdns-azure
       gcp --> extdns-gcp
