@@ -22,6 +22,17 @@ and the password can be found in the `outputs/terraform_outputs/terraform-argocd
 
 For details about the deployed applications, take a look at the manifests in the `applications` folder.
 
+## FluxCD
+
+Deploys Flux CD for gitops demo
+
+```bash
+# Deploys Argocd on all Clusters
+make fluxcd
+```
+
+For details about the deployed applications, take a look at the manifests in the `applications` folder.
+
 ## TSB monitoring stack
 
 Deploys the TSB monitoring stack to have metrics and dashboards showing the operational status
@@ -29,12 +40,12 @@ of the different TSB components.
 
 ```bash
 # Deploys the TSB monitoring stack in the management plane cluster
-make monitoring
+make tsb-monitoring
 ```
 
 `grafana` is exposed using ClusterIP type. It can be accessed by port-forwarding port 3000 to the `grafana` pod
 in the `tsb-monitoring` namespace. The username is `admin` and the password can be found in the
-`outputs/terraform_outputs/terraform-monitoring.json` file (defaults to the `tsb_password` if set).
+`outputs/terraform_outputs/terraform-tsb-monitoring.json` file (defaults to the `tsb_password` if set).
 
 ## external-dns 
 

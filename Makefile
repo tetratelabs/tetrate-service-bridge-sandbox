@@ -181,17 +181,39 @@ argocd_%:
 		done; \
 		'
 
-.PHONY: monitoring
-monitoring:  ## Deploys the TSB monitoring stack
+.PHONY: fluxcd
+fluxcd: fluxcd_aws fluxcd_azure fluxcd_gcp ## Deploys ArgoCD
+fluxcd_%:
+	@echo "Deploying FluxCD..."
+	@$(MAKE) k8s_auth_$*
+	@/bin/sh -c '\
+		set -e; \
+		index=0; \
+		jq -r '.$*_k8s_regions[]' terraform.tfvars.json | while read -r region; do \
+		echo "cloud=$* region=$$region cluster_id=$$index"; \
+		cd "addons/fluxcd"; \
+		terraform workspace new $*-$$index-$$region || true; \
+		terraform workspace select $*-$$index-$$region; \
+		terraform init; \
+		terraform apply ${terraform_apply_args} -var-file="../../terraform.tfvars.json" -var=cloud=$* -var=cluster_id=$$index; \
+		terraform output ${terraform_output_args} | jq . > ../../outputs/terraform_outputs/terraform-fluxcd-$*-$$index.json; \
+		terraform workspace select default; \
+		index=$$((index+1)); \
+		cd "../.."; \
+		done; \
+		'
+
+.PHONY: tsb-monitoring
+tsb-monitoring:  ## Deploys the TSB monitoring stack
 	@echo "Deploying TSB monitoring stack..."
 	@$(MAKE) k8s_auth
 	@/bin/sh -c '\
 		set -e; \
-		cd "addons/monitoring"; \
+		cd "addons/tsb-monitoring"; \
 		terraform workspace select default; \
 		terraform init; \
 		terraform apply ${terraform_apply_args} -var-file="../../terraform.tfvars.json"; \
-		terraform output ${terraform_output_args} | jq . > ../../outputs/terraform_outputs/terraform-monitoring.json; \
+		terraform output ${terraform_output_args} | jq . > ../../outputs/terraform_outputs/terraform-tsb-monitoring.json; \
 		terraform workspace select default; \
 		cd "../.."; \
 		'
