@@ -11,7 +11,7 @@
 if [ $? -eq 0 ]; then
    if ! grep -q ${cluster_name} rbac.json; then
     echo "Adding ${cluster_name} to existing RBAC policy..."
-    jq --arg cluster organizations/tetrate/serviceaccounts/cluster-${cluster_name} '. | select(.spec.allow[].role=="rbac/admin").spec.allow[].subjects +=[{"serviceAccount":$cluster}]' rbac.json | tctl apply -f -
+    jq --arg cluster organizations/${tsb_org}/serviceaccounts/cluster-${cluster_name} '. | select(.spec.allow[].role=="rbac/admin").spec.allow[].subjects +=[{"serviceAccount":$cluster}]' rbac.json | tctl apply -f -
    fi
 else
   echo "Creating RBAC policy and adding ${cluster_name}..."
@@ -24,6 +24,6 @@ spec:
   allow:
   - role: rbac/admin
     subjects:
-    - serviceAccount: organizations/tetrate/serviceaccounts/cluster-${cluster_name}
+    - serviceAccount: organizations/${tsb_org}/serviceaccounts/cluster-${cluster_name}
 EOF
 fi
