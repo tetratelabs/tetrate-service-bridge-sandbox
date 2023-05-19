@@ -122,7 +122,7 @@ write_files:
       echo "Installing OpenShift..." >> $FILES_PATH/install.log
       ../openshift-install create cluster --dir $FILES_PATH/$CLUSTER_NAME --log-level debug >> $FILES_PATH/install.log
       cat $FILES_PATH/$CLUSTER_NAME/.openshift_install.log >> $FILES_PATH/install.log
-      echo "OpenShift installed finalized..." >> $FILES_PATH/install.log
+      echo "OpenShift installer finalized..." >> $FILES_PATH/install.log
       echo "Admin kubeconfig available at $FILES_PATH/$CLUSTER_NAME/auth/kubeconfig" >> $FILES_PATH/install.log
       echo "Password for kubeadmin user at $FILES_PATH/$CLUSTER_NAME/auth/kubeadmin-password" >> $FILES_PATH/install.log
       echo "OCP UI should be available at: https://console-openshift-console.apps.${cluster_name}.${gcp_dns_domain}/""

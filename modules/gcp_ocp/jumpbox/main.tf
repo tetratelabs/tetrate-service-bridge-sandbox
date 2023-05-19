@@ -3,36 +3,42 @@
 ## Public DNS Zone and domain validation
 
 data "google_dns_managed_zone" "zone" {
-  # project = "dns-terraform-sandbox"
-  # name    = "gcp-sandbox-tetrate-io"
-  count = local.shared_zone ? 1 : 0
   project = "dns-terraform-sandbox"
-  name = local.zone_name
+  # name    = "gcp-sandbox-tetrate-io"
+  name = replace(var.dns_zone, ".", "-")
+  # count = local.shared_zone ? 1 : 0
+  # name = local.zone_name
 }
 
-resource "google_dns_managed_zone" "ocp" {
-  name       = "${var.name_prefix}-gcp-sandbox-tetrate-io"
-  dns_name   = "${var.name_prefix}.gcp.sandbox.tetrate.io."
-  project    = var.project_id
-  depends_on = [google_project_service.project-dns]
+# resource "google_dns_managed_zone" "ocp" {
+#   name       = "${var.name_prefix}-gcp-sandbox-tetrate-io"
+#   dns_name   = "${var.name_prefix}.gcp.sandbox.tetrate.io."
+#   project    = var.project_id
+#   depends_on = [google_project_service.project-dns]
+# }
+
+data "dns_a_record_set" "tsb" {
+  host = var.address
 }
 
 resource "google_dns_record_set" "ocp_ns" {
-  count = local.shared_zone ? 1 : 0
+  # count = local.shared_zone ? 1 : 0
   project = "dns-terraform-sandbox"
-  managed_zone = data.google_dns_managed_zone.zone[0].name
+  # managed_zone = data.google_dns_managed_zone.zone[0].name
+  managed_zone = data.google_dns_managed_zone.zone.name
 
-  name         = google_dns_managed_zone.ocp.dns_name
+  # name         = google_dns_managed_zone.ocp.dns_name
+  name = "${var.fqdn}."
   type         = "NS"
   ttl          = 300
-  rrdatas = google_dns_managed_zone.ocp.name_servers
-  depends_on = [google_dns_managed_zone.ocp]
+  # rrdatas = google_dns_managed_zone.ocp.name_servers
+  # depends_on = [google_dns_managed_zone.ocp]
 
   # name = "${var.fqdn}."
   # type = "A"
   # ttl  = 300
 
-  # rrdatas = [data.dns_a_record_set.tsb.addrs[0]]
+  rrdatas = [data.dns_a_record_set.tsb.addrs[0]]
 }
 
 data "google_compute_subnetwork" "wait_for_compute_apis_to_be_ready" {

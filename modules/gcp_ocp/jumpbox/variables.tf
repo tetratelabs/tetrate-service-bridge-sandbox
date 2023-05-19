@@ -71,7 +71,7 @@ variable "myaccount" {
 }
 
 variable "dns_zone" {
-  default = "sandbox.tetrate.io"
+  default = "gcp.sandbox.tetrate.io"
 }
 
 variable "fqdn" {
@@ -95,6 +95,9 @@ variable "ssh_pub_key_file" {
 
 variable "tetrate_owner" {
   default = "michael@tetrate.io"
+}
+
+variable "address" {
 }
 
 locals {
