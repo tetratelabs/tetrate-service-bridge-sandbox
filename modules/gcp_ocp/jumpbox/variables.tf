@@ -97,8 +97,8 @@ variable "tetrate_owner" {
   default = "michael@tetrate.io"
 }
 
-variable "address" {
-}
+# variable "address" {
+# }
 
 locals {
   shared_zone   = endswith(var.fqdn, "sandbox.tetrate.io")
