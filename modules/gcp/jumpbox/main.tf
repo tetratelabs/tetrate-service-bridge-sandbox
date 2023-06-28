@@ -110,7 +110,7 @@ resource "local_file" "tsbadmin_pem" {
 }
 
 resource "local_file" "ssh_jumpbox" {
-  content         = "ssh -i ${var.name_prefix}-gcp-${var.jumpbox_username}.pem -l ${var.jumpbox_username} ${google_compute_instance.jumpbox.network_interface[0].access_config[0].nat_ip}"
+  content         = "ssh -i ${var.name_prefix}-gcp-${var.jumpbox_username}.pem -l ${var.jumpbox_username} ${google_compute_instance.jumpbox.network_interface[0].access_config[0].nat_ip} \"@\""
   filename        = "${var.output_path}/ssh-to-gcp-${var.name_prefix}-jumpbox.sh"
   file_permission = "0755"
 }
