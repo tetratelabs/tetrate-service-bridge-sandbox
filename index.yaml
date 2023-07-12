@@ -3,12 +3,12 @@ entries:
   tsb-app-onboarding:
   - apiVersion: v2
     appVersion: 1.16.0
-    created: "2023-07-11T23:03:27.84958-04:00"
+    created: "2023-07-12T15:16:46.557872-04:00"
     description: A Helm chart for Kubernetes
-    digest: 7bd8c7972a8651ef9ebf7b162fe635f42970589b3da1485dbc3d54255808c107
+    digest: 3a35035807de9f1b7c5b6b8aea849041db16f1562b94ae22344002810f9e7772
     name: tsb-app-onboarding
     type: application
     urls:
-    - https://tetrateio.github.io/tetrate-service-bridge-sandbox/helm/sources/tsb-app-onboarding-0.1.0.tgz
+    - https://tetrateio.github.io/tetrate-service-bridge-sandbox/helm/charts/tsb-app-onboarding-0.1.0.tgz
     version: 0.1.0
-generated: "2023-07-11T23:03:27.849131-04:00"
+generated: "2023-07-12T15:16:46.557634-04:00"
