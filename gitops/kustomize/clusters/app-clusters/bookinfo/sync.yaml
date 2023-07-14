@@ -6,7 +6,7 @@ spec:
   interval: 1m
   url: https://github.com/tetrateio/tetrate-service-bridge-sandbox
   ref:
-    branch: fluxcd-demo
+    branch: fluxcd-deploy
 ---
 apiVersion: kustomize.toolkit.fluxcd.io/v1
 kind: Kustomization
