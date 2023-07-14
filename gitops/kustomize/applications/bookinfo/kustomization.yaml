@@ -6,3 +6,4 @@ resources:
 - https://raw.githubusercontent.com/istio/istio/master/samples/bookinfo/platform/kube/bookinfo.yaml
 - bookinfo-ingressgateway.yaml
 - bookinfo-certificate.yaml
+- bookinfo-tsb-ingressgateway.yaml
