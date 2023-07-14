@@ -1,12 +1,12 @@
-apiVersion: source.toolkit.fluxcd.io/v1
-kind: GitRepository
-metadata:
-  name: flux-app-repo-bookinfo
-spec:
-  interval: 1m
-  url: https://github.com/tetrateio/tetrate-service-bridge-sandbox
-  ref:
-    branch: fluxcd-deploy
+# apiVersion: source.toolkit.fluxcd.io/v1
+# kind: GitRepository
+# metadata:
+#   name: flux-app-repo-bookinfo
+# spec:
+#   interval: 1m
+#   url: https://github.com/tetrateio/tetrate-service-bridge-sandbox
+#   ref:
+#     branch: fluxcd-deploy
 ---
 apiVersion: kustomize.toolkit.fluxcd.io/v1
 kind: Kustomization
@@ -18,4 +18,6 @@ spec:
   path: ./gitops/kustomize/applications/bookinfo
   sourceRef:
     kind: GitRepository
-    name: flux-app-repo-bookinfo
+    name: flux-app-repo
+  dependsOn:
+    - name: flux-app-init-bookinfo
