@@ -6,8 +6,8 @@ metadata:
   annotations:
     tsb.tetrate.io/organization: tetrate
     tsb.tetrate.io/tenant: fluxdemo
-    tsb.tetrate.io/workspace: flux-bookinfo-ws
-    tsb.tetrate.io/gatewayGroup: flux-bookinfo-gg
+    tsb.tetrate.io/workspace: flux-tsb-config-tsb-bookinfo-ws
+    tsb.tetrate.io/gatewayGroup: flux-tsb-config-tsb-bookinfo-gg
 spec:
   workloadSelector:
     namespace: flux-bookinfo
