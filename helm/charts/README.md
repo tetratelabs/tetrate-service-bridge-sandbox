@@ -3,7 +3,7 @@
 ## How to use helm repo
 ```bash
 # Add Repo
-helm repo helm-tsb-sandbox https://tetrateio.github.io/tetrate-service-bridge-sandbox
+helm repo add helm-tsb-sandbox https://tetrateio.github.io/tetrate-service-bridge-sandbox
 # Update Repo(s)
 helm repo update
 #Find the chart to install

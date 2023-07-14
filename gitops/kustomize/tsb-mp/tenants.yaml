@@ -1,0 +1,10 @@
+---
+apiVersion: tsb.tetrate.io/v2
+kind: Tenant
+metadata:
+  name: fluxdemo
+  annotations:
+    tsb.tetrate.io/organization: tetrate
+spec:
+  displayName: fluxdemo
+  description: fluxdemo

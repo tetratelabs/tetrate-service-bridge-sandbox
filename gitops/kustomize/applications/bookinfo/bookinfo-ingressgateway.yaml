@@ -1,0 +1,8 @@
+apiVersion: install.tetrate.io/v1alpha1
+kind: IngressGateway
+metadata:
+  name: bookinfo-ingressgateway
+spec:
+  kubeSpec:
+    service:
+      type: LoadBalancer

@@ -1,0 +1,27 @@
+---
+apiVersion: gateway.tsb.tetrate.io/v2
+kind: IngressGateway
+metadata:
+  name: httpbin-igw
+  annotations:
+    tsb.tetrate.io/organization: tetrate
+    tsb.tetrate.io/tenant: fluxdemo
+    tsb.tetrate.io/workspace: flux-bookinfo-ws
+    tsb.tetrate.io/gatewayGroup: flux-bookinfo-gg
+spec:
+  workloadSelector:
+    namespace: flux-bookinfo
+    labels:
+      app: bookinfo-ingressgateway
+  http:
+    - name: bookinfo-ssl
+      port: 443
+      hostname: "bookinfo.tetrate.io"
+      tls:
+        mode: SIMPLE
+        secretName: bookinfo-cert
+      routing:
+        rules:
+          - route:
+              host: "flux-bookinfo/productpage.flux-bookinfo.svc.cluster.local"
+              port: 9080

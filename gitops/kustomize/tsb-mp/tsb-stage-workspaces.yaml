@@ -1,0 +1,26 @@
+apiVersion: source.toolkit.fluxcd.io/v1beta2
+kind: HelmRepository
+metadata:
+  name: tsb-helm-repo
+spec:
+  interval: 1m0s
+  url: https://tetrateio.github.io/tetrate-service-bridge-sandbox
+---
+apiVersion: helm.toolkit.fluxcd.io/v2beta1
+kind: HelmRelease
+metadata:
+  name: tsb-bookinfo
+spec:
+  targetNamespace: flux-tsb-config
+  chart:
+    spec:
+      chart: tsb-app-onboarding
+      sourceRef:
+        kind: HelmRepository
+        name: tsb-helm-repo
+  interval: 1m0s
+  values:
+    tsb:
+      org: tetrate
+      tenant: fluxdemo
+      appNamespace: flux-bookinfo
