@@ -14,7 +14,7 @@ spec:
   targetNamespace: flux-tsb-config
   chart:
     spec:
-      chart: tsb-app-onboarding
+      chart: tetrate-demoapp-template
       sourceRef:
         kind: HelmRepository
         name: tsb-helm-repo

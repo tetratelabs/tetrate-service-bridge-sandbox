@@ -5,7 +5,7 @@ metadata:
   namespace: flux-bookinfo
 spec:
   interval: 1m
-  url: https://tetrateio.github.io/tetrate-service-bridge-sandbox
+  url: https://github.com/tetrateio/tetrate-service-bridge-sandbox.git
   ref:
     branch: fluxcd-demo
 ---
