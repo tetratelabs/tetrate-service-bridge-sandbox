@@ -3,4 +3,4 @@ kind: Kustomization
 namespace: flux-app-config
 resources:
   - namespace.yaml
-  - sync.yaml
+  # - sync.yaml
