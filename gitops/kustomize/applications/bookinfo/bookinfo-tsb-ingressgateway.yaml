@@ -2,7 +2,7 @@
 apiVersion: gateway.tsb.tetrate.io/v2
 kind: IngressGateway
 metadata:
-  name: httpbin-igw
+  name: bookinfo-igw
   annotations:
     tsb.tetrate.io/organization: tetrate
     tsb.tetrate.io/tenant: fluxdemo
