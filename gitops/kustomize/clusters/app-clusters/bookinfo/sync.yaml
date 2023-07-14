@@ -18,4 +18,4 @@ spec:
   path: ./gitops/kustomize/applications/bookinfo
   sourceRef:
     kind: GitRepository
-    name: lux-app-repo-bookinfo
+    name: flux-app-repo-bookinfo
