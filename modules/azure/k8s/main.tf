@@ -13,6 +13,8 @@ resource "azurerm_kubernetes_cluster" "k8s" {
     network_plugin = "kubenet"
   }
 
+  oidc_issuer_enabled = true
+
   default_node_pool {
     name                = replace("${substr(var.cluster_name, 0, min(length("${var.cluster_name}"), 6))}", "-", "")
     vnet_subnet_id      = var.vnet_subnet
@@ -29,7 +31,7 @@ resource "azurerm_kubernetes_cluster" "k8s" {
   }
 
   tags = merge(var.tags, {
-    Name            = "${var.cluster_name}_tsb_sandbox_blue"
+    Name = "${var.cluster_name}_tsb_sandbox_blue"
   })
 
 }
