@@ -30,8 +30,8 @@ apiVersion: v1
 kind: Namespace
 metadata:
   labels:
-    istio-injection: enabled
-  name: direct-bookinfo
+    istio.io/rev: dev-stable
+  name: bookinfo-dev
 ---
 ##################################################################################################
 # Details service

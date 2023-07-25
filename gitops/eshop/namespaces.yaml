@@ -1,32 +1,32 @@
 apiVersion: v1
 kind: Namespace
 metadata:
-  name: gitops-eshop
+  name: eshop
   labels:
     istio-injection: enabled
 ---
 apiVersion: v1
 kind: Namespace
 metadata:
-  name: gitops-eshop-checkout
+  name: eshop-checkout
   labels:
     istio-injection: enabled
 ---
 apiVersion: v1
 kind: Namespace
 metadata:
-  name: gitops-eshop-payments
+  name: eshop-payments
   labels:
     istio-injection: enabled
 ---
 apiVersion: v1
 kind: Namespace
 metadata:
-  name: gitops-eshop-trafficgen
+  name: eshop-trafficgen
   labels:
     istio-injection: enabled
 ---
 apiVersion: v1
 kind: Namespace
 metadata:
-  name: gitops-eshop-config
+  name: eshop-config

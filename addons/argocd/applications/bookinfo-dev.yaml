@@ -2,17 +2,17 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: bookinfo
+  name: bookinfo-dev
   namespace: argocd
 spec:
   destination:
-    namespace: bookinfo
+    namespace: bookinfo-dev
     server: https://kubernetes.default.svc
   project: default
   source:
     directory:
       recurse: true
-    path: gitops/bookinfo
+    path: gitops/bookinfo-dev
     repoURL: https://github.com/tetrateio/tetrate-service-bridge-sandbox.git
     targetRevision: release-1.7.x
   syncPolicy:

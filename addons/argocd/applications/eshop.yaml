@@ -2,11 +2,11 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: gitops-eshop
+  name: eshop
   namespace: argocd
 spec:
   destination:
-    namespace: gitops-eshop-config
+    namespace: eshop-config
     server: https://kubernetes.default.svc
   project: default
   source:
@@ -14,7 +14,7 @@ spec:
       recurse: true
     path: gitops/eshop
     repoURL: https://github.com/tetrateio/tetrate-service-bridge-sandbox.git
-    targetRevision: main
+    targetRevision: release-1.7.x
   syncPolicy:
     automated:
       prune: false

@@ -2,7 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: trafficgenerator
-  namespace: gitops-eshop-trafficgen
+  namespace: eshop-trafficgen
   labels:
     app: trafficgenerator
 spec:
@@ -23,14 +23,14 @@ spec:
             - -c
             - |
               # Retry until everything is up and running to inject latency and fault
-              until curl -f -i -H "X-B3-Sampled: 0" http://eshop.tetrate.io/proxy/orders/proxy/checkout.gitops-eshop-checkout/proxy/payments.tetrate.io/latency/200 ; do
+              until curl -f -i -H "X-B3-Sampled: 0" http://eshop.tetrate.io/proxy/orders/proxy/checkout.eshop-checkout/proxy/payments.tetrate.io/latency/200 ; do
                 sleep 3
               done
-              until curl -f -i -H "X-B3-Sampled: 0" http://eshop.tetrate.io/proxy/orders/proxy/checkout.gitops-eshop-checkout/errors/20 ; do
+              until curl -f -i -H "X-B3-Sampled: 0" http://eshop.tetrate.io/proxy/orders/proxy/checkout.eshop-checkout/errors/20 ; do
                 sleep 3
               done
               # Once we've configured the failures, start generating traffic
               while :; do
-                curl -H "X-B3-Sampled: 1" http://eshop.tetrate.io/proxy/orders/proxy/checkout.gitops-eshop-checkout/proxy/payments.tetrate.io/proxy/accounting
+                curl -H "X-B3-Sampled: 1" http://eshop.tetrate.io/proxy/orders/proxy/checkout.eshop-checkout/proxy/payments.tetrate.io/proxy/accounting
                 sleep 30
               done
