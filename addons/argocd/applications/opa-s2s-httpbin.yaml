@@ -2,11 +2,11 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: gitops-opa-s2s-httpbin
+  name: opa-s2s-httpbin
   namespace: argocd
 spec:
   destination:
-    namespace: gitops-opa-s2s-httpbin
+    namespace: opa-s2s-httpbin
     server: https://kubernetes.default.svc
   project: default
   source:
@@ -14,7 +14,7 @@ spec:
       recurse: true
     path: gitops/opa-s2s-httpbin
     repoURL: https://github.com/tetrateio/tetrate-service-bridge-sandbox.git
-    targetRevision: release-1.6.x-ib
+    targetRevision: release-1.7.x
   syncPolicy:
     automated:
       prune: false
