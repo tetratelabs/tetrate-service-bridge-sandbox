@@ -2,7 +2,7 @@ apiVersion: tsb.tetrate.io/v2
 kind: Workspace
 metadata:
   name: eshop
-  namespace: gitops-eshop-config
+  namespace: eshop-config
   annotations:
     argocd.argoproj.io/sync-wave: "30"
     tsb.tetrate.io/organization: tetrate
@@ -11,15 +11,15 @@ spec:
   displayName: eShop Portal
   namespaceSelector:
     names:
-    - "*/gitops-eshop"
-    - "*/gitops-eshop-checkout"
-    - "*/gitops-eshop-trafficgen"
+    - "*/eshop"
+    - "*/eshop-checkout"
+    - "*/eshop-trafficgen"
 ---
 apiVersion: tsb.tetrate.io/v2
 kind: Workspace
 metadata:
   name: payments
-  namespace: gitops-eshop-config
+  namespace: eshop-config
   annotations:
     argocd.argoproj.io/sync-wave: "30"
     tsb.tetrate.io/organization: tetrate
@@ -28,13 +28,13 @@ spec:
   displayName: Payments Gate
   namespaceSelector:
     names:
-    - "*/gitops-eshop-payments"
+    - "*/eshop-payments"
 ---
 apiVersion: gateway.tsb.tetrate.io/v2
 kind: Group
 metadata:
   name: eshop-gateways
-  namespace: gitops-eshop-config
+  namespace: eshop-config
   annotations:
     argocd.argoproj.io/sync-wave: "35"
     tsb.tetrate.io/organization: tetrate
@@ -44,13 +44,13 @@ spec:
   displayName: eShop Gateways
   namespaceSelector:
     names:
-    - "*/gitops-eshop"
+    - "*/eshop"
 ---
 apiVersion: gateway.tsb.tetrate.io/v2
 kind: Group
 metadata:
   name: payments-gateways
-  namespace: gitops-eshop-config
+  namespace: eshop-config
   annotations:
     argocd.argoproj.io/sync-wave: "35"
     tsb.tetrate.io/organization: tetrate
@@ -60,13 +60,13 @@ spec:
   displayName: Payments Gateways
   namespaceSelector:
     names:
-    - "*/gitops-eshop-payments"
+    - "*/eshop-payments"
 ---
 apiVersion: security.tsb.tetrate.io/v2
 kind: Group
 metadata:
   name: checkout-security
-  namespace: gitops-eshop-config
+  namespace: eshop-config
   annotations:
     argocd.argoproj.io/sync-wave: "35"
     tsb.tetrate.io/organization: tetrate
@@ -76,13 +76,13 @@ spec:
   displayName: Checkout Security
   namespaceSelector:
     names:
-      - "*/gitops-eshop-checkout"
+      - "*/eshop-checkout"
 ---
 apiVersion: security.tsb.tetrate.io/v2
 kind: Group
 metadata:
   name: portal-security
-  namespace: gitops-eshop-config
+  namespace: eshop-config
   annotations:
     argocd.argoproj.io/sync-wave: "35"
     tsb.tetrate.io/organization: tetrate
@@ -92,4 +92,4 @@ spec:
   displayName: Portal Security
   namespaceSelector:
     names:
-      - "*/gitops-eshop"
+      - "*/eshop"

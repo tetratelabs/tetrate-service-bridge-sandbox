@@ -2,7 +2,7 @@ apiVersion: rbac.tsb.tetrate.io/v2
 kind: Role
 metadata:
   name: tenant-reader
-  namespace: gitops-eshop-config
+  namespace: eshop-config
   annotations:
     argocd.argoproj.io/sync-wave: "20"
 spec:

@@ -13,6 +13,7 @@ items:
     spec:
       description: dev
       displayName: dev
+      deletionProtectionEnabled: true
   - apiVersion: tsb.tetrate.io/v2
     kind: Workspace
     metadata:
