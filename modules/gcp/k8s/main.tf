@@ -21,6 +21,19 @@ resource "google_container_cluster" "tsb" {
   remove_default_node_pool = true
   initial_node_count       = 1
 
+  // PLACEHOLDER for Network Policy
+  // Requires: addons_config: disabled = false to enable network_policy settings
+  // network_policy enabled=true to enable calico provider
+  addons_config {
+    network_policy_config {
+      disabled = true
+    }
+  }
+  network_policy {
+    enabled  = false
+    provider = "CALICO"
+  }
+
   resource_labels = merge(var.tags, {
     name        = "${var.cluster_name}_tsb_sandbox_blue"
   })

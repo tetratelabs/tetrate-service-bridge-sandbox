@@ -11,6 +11,8 @@ resource "azurerm_kubernetes_cluster" "k8s" {
 
   network_profile {
     network_plugin = "kubenet"
+  // PLACEHOLDER for Network Policy
+  //  network_policy = "calico"
   }
 
   oidc_issuer_enabled = true
