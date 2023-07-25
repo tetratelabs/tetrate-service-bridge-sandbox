@@ -1,7 +1,8 @@
 {
     "name_prefix": "<YOUR UNIQUE PREFIX NAME TO BE CREATED>",
-    "tsb_fqdn": "<YOUR UNIQUE PREFIX NAME TO BE CREATED>.gcp.cx.tetrate.info",
-    "tsb_version": "1.5.0",
+    "dns_provider": "gcp",
+    "tsb_fqdn": "<YOUR UNIQUE PREFIX NAME TO BE CREATED>.gcp.sandbox.tetrate.io",
+    "tsb_version": "1.6.0",
     "tsb_image_sync_username": "<TSB_REPO_USERNAME>",
     "tsb_image_sync_apikey": "<TSB_REPO_APIKEY>",
     "tsb_password": "Tetrate123",
@@ -19,5 +20,7 @@
     "gcp_k8s_regions": [
         "us-east1",
         "us-west1"
-    ]
+    ],
+    "tetrate_owner": "username",
+    "tetrate_team": "function:team"
 }

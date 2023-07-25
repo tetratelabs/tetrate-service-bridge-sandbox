@@ -13,6 +13,7 @@ A complete reference example:
 ```json
 {
     "name_prefix": "",
+    "dns_provider": "",
     "tsb_fqdn": "",
     "tsb_version": "1.6.0-dev",
     "tsb_helm_repository": "",
@@ -32,6 +33,8 @@ A complete reference example:
     ],
     "gcp_k8s_regions": [
         "us-west1"
-    ]
+    ],
+    "tetrate_owner": "username",
+    "tetrate_team": "function:team"
 }
 ```

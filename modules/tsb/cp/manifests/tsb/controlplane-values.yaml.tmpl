@@ -9,6 +9,10 @@ secrets:
     JWK: '${serviceaccount_jwk}'
 spec:
   hub: ${registry}
+  %{ if identity_propagation_enabled }
+  imagePullSecrets:
+  - name: cr-pull-secret
+  %{ endif }
   telemetryStore:
     elastic:
       host: ${es_host}
@@ -25,7 +29,7 @@ spec:
     xcp:
       centralAuthMode: JWT
       configProtection: {}
-      enableHttpMeshInternalIdentityPropagation: false
+      enableHttpMeshInternalIdentityPropagation: ${identity_propagation_enabled}
       isolationBoundaries:
       - name: global
         revisions:

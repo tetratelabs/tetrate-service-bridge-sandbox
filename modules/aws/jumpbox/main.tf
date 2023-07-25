@@ -2,11 +2,9 @@ resource "aws_security_group" "jumpbox_sg" {
   description = "Allow incoming connections to the lab jumpbox."
   vpc_id      = var.vpc_id
 
-  tags = {
-    Name            = "${var.name_prefix}_jumpbox_sg"
-    Environment     = "${var.name_prefix}_tsb"
-    "Tetrate:Owner" = var.owner
-  }
+  tags = merge(var.tags, {
+    Name = "${var.name_prefix}_jumpbox_sg"
+  })
 
   ingress {
     from_port   = 22
@@ -16,8 +14,22 @@ resource "aws_security_group" "jumpbox_sg" {
   }
 
   ingress {
+    from_port   = 8080
+    to_port     = 8080
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+  
+  ingress {
     from_port   = 8443
     to_port     = 8443
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+  
+  ingress {
+    from_port   = 9080
+    to_port     = 9080
     protocol    = "tcp"
     cidr_blocks = ["0.0.0.0/0"]
   }
@@ -141,7 +153,11 @@ resource "aws_iam_role_policy" "jumpbox_iam_policy" {
               "ecr:InitiateLayerUpload",
               "ecr:UploadLayerPart",
               "ecr:CompleteLayerUpload",
-              "ecr:PutImage"
+              "ecr:PutImage",
+              "route53:ChangeResourceRecordSets",
+              "route53:ChangeTagsForResource",
+              "route53:ListResourceRecordSets",
+              "route53:ListHostedZone"
             ],
             "Resource": "*"
         }
@@ -165,24 +181,18 @@ resource "aws_iam_role" "jumpbox_iam_role" {
   ]
 }
 EOF
-
-  tags = {
-    Name            = "${var.name_prefix}_jumpbox_iam_role"
-    Environment     = "${var.name_prefix}_tsb"
-    "Tetrate:Owner" = var.owner
-  }
-
+  tags = merge(var.tags, {
+    Name = "${var.name_prefix}_jumpbox_iam_role"
+  })
 }
 
 resource "aws_iam_instance_profile" "jumpbox_iam_profile" {
   name = "${var.name_prefix}_jumpbox_profile"
   role = aws_iam_role.jumpbox_iam_role.name
 
-  tags = {
-    Name            = "${var.name_prefix}_jumpbox_iam_prof"
-    Environment     = "${var.name_prefix}_tsb"
-    "Tetrate:Owner" = var.owner
-  }
+  tags = merge(var.tags, {
+    Name = "${var.name_prefix}_jumpbox_profile"
+  })
 }
 
 
@@ -197,11 +207,9 @@ resource "aws_key_pair" "tsbadmin_key_pair" {
   key_name   = "${var.name_prefix}_generated"
   public_key = tls_private_key.generated.public_key_openssh
 
-  tags = {
-    Name            = "${var.name_prefix}_tsbadmin_key"
-    Environment     = "${var.name_prefix}_tsb"
-    "Tetrate:Owner" = var.owner
-  }
+  tags = merge(var.tags, {
+    Name = "${var.name_prefix}_tsbadmin_key"
+  })
 }
 
 data "aws_ami" "ubuntu" {
@@ -226,6 +234,14 @@ data "aws_availability_zones" "available" {}
 module "internal_registry" {
   source      = "../../internal_registry"
   tsb_version = var.tsb_version
+  # The internal registry token is needed only if the TSB version is a development version, and only once when the
+  # jumpbox bootstraps the first time. It is not needed later as all images are already pushed to the registry (and
+  # cloud-init won't run again anyway).
+  # Since the token is short-lived, successive calls to this module would cause the jumpbox to reconcile, restart, and
+  # eventually changing the IP address, etc, unnecessarily.
+  # By setting this, subsequent calls to this module will return the token returned on the initial run, if present, avoiding
+  # the jumbox reconcile.
+  cached_by   = "${var.name_prefix}-internal-registry.tfstate.tokencache"
 }
 
 resource "aws_instance" "jumpbox" {
@@ -250,8 +266,10 @@ resource "aws_instance" "jumpbox" {
     tsb_version               = var.tsb_version
     tsb_image_sync_username   = var.tsb_image_sync_username
     tsb_image_sync_apikey     = var.tsb_image_sync_apikey
-    docker_login              = "aws ecr get-login-password --region ${data.aws_availability_zones.available.id} | docker login --username AWS --password-stdin ${var.registry}"
+    docker_login              = "aws ecr get-login-password --region ${var.region} | docker login --username AWS --password-stdin ${var.registry}"
     registry                  = var.registry
+    registry_name             = var.registry_name
+    region                    = var.region
     pubkey                    = tls_private_key.generated.public_key_openssh
     tsb_helm_repository       = var.tsb_helm_repository
     tetrate_internal_cr       = module.internal_registry.internal_cr
@@ -259,53 +277,26 @@ resource "aws_instance" "jumpbox" {
   }))
   iam_instance_profile = aws_iam_instance_profile.jumpbox_iam_profile.name
 
-  tags = {
-    Name            = "${var.name_prefix}_jumpbox"
-    Environment     = "${var.name_prefix}_tsb"
-    "Tetrate:Owner" = var.owner
-  }
+  tags = merge(var.tags, {
+    Name = "${var.name_prefix}_jumpbox"
+  })
 
-  volume_tags = {
-    Name            = "${var.name_prefix}_jumpbox"
-    Environment     = "${var.name_prefix}_tsb"
-    "Tetrate:Owner" = var.owner
-  }
+  volume_tags = merge(var.tags, {
+    Name = "${var.name_prefix}_jumpbox"
+  })
 
-}
-
-resource "null_resource" "aws_cleanup" {
-  triggers = {
-    output_path = var.output_path
-    name_prefix = var.name_prefix
-  }
-
-  provisioner "local-exec" {
-    when = destroy
-    command = "sh ${self.triggers.output_path}/${self.triggers.name_prefix}-aws-cleanup.sh"
-    on_failure = continue
-  }
-
-  depends_on = [ tls_private_key.generated, local_file.aws_cleanup]
 }
 
 resource "local_file" "tsbadmin_pem" {
   content         = tls_private_key.generated.private_key_pem
-  filename        = "${var.output_path}/${var.name_prefix}-aws-${var.jumpbox_username}.pem"
+  filename        = "${var.output_path}/${regex(".+-\\d+","${var.name_prefix}")}-aws-${var.jumpbox_username}.pem"
   depends_on      = [tls_private_key.generated]
   file_permission = "0600"
 }
 
 resource "local_file" "ssh_jumpbox" {
-  content         = "ssh -i ${var.name_prefix}-aws-${var.jumpbox_username}.pem -l ${var.jumpbox_username} ${aws_instance.jumpbox.public_ip}"
-  filename        = "${var.output_path}/ssh-to-aws-${var.name_prefix}-jumpbox.sh"
+  content         = "ssh -i ${regex(".+-\\d+","${var.name_prefix}")}-aws-${var.jumpbox_username}.pem -l ${var.jumpbox_username} ${aws_instance.jumpbox.public_ip} \"$@\""
+  filename        = "${var.output_path}/ssh-to-aws-${regex(".+-\\d+","${var.name_prefix}")}-jumpbox.sh"
   file_permission = "0755"
 }
 
-resource "local_file" "aws_cleanup" {
-  content         = templatefile("${path.module}/aws_cleanup.sh.tmpl", {
-      vpc_id = var.vpc_id
-      region = var.region
-  })
-  filename        = "${var.output_path}/${var.name_prefix}-aws-cleanup.sh"
-  file_permission = "0755"
-}

@@ -1,20 +1,35 @@
 provider "aws" {
   region = var.aws_k8s_region
+
+  # Re-enable this once https://github.com/hashicorp/terraform-provider-aws/issues/19583
+  # is fixed. Until then, the workaround is to manually merge
+  # the tags in every resource.
+  # default_tags {
+  #   tags = local.default_tags
+  # }
+}
+
+resource "random_string" "random_id" {
+  length  = 4
+  special = false
+  lower   = true
+  upper   = false
+  numeric = false
 }
 
 module "aws_base" {
   source      = "../../modules/aws/base"
   count       = var.aws_k8s_region == null ? 0 : 1
-  name_prefix = "${var.name_prefix}-${var.cluster_id}"
+  name_prefix = "${var.name_prefix}-${var.cluster_id}-${random_string.random_id.result}"
   cidr        = cidrsubnet(var.cidr, 4, 4 + tonumber(var.cluster_id))
-  owner       = "${var.tsb_image_sync_username}@tetrate.io"
+  tags        = local.default_tags
+  output_path = var.output_path
 }
 
 module "aws_jumpbox" {
   source                    = "../../modules/aws/jumpbox"
   count                     = var.aws_k8s_region == null ? 0 : 1
-  owner                     = "${var.tsb_image_sync_username}@tetrate.io"
-  name_prefix               = "${var.name_prefix}-${var.cluster_id}"
+  name_prefix               = "${var.name_prefix}-${var.cluster_id}-${random_string.random_id.result}"
   region                    = var.aws_k8s_region
   vpc_id                    = module.aws_base[0].vpc_id
   vpc_subnet                = module.aws_base[0].vpc_subnets[0]
@@ -25,19 +40,21 @@ module "aws_jumpbox" {
   tsb_image_sync_username   = var.tsb_image_sync_username
   tsb_image_sync_apikey     = var.tsb_image_sync_apikey
   registry                  = module.aws_base[0].registry
+  registry_name             = module.aws_base[0].registry_name
+  tags                      = local.default_tags
   output_path               = var.output_path
 }
 
 module "aws_k8s" {
   source       = "../../modules/aws/k8s"
   count        = var.aws_k8s_region == null ? 0 : 1
-  owner        = "${var.tsb_image_sync_username}@tetrate.io"
   k8s_version  = var.aws_eks_k8s_version
   region       = var.aws_k8s_region
   vpc_id       = module.aws_base[0].vpc_id
   vpc_subnets  = module.aws_base[0].vpc_subnets
-  name_prefix  = "${var.name_prefix}-${var.cluster_id}"
-  cluster_name = var.cluster_name == null ? "eks-${var.aws_k8s_region}-${var.name_prefix}" : var.cluster_name
+  name_prefix  = "${var.name_prefix}-${var.cluster_id}-${random_string.random_id.result}"
+  cluster_name = coalesce(var.cluster_name, "eks-${var.aws_k8s_region}-${var.name_prefix}")
   output_path  = var.output_path
+  tags         = local.default_tags
   depends_on   = [module.aws_jumpbox[0]]
 }

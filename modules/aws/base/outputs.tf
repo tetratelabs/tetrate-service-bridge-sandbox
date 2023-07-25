@@ -10,6 +10,10 @@ output "registry" {
   value = aws_ecr_repository.tsb.repository_url
 }
 
+output "registry_name" {
+  value = aws_ecr_repository.tsb.name
+}
+
 output "registry_id" {
   value = aws_ecr_repository.tsb.registry_id
 }

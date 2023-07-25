@@ -1,0 +1,7 @@
+# Default values for tsb-app-onboarding.
+# This is a YAML-formatted file.
+
+tsb:
+  org: tetrate
+  tenant: dev
+  appNamespace: httpbin

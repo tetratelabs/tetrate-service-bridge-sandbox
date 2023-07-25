@@ -7,10 +7,12 @@
 /usr/bin/env tctl x gitops grant ${cluster_name}
 
 # Allow managing platform Roles with the cluster service account
-/usr/bin/env tctl get ab admin/rbac -o json >rbac.json
+/usr/bin/env tctl get ab admin/rbac -o json > rbac.json
 if [ $? -eq 0 ]; then
-   echo "Adding ${cluster_name} to existing RBAC policy..."
-   jq --arg cluster organizations/tetrate/serviceaccounts/cluster-${cluster_name} '. | select(.spec.allow[].role=="rbac/admin").spec.allow[].subjects +=[{"serviceAccount":$cluster}]' rbac.json | tctl apply -f -
+   if ! grep -q ${cluster_name} rbac.json; then
+    echo "Adding ${cluster_name} to existing RBAC policy..."
+    jq --arg cluster organizations/${tsb_org}/serviceaccounts/cluster-${cluster_name} '. | select(.spec.allow[].role=="rbac/admin").spec.allow[].subjects +=[{"serviceAccount":$cluster}]' rbac.json | tctl apply -f -
+   fi
 else
   echo "Creating RBAC policy and adding ${cluster_name}..."
   /usr/bin/env tctl apply -f - <<EOF
@@ -22,6 +24,6 @@ spec:
   allow:
   - role: rbac/admin
     subjects:
-    - serviceAccount: organizations/tetrate/serviceaccounts/cluster-${cluster_name}
+    - serviceAccount: organizations/${tsb_org}/serviceaccounts/cluster-${cluster_name}
 EOF
 fi

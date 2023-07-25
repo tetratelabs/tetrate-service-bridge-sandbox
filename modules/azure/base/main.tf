@@ -8,11 +8,9 @@ resource "random_string" "random_prefix" {
 resource "azurerm_resource_group" "tsb" {
   name     = "${var.name_prefix}-${random_string.random_prefix.result}_rg"
   location = var.location
-  tags = {
+  tags = merge(var.tags, {
     Name            = "${var.name_prefix}-${random_string.random_prefix.result}_rg"
-    Environment     = "${var.name_prefix}_tsb"
-    "Tetrate:Owner" = var.owner
-  }
+  })
 }
 
 locals {
@@ -29,11 +27,9 @@ module "vnet" {
   address_space       = [var.cidr]
   subnet_prefixes     = local.subnet_prefixes
   subnet_names        = local.subnet_names
-  tags = {
+  tags = merge(var.tags, {
     Name            = "${var.name_prefix}_vnet"
-    Environment     = "${var.name_prefix}_tsb"
-    "Tetrate:Owner" = var.owner
-  }
+  })
   depends_on = [azurerm_resource_group.tsb]
 }
 
@@ -49,11 +45,9 @@ resource "azurerm_container_registry" "acr" {
   location            = var.location
   sku                 = "Premium"
   admin_enabled       = true
-  tags = {
+  tags = merge(var.tags, {
     Name            = replace("${var.name_prefix}tsbacr${random_string.random.result}", "-", "")
-    Environment     = "${var.name_prefix}_tsb"
-    "Tetrate:Owner" = var.owner
-  }
+  })
   depends_on          = [azurerm_resource_group.tsb]
 }
 

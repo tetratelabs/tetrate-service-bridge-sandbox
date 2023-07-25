@@ -41,10 +41,10 @@ variable "tsb_helm_version" {
   default = null
 }
 variable "tsb_fqdn" {
-  default = "toa.cx.tetrate.info"
+  default = "toa.sandbox.tetrate.io"
 }
 variable "dns_zone" {
-  default = "cx.tetrate.info"
+  default = "sandbox.tetrate.io"
 }
 
 variable "tsb_org" {
@@ -104,4 +104,27 @@ variable "cert-manager_enabled" {
 
 variable "preemptible_nodes" {
   default = false
+}
+variable "tetrate_owner" {
+}
+variable "tetrate_team" {
+}
+variable "tetrate_purpose" {
+    default = "demo"
+}
+variable "tetrate_lifespan" {
+    default = "oneoff"
+}
+variable "tetrate_customer" {
+    default = "internal"
+}
+locals {
+  default_tags = {
+       tetrate_owner     = replace(coalesce(var.tetrate_owner, var.tsb_image_sync_username), "/\\W+/", "_")
+       tetrate_team      = replace(var.tetrate_team, "/\\W+/", "_")
+       tetrate_purpose   = var.tetrate_purpose
+       tetrate_lifespan  = var.tetrate_lifespan
+       tetrate_customer  = var.tetrate_customer
+       environment       = var.name_prefix
+  }
 }

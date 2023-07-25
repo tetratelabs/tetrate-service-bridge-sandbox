@@ -41,10 +41,10 @@ variable "tsb_helm_version" {
   default = null
 }
 variable "tsb_fqdn" {
-  default = "toa.cx.tetrate.info"
+  default = "toa.sandbox.tetrate.io"
 }
 variable "dns_zone" {
-  default = "cx.tetrate.info"
+  default = "sandbox.tetrate.io"
 }
 
 variable "tsb_org" {
@@ -67,7 +67,7 @@ variable "azure_k8s_region" {
 }
 
 variable "azure_aks_k8s_version" {
-  default = "1.24.6"
+  default = "1.24"
 }
 
 variable "tsb_mp" {
@@ -83,4 +83,28 @@ variable "output_path" {
 
 variable "cert-manager_enabled" {
   default = true
+}
+
+variable "tetrate_owner" {
+}
+variable "tetrate_team" {
+}
+variable "tetrate_purpose" {
+    default = "demo"
+}
+variable "tetrate_lifespan" {
+    default = "oneoff"
+}
+variable "tetrate_customer" {
+    default = "internal"
+}
+locals {
+  default_tags = {
+       "tetrate:owner"    = coalesce(var.tetrate_owner, replace(var.tsb_image_sync_username, "/\\W+/", "-"))
+       "tetrate:team"     = var.tetrate_team
+       "tetrate:purpose"  = var.tetrate_purpose
+       "tetrate:lifespan" = var.tetrate_lifespan
+       "tetrate:customer" = var.tetrate_customer
+       "environment"      = var.name_prefix
+  }
 }

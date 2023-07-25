@@ -13,6 +13,8 @@ resource "azurerm_kubernetes_cluster" "k8s" {
     network_plugin = "kubenet"
   }
 
+  oidc_issuer_enabled = true
+
   default_node_pool {
     name                = replace("${substr(var.cluster_name, 0, min(length("${var.cluster_name}"), 6))}", "-", "")
     vnet_subnet_id      = var.vnet_subnet
@@ -28,11 +30,9 @@ resource "azurerm_kubernetes_cluster" "k8s" {
     type = "SystemAssigned"
   }
 
-  tags = {
-    Name            = "${var.cluster_name}_tsb_sandbox_blue"
-    Environment     = "${var.name_prefix}_tsb"
-    "Tetrate:Owner" = var.owner
-  }
+  tags = merge(var.tags, {
+    Name = "${var.cluster_name}_tsb_sandbox_blue"
+  })
 
 }
 
@@ -42,4 +42,3 @@ resource "azurerm_role_assignment" "attach_acr" {
   principal_id                     = azurerm_kubernetes_cluster.k8s.kubelet_identity[0].object_id
   skip_service_principal_aad_check = true
 }
-

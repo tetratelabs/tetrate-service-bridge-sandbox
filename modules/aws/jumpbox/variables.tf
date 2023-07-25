@@ -1,11 +1,6 @@
 variable "name_prefix" {
   description = "name prefix"
 }
-
-variable "owner" {
-  description = "owner of this environment"
-}
-
 variable "region" {
 }
 
@@ -21,7 +16,8 @@ variable "cidr" {
 
 variable "registry" {
 }
-
+variable "registry_name" {
+}
 
 variable "jumpbox_username" {
 }
@@ -39,4 +35,8 @@ variable "tsb_helm_repository" {
   default = ""
 }
 variable "output_path" {
+}
+
+variable "tags" {
+  type = map
 }

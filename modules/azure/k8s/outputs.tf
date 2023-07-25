@@ -32,7 +32,11 @@ resource "local_file" "kubeconfig" {
 }
 
 output "cluster_name" {
-  value = var.cluster_name
+  value = azurerm_kubernetes_cluster.k8s.name
+}
+
+output "kubelet_identity" {
+  value = azurerm_kubernetes_cluster.k8s.kubelet_identity
 }
 
 output "locality_region" {

@@ -45,3 +45,15 @@ output "locality_region" {
 output "vnet_id" {
   value = module.azure_base[0].vnet_id
 }
+
+output "kubelet_identity" {
+  value = module.azure_k8s[0].kubelet_identity 
+}
+
+output "resource_group_name" {
+  value = module.azure_base[0].resource_group_name
+}
+
+output "resource_group_id" {
+  value = module.azure_base[0].resource_group_id
+}

@@ -26,6 +26,14 @@ data "google_compute_default_service_account" "default" {
 module "internal_registry" {
   source      = "../../internal_registry"
   tsb_version = var.tsb_version
+  # The internal registry token is needed only if the TSB version is a development version, and only once when the
+  # jumpbox bootstraps the first time. It is not needed later as all images are already pushed to the registry (and
+  # cloud-init won't run again anyway).
+  # Since the token is short-lived, successive calls to this module would cause the jumpbox to reconcile, restart, and
+  # eventually changing the IP address, etc, unnecessarily.
+  # By setting this, subsequent calls to this module will return the token returned on the initial run, if present, avoiding
+  # the jumbox reconcile.
+  cached_by   = "${var.name_prefix}-internal-registry.tfstate.tokencache"
 }
 
 resource "google_compute_instance" "jumpbox" {
@@ -74,12 +82,25 @@ resource "google_compute_instance" "jumpbox" {
     scopes = ["cloud-platform"]
   }
 
-  labels = {
+  labels = merge(var.tags, {
     name        = "${var.name_prefix}-jumpbox"
-    environment = "${var.name_prefix}_tsb"
-    owner       = var.owner
-  }
+  })
 }
+
+# GCP project deletion will fail, if there are any outstanding PVCs left post GKE cluster deletion, i.e. PVC for Postgres and Elasticsearch post TSB MP deletion
+resource "null_resource" "gcp_cleanup" {
+  triggers = {
+    project_id = var.project_id
+  }
+
+  provisioner "local-exec" {
+    when = destroy
+    command = "sh ${path.module}/gcp-cleanup.sh ${self.triggers.project_id}"
+    on_failure = continue
+  }
+  depends_on = [ tls_private_key.generated ]
+}
+
 
 resource "local_file" "tsbadmin_pem" {
   content         = tls_private_key.generated.private_key_pem
@@ -89,7 +110,7 @@ resource "local_file" "tsbadmin_pem" {
 }
 
 resource "local_file" "ssh_jumpbox" {
-  content         = "ssh -i ${var.name_prefix}-gcp-${var.jumpbox_username}.pem -l ${var.jumpbox_username} ${google_compute_instance.jumpbox.network_interface[0].access_config[0].nat_ip}"
+  content         = "ssh -i ${var.name_prefix}-gcp-${var.jumpbox_username}.pem -l ${var.jumpbox_username} ${google_compute_instance.jumpbox.network_interface[0].access_config[0].nat_ip} \"$@\""
   filename        = "${var.output_path}/ssh-to-gcp-${var.name_prefix}-jumpbox.sh"
   file_permission = "0755"
 }

@@ -1,0 +1,16 @@
+{{- $tsb := default dict .Values.tsb }}
+apiVersion: tsb.tetrate.io/v2
+kind: Workspace
+metadata:
+  name: {{ .Release.Name }}-ws
+  annotations:
+    "helm.sh/hook-weight": "-2"
+    "helm.sh/hook": "pre-install"
+    tsb.tetrate.io/organization: {{ $tsb.org }}
+    tsb.tetrate.io/tenant: {{ $tsb.tenant }}
+spec:
+  displayName: {{ .Release.Name }}-{{ .Values.operation }}-ws
+  namespaceSelector:
+    names:
+    - "*/{{ $tsb.appNamespace }}"
+  privileged: false
