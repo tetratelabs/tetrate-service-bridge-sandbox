@@ -8,6 +8,8 @@ items:
       name: stg
       annotations:
         tsb.tetrate.io/organization: tetrate
+      labels:
+        domain: stg
     spec:
       description: stg
       displayName: stg
@@ -18,6 +20,9 @@ items:
       annotations:
         tsb.tetrate.io/organization: tetrate
         tsb.tetrate.io/tenant: stg
+        owner: direct-bookinfo-ws-team
+      labels:
+        app: direct-bookinfo
     spec:
       namespaceSelector:
         names:

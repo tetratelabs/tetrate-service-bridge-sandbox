@@ -8,6 +8,8 @@ items:
       name: dev
       annotations:
         tsb.tetrate.io/organization: tetrate
+      labels:
+        domain: dev
     spec:
       description: dev
       displayName: dev
@@ -18,6 +20,9 @@ items:
       annotations:
         tsb.tetrate.io/organization: tetrate
         tsb.tetrate.io/tenant: dev
+        owner: bookinfo-dev-ws-team
+      labels:
+        app: bookinfo-dev
     spec:
       isolationBoundary: dev
       namespaceSelector:
