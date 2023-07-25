@@ -14,90 +14,88 @@ items:
   - apiVersion: tsb.tetrate.io/v2
     kind: Workspace
     metadata:
-      name: bookinfo-qa-ws
+      name: bookinfo-ws
       annotations:
         tsb.tetrate.io/organization: tetrate
         tsb.tetrate.io/tenant: dev
     spec:
-      isolationBoundary: qa
       namespaceSelector:
         names:
-          - "*/bookinfo-qa"
-          - "*/tier1-qa"
+          - "*/bookinfo"
+          - "*/tier1"
   - apiVersion: gateway.tsb.tetrate.io/v2
     kind: Group
     metadata:
-      name: bookinfo-qa-gg
+      name: bookinfo-gg
       annotations:
         tsb.tetrate.io/organization: tetrate
         tsb.tetrate.io/tenant: dev
-        tsb.tetrate.io/workspace: bookinfo-qa-ws
+        tsb.tetrate.io/workspace: bookinfo-ws
     spec:
       namespaceSelector:
         names:
-          - "*/bookinfo-qa"
-          - "*/tier1-qa"
+          - "*/bookinfo"
+          - "*/tier1"
       configMode: BRIDGED
   - apiVersion: traffic.tsb.tetrate.io/v2
     kind: Group
     metadata:
-      name: bookinfo-qa-tg
+      name: bookinfo-tg
       annotations:
         tsb.tetrate.io/organization: tetrate
         tsb.tetrate.io/tenant: dev
-        tsb.tetrate.io/workspace: bookinfo-qa-ws
+        tsb.tetrate.io/workspace: bookinfo-ws
     spec:
       namespaceSelector:
         names:
-          - "*/bookinfo-qa"
-          - "*/tier1-qa"
+          - "*/bookinfo"
+          - "*/tier1"
       configMode: BRIDGED
   - apiVersion: security.tsb.tetrate.io/v2
     kind: Group
     metadata:
-      name: bookinfo-qa-sg
+      name: bookinfo-sg
       annotations:
         tsb.tetrate.io/organization: tetrate
         tsb.tetrate.io/tenant: dev
-        tsb.tetrate.io/workspace: bookinfo-qa-ws
+        tsb.tetrate.io/workspace: bookinfo-ws
     spec:
       namespaceSelector:
         names:
-          - "*/bookinfo-qa"
-          - "*/tier1-qa"
+          - "*/bookinfo"
+          - "*/tier1"
       configMode: BRIDGED
   - apiVersion: install.tetrate.io/v1alpha1
     kind: IngressGateway
     metadata:
-      name: bookinfo-qa-gw
-      namespace: bookinfo-qa
+      name: bookinfo-gw
+      namespace: bookinfo
     spec:
-      revision: qa-stable
       kubeSpec:
         service:
           type: LoadBalancer
   - apiVersion: gateway.tsb.tetrate.io/v2
     kind: IngressGateway
     metadata:
-      name: bookinfo-qa-igw
+      name: bookinfo-igw
       annotations:
         tsb.tetrate.io/organization: tetrate
         tsb.tetrate.io/tenant: dev
-        tsb.tetrate.io/workspace: bookinfo-qa-ws
-        tsb.tetrate.io/gatewayGroup: bookinfo-qa-gg
+        tsb.tetrate.io/workspace: bookinfo-ws
+        tsb.tetrate.io/gatewayGroup: bookinfo-gg
     spec:
       workloadSelector:
-        namespace: bookinfo-qa
+        namespace: bookinfo
         labels:
-          app: bookinfo-qa-gw
+          app: bookinfo-gw
       http:
         - name: productpage
           port: 80
-          hostname: "bookinfo-qa.tetrate.io"
+          hostname: "bookinfo.tetrate.io"
           routing:
             rules:
               - route:
-                  host: "bookinfo-qa/productpage.bookinfo-qa.svc.cluster.local"
+                  host: "bookinfo/productpage.bookinfo.svc.cluster.local"
                   port: 9080
         - name: details
           port: 80
@@ -105,7 +103,7 @@ items:
           routing:
             rules:
               - route:
-                  host: "bookinfo-qa/details.bookinfo-qa.svc.cluster.local"
+                  host: "bookinfo/details.bookinfo.svc.cluster.local"
                   port: 9080
   - apiVersion: apps/v1
     kind: Deployment
@@ -113,7 +111,7 @@ items:
       labels:
         app: trafficgenerator
       name: trafficgenerator
-      namespace: bookinfo-qa
+      namespace: bookinfo
     spec:
       progressDeadlineSeconds: 600
       replicas: 1
@@ -134,7 +132,7 @@ items:
             - args:
                 - /bin/sh
                 - -c
-                - 'while true; do curl -i -H"Host: bookinfo-qa.tetrate.io" bookinfo-qa-gw.bookinfo-qa/productpage; done'
+                - 'while true; do curl -i -H"Host: bookinfo.tetrate.io" bookinfo-gw.bookinfo/productpage; done'
               image: appropriate/curl
               imagePullPolicy: Always
               name: trafficgenerator

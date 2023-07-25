@@ -2,7 +2,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: products
-  namespace: gitops-eshop
+  namespace: eshop
   labels:
     app: products
     service: products
@@ -21,7 +21,7 @@ apiVersion: v1
 kind: ServiceAccount
 metadata:
   name: sa-products
-  namespace: gitops-eshop
+  namespace: eshop
   labels:
     app: products
 ---
@@ -29,7 +29,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: products-v1
-  namespace: gitops-eshop
+  namespace: eshop
   labels:
     app: products
     version: v1
@@ -47,7 +47,7 @@ spec:
       serviceAccountName: sa-products
       containers:
         - name: obs-tester
-          image: docker.io/nacx/obs-tester-server:1.0
+          image: docker.io/nacx/obs-tester-server:1.2
           imagePullPolicy: Always
           args:
             - '--log-output-level=all:debug'

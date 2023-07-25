@@ -14,58 +14,58 @@ items:
   - apiVersion: tsb.tetrate.io/v2
     kind: Workspace
     metadata:
-      name: gitops-direct-bookinfo-ws
+      name: direct-bookinfo-ws
       annotations:
         tsb.tetrate.io/organization: tetrate
         tsb.tetrate.io/tenant: stg
     spec:
       namespaceSelector:
         names:
-          - "*/gitops-direct-bookinfo"
+          - "*/direct-bookinfo"
   - apiVersion: gateway.tsb.tetrate.io/v2
     kind: Group
     metadata:
-      name: gitops-direct-bookinfo-gg
+      name: direct-bookinfo-gg
       annotations:
         tsb.tetrate.io/organization: tetrate
         tsb.tetrate.io/tenant: stg
-        tsb.tetrate.io/workspace: gitops-direct-bookinfo-ws
+        tsb.tetrate.io/workspace: direct-bookinfo-ws
     spec:
       namespaceSelector:
         names:
-          - "*/gitops-direct-bookinfo"
+          - "*/direct-bookinfo"
       configMode: DIRECT
   - apiVersion: traffic.tsb.tetrate.io/v2
     kind: Group
     metadata:
-      name: gitops-direct-bookinfo-tg
+      name: direct-bookinfo-tg
       annotations:
         tsb.tetrate.io/organization: tetrate
         tsb.tetrate.io/tenant: stg
-        tsb.tetrate.io/workspace: gitops-direct-bookinfo-ws
+        tsb.tetrate.io/workspace: direct-bookinfo-ws
     spec:
       namespaceSelector:
         names:
-          - "*/gitops-direct-bookinfo"
+          - "*/direct-bookinfo"
       configMode: DIRECT
   - apiVersion: security.tsb.tetrate.io/v2
     kind: Group
     metadata:
-      name: gitops-direct-bookinfo-sg
+      name: direct-bookinfo-sg
       annotations:
         tsb.tetrate.io/organization: tetrate
         tsb.tetrate.io/tenant: stg
-        tsb.tetrate.io/workspace: gitops-direct-bookinfo-ws
+        tsb.tetrate.io/workspace: direct-bookinfo-ws
     spec:
       namespaceSelector:
         names:
-          - "*/gitops-direct-bookinfo"
+          - "*/direct-bookinfo"
       configMode: DIRECT
   - apiVersion: install.tetrate.io/v1alpha1
     kind: IngressGateway
     metadata:
-      name: gitops-direct-bookinfo-gw
-      namespace: gitops-direct-bookinfo
+      name: direct-bookinfo-gw
+      namespace: direct-bookinfo
     spec:
       kubeSpec:
         service:
@@ -73,8 +73,8 @@ items:
   - apiVersion: networking.istio.io/v1alpha3
     kind: Gateway
     metadata:
-      name: gitops-direct-bookinfo-gw
-      namespace: gitops-direct-bookinfo
+      name: direct-bookinfo-gw
+      namespace: direct-bookinfo
       labels:
         istio.io/rev: "tsb"
       annotations:
@@ -82,23 +82,23 @@ items:
         argocd.argoproj.io/sync-options: Prune=false
         tsb.tetrate.io/organization: tetrate
         tsb.tetrate.io/tenant: stg
-        tsb.tetrate.io/workspace: gitops-direct-bookinfo-ws
-        tsb.tetrate.io/gatewayGroup: gitops-direct-bookinfo-gg
+        tsb.tetrate.io/workspace: direct-bookinfo-ws
+        tsb.tetrate.io/gatewayGroup: direct-bookinfo-gg
     spec:
       selector:
-        app: gitops-direct-bookinfo-gw
+        app: direct-bookinfo-gw
       servers:
         - port:
             number: 80
             name: http
             protocol: HTTP
           hosts:
-            - "gitops-direct-bookinfo.tetrate.io"
+            - "direct-bookinfo.tetrate.io"
   - apiVersion: networking.istio.io/v1alpha3
     kind: DestinationRule
     metadata:
-      name: gitops-direct-bookinfo-dr
-      namespace: gitops-direct-bookinfo
+      name: direct-bookinfo-dr
+      namespace: direct-bookinfo
       labels:
         istio.io/rev: "tsb"
       annotations:
@@ -106,8 +106,8 @@ items:
         argocd.argoproj.io/sync-options: Prune=false
         tsb.tetrate.io/organization: tetrate
         tsb.tetrate.io/tenant: stg
-        tsb.tetrate.io/workspace: gitops-direct-bookinfo-ws
-        tsb.tetrate.io/trafficGroup: gitops-direct-bookinfo-tg
+        tsb.tetrate.io/workspace: direct-bookinfo-ws
+        tsb.tetrate.io/trafficGroup: direct-bookinfo-tg
     spec:
       host: productpage
       subsets:
@@ -117,8 +117,8 @@ items:
   - apiVersion: networking.istio.io/v1alpha3
     kind: VirtualService
     metadata:
-      name: gitops-direct-bookinfo-vs
-      namespace: gitops-direct-bookinfo
+      name: direct-bookinfo-vs
+      namespace: direct-bookinfo
       labels:
         istio.io/rev: "tsb"
       annotations:
@@ -126,13 +126,13 @@ items:
         argocd.argoproj.io/sync-options: Prune=false
         tsb.tetrate.io/organization: tetrate
         tsb.tetrate.io/tenant: stg
-        tsb.tetrate.io/workspace: gitops-direct-bookinfo-ws
-        tsb.tetrate.io/gatewayGroup: gitops-direct-bookinfo-gg
+        tsb.tetrate.io/workspace: direct-bookinfo-ws
+        tsb.tetrate.io/gatewayGroup: direct-bookinfo-gg
     spec:
       hosts:
-        - "gitops-direct-bookinfo.tetrate.io"
+        - "direct-bookinfo.tetrate.io"
       gateways:
-        - gitops-direct-bookinfo-gw
+        - direct-bookinfo-gw
       http:
         - route:
             - destination:
@@ -144,7 +144,7 @@ items:
       labels:
         app: trafficgenerator
       name: trafficgenerator
-      namespace: gitops-direct-bookinfo
+      namespace: direct-bookinfo
     spec:
       progressDeadlineSeconds: 600
       replicas: 1
@@ -165,7 +165,7 @@ items:
             - args:
                 - /bin/sh
                 - -c
-                - 'while true; do curl -i -H"Host: gitops-direct-bookinfo.tetrate.io" gitops-direct-bookinfo-gw.gitops-direct-bookinfo/productpage; done'
+                - 'while true; do curl -i -H"Host: direct-bookinfo.tetrate.io" direct-bookinfo-gw.direct-bookinfo/productpage; done'
               image: appropriate/curl
               imagePullPolicy: Always
               name: trafficgenerator

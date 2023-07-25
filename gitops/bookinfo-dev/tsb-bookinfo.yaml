@@ -14,7 +14,7 @@ items:
   - apiVersion: tsb.tetrate.io/v2
     kind: Workspace
     metadata:
-      name: gitops-bookinfo-dev-ws
+      name: bookinfo-dev-ws
       annotations:
         tsb.tetrate.io/organization: tetrate
         tsb.tetrate.io/tenant: dev
@@ -22,55 +22,55 @@ items:
       isolationBoundary: dev
       namespaceSelector:
         names:
-          - "*/gitops-bookinfo-dev"
-          - "*/gitops-tier1-dev"
+          - "*/bookinfo-dev"
+          - "*/tier1-dev"
   - apiVersion: gateway.tsb.tetrate.io/v2
     kind: Group
     metadata:
-      name: gitops-bookinfo-dev-gg
+      name: bookinfo-dev-gg
       annotations:
         tsb.tetrate.io/organization: tetrate
         tsb.tetrate.io/tenant: dev
-        tsb.tetrate.io/workspace: gitops-bookinfo-dev-ws
+        tsb.tetrate.io/workspace: bookinfo-dev-ws
     spec:
       namespaceSelector:
         names:
-          - "*/gitops-bookinfo-dev"
-          - "*/gitops-tier1-dev"
+          - "*/bookinfo-dev"
+          - "*/tier1-dev"
       configMode: BRIDGED
   - apiVersion: traffic.tsb.tetrate.io/v2
     kind: Group
     metadata:
-      name: gitops-bookinfo-dev-tg
+      name: bookinfo-dev-tg
       annotations:
         tsb.tetrate.io/organization: tetrate
         tsb.tetrate.io/tenant: dev
-        tsb.tetrate.io/workspace: gitops-bookinfo-dev-ws
+        tsb.tetrate.io/workspace: bookinfo-dev-ws
     spec:
       namespaceSelector:
         names:
-          - "*/gitops-bookinfo-dev"
-          - "*/gitops-tier1-dev"
+          - "*/bookinfo-dev"
+          - "*/tier1-dev"
       configMode: BRIDGED
   - apiVersion: security.tsb.tetrate.io/v2
     kind: Group
     metadata:
-      name: gitops-bookinfo-dev-sg
+      name: bookinfo-dev-sg
       annotations:
         tsb.tetrate.io/organization: tetrate
         tsb.tetrate.io/tenant: dev
-        tsb.tetrate.io/workspace: gitops-bookinfo-dev-ws
+        tsb.tetrate.io/workspace: bookinfo-dev-ws
     spec:
       namespaceSelector:
         names:
-          - "*/gitops-bookinfo-dev"
-          - "*/gitops-tier1-dev"
+          - "*/bookinfo-dev"
+          - "*/tier1-dev"
       configMode: BRIDGED
   - apiVersion: install.tetrate.io/v1alpha1
     kind: IngressGateway
     metadata:
-      name: gitops-bookinfo-dev-gw
-      namespace: gitops-bookinfo-dev
+      name: bookinfo-dev-gw
+      namespace: bookinfo-dev
     spec:
       revision: dev-stable 
       kubeSpec:
@@ -79,33 +79,33 @@ items:
   - apiVersion: gateway.tsb.tetrate.io/v2
     kind: IngressGateway
     metadata:
-      name: gitops-bookinfo-dev-igw
+      name: bookinfo-dev-igw
       annotations:
         tsb.tetrate.io/organization: tetrate
         tsb.tetrate.io/tenant: dev
-        tsb.tetrate.io/workspace: gitops-bookinfo-dev-ws
-        tsb.tetrate.io/gatewayGroup: gitops-bookinfo-dev-gg
+        tsb.tetrate.io/workspace: bookinfo-dev-ws
+        tsb.tetrate.io/gatewayGroup: bookinfo-dev-gg
     spec:
       workloadSelector:
-        namespace: gitops-bookinfo-dev
+        namespace: bookinfo-dev
         labels:
-          app: gitops-bookinfo-dev-gw
+          app: bookinfo-dev-gw
       http:
         - name: productpage
           port: 80
-          hostname: "gitops-bookinfo-dev.tetrate.io"
+          hostname: "bookinfo-dev.tetrate.io"
           routing:
             rules:
               - route:
-                  host: "gitops-bookinfo-dev/productpage.gitops-bookinfo-dev.svc.cluster.local"
+                  host: "bookinfo-dev/productpage.bookinfo-dev.svc.cluster.local"
                   port: 9080
         - name: details
           port: 80
-          hostname: "gitops-details.tetrate.io"
+          hostname: "details.tetrate.io"
           routing:
             rules:
               - route:
-                  host: "gitops-bookinfo-dev/details.gitops-bookinfo-dev.svc.cluster.local"
+                  host: "bookinfo-dev/details.bookinfo-dev.svc.cluster.local"
                   port: 9080
   - apiVersion: apps/v1
     kind: Deployment
@@ -113,7 +113,7 @@ items:
       labels:
         app: trafficgenerator
       name: trafficgenerator
-      namespace: gitops-bookinfo-dev
+      namespace: bookinfo-dev
     spec:
       progressDeadlineSeconds: 600
       replicas: 1
@@ -134,7 +134,7 @@ items:
             - args:
                 - /bin/sh
                 - -c
-                - 'while true; do curl -i -H"Host: gitops-bookinfo-dev.tetrate.io" gitops-bookinfo-dev-gw.gitops-bookinfo-dev/productpage; done'
+                - 'while true; do curl -i -H"Host: bookinfo-dev.tetrate.io" bookinfo-dev-gw.bookinfo-dev/productpage; done'
               image: appropriate/curl
               imagePullPolicy: Always
               name: trafficgenerator

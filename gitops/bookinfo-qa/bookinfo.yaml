@@ -30,8 +30,8 @@ apiVersion: v1
 kind: Namespace
 metadata:
   labels:
-    istio.io/rev: qa-stable
-  name: gitops-bookinfo-qa
+    istio.io/rev: stg-stable
+  name: bookinfo-stg
 ---
 ##################################################################################################
 # Details service
@@ -45,8 +45,8 @@ metadata:
     service: details
 spec:
   ports:
-    - port: 9080
-      name: http
+  - port: 9080
+    name: http
   selector:
     app: details
 ---
@@ -78,13 +78,11 @@ spec:
     spec:
       serviceAccountName: bookinfo-details
       containers:
-        - name: details
-          image: docker.io/istio/examples-bookinfo-details-v1:1.16.2
-          imagePullPolicy: IfNotPresent
-          ports:
-            - containerPort: 9080
-          securityContext:
-            runAsUser: 1000
+      - name: details
+        image: docker.io/istio/examples-bookinfo-details-v1:1.18.0
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 9080
 ---
 ##################################################################################################
 # Ratings service
@@ -98,8 +96,8 @@ metadata:
     service: ratings
 spec:
   ports:
-    - port: 9080
-      name: http
+  - port: 9080
+    name: http
   selector:
     app: ratings
 ---
@@ -131,13 +129,11 @@ spec:
     spec:
       serviceAccountName: bookinfo-ratings
       containers:
-        - name: ratings
-          image: docker.io/istio/examples-bookinfo-ratings-v1:1.16.2
-          imagePullPolicy: IfNotPresent
-          ports:
-            - containerPort: 9080
-          securityContext:
-            runAsUser: 1000
+      - name: ratings
+        image: docker.io/istio/examples-bookinfo-ratings-v1:1.18.0
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 9080
 ---
 ##################################################################################################
 # Reviews service
@@ -151,8 +147,8 @@ metadata:
     service: reviews
 spec:
   ports:
-    - port: 9080
-      name: http
+  - port: 9080
+    name: http
   selector:
     app: reviews
 ---
@@ -184,26 +180,24 @@ spec:
     spec:
       serviceAccountName: bookinfo-reviews
       containers:
-        - name: reviews
-          image: docker.io/istio/examples-bookinfo-reviews-v1:1.16.2
-          imagePullPolicy: IfNotPresent
-          env:
-            - name: LOG_DIR
-              value: "/tmp/logs"
-          ports:
-            - containerPort: 9080
-          volumeMounts:
-            - name: tmp
-              mountPath: /tmp
-            - name: wlp-output
-              mountPath: /opt/ibm/wlp/output
-          securityContext:
-            runAsUser: 1000
-      volumes:
-        - name: wlp-output
-          emptyDir: {}
+      - name: reviews
+        image: docker.io/istio/examples-bookinfo-reviews-v1:1.18.0
+        imagePullPolicy: IfNotPresent
+        env:
+        - name: LOG_DIR
+          value: "/tmp/logs"
+        ports:
+        - containerPort: 9080
+        volumeMounts:
         - name: tmp
-          emptyDir: {}
+          mountPath: /tmp
+        - name: wlp-output
+          mountPath: /opt/ibm/wlp/output
+      volumes:
+      - name: wlp-output
+        emptyDir: {}
+      - name: tmp
+        emptyDir: {}
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -226,26 +220,24 @@ spec:
     spec:
       serviceAccountName: bookinfo-reviews
       containers:
-        - name: reviews
-          image: docker.io/istio/examples-bookinfo-reviews-v2:1.16.2
-          imagePullPolicy: IfNotPresent
-          env:
-            - name: LOG_DIR
-              value: "/tmp/logs"
-          ports:
-            - containerPort: 9080
-          volumeMounts:
-            - name: tmp
-              mountPath: /tmp
-            - name: wlp-output
-              mountPath: /opt/ibm/wlp/output
-          securityContext:
-            runAsUser: 1000
-      volumes:
-        - name: wlp-output
-          emptyDir: {}
+      - name: reviews
+        image: docker.io/istio/examples-bookinfo-reviews-v2:1.18.0
+        imagePullPolicy: IfNotPresent
+        env:
+        - name: LOG_DIR
+          value: "/tmp/logs"
+        ports:
+        - containerPort: 9080
+        volumeMounts:
         - name: tmp
-          emptyDir: {}
+          mountPath: /tmp
+        - name: wlp-output
+          mountPath: /opt/ibm/wlp/output
+      volumes:
+      - name: wlp-output
+        emptyDir: {}
+      - name: tmp
+        emptyDir: {}
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -268,26 +260,24 @@ spec:
     spec:
       serviceAccountName: bookinfo-reviews
       containers:
-        - name: reviews
-          image: docker.io/istio/examples-bookinfo-reviews-v3:1.16.2
-          imagePullPolicy: IfNotPresent
-          env:
-            - name: LOG_DIR
-              value: "/tmp/logs"
-          ports:
-            - containerPort: 9080
-          volumeMounts:
-            - name: tmp
-              mountPath: /tmp
-            - name: wlp-output
-              mountPath: /opt/ibm/wlp/output
-          securityContext:
-            runAsUser: 1000
-      volumes:
-        - name: wlp-output
-          emptyDir: {}
+      - name: reviews
+        image: docker.io/istio/examples-bookinfo-reviews-v3:1.18.0
+        imagePullPolicy: IfNotPresent
+        env:
+        - name: LOG_DIR
+          value: "/tmp/logs"
+        ports:
+        - containerPort: 9080
+        volumeMounts:
         - name: tmp
-          emptyDir: {}
+          mountPath: /tmp
+        - name: wlp-output
+          mountPath: /opt/ibm/wlp/output
+      volumes:
+      - name: wlp-output
+        emptyDir: {}
+      - name: tmp
+        emptyDir: {}
 ---
 ##################################################################################################
 # Productpage services
@@ -301,8 +291,8 @@ metadata:
     service: productpage
 spec:
   ports:
-    - port: 9080
-      name: http
+  - port: 9080
+    name: http
   selector:
     app: productpage
 ---
@@ -328,27 +318,25 @@ spec:
       version: v1
   template:
     metadata:
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "9080"
+        prometheus.io/path: "/metrics"
       labels:
         app: productpage
         version: v1
     spec:
       serviceAccountName: bookinfo-productpage
       containers:
-        - name: productpage
-          image: docker.io/chirauki/productpage:latest
-          imagePullPolicy: IfNotPresent
-          env:
-            - name: DETAILS_HOSTNAME
-              value: gitops-details.tetrate.io
-          ports:
-            - containerPort: 9080
-          volumeMounts:
-            - name: tmp
-              mountPath: /tmp
-          securityContext:
-            runAsUser: 1000
-      volumes:
+      - name: productpage
+        image: docker.io/istio/examples-bookinfo-productpage-v1:1.18.0
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 9080
+        volumeMounts:
         - name: tmp
-          emptyDir: {}
+          mountPath: /tmp
+      volumes:
+      - name: tmp
+        emptyDir: {}
 ---
-

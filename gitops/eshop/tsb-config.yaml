@@ -6,7 +6,7 @@ items:
     kind: Tenant
     metadata:
       name: eshop
-      namespace: gitops-eshop-config
+      namespace: eshop-config
       annotations:
         tsb.tetrate.io/organization: tetrate
     spec:
@@ -15,7 +15,7 @@ items:
     kind: Workspace
     metadata:
       name: eshop
-      namespace: gitops-eshop-config
+      namespace: eshop-config
       annotations:
         tsb.tetrate.io/organization: tetrate
         tsb.tetrate.io/tenant: eshop
@@ -23,14 +23,14 @@ items:
       displayName: eShop Portal
       namespaceSelector:
         names:
-        - "*/gitops-eshop"
-        - "*/gitops-eshop-checkout"
-        - "*/gitops-eshop-trafficgen"
+        - "*/eshop"
+        - "*/eshop-checkout"
+        - "*/eshop-trafficgen"
   - apiVersion: tsb.tetrate.io/v2
     kind: Workspace
     metadata:
       name: payments
-      namespace: gitops-eshop-config
+      namespace: eshop-config
       annotations:
         tsb.tetrate.io/organization: tetrate
         tsb.tetrate.io/tenant: eshop
@@ -38,12 +38,12 @@ items:
       displayName: Payments Gate
       namespaceSelector:
         names:
-        - "*/gitops-eshop-payments"
+        - "*/eshop-payments"
   - apiVersion: gateway.tsb.tetrate.io/v2
     kind: Group
     metadata:
       name: eshop-gateways
-      namespace: gitops-eshop-config
+      namespace: eshop-config
       annotations:
         tsb.tetrate.io/organization: tetrate
         tsb.tetrate.io/tenant: eshop
@@ -52,12 +52,12 @@ items:
       displayName: eShop Gateways
       namespaceSelector:
         names:
-        - "*/gitops-eshop"
+        - "*/eshop"
   - apiVersion: gateway.tsb.tetrate.io/v2
     kind: Group
     metadata:
       name: payments-gateways
-      namespace: gitops-eshop-config
+      namespace: eshop-config
       annotations:
         tsb.tetrate.io/organization: tetrate
         tsb.tetrate.io/tenant: eshop
@@ -66,12 +66,12 @@ items:
       displayName: Payments Gateways
       namespaceSelector:
         names:
-        - "*/gitops-eshop-payments"
+        - "*/eshop-payments"
   - apiVersion: security.tsb.tetrate.io/v2
     kind: Group
     metadata:
       name: checkout-security
-      namespace: gitops-eshop-config
+      namespace: eshop-config
       annotations:
         tsb.tetrate.io/organization: tetrate
         tsb.tetrate.io/tenant: eshop
@@ -80,12 +80,12 @@ items:
       displayName: Checkout Security
       namespaceSelector:
         names:
-          - "*/gitops-eshop-checkout"
+          - "*/eshop-checkout"
   - apiVersion: security.tsb.tetrate.io/v2
     kind: Group
     metadata:
       name: portal-security
-      namespace: gitops-eshop-config
+      namespace: eshop-config
       annotations:
         tsb.tetrate.io/organization: tetrate
         tsb.tetrate.io/tenant: eshop
@@ -94,12 +94,12 @@ items:
       displayName: Portal Security
       namespaceSelector:
         names:
-          - "*/gitops-eshop"
+          - "*/eshop"
   - apiVersion: gateway.tsb.tetrate.io/v2
     kind: IngressGateway
     metadata:
       name: eshop-gateway
-      namespace: gitops-eshop-config
+      namespace: eshop-config
       annotations:
         tsb.tetrate.io/organization: tetrate
         tsb.tetrate.io/tenant: eshop
@@ -114,7 +114,7 @@ items:
         routing:
           rules:
           - route:
-              host: gitops-eshop/products.gitops-eshop.svc.cluster.local
+              host: eshop/products.eshop.svc.cluster.local
               port: 80
         rateLimiting:
           settings:
@@ -137,12 +137,12 @@ items:
       workloadSelector:
         labels:
           app: tsb-gateway-eshop
-        namespace: gitops-eshop
+        namespace: eshop
   - apiVersion: gateway.tsb.tetrate.io/v2
     kind: IngressGateway
     metadata:
       name: payments-gateway
-      namespace: gitops-eshop-config
+      namespace: eshop-config
       annotations:
         tsb.tetrate.io/organization: tetrate
         tsb.tetrate.io/tenant: eshop
@@ -157,17 +157,17 @@ items:
         routing:
           rules:
           - route:
-              host: gitops-eshop-payments/payments.gitops-eshop-payments.svc.cluster.local
+              host: eshop-payments/payments.eshop-payments.svc.cluster.local
               port: 80
       workloadSelector:
         labels:
           app: tsb-gateway-payments
-        namespace: gitops-eshop-payments
+        namespace: eshop-payments
   - apiVersion: tsb.tetrate.io/v2
     kind: Team
     metadata:
       name: everyone
-      namespace: gitops-eshop-config
+      namespace: eshop-config
       annotations:
         tsb.tetrate.io/organization: tetrate
     spec:
@@ -179,7 +179,7 @@ items:
     kind: Team
     metadata:
       name: eshop-team
-      namespace: gitops-eshop-config
+      namespace: eshop-config
       annotations:
         tsb.tetrate.io/organization: tetrate
     spec:
@@ -189,7 +189,7 @@ items:
     kind: Team
     metadata:
       name: payments-team
-      namespace: gitops-eshop-config
+      namespace: eshop-config
       annotations:
         tsb.tetrate.io/organization: tetrate
     spec:
@@ -199,7 +199,7 @@ items:
     kind: Role
     metadata:
       name: tenant-reader
-      namespace: gitops-eshop-config
+      namespace: eshop-config
     spec:
       displayName: Tenant Reader
       rules:
@@ -213,7 +213,7 @@ items:
     kind: AccessBindings
     metadata:
       name: eshop-tenant
-      namespace: gitops-eshop-config
+      namespace: eshop-config
       annotations:
         tsb.tetrate.io/fqn: organizations/tetrate/tenants/eshop
     spec:
@@ -229,7 +229,7 @@ items:
     kind: AccessBindings
     metadata:
       name: payments-workspace
-      namespace: gitops-eshop-config
+      namespace: eshop-config
       annotations:
         tsb.tetrate.io/fqn: organizations/tetrate/tenants/eshop/workspaces/payments
     spec:
@@ -244,7 +244,7 @@ items:
     kind: AccessBindings
     metadata:
       name: eshop-workspace
-      namespace: gitops-eshop-config
+      namespace: eshop-config
       annotations:
         tsb.tetrate.io/fqn: organizations/tetrate/tenants/eshop/workspaces/eshop
     spec:
@@ -259,7 +259,7 @@ items:
     kind: AccessBindings
     metadata:
       name: payments-gateways
-      namespace: gitops-eshop-config
+      namespace: eshop-config
       annotations:
         tsb.tetrate.io/fqn: organizations/tetrate/tenants/eshop/workspaces/payments/gatewaygroups/payments-gateways
     spec:
@@ -271,7 +271,7 @@ items:
     kind: AccessBindings
     metadata:
       name: eshop-gateways
-      namespace: gitops-eshop-config
+      namespace: eshop-config
       annotations:
         tsb.tetrate.io/fqn: organizations/tetrate/tenants/eshop/workspaces/eshop/gatewaygroups/eshop-gateways
     spec:
