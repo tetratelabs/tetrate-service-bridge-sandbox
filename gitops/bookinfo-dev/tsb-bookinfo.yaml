@@ -106,6 +106,38 @@ items:
                   serviceDestination:
                     host: "bookinfo-dev/productpage.bookinfo-dev.svc.cluster.local"
                     port: 9080
+  - apiVersion: install.tetrate.io/v1alpha1
+    kind: Tier1Gateway
+    metadata:
+      name: tier1-dev-gw
+      namespace: tier1-dev
+    spec:
+      kubeSpec:
+        service:
+          type: LoadBalancer
+  - apiVersion: gateway.tsb.tetrate.io/v2
+    kind: Gateway
+    metadata:
+      name: tier1-bookinfo-dev-gw
+      annotations:
+        tsb.tetrate.io/organization: tetrate
+        tsb.tetrate.io/tenant: dev
+        tsb.tetrate.io/workspace: bookinfo-dev-ws
+        tsb.tetrate.io/gatewayGroup: bookinfo-dev-gg
+    spec:
+      workloadSelector:
+        namespace: tier1-dev
+        labels:
+          app: tier1-dev-gw
+      http:
+        - name: productpage
+          port: 80
+          hostname: "bookinfo-dev.tetrate.io"
+          routing:
+            rules:
+              - route:
+                  clusterDestination:
+                    clusters: []
   - apiVersion: apps/v1
     kind: Deployment
     metadata:
@@ -142,36 +174,4 @@ items:
               terminationMessagePolicy: File
           dnsPolicy: ClusterFirst
           restartPolicy: Always
-  - apiVersion: install.tetrate.io/v1alpha1
-    kind: Tier1Gateway
-    metadata:
-      name: tier1-dev-gw
-      namespace: tier1-dev
-    spec:
-      kubeSpec:
-        service:
-          type: LoadBalancer
-  - apiVersion: gateway.tsb.tetrate.io/v2
-    kind: Gateway
-    metadata:
-      name: tier1-bookinfo-dev-gw
-      annotations:
-        tsb.tetrate.io/organization: tetrate
-        tsb.tetrate.io/tenant: dev
-        tsb.tetrate.io/workspace: bookinfo-dev-ws
-        tsb.tetrate.io/gatewayGroup: bookinfo-dev-gg
-    spec:
-      workloadSelector:
-        namespace: tier1-dev
-        labels:
-          app: tier1-dev-gw
-      http:
-        - name: productpage
-          port: 80
-          hostname: "bookinfo-dev.tetrate.io"
-          routing:
-            rules:
-              - route:
-                  clusterDestination:
-                    clusters: []
 ---

@@ -87,6 +87,9 @@ spec:
       containers:
       - name: details
         image: docker.io/istio/examples-bookinfo-details-v1:1.18.0
+        env:
+        - name: ENABLE_EXTERNAL_BOOK_SERVICE
+          value: true
         imagePullPolicy: IfNotPresent
         ports:
         - containerPort: 9080

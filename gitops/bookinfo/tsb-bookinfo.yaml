@@ -71,6 +71,38 @@ items:
           - "*/bookinfo"
           - "*/tier1"
       configMode: BRIDGED
+  - apiVersion: istiointernal.tsb.tetrate.io/v2
+    kind: Group
+    metadata:
+      name: bookinfo-ig
+      annotations:
+        tsb.tetrate.io/organization: tetrate
+        tsb.tetrate.io/tenant: dev
+        tsb.tetrate.io/workspace: bookinfo-ws
+    spec:
+      namespaceSelector:
+        names:
+          - "*/bookinfo"
+          - "*/tier1"
+  - apiVersion: networking.istio.io/v1beta1
+    kind: ServiceEntry
+    metadata:
+      name: www-googleapis-com
+      namespace: bookinfo
+      annotations:
+        tsb.tetrate.io/organization: tetrate
+        tsb.tetrate.io/tenant: dev
+        tsb.tetrate.io/workspace: bookinfo-ws
+        tsb.tetrate.io/istioInternalGroup: bookinfo-ig
+    spec:
+      hosts:
+      - www.googleapis.com
+      location: MESH_EXTERNAL
+      ports:
+      - number: 443
+        name: https
+        protocol: HTTPS
+      resolution: DNS
   - apiVersion: install.tetrate.io/v1alpha1
     kind: IngressGateway
     metadata:
@@ -104,6 +136,50 @@ items:
                   serviceDestination:
                     host: "bookinfo/productpage.bookinfo.svc.cluster.local"
                     port: 9080
+        - name: googleapis
+          port: 443
+          hostname: "www.googleapis.com"
+          routing:
+            rules:
+              - route:
+                  serviceDestination:
+                    host: "www.googleapis.com"
+                    port: 443          
+                    external: true
+                    tls:
+                      mode: SIMPLE
+  - apiVersion: install.tetrate.io/v1alpha1
+    kind: Tier1Gateway
+    metadata:
+      name: tier1-gw
+      namespace: tier1
+    spec:
+      kubeSpec:
+        service:
+          type: LoadBalancer
+  - apiVersion: gateway.tsb.tetrate.io/v2
+    kind: Gateway
+    metadata:
+      name: tier1-bookinfo-gw
+      annotations:
+        tsb.tetrate.io/organization: tetrate
+        tsb.tetrate.io/tenant: dev
+        tsb.tetrate.io/workspace: bookinfo-ws
+        tsb.tetrate.io/gatewayGroup: bookinfo-gg
+    spec:
+      workloadSelector:
+        namespace: tier1
+        labels:
+          app: tier1-gw
+      http:
+        - name: productpage
+          port: 80
+          hostname: "bookinfo.tetrate.io"
+          routing:
+            rules:
+              - route:
+                  clusterDestination:
+                    clusters: []
   - apiVersion: apps/v1
     kind: Deployment
     metadata:
@@ -140,36 +216,4 @@ items:
               terminationMessagePolicy: File
           dnsPolicy: ClusterFirst
           restartPolicy: Always
-  - apiVersion: install.tetrate.io/v1alpha1
-    kind: Tier1Gateway
-    metadata:
-      name: tier1-gw
-      namespace: tier1
-    spec:
-      kubeSpec:
-        service:
-          type: LoadBalancer
-  - apiVersion: gateway.tsb.tetrate.io/v2
-    kind: Gateway
-    metadata:
-      name: tier1-bookinfo-gw
-      annotations:
-        tsb.tetrate.io/organization: tetrate
-        tsb.tetrate.io/tenant: dev
-        tsb.tetrate.io/workspace: bookinfo-ws
-        tsb.tetrate.io/gatewayGroup: bookinfo-gg
-    spec:
-      workloadSelector:
-        namespace: tier1
-        labels:
-          app: tier1-gw
-      http:
-        - name: productpage
-          port: 80
-          hostname: "bookinfo.tetrate.io"
-          routing:
-            rules:
-              - route:
-                  clusterDestination:
-                    clusters: []
 ---
