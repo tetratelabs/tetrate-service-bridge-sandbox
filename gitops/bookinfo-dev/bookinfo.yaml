@@ -33,6 +33,13 @@ metadata:
     istio.io/rev: dev-stable
   name: bookinfo-dev
 ---
+apiVersion: v1
+kind: Namespace
+metadata:
+  labels:
+    istio.io/rev: dev-stable
+  name: tier1-dev
+---
 ##################################################################################################
 # Details service
 ##################################################################################################

@@ -83,7 +83,7 @@ items:
   - apiVersion: gateway.tsb.tetrate.io/v2
     kind: Gateway
     metadata:
-      name: bookinfo-igw
+      name: bookinfo-gw
       annotations:
         tsb.tetrate.io/organization: tetrate
         tsb.tetrate.io/tenant: dev
@@ -140,3 +140,36 @@ items:
               terminationMessagePolicy: File
           dnsPolicy: ClusterFirst
           restartPolicy: Always
+  - apiVersion: install.tetrate.io/v1alpha1
+    kind: Tier1Gateway
+    metadata:
+      name: tier1-gw
+      namespace: tier1
+    spec:
+      kubeSpec:
+        service:
+          type: LoadBalancer
+  - apiVersion: gateway.tsb.tetrate.io/v2
+    kind: Gateway
+    metadata:
+      name: tier1-bookinfo-gw
+      annotations:
+        tsb.tetrate.io/organization: tetrate
+        tsb.tetrate.io/tenant: dev
+        tsb.tetrate.io/workspace: bookinfo-ws
+        tsb.tetrate.io/gatewayGroup: bookinfo-gg
+    spec:
+      workloadSelector:
+        namespace: tier1
+        labels:
+          app: tier1-gw
+      http:
+        - name: productpage
+          port: 80
+          hostname: "bookinfo.tetrate.io"
+          routing:
+            rules:
+              - route:
+                clusterDestination:
+                  clusters: []
+---
