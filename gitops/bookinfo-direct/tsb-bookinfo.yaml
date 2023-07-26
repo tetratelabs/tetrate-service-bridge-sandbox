@@ -171,7 +171,7 @@ items:
             - args:
                 - /bin/sh
                 - -c
-                - 'while true; do curl -i -H"Host: direct-bookinfo.tetrate.io" direct-bookinfo-gw.direct-bookinfo/productpage; done'
+                - 'while true; do curl -i -H"Host: bookinfo-dev.tetrate.io" bookinfo-dev-gw.bookinfo-dev/productpage; do curl -i -H"Host: bookinfo-dev.tetrate.io" tier1-dev-gw.tier1-dev/productpage; done'
               image: appropriate/curl
               imagePullPolicy: Always
               name: trafficgenerator
