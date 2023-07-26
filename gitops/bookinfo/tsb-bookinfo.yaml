@@ -136,17 +136,17 @@ items:
                   serviceDestination:
                     host: "bookinfo/productpage.bookinfo.svc.cluster.local"
                     port: 9080
-        - name: googleapis
-          port: 443
-          hostname: "www.googleapis.com"
-          routing:
-            rules:
-              - route:
-                  serviceDestination:
-                    host: "www.googleapis.com"      
-                    external: true
-                    tls:
-                      mode: SIMPLE
+        # - name: googleapis
+        #   port: 443
+        #   hostname: "www.googleapis.com"
+        #   routing:
+        #     rules:
+        #       - route:
+        #           serviceDestination:
+        #             host: "www.googleapis.com"      
+        #             external: true
+        #             tls:
+        #               mode: SIMPLE
   - apiVersion: install.tetrate.io/v1alpha1
     kind: Tier1Gateway
     metadata:
