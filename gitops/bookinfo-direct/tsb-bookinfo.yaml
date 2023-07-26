@@ -171,7 +171,7 @@ items:
             - args:
                 - /bin/sh
                 - -c
-                - 'while true; do curl -i -H"Host: gitops-direct-bookinfo.tetrate.io" gitops-direct-bookinfo-gw.gitops-direct-bookinfo/productpage; done'
+                - 'while true; do curl -vIX GET -H"Host: gitops-direct-bookinfo.tetrate.io" gitops-direct-bookinfo-gw.gitops-direct-bookinfo/productpage; done'
               image: appropriate/curl
               imagePullPolicy: Always
               name: trafficgenerator
