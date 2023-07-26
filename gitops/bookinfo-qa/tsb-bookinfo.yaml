@@ -172,6 +172,6 @@ items:
           routing:
             rules:
               - route:
-                clusterDestination:
-                  clusters: []
+                  clusterDestination:
+                    clusters: []
 ---
