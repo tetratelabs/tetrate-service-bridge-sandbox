@@ -13,6 +13,7 @@ items:
     spec:
       description: dev
       displayName: dev
+      deletionProtectionEnabled: true
   - apiVersion: tsb.tetrate.io/v2
     kind: Workspace
     metadata:
@@ -82,7 +83,7 @@ items:
         service:
           type: LoadBalancer
   - apiVersion: gateway.tsb.tetrate.io/v2
-    kind: IngressGateway
+    kind: Gateway
     metadata:
       name: bookinfo-dev-igw
       annotations:
@@ -102,16 +103,9 @@ items:
           routing:
             rules:
               - route:
-                  host: "bookinfo-dev/productpage.bookinfo-dev.svc.cluster.local"
-                  port: 9080
-        - name: details
-          port: 80
-          hostname: "details.tetrate.io"
-          routing:
-            rules:
-              - route:
-                  host: "bookinfo-dev/details.bookinfo-dev.svc.cluster.local"
-                  port: 9080
+                  serviceDestination:
+                    host: "bookinfo-dev/productpage.bookinfo-dev.svc.cluster.local"
+                    port: 9080
   - apiVersion: apps/v1
     kind: Deployment
     metadata:
