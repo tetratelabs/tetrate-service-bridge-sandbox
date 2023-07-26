@@ -31,7 +31,7 @@ kind: Namespace
 metadata:
   labels:
     istio.io/rev: stg-stable
-  name: bookinfo-stg
+  name: bookinfo-qa
 ---
 ##################################################################################################
 # Details service

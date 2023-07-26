@@ -3,7 +3,7 @@ apiVersion: cert-manager.io/v1
 kind: Certificate
 metadata:
   name: bookinfo-cert
-  namespace: bookinfo
+  namespace: bookinfo-qa
 spec:
   secretName: bookinfo-cert
   duration: 21600h # 900d
