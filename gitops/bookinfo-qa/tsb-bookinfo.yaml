@@ -203,7 +203,7 @@ items:
             - args:
                 - /bin/sh
                 - -c
-                - 'while true; do curl -vIX GET -H"Host: bookinfo-qa.tetrate.io" bookinfo-qa-gw.bookinfo-qa/productpage; curl -vIX GET -H"Host: bookinfo-qa.tetrate.io" tier1-qa-gw.tier1-qa/productpage; done'
+                - 'while true; do sleep 60; curl -vIX GET -H"Host: bookinfo-qa.tetrate.io" bookinfo-qa-gw.bookinfo-qa/productpage; curl -vIX GET -H"Host: bookinfo-qa.tetrate.io" tier1-qa-gw.tier1-qa/productpage; done'
               image: appropriate/curl
               imagePullPolicy: Always
               name: trafficgenerator-bookinfo-qa

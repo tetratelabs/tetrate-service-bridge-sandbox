@@ -145,10 +145,9 @@ items:
         #     rules:
         #       - route:
         #           serviceDestination:
-        #             host: "www.googleapis.com"      
-        #             external: true
-        #             tls:
-        #               mode: SIMPLE
+        #             host: bookinfo/www.googleapis.com  
+        #             port: 443  
+        #             external: true  
   - apiVersion: install.tetrate.io/v1alpha1
     kind: Tier1Gateway
     metadata:
@@ -212,7 +211,7 @@ items:
             - args:
                 - /bin/sh
                 - -c
-                - 'while true; do curl -vIX GET -H"Host: bookinfo.tetrate.io" bookinfo-gw.bookinfo/productpage; curl -vIX GET -H"Host: bookinfo.tetrate.io" tier1-gw.tier1/productpage; done'
+                - 'while true; do sleep 60; curl -vIX GET -H"Host: bookinfo.tetrate.io" bookinfo-gw.bookinfo/productpage; sleep 60; curl -vIX GET -H"Host: bookinfo.tetrate.io" tier1-gw.tier1/productpage; done'
               image: appropriate/curl
               imagePullPolicy: Always
               name: trafficgenerator-bookinfo
