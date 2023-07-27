@@ -33,7 +33,7 @@ module "internal_registry" {
   # eventually changing the IP address, etc, unnecessarily.
   # By setting this, subsequent calls to this module will return the token returned on the initial run, if present, avoiding
   # the jumbox reconcile.
-  cached_by   = "${var.name_prefix}-internal-registry.tfstate.tokencache"
+  cached_by = "${var.name_prefix}-internal-registry.tfstate.tokencache"
 }
 
 resource "google_compute_instance" "jumpbox" {
@@ -83,7 +83,7 @@ resource "google_compute_instance" "jumpbox" {
   }
 
   labels = merge(var.tags, {
-    name        = "${var.name_prefix}-jumpbox"
+    name = "${var.name_prefix}-jumpbox"
   })
 }
 
@@ -94,11 +94,11 @@ resource "null_resource" "gcp_cleanup" {
   }
 
   provisioner "local-exec" {
-    when = destroy
-    command = "sh ${path.module}/gcp-cleanup.sh ${self.triggers.project_id}"
+    when       = destroy
+    command    = "sh ${path.module}/gcp-cleanup.sh ${self.triggers.project_id}"
     on_failure = continue
   }
-  depends_on = [ tls_private_key.generated ]
+  depends_on = [tls_private_key.generated]
 }
 
 
