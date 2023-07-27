@@ -9,7 +9,6 @@ variable "cluster_id" {
 }
 
 variable "azure_k8s_region" {
-  type    = list(any)
   default = []
 }
 

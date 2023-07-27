@@ -16,7 +16,6 @@ data "terraform_remote_state" "infra" {
 
 module "azure_k8s_auth" {
   source              = "../../../modules/azure/k8s_auth"
-  count               = var.azure_k8s_region == null ? 0 : 1
   cluster_name        = data.terraform_remote_state.infra.outputs.cluster_name
   resource_group_name = data.terraform_remote_state.infra.outputs.resource_group_name
 }
