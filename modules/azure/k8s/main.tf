@@ -21,7 +21,7 @@ resource "azurerm_kubernetes_cluster" "k8s" {
     enable_auto_scaling = true
     min_count           = 3
     max_count           = 8
-    vm_size             = "Standard_DS2_v2"
+    vm_size             = "Standard_DS3_v2"
     type                = "VirtualMachineScaleSets"
     os_disk_size_gb     = 50
   }

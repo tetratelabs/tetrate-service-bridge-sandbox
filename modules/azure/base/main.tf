@@ -9,7 +9,7 @@ resource "azurerm_resource_group" "tsb" {
   name     = "${var.name_prefix}-${random_string.random_prefix.result}_rg"
   location = var.location
   tags = merge(var.tags, {
-    Name            = "${var.name_prefix}-${random_string.random_prefix.result}_rg"
+    Name = "${var.name_prefix}-${random_string.random_prefix.result}_rg"
   })
 }
 
@@ -28,7 +28,7 @@ module "vnet" {
   subnet_prefixes     = local.subnet_prefixes
   subnet_names        = local.subnet_names
   tags = merge(var.tags, {
-    Name            = "${var.name_prefix}_vnet"
+    Name = "${var.name_prefix}_vnet"
   })
   depends_on = [azurerm_resource_group.tsb]
 }
@@ -46,8 +46,7 @@ resource "azurerm_container_registry" "acr" {
   sku                 = "Premium"
   admin_enabled       = true
   tags = merge(var.tags, {
-    Name            = replace("${var.name_prefix}tsbacr${random_string.random.result}", "-", "")
+    Name = replace("${var.name_prefix}tsbacr${random_string.random.result}", "-", "")
   })
-  depends_on          = [azurerm_resource_group.tsb]
+  depends_on = [azurerm_resource_group.tsb]
 }
-

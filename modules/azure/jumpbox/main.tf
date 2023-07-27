@@ -51,7 +51,7 @@ resource "azurerm_network_security_group" "jumpbox_sg" {
     destination_address_prefix = var.cidr
   }
   tags = merge(var.tags, {
-    Name            = "${var.name_prefix}_jumpbox_sg"
+    Name = "${var.name_prefix}_jumpbox_sg"
   })
 }
 
@@ -63,7 +63,7 @@ resource "azurerm_public_ip" "jumpbox_public_ip" {
   resource_group_name = var.resource_group_name
   allocation_method   = "Static"
   tags = merge(var.tags, {
-    Name            = "${var.name_prefix}_jumpbox_public_ip"
+    Name = "${var.name_prefix}_jumpbox_public_ip"
   })
 }
 
@@ -79,7 +79,7 @@ resource "azurerm_network_interface" "jumpbox_nic" {
     public_ip_address_id          = azurerm_public_ip.jumpbox_public_ip.id
   }
   tags = merge(var.tags, {
-    Name            = "${var.name_prefix}_jumpbox_nic"
+    Name = "${var.name_prefix}_jumpbox_nic"
   })
 }
 
@@ -103,7 +103,7 @@ module "internal_registry" {
   # eventually changing the IP address, etc, unnecessarily.
   # By setting this, subsequent calls to this module will return the token returned on the initial run, if present, avoiding
   # the jumbox reconcile.
-  cached_by   = "${var.name_prefix}-internal-registry.tfstate.tokencache"
+  cached_by = "${var.name_prefix}-internal-registry.tfstate.tokencache"
 }
 
 resource "azurerm_linux_virtual_machine" "jumpbox" {
@@ -156,7 +156,7 @@ resource "azurerm_linux_virtual_machine" "jumpbox" {
 
   # Up to 15 tags as per Azure
   tags = merge(var.tags, {
-    Name            = "${var.name_prefix}_jumpbox_vm"
+    Name = "${var.name_prefix}_jumpbox_vm"
   })
 
 }
