@@ -19,14 +19,14 @@ resource "aws_security_group" "jumpbox_sg" {
     protocol    = "tcp"
     cidr_blocks = ["0.0.0.0/0"]
   }
-  
+
   ingress {
     from_port   = 8443
     to_port     = 8443
     protocol    = "tcp"
     cidr_blocks = ["0.0.0.0/0"]
   }
-  
+
   ingress {
     from_port   = 9080
     to_port     = 9080
@@ -157,7 +157,8 @@ resource "aws_iam_role_policy" "jumpbox_iam_policy" {
               "route53:ChangeResourceRecordSets",
               "route53:ChangeTagsForResource",
               "route53:ListResourceRecordSets",
-              "route53:ListHostedZone"
+              "route53:ListHostedZone",
+              "eks:DescribeCluster"
             ],
             "Resource": "*"
         }
@@ -194,9 +195,6 @@ resource "aws_iam_instance_profile" "jumpbox_iam_profile" {
     Name = "${var.name_prefix}_jumpbox_profile"
   })
 }
-
-
-
 
 resource "tls_private_key" "generated" {
   algorithm = "RSA"
@@ -241,8 +239,9 @@ module "internal_registry" {
   # eventually changing the IP address, etc, unnecessarily.
   # By setting this, subsequent calls to this module will return the token returned on the initial run, if present, avoiding
   # the jumbox reconcile.
-  cached_by   = "${var.name_prefix}-internal-registry.tfstate.tokencache"
+  cached_by = "${var.name_prefix}-internal-registry.tfstate.tokencache"
 }
+
 
 resource "aws_instance" "jumpbox" {
   ami               = data.aws_ami.ubuntu.id
@@ -289,14 +288,14 @@ resource "aws_instance" "jumpbox" {
 
 resource "local_file" "tsbadmin_pem" {
   content         = tls_private_key.generated.private_key_pem
-  filename        = "${var.output_path}/${regex(".+-\\d+","${var.name_prefix}")}-aws-${var.jumpbox_username}.pem"
+  filename        = "${var.output_path}/${regex(".+-\\d+", "${var.name_prefix}")}-aws-${var.jumpbox_username}.pem"
   depends_on      = [tls_private_key.generated]
   file_permission = "0600"
 }
 
 resource "local_file" "ssh_jumpbox" {
-  content         = "ssh -i ${regex(".+-\\d+","${var.name_prefix}")}-aws-${var.jumpbox_username}.pem -l ${var.jumpbox_username} ${aws_instance.jumpbox.public_ip} \"$@\""
-  filename        = "${var.output_path}/ssh-to-aws-${regex(".+-\\d+","${var.name_prefix}")}-jumpbox.sh"
+  content         = "ssh -i ${regex(".+-\\d+", "${var.name_prefix}")}-aws-${var.jumpbox_username}.pem -l ${var.jumpbox_username} ${aws_instance.jumpbox.public_ip} \"$@\""
+  filename        = "${var.output_path}/ssh-to-aws-${regex(".+-\\d+", "${var.name_prefix}")}-jumpbox.sh"
   file_permission = "0755"
 }
 
