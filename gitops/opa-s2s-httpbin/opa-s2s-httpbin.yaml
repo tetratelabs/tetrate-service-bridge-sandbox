@@ -4,20 +4,20 @@ kind: Namespace
 metadata:
   labels:
     istio-injection: enabled
-  name: gitops-opa-s2s-httpbin
+  name: opa-s2s-httpbin
 ---
 apiVersion: v1
 kind: Namespace
 metadata:
   labels:
     istio-injection: enabled
-  name: gitops-opa-s2s-sleep
+  name: opa-s2s-sleep
 ---
 apiVersion: v1
 kind: ConfigMap
 metadata:
   name: opa-policy
-  namespace: gitops-opa-s2s-httpbin
+  namespace: opa-s2s-httpbin
 data:
   policy.rego: |
     package demo.authz
@@ -50,7 +50,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: httpbin-with-opa
-  namespace: gitops-opa-s2s-httpbin
+  namespace: opa-s2s-httpbin
   labels:
     app: httpbin-with-opa
     service: httpbin-with-opa
@@ -66,7 +66,7 @@ kind: Deployment
 apiVersion: apps/v1
 metadata:
   name: httpbin-with-opa
-  namespace: gitops-opa-s2s-httpbin
+  namespace: opa-s2s-httpbin
   labels:
     app: httpbin-with-opa
 spec:
@@ -126,13 +126,13 @@ apiVersion: v1
 kind: ServiceAccount
 metadata:
   name: sleep
-  namespace: gitops-opa-s2s-sleep
+  namespace: opa-s2s-sleep
 ---
 apiVersion: v1
 kind: Service
 metadata:
   name: sleep
-  namespace: gitops-opa-s2s-sleep
+  namespace: opa-s2s-sleep
   labels:
     app: sleep
     service: sleep
@@ -146,7 +146,7 @@ spec:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  namespace: gitops-opa-s2s-sleep
+  namespace: opa-s2s-sleep
   name: sleep
 spec:
   replicas: 1

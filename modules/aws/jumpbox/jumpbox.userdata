@@ -57,7 +57,46 @@ write_files:
           --parallel
       fi
       touch /tmp/cloud-init.done
-    path: /opt/bootstrap.sh
+    path: /opt/bootstrap_core.sh
+    permissions: 0755
+  - content: |
+      #!/bin/bash
+      # Install eksctl, the instruction from official docs: https://github.com/eksctl-io/eksctl/blob/main/README.md#installation
+      ARCH=amd64
+      PLATFORM=$(uname -s)_$ARCH
+      curl -sLO "https://github.com/eksctl-io/eksctl/releases/latest/download/eksctl_$PLATFORM.tar.gz"
+      tar -xzf eksctl_$PLATFORM.tar.gz -C /tmp && rm eksctl_$PLATFORM.tar.gz
+      mv /tmp/eksctl /usr/local/bin
+      # Install krew, the instruction from official docs: https://krew.sigs.k8s.io/docs/user-guide/setup/install/
+      sudo -u ${jumpbox_username} -H /bin/bash -c "(
+        cd /tmp;
+        curl -LO https://github.com/kubernetes-sigs/krew/releases/latest/download/krew-linux_amd64.tar.gz &&
+        tar zxvf "krew-linux_amd64.tar.gz" &&
+        ./krew-linux_amd64 install krew
+      )"
+      echo 'export PATH="$PATH:$HOME/.krew/bin"' >> /etc/bash.bashrc
+      # Install kubecm, kubectx and kubens
+      sudo -u ${jumpbox_username} -H bash -c "(
+        export PATH="$PATH:/home/${jumpbox_username}/.krew/bin" &&
+        kubectl krew install kc &&
+        kubectl krew install ctx &&
+        kubectl krew install ns
+      )"
+      # Updates for kubectx
+      mkdir /home/${jumpbox_username}/.kube
+      touch /home/${jumpbox_username}/.kube/config
+      chown -R ${jumpbox_username}:${jumpbox_username} /home/${jumpbox_username}/.kube
+      # Install kubecolor
+      curl -LO https://github.com/hidetatz/kubecolor/releases/download/v0.0.25/kubecolor_0.0.25_Linux_x86_64.tar.gz
+      tar zxvf kubecolor_0.0.25_Linux_x86_64.tar.gz
+      install -o root -g root -m 0755  kubecolor /usr/bin/kubecolor
+      # Update .bashrc
+      echo 'command -v kubecolor >/dev/null 2>&1 && alias kubectl="kubecolor"' >> /etc/bash.bashrc
+      echo 'alias k="kubectl"' >> /etc/bash.bashrc
+      echo 'alias kubecm="kubectl-kc"' >> /etc/bash.bashrc
+      echo 'alias kubectx="kubectl-ctx"' >> /etc/bash.bashrc
+      touch /tmp/boostrap_addons.done
+    path: /opt/bootstrap_addons.sh
     permissions: 0755
 
   - content: |
@@ -65,4 +104,5 @@ write_files:
     path: /etc/sudoers.d/ubuntu
 
 runcmd:
-  - /opt/bootstrap.sh
+  - /opt/bootstrap_core.sh
+  - /opt/bootstrap_addons.sh

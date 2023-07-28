@@ -2,38 +2,38 @@
 apiVersion: tsb.tetrate.io/v2
 kind: Workspace
 metadata:
-  name: gitops-opa-s2s-httpbin-ws
+  name: opa-s2s-httpbin-ws
   annotations:
     tsb.tetrate.io/organization: tetrate
     tsb.tetrate.io/tenant: dev
 spec:
   namespaceSelector:
     names:
-      - "*/gitops-opa-s2s-httpbin"
+      - "*/opa-s2s-httpbin"
 ---
 apiVersion: security.tsb.tetrate.io/v2
 kind: Group
 metadata:
-  name: gitops-opa-s2s-httpbin-sg
+  name: opa-s2s-httpbin-sg
   annotations:
     tsb.tetrate.io/organization: tetrate
     tsb.tetrate.io/tenant: dev
-    tsb.tetrate.io/workspace: gitops-opa-s2s-httpbin-ws
+    tsb.tetrate.io/workspace: opa-s2s-httpbin-ws
 spec:
   namespaceSelector:
     names:
-      - "*/gitops-opa-s2s-httpbin"
+      - "*/opa-s2s-httpbin"
   configMode: BRIDGED
 ---
 apiVersion: security.tsb.tetrate.io/v2
 kind: SecuritySetting
 metadata:
-  name: gitops-opa-s2s-httpbin-ss
+  name: opa-s2s-httpbin-ss
   annotations:
     tsb.tetrate.io/organization: tetrate
     tsb.tetrate.io/tenant: dev
-    tsb.tetrate.io/workspace: gitops-opa-s2s-httpbin-ws
-    tsb.tetrate.io/securityGroup: gitops-opa-s2s-httpbin-sg
+    tsb.tetrate.io/workspace: opa-s2s-httpbin-ws
+    tsb.tetrate.io/securityGroup: opa-s2s-httpbin-sg
 spec:
   authorization:
     mode: CLUSTER

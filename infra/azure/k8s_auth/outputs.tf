@@ -1,4 +1,4 @@
 output "token" {
-  value     = module.azure_k8s_auth[0].token
+  value     = module.azure_k8s_auth.token
   sensitive = true
 }

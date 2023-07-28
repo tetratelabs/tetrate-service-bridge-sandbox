@@ -30,6 +30,16 @@ spec:
       centralAuthMode: JWT
       configProtection: {}
       enableHttpMeshInternalIdentityPropagation: ${identity_propagation_enabled}
+      isolationBoundaries:
+      - name: global
+        revisions:
+        - name: default
+      - name: dev
+        revisions:
+        - name: dev-stable
+      - name: qa
+        revisions:
+        - name: qa-stable
       kubeSpec:
         deployment:
           env:
@@ -77,4 +87,4 @@ operator:
   deployment:
     env:
     - name: ISTIO_ISOLATION_BOUNDARIES
-      value: "false"
+      value: "true"

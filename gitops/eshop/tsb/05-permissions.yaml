@@ -2,7 +2,7 @@ apiVersion: rbac.tsb.tetrate.io/v2
 kind: AccessBindings
 metadata:
   name: eshop-tenant
-  namespace: gitops-eshop-config
+  namespace: eshop-config
   annotations:
     argocd.argoproj.io/sync-wave: "50"
     tsb.tetrate.io/fqn: organizations/tetrate/tenants/eshop
@@ -20,7 +20,7 @@ apiVersion: rbac.tsb.tetrate.io/v2
 kind: AccessBindings
 metadata:
   name: payments-workspace
-  namespace: gitops-eshop-config
+  namespace: eshop-config
   annotations:
     argocd.argoproj.io/sync-wave: "50"
     tsb.tetrate.io/fqn: organizations/tetrate/tenants/eshop/workspaces/payments
@@ -37,7 +37,7 @@ apiVersion: rbac.tsb.tetrate.io/v2
 kind: AccessBindings
 metadata:
   name: eshop-workspace
-  namespace: gitops-eshop-config
+  namespace: eshop-config
   annotations:
     argocd.argoproj.io/sync-wave: "50"
     tsb.tetrate.io/fqn: organizations/tetrate/tenants/eshop/workspaces/eshop
@@ -54,7 +54,7 @@ apiVersion: rbac.tsb.tetrate.io/v2
 kind: AccessBindings
 metadata:
   name: payments-gateways
-  namespace: gitops-eshop-config
+  namespace: eshop-config
   annotations:
     argocd.argoproj.io/sync-wave: "50"
     tsb.tetrate.io/fqn: organizations/tetrate/tenants/eshop/workspaces/payments/gatewaygroups/payments-gateways
@@ -68,7 +68,7 @@ apiVersion: rbac.tsb.tetrate.io/v2
 kind: AccessBindings
 metadata:
   name: eshop-gateways
-  namespace: gitops-eshop-config
+  namespace: eshop-config
   annotations:
     argocd.argoproj.io/sync-wave: "50"
     tsb.tetrate.io/fqn: organizations/tetrate/tenants/eshop/workspaces/eshop/gatewaygroups/eshop-gateways

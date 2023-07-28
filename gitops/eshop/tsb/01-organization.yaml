@@ -2,18 +2,19 @@ apiVersion: tsb.tetrate.io/v2
 kind: Tenant
 metadata:
   name: eshop
-  namespace: gitops-eshop-config
+  namespace: eshop-config
   annotations:
     argocd.argoproj.io/sync-wave: "10"
     tsb.tetrate.io/organization: tetrate
 spec:
+  deletionProtectionEnabled: true
   displayName: eShop Portal
 ---
 apiVersion: tsb.tetrate.io/v2
 kind: Team
 metadata:
   name: everyone
-  namespace: gitops-eshop-config
+  namespace: eshop-config
   annotations:
     argocd.argoproj.io/sync-wave: "10"
     tsb.tetrate.io/organization: tetrate
@@ -27,7 +28,7 @@ apiVersion: tsb.tetrate.io/v2
 kind: Team
 metadata:
   name: eshop-team
-  namespace: gitops-eshop-config
+  namespace: eshop-config
   annotations:
     argocd.argoproj.io/sync-wave: "10"
     tsb.tetrate.io/organization: tetrate
@@ -39,7 +40,7 @@ apiVersion: tsb.tetrate.io/v2
 kind: Team
 metadata:
   name: payments-team
-  namespace: gitops-eshop-config
+  namespace: eshop-config
   annotations:
     argocd.argoproj.io/sync-wave: "10"
     tsb.tetrate.io/organization: tetrate

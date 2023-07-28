@@ -1,8 +1,10 @@
 variable "cloud" {
+  type    = string
   default = "gcp"
 }
 
 variable "cluster_id" {
+  type    = string
   default = null
 }
 

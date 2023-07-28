@@ -2,7 +2,7 @@ apiVersion: gateway.tsb.tetrate.io/v2
 kind: IngressGateway
 metadata:
   name: eshop-gateway
-  namespace: gitops-eshop-config
+  namespace: eshop-config
   annotations:
     argocd.argoproj.io/sync-wave: "40"
     tsb.tetrate.io/organization: tetrate
@@ -18,7 +18,7 @@ spec:
     routing:
       rules:
       - route:
-          host: gitops-eshop/products.gitops-eshop.svc.cluster.local
+          host: eshop/products.eshop.svc.cluster.local
           port: 80
     rateLimiting:
       settings:
@@ -41,13 +41,13 @@ spec:
   workloadSelector:
     labels:
       app: tsb-gateway-eshop
-    namespace: gitops-eshop
+    namespace: eshop
 ---
 apiVersion: gateway.tsb.tetrate.io/v2
 kind: IngressGateway
 metadata:
   name: payments-gateway
-  namespace: gitops-eshop-config
+  namespace: eshop-config
   annotations:
     argocd.argoproj.io/sync-wave: "40"
     tsb.tetrate.io/organization: tetrate
@@ -63,9 +63,9 @@ spec:
     routing:
       rules:
       - route:
-          host: gitops-eshop-payments/payments.gitops-eshop-payments.svc.cluster.local
+          host: eshop-payments/payments.eshop-payments.svc.cluster.local
           port: 80
   workloadSelector:
     labels:
       app: tsb-gateway-payments
-    namespace: gitops-eshop-payments
+    namespace: eshop-payments

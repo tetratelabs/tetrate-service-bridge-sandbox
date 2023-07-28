@@ -9,12 +9,26 @@ echo 'Destroying ECR repositories...'
 for repo in $(aws ecr describe-repositories --region $REGION --query 'repositories[*].repositoryName' --no-paginate --output text); do
     [[ "$repo" =~ ^$REPO_PREFIX/.* ]] && aws ecr delete-repository --repository-name $repo --region $REGION --force; done
 
+echo 'Destroying K8s NLBs...'
+for elbv2 in $(aws elbv2 describe-load-balancers --region $REGION --query 'LoadBalancers[?Type==`network` && VpcId==`${vpc_id}`].LoadBalancerArn' --output text); do
+  echo "Removing $elbv2..."
+  aws elbv2 delete-load-balancer --region $REGION --load-balancer-arn $elbv2
+done
+
+sleep 60
+
 echo 'Destroying K8s ELBs...'
-for elb in $(aws elb describe-load-balancers --region $REGION --query 'LoadBalancerDescriptions[?VPCId==`${vpc_id}`]|[].LoadBalancerName' --output text);do echo "Removing $elb..."; aws elb delete-load-balancer --region $REGION --load-balancer-name $elb; done
+for elb in $(aws elb describe-load-balancers --region $REGION --query 'LoadBalancerDescriptions[?VPCId==`${vpc_id}`]|[].LoadBalancerName' --output text); do 
+    echo "Removing $elb..." 
+    aws elb delete-load-balancer --region $REGION --load-balancer-name $elb 
+done
 
 sleep 60
 
 echo 'Destroying K8s ELB SGs...'
-for sg in $(aws ec2 --region $REGION describe-security-groups --filters "Name=vpc-id,Values=$VPC_ID" --query "SecurityGroups[*].GroupId" --output text); do echo "Removing $sg..."; aws ec2 delete-security-group --region $REGION --group-id $sg; done
+for sg in $(aws ec2 --region $REGION describe-security-groups --filters "Name=vpc-id,Values=$VPC_ID" --query "SecurityGroups[*].GroupId" --output text); do 
+    echo "Removing $sg..."
+    aws ec2 delete-security-group --region $REGION --group-id $sg 
+done
 
 sleep 60
