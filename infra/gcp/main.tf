@@ -29,8 +29,6 @@ module "gcp_base" {
   name_prefix = "${var.name_prefix}-${var.cluster_id}"
   project_id  = coalesce(google_project.tsb[0].project_id, var.gcp_project_id)
   region      = var.gcp_k8s_region
-  org_id      = var.gcp_org_id
-  billing_id  = var.gcp_billing_id
   cidr        = cidrsubnet(var.cidr, 4, 8 + tonumber(var.cluster_id))
 }
 
