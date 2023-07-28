@@ -14,7 +14,7 @@ spec:
       recurse: true
     path: gitops/bookinfo-direct
     repoURL: https://github.com/tetrateio/tetrate-service-bridge-sandbox.git
-    targetRevision: release-1.7.x
+    targetRevision: main
   syncPolicy:
     automated:
       prune: false
