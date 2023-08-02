@@ -1,0 +1,30 @@
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: bookinfo-certs
+  namespace: bookinfo
+spec:
+  secretName: bookinfo-certs
+  duration: 21600h # 900d
+  issuerRef:
+    name: selfsigned-ca
+    kind: ClusterIssuer
+    group: cert-manager.io
+  dnsNames:
+    - "bookinfo.tetrate.io"
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: bookinfo-tier1-certs
+  namespace: tier1
+spec:
+  secretName: bookinfo-tier1-certs
+  duration: 21600h # 900d
+  issuerRef:
+    name: selfsigned-ca
+    kind: ClusterIssuer
+    group: cert-manager.io
+  dnsNames:
+    - "bookinfo.tetrate.io"

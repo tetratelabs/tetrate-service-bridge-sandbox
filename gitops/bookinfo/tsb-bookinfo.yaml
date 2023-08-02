@@ -176,9 +176,63 @@ items:
           hostname: "bookinfo.tetrate.io"
           routing:
             rules:
-              - route:
-                  clusterDestination:
-                    clusters: []
+              - redirect:
+                  authority: bookinfo.tetrate.io
+                  port: 443
+                  redirectCode: 301
+                  scheme: https
+        - name: productpage
+          port: 443
+          hostname: "bookinfo.tetrate.io"
+          tls:
+            mode: SIMPLE
+            secretName: bookinfo-tier1-certs
+            minProtocolVersion: "TLSV1_2"
+            maxProtocolVersion: "TLSV1_3"
+            cipherSuites: [ "TLS_RSA_WITH_AES_256_CBC_SHA","TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256"]
+            #subjectAltNames: "client.tetrate.io"
+          routing:
+            rules:
+            - match:
+                - uri:
+                    prefix: "/health_check"
+              route:
+                clusterDestination:
+                  clusters: []
+              disableExternalAuthorization: true
+            - match:
+                - uri:
+                    prefix: "/productpage"
+              route:
+                clusterDestination:
+                  clusters: []
+              disableExternalAuthorization: true              
+          rateLimiting:
+            settings:
+              rules:
+                # Ratelimit at 50 requests/minute for every unique value in the user-agent header
+              - dimensions:
+                - header:
+                    name: user-agent
+                limit:
+                  requestsPerUnit: 50
+                  unit: MINUTE
+                # Ratelimit at 100 requests/second for every unique client remote address
+                # with the HTTP requests having a GET method and the path prefix of /productpage
+              - dimensions:
+                - remoteAddress:
+                    value: "*"
+                - header:
+                    name: ":path"
+                    value:
+                      prefix: /productpage
+                - header:
+                    name: ":method"
+                    value:
+                      exact: "GET"
+                limit:
+                  requestsPerUnit: 100
+                  unit: SECOND
   - apiVersion: v1
     kind: Namespace
     metadata:
