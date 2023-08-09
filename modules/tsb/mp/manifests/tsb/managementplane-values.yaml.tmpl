@@ -44,6 +44,16 @@ spec:
     xcp:
       centralAuthModes:
         jwt: true
+      kubeSpec:
+        overlays:
+          - apiVersion: install.xcp.tetrate.io/v1alpha1
+            kind: CentralXcp
+            name: central-xcp
+            patches:
+              - path: spec.components.centralServer.kubeSpec.deployment.env
+                value:
+                  - name: ENABLE_NON_INGRESS_HOST_LEVEL_AUTHORIZATION
+                    value: "true"
     internalCertProvider:
       certManager:
         managed: EXTERNAL
