@@ -1,0 +1,66 @@
+#cloud-config
+repo_update: true
+repo_upgrade: all
+package_update: true
+package_upgrade: true
+packages:
+  - language-pack-en
+  - docker.io
+  - nginx
+  - tmux
+  - vim
+  - jq
+  - awscli
+  - skopeo
+
+users:
+  - default
+  - name: ${jumpbox_username}
+    gecos: TSB
+    lock_passwd: true
+    shell: /bin/bash
+    sudo: ALL=(ALL) NOPASSWD:ALL
+    groups: admin, docker
+    ssh_authorized_keys:
+      - ${pubkey}
+
+write_files:
+  - content: |
+      #!/bin/bash
+      curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
+      install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl
+      ${docker_login}
+      if [[ ! -z "${tetrate_internal_cr}" ]]; then
+        curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
+        helm repo add tetrate-tsb-helm "${tsb_helm_repository}"
+        helm repo update
+        curl -Lo "/usr/local/bin/tctl" "https://binaries.dl.tetrate.io/public/raw/versions/linux-amd64-next/tctl"
+        chmod +x "/usr/local/bin/tctl"
+        helm pull tetrate-tsb-helm/managementplane --version ${tsb_version} --devel
+        tar zxvf managementplane-${tsb_version}.tgz
+        for IMAGE in $(cut -d/ -f2- managementplane/images.txt)
+        do 
+          skopeo copy --src-registry-token "${tetrate_internal_cr_token}" --dest-authfile /root/.docker/config.json \
+            docker://${tetrate_internal_cr}/$IMAGE \
+            docker://${registry}/$IMAGE &
+        done
+      else
+        curl -Lo "/usr/local/bin/tctl" "https://binaries.dl.tetrate.io/public/raw/versions/linux-amd64-${tsb_version}/tctl"
+        chmod +x "/usr/local/bin/tctl"
+        tctl install image-sync \
+          --username "${tsb_image_sync_username}" \
+          --apikey "${tsb_image_sync_apikey}" \
+          --registry ${registry} \
+          --accept-eula \
+          --parallel
+      fi
+      touch /tmp/cloud-init.done
+    path: /opt/bootstrap.sh
+    permissions: 0755
+
+  - content: |
+      ubuntu ALL=(ALL) NOPASSWD:ALL
+    path: /etc/sudoers.d/ubuntu
+
+runcmd:
+  - /opt/bootstrap.sh

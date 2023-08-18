@@ -1,0 +1,49 @@
+apiVersion: tsb.tetrate.io/v2
+kind: Tenant
+metadata:
+  name: eshop
+  namespace: eshop-config
+  annotations:
+    argocd.argoproj.io/sync-wave: "10"
+    tsb.tetrate.io/organization: tetrate
+spec:
+  deletionProtectionEnabled: true
+  displayName: eShop Portal
+---
+apiVersion: tsb.tetrate.io/v2
+kind: Team
+metadata:
+  name: everyone
+  namespace: eshop-config
+  annotations:
+    argocd.argoproj.io/sync-wave: "10"
+    tsb.tetrate.io/organization: tetrate
+spec:
+  members:
+  - organizations/tetrate/users/nacx
+  - organizations/tetrate/users/zack
+  - organizations/tetrate/users/wusheng
+---
+apiVersion: tsb.tetrate.io/v2
+kind: Team
+metadata:
+  name: eshop-team
+  namespace: eshop-config
+  annotations:
+    argocd.argoproj.io/sync-wave: "10"
+    tsb.tetrate.io/organization: tetrate
+spec:
+  members:
+  - organizations/tetrate/users/zack
+---
+apiVersion: tsb.tetrate.io/v2
+kind: Team
+metadata:
+  name: payments-team
+  namespace: eshop-config
+  annotations:
+    argocd.argoproj.io/sync-wave: "10"
+    tsb.tetrate.io/organization: tetrate
+spec:
+  members:
+  - organizations/tetrate/users/wusheng

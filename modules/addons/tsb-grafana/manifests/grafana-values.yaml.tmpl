@@ -1,0 +1,17 @@
+adminPassword: "${admin_password}"
+service:
+  port: 3000
+  type: ${service_type}
+datasources:
+  datasources.yaml:
+    apiVersion: 1
+    datasources:
+      - name: prometheus
+        type: prometheus
+        access: proxy
+        isDefault: true
+        editable: true
+        url: http://prometheus-server:9090
+sidecar:
+  dashboards:
+    enabled: true

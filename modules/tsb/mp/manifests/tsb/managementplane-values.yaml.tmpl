@@ -1,0 +1,61 @@
+image:%{ if length(regexall("dev", tsb_version)) == 0 }${"\n"}  tag: ${tsb_version}%{ endif }
+  registry: ${registry}
+secrets:
+  tsb:
+    adminPassword: "${tsb_password}"
+  xcp: 
+    autoGenerateCerts: true
+    central: 
+      additionalDNSNames: 
+      - ${tsb_fqdn}
+  elasticsearch:
+    username: ${es_username}
+    password: ${es_password}
+  ldap:
+    binddn: ${ldap_binddn}
+    bindpassword: ${ldap_bindpassword}
+  postgres: 
+    username: ${db_username}
+    password: ${db_password}
+spec:
+  hub: "${registry}"
+  organization: "${tsb_org}"
+  telemetryStore:
+    elastic:
+      host: "${es_host}"
+      port: 9200
+      version: 7
+      selfSigned: true
+      protocol: https
+  components:
+    frontEnvoy:
+      port: 443
+    webUI:
+      kubeSpec:
+        overlays:
+        - apiVersion: apps/v1
+          kind: Deployment
+          name: web
+          patches:
+          - path: spec.template.spec.containers.[name:web].env[-1]
+            value:
+              name: SESSION_AGE_IN_MINUTES
+              value: "60"
+    xcp:
+      centralAuthModes:
+        jwt: true
+      kubeSpec:
+        overlays:
+          - apiVersion: install.xcp.tetrate.io/v1alpha1
+            kind: CentralXcp
+            name: central-xcp
+            patches:
+              - path: spec.components.centralServer.kubeSpec.deployment.env
+                value:
+                  - name: ENABLE_NON_INGRESS_HOST_LEVEL_AUTHORIZATION
+                    value: "true"
+    internalCertProvider:
+      certManager:
+        managed: EXTERNAL
+    oap:
+      streamingLogEnabled: true

@@ -1,0 +1,503 @@
+{
+    "annotations": {
+        "list": [
+            {
+                "builtIn": 1,
+                "datasource": "-- Grafana --",
+                "enable": true,
+                "hide": true,
+                "iconColor": "rgba(0, 211, 255, 1)",
+                "name": "Annotations & Alerts",
+                "type": "dashboard"
+            }
+        ]
+    },
+    "description": "These metrics indicate the overall health of Tetrate Service Bridge and should be considered the starting point for any investigation into issues with Tetrate Service Bridge.",
+    "editable": true,
+    "gnetId": null,
+    "graphTooltip": 0,
+    "iteration": 1633362651202,
+    "links": [],
+    "panels": [
+        {
+            "datasource": null,
+            "gridPos": {
+                "h": 1,
+                "w": 24,
+                "x": 0,
+                "y": 0
+            },
+            "id": 10,
+            "title": "Management Plane",
+            "type": "row"
+        },
+        {
+            "datasource": null,
+            "description": "This details all clusters connected to and receiving configuration from the management plane. \n\nIf this number drops below 1 or a given cluster does not appear in this table it means that the cluster is disconnected. This may happen for a brief period of time during upgrades/re-deploys.",
+            "fieldConfig": {
+                "defaults": {
+                    "mappings": [],
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "green",
+                                "value": null
+                            },
+                            {
+                                "color": "red",
+                                "value": 80
+                            }
+                        ]
+                    }
+                },
+                "overrides": []
+            },
+            "gridPos": {
+                "h": 8,
+                "w": 6,
+                "x": 0,
+                "y": 1
+            },
+            "id": 13,
+            "options": {
+                "colorMode": "value",
+                "graphMode": "area",
+                "justifyMode": "auto",
+                "orientation": "auto",
+                "reduceOptions": {
+                    "calcs": [
+                        "last"
+                    ],
+                    "fields": "",
+                    "values": false
+                },
+                "text": {},
+                "textMode": "auto"
+            },
+            "pluginVersion": "7.5.2",
+            "targets": [
+                {
+                    "exemplar": false,
+                    "expr": "xcp_central_current_edge_connections{namespace=\"tsb-$organization\"}",
+                    "interval": "",
+                    "legendFormat": "XCP Edge: {{ namespace }}",
+                    "refId": "A"
+                }
+            ],
+            "timeFrom": null,
+            "timeShift": null,
+            "title": "Connected Clusters",
+            "type": "stat"
+        },
+        {
+            "aliasColors": {},
+            "bars": false,
+            "dashLength": 10,
+            "dashes": false,
+            "datasource": null,
+            "description": "Rate of failed requests to the TSB apiserver from the UI and CLI.",
+            "fieldConfig": {
+                "defaults": {
+                    "links": []
+                },
+                "overrides": []
+            },
+            "fill": 1,
+            "fillGradient": 0,
+            "gridPos": {
+                "h": 8,
+                "w": 15,
+                "x": 6,
+                "y": 1
+            },
+            "hiddenSeries": false,
+            "id": 12,
+            "legend": {
+                "avg": false,
+                "current": false,
+                "hideEmpty": true,
+                "hideZero": true,
+                "max": false,
+                "min": false,
+                "show": false,
+                "total": false,
+                "values": false
+            },
+            "lines": true,
+            "linewidth": 1,
+            "nullPointMode": "null as zero",
+            "options": {
+                "alertThreshold": true
+            },
+            "percentage": false,
+            "pluginVersion": "7.5.2",
+            "pointradius": 2,
+            "points": false,
+            "renderer": "flot",
+            "seriesOverrides": [],
+            "spaceLength": 10,
+            "stack": false,
+            "steppedLine": false,
+            "targets": [
+                {
+                    "exemplar": false,
+                    "expr": "sum(rate(grpc_server_handled_total{component=\"tsb\", grpc_code!=\"OK\", grpc_type=\"unary\", grpc_method!=\"SendAuditLog\", namespace=\"tsb-$organization\"}[1m])) by (grpc_code) OR on() vector(0)",
+                    "interval": "",
+                    "legendFormat": "{{grpc_code}}",
+                    "refId": "A"
+                }
+            ],
+            "thresholds": [],
+            "timeFrom": null,
+            "timeRegions": [],
+            "timeShift": null,
+            "title": "TSB Error Rate (Humans)",
+            "tooltip": {
+                "shared": true,
+                "sort": 2,
+                "value_type": "individual"
+            },
+            "type": "graph",
+            "xaxis": {
+                "buckets": null,
+                "mode": "time",
+                "name": null,
+                "show": true,
+                "values": []
+            },
+            "yaxes": [
+                {
+                    "format": "reqps",
+                    "label": null,
+                    "logBase": 1,
+                    "max": null,
+                    "min": "0",
+                    "show": true
+                },
+                {
+                    "format": "short",
+                    "label": null,
+                    "logBase": 1,
+                    "max": null,
+                    "min": null,
+                    "show": true
+                }
+            ],
+            "yaxis": {
+                "align": false,
+                "alignLevel": null
+            }
+        },
+        {
+            "collapsed": false,
+            "datasource": null,
+            "gridPos": {
+                "h": 1,
+                "w": 24,
+                "x": 0,
+                "y": 9
+            },
+            "id": 6,
+            "panels": [],
+            "title": "Control Planes",
+            "type": "row"
+        },
+        {
+            "columns": [
+                {
+                    "$$hashKey": "object:281",
+                    "text": "Current",
+                    "value": "current"
+                }
+            ],
+            "datasource": null,
+            "description": "Once XCP has synced with the management plane it creates resources for Istio to configure Envoy. Istio usually distributes these within a second.\n\nIf this number starts to exceed 10 seconds then you may need to scale out istiod. In small clusters, it is possible this number is too small to be handled by the histogram buckets so may be nil.",
+            "fieldConfig": {
+                "defaults": {},
+                "overrides": []
+            },
+            "fontSize": "100%",
+            "gridPos": {
+                "h": 8,
+                "w": 6,
+                "x": 0,
+                "y": 10
+            },
+            "id": 4,
+            "pageSize": null,
+            "showHeader": true,
+            "sort": {
+                "col": 0,
+                "desc": true
+            },
+            "styles": [
+                {
+                    "alias": "",
+                    "align": "auto",
+                    "colorMode": "row",
+                    "colors": [
+                        "rgba(50, 172, 45, 0.97)",
+                        "rgba(237, 129, 40, 0.89)",
+                        "rgba(245, 54, 54, 0.9)"
+                    ],
+                    "decimals": 2,
+                    "pattern": "/.*/",
+                    "thresholds": [
+                        "15",
+                        "30"
+                    ],
+                    "type": "number",
+                    "unit": "s"
+                }
+            ],
+            "targets": [
+                {
+                    "exemplar": false,
+                    "expr": "histogram_quantile(0.99, sum(rate(pilot_proxy_convergence_time_bucket{namespace=\"tsb-$organization\"}[1m])) by (le, cluster_name))",
+                    "interval": "",
+                    "legendFormat": "{{cluster_name}}",
+                    "refId": "A"
+                }
+            ],
+            "timeFrom": null,
+            "timeShift": null,
+            "title": "Istio-Envoy Sync Time (99th Percentile)",
+            "transform": "timeseries_aggregations",
+            "type": "table-old"
+        },
+        {
+            "columns": [
+                {
+                    "$$hashKey": "object:160",
+                    "text": "Current",
+                    "value": "current"
+                }
+            ],
+            "datasource": null,
+            "description": "MPC component translates TSB configuration into XCP objects. XCP central then sends these objects to every Edge connected to it.\n\nThis is the time taken for XCP central to send the configs to edges in ms.",
+            "fieldConfig": {
+                "defaults": {},
+                "overrides": []
+            },
+            "fontSize": "100%",
+            "gridPos": {
+                "h": 8,
+                "w": 6,
+                "x": 6,
+                "y": 10
+            },
+            "id": 14,
+            "pageSize": null,
+            "showHeader": true,
+            "sort": {
+                "col": 0,
+                "desc": true
+            },
+            "styles": [
+                {
+                    "alias": "",
+                    "align": "auto",
+                    "colorMode": "row",
+                    "colors": [
+                        "rgba(50, 172, 45, 0.97)",
+                        "rgba(237, 129, 40, 0.89)",
+                        "rgba(245, 54, 54, 0.9)"
+                    ],
+                    "dateFormat": "%s",
+                    "decimals": 2,
+                    "pattern": "/.*/",
+                    "thresholds": [
+                        "5000",
+                        "30000"
+                    ],
+                    "type": "number",
+                    "unit": "ms"
+                }
+            ],
+            "targets": [
+                {
+                    "exemplar": false,
+                    "expr": "histogram_quantile(0.99, sum(rate(xcp_central_config_propagation_time_ms_bucket{namespace=\"tsb-$organization\"}[1m])) by (le, edge))",
+                    "interval": "",
+                    "legendFormat": "{{edge}}",
+                    "refId": "A"
+                }
+            ],
+            "timeFrom": null,
+            "timeShift": null,
+            "title": "XCP central -> edge Sync Time (99th Percentile)",
+            "transform": "timeseries_aggregations",
+            "type": "table-old"
+        },
+        {
+            "aliasColors": {},
+            "bars": false,
+            "dashLength": 10,
+            "dashes": false,
+            "datasource": "prometheus",
+            "description": "Rate of istiod errors broken down by cluster. This graph helps identify clusters that may be experiencing problems. Typically, there should be no errors. Any non-transient errors should be investigated.\n\nSometimes this graph will show \"No data\" or these metrics won't exist. This is because istiod only emits these metrics if the errors occur.",
+            "fieldConfig": {
+                "defaults": {
+                    "links": []
+                },
+                "overrides": []
+            },
+            "fill": 1,
+            "fillGradient": 0,
+            "gridPos": {
+                "h": 8,
+                "w": 9,
+                "x": 12,
+                "y": 10
+            },
+            "hiddenSeries": false,
+            "id": 8,
+            "legend": {
+                "avg": false,
+                "current": false,
+                "max": false,
+                "min": false,
+                "show": true,
+                "total": false,
+                "values": false
+            },
+            "lines": true,
+            "linewidth": 1,
+            "nullPointMode": "null as zero",
+            "options": {
+                "alertThreshold": true
+            },
+            "percentage": false,
+            "pluginVersion": "7.5.2",
+            "pointradius": 2,
+            "points": false,
+            "renderer": "flot",
+            "seriesOverrides": [],
+            "spaceLength": 10,
+            "stack": false,
+            "steppedLine": false,
+            "targets": [
+                {
+                    "exemplar": false,
+                    "expr": "sum(rate(pilot_xds_write_timeout{namespace=\"tsb-$organization\"}[1m])) by (cluster_name) +\nsum(rate(pilot_total_xds_internal_errors{namespace=\"tsb-$organization\"}[1m])) by (cluster_name) +\nsum(rate(pilot_total_xds_rejects{namespace=\"tsb-$organization\"}[1m])) by (cluster_name) + \nsum(rate(pilot_xds_expired_nonce{namespace=\"tsb-$organization\"}[1m])) by (cluster_name) +\nsum(rate(pilot_xds_push_context_errors{namespace=\"tsb-$organization\"}[1m])) by (cluster_name)  +\nsum(rate(pilot_xds_pushes{type=~\".*_senderr\", namespace=\"tsb-$organization\"}[1m])) by (cluster_name) OR on() vector(0)",
+                    "interval": "",
+                    "legendFormat": "{{ cluster_name }} errors",
+                    "refId": "A"
+                }
+            ],
+            "thresholds": [],
+            "timeFrom": null,
+            "timeRegions": [],
+            "timeShift": null,
+            "title": "Istiod Errors",
+            "tooltip": {
+                "shared": true,
+                "sort": 2,
+                "value_type": "individual"
+            },
+            "type": "graph",
+            "xaxis": {
+                "buckets": null,
+                "mode": "time",
+                "name": null,
+                "show": true,
+                "values": []
+            },
+            "yaxes": [
+                {
+                    "format": "cps",
+                    "label": null,
+                    "logBase": 1,
+                    "max": null,
+                    "min": "0",
+                    "show": true
+                },
+                {
+                    "format": "short",
+                    "label": null,
+                    "logBase": 1,
+                    "max": null,
+                    "min": null,
+                    "show": true
+                }
+            ],
+            "yaxis": {
+                "align": false,
+                "alignLevel": null
+            }
+        }
+    ],
+    "refresh": "1m",
+    "schemaVersion": 27,
+    "style": "dark",
+    "tags": [],
+    "templating": {
+        "list": [
+            {
+                "allValue": null,
+                "current": {
+                    "selected": true,
+                    "text": "gap",
+                    "value": "gap"
+                },
+                "datasource": null,
+                "definition": "label_values(xcp_central_config_propagation_time_ms_bucket, namespace)",
+                "description": "Name of the customer",
+                "error": null,
+                "hide": 0,
+                "includeAll": false,
+                "label": "organization",
+                "multi": false,
+                "name": "organization",
+                "options": [
+                    {
+                        "selected": false,
+                        "text": "alpha",
+                        "value": "alpha"
+                    },
+                    {
+                        "selected": true,
+                        "text": "gap",
+                        "value": "gap"
+                    }
+                ],
+                "query": {
+                    "query": "label_values(xcp_central_config_propagation_time_ms_bucket, namespace)",
+                    "refId": "StandardVariableQuery"
+                },
+                "refresh": 1,
+                "regex": "tsb-([\\S]+)",
+                "skipUrlSync": false,
+                "sort": 0,
+                "tagValuesQuery": "",
+                "tags": [],
+                "tagsQuery": "",
+                "type": "query",
+                "useTags": false
+            }
+        ]
+    },
+    "time": {
+        "from": "now-3h",
+        "to": "now"
+    },
+    "timepicker": {
+        "refresh_intervals": [
+            "5s",
+            "10s",
+            "30s",
+            "1m",
+            "5m",
+            "15m",
+            "30m",
+            "1h",
+            "2h",
+            "1d"
+        ]
+    },
+    "timezone": "utc",
+    "title": "Global Configuration Distribution",
+    "uid": "t_f3oMHGk",
+    "version": 1
+}

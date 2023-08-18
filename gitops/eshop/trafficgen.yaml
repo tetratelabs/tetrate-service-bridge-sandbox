@@ -1,0 +1,36 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: trafficgenerator
+  namespace: eshop-trafficgen
+  labels:
+    app: trafficgenerator
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: trafficgenerator
+  template:
+    metadata:
+      labels:
+        app: trafficgenerator
+    spec:
+      containers:
+        - name: trafficgenerator
+          image: appropriate/curl
+          args:
+            - /bin/sh
+            - -c
+            - |
+              # Retry until everything is up and running to inject latency and fault
+              until curl -f -i -H "X-B3-Sampled: 0" http://eshop.tetrate.io/proxy/orders/proxy/checkout.eshop-checkout/proxy/payments.tetrate.io/latency/200 ; do
+                sleep 3
+              done
+              until curl -f -i -H "X-B3-Sampled: 0" http://eshop.tetrate.io/proxy/orders/proxy/checkout.eshop-checkout/errors/20 ; do
+                sleep 3
+              done
+              # Once we've configured the failures, start generating traffic
+              while :; do
+                curl -H "X-B3-Sampled: 1" http://eshop.tetrate.io/proxy/orders/proxy/checkout.eshop-checkout/proxy/payments.tetrate.io/proxy/accounting
+                sleep 30
+              done

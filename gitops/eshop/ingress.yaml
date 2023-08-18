@@ -1,0 +1,21 @@
+apiVersion: install.tetrate.io/v1alpha1
+kind: IngressGateway
+metadata:
+  name: tsb-gateway-eshop
+  namespace: eshop
+spec:
+  revision: global
+  kubeSpec:
+    service:
+      type: LoadBalancer
+---
+apiVersion: install.tetrate.io/v1alpha1
+kind: IngressGateway
+metadata:
+  name: tsb-gateway-payments
+  namespace: eshop-payments
+spec:
+  revision: global
+  kubeSpec:
+    service:
+      type: LoadBalancer

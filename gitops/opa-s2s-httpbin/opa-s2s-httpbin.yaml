@@ -1,0 +1,167 @@
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  labels:
+    istio-injection: enabled
+  name: opa-s2s-httpbin
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  labels:
+    istio-injection: enabled
+  name: opa-s2s-sleep
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: opa-policy
+  namespace: opa-s2s-httpbin
+data:
+  policy.rego: |
+    package demo.authz
+
+    default allow = false
+
+    # username and password database
+    user_passwords = {
+        "alice": "password",
+        "bob": "password"
+    }
+
+    allow = response {
+        # check if password from header is same as in database for the specific user
+        basic_auth.password == user_passwords[basic_auth.user_name]
+        response := {
+          "allowed": true,
+          "headers": {"x-user": basic_auth.user_name}
+        }
+    }
+
+    basic_auth := {"user_name": user_name, "password": password} {
+        v := input.attributes.request.http.headers.authorization
+        startswith(v, "Basic ")
+        s := substring(v, count("Basic "), -1)
+        [user_name, password] := split(base64url.decode(s), ":")
+    }
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: httpbin-with-opa
+  namespace: opa-s2s-httpbin
+  labels:
+    app: httpbin-with-opa
+    service: httpbin-with-opa
+spec:
+  ports:
+    - name: http
+      port: 8000
+      targetPort: 80
+  selector:
+    app: httpbin-with-opa
+---
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  name: httpbin-with-opa
+  namespace: opa-s2s-httpbin
+  labels:
+    app: httpbin-with-opa
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: httpbin-with-opa
+  template:
+    metadata:
+      labels:
+        app: httpbin-with-opa
+    spec:
+      containers:
+        - image: docker.io/kennethreitz/httpbin
+          imagePullPolicy: IfNotPresent
+          name: httpbin
+          ports:
+            - containerPort: 80
+        - name: opa
+          image: openpolicyagent/opa:latest-envoy
+          securityContext:
+            runAsUser: 1111
+          args:
+            - "run"
+            - "--server"
+            - "--addr=localhost:8181"
+            - "--diagnostic-addr=0.0.0.0:8282"
+            - "--set=plugins.envoy_ext_authz_grpc.addr=:9191"
+            - "--set=plugins.envoy_ext_authz_grpc.path=demo/authz/allow"
+            - "--set=decision_logs.console=true"
+            - "--ignore=.*"
+            - "/policy/policy.rego"
+          livenessProbe:
+            httpGet:
+              path: /health?plugins
+              scheme: HTTP
+              port: 8282
+            initialDelaySeconds: 5
+            periodSeconds: 5
+          readinessProbe:
+            httpGet:
+              path: /health?plugins
+              scheme: HTTP
+              port: 8282
+            initialDelaySeconds: 5
+            periodSeconds: 5
+          volumeMounts:
+            - readOnly: true
+              mountPath: /policy
+              name: opa-policy
+      volumes:
+        - name: opa-policy
+          configMap:
+            name: opa-policy
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: sleep
+  namespace: opa-s2s-sleep
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: sleep
+  namespace: opa-s2s-sleep
+  labels:
+    app: sleep
+    service: sleep
+spec:
+  ports:
+    - port: 80
+      name: http
+  selector:
+    app: sleep
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  namespace: opa-s2s-sleep
+  name: sleep
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: sleep
+  template:
+    metadata:
+      labels:
+        app: sleep
+    spec:
+      terminationGracePeriodSeconds: 0
+      serviceAccountName: sleep
+      containers:
+        - name: sleep
+          image: curlimages/curl
+          command: ["/bin/sleep", "3650d"]
+          imagePullPolicy: IfNotPresent

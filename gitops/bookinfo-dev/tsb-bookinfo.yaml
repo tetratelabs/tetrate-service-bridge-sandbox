@@ -1,0 +1,215 @@
+---
+apiVersion: v1
+kind: List
+items:
+  - apiVersion: tsb.tetrate.io/v2
+    kind: Tenant
+    metadata:
+      name: dev
+      annotations:
+        tsb.tetrate.io/organization: tetrate
+      labels:
+        domain: dev
+    spec:
+      description: dev
+      displayName: dev
+      deletionProtectionEnabled: true
+  - apiVersion: tsb.tetrate.io/v2
+    kind: Workspace
+    metadata:
+      name: bookinfo-dev-ws
+      annotations:
+        tsb.tetrate.io/organization: tetrate
+        tsb.tetrate.io/tenant: dev
+        owner: bookinfo-dev-ws-team
+      labels:
+        app: bookinfo-dev
+    spec:
+      isolationBoundary: dev
+      namespaceSelector:
+        names:
+          - "*/bookinfo-dev"
+          - "*/tier1-dev"
+  - apiVersion: gateway.tsb.tetrate.io/v2
+    kind: Group
+    metadata:
+      name: bookinfo-dev-gg
+      annotations:
+        tsb.tetrate.io/organization: tetrate
+        tsb.tetrate.io/tenant: dev
+        tsb.tetrate.io/workspace: bookinfo-dev-ws
+    spec:
+      namespaceSelector:
+        names:
+          - "*/bookinfo-dev"
+          - "*/tier1-dev"
+      configMode: BRIDGED
+  - apiVersion: traffic.tsb.tetrate.io/v2
+    kind: Group
+    metadata:
+      name: bookinfo-dev-tg
+      annotations:
+        tsb.tetrate.io/organization: tetrate
+        tsb.tetrate.io/tenant: dev
+        tsb.tetrate.io/workspace: bookinfo-dev-ws
+    spec:
+      namespaceSelector:
+        names:
+          - "*/bookinfo-dev"
+          - "*/tier1-dev"
+      configMode: BRIDGED
+  - apiVersion: security.tsb.tetrate.io/v2
+    kind: Group
+    metadata:
+      name: bookinfo-dev-sg
+      annotations:
+        tsb.tetrate.io/organization: tetrate
+        tsb.tetrate.io/tenant: dev
+        tsb.tetrate.io/workspace: bookinfo-dev-ws
+    spec:
+      namespaceSelector:
+        names:
+          - "*/bookinfo-dev"
+          - "*/tier1-dev"
+      configMode: BRIDGED
+  - apiVersion: istiointernal.tsb.tetrate.io/v2
+    kind: Group
+    metadata:
+      name: bookinfo-dev-ig
+      annotations:
+        tsb.tetrate.io/organization: tetrate
+        tsb.tetrate.io/tenant: dev
+        tsb.tetrate.io/workspace: bookinfo-dev-ws
+    spec:
+      namespaceSelector:
+        names:
+          - "*/bookinfo"
+          - "*/tier1-dev"
+  - apiVersion: networking.istio.io/v1beta1
+    kind: ServiceEntry
+    metadata:
+      name: www-googleapis-com
+      namespace: bookinfo-dev
+      annotations:
+        tsb.tetrate.io/organization: tetrate
+        tsb.tetrate.io/tenant: dev
+        tsb.tetrate.io/workspace: bookinfo-dev-ws
+        tsb.tetrate.io/istioInternalGroup: bookinfo-dev-ig
+      labels:
+        istio.io/rev: tsb
+    spec:
+      hosts:
+      - www.googleapis.com
+      location: MESH_EXTERNAL
+      ports:
+      - number: 443
+        name: https
+        protocol: HTTPS
+      resolution: DNS
+  - apiVersion: install.tetrate.io/v1alpha1
+    kind: IngressGateway
+    metadata:
+      name: bookinfo-dev-gw
+      namespace: bookinfo-dev
+    spec:
+      revision: dev-stable 
+      kubeSpec:
+        service:
+          type: LoadBalancer
+  - apiVersion: gateway.tsb.tetrate.io/v2
+    kind: Gateway
+    metadata:
+      name: bookinfo-dev-gw
+      annotations:
+        tsb.tetrate.io/organization: tetrate
+        tsb.tetrate.io/tenant: dev
+        tsb.tetrate.io/workspace: bookinfo-dev-ws
+        tsb.tetrate.io/gatewayGroup: bookinfo-dev-gg
+    spec:
+      workloadSelector:
+        namespace: bookinfo-dev
+        labels:
+          app: bookinfo-dev-gw
+      http:
+        - name: productpage
+          port: 80
+          hostname: "bookinfo-dev.tetrate.io"
+          routing:
+            rules:
+              - route:
+                  serviceDestination:
+                    host: "bookinfo-dev/productpage.bookinfo-dev.svc.cluster.local"
+                    port: 9080
+  - apiVersion: install.tetrate.io/v1alpha1
+    kind: Tier1Gateway
+    metadata:
+      name: tier1-dev-gw
+      namespace: tier1-dev
+    spec:
+      kubeSpec:
+        service:
+          type: LoadBalancer
+  - apiVersion: gateway.tsb.tetrate.io/v2
+    kind: Gateway
+    metadata:
+      name: tier1-bookinfo-dev-gw
+      annotations:
+        tsb.tetrate.io/organization: tetrate
+        tsb.tetrate.io/tenant: dev
+        tsb.tetrate.io/workspace: bookinfo-dev-ws
+        tsb.tetrate.io/gatewayGroup: bookinfo-dev-gg
+    spec:
+      workloadSelector:
+        namespace: tier1-dev
+        labels:
+          app: tier1-dev-gw
+      http:
+        - name: productpage
+          port: 80
+          hostname: "bookinfo-dev.tetrate.io"
+          routing:
+            rules:
+              - route:
+                  clusterDestination:
+                    clusters: []
+  - apiVersion: v1
+    kind: Namespace
+    metadata:
+      name: trafficgenerator-bookinfo-dev
+  - apiVersion: apps/v1
+    kind: Deployment
+    metadata:
+      labels:
+        app: trafficgenerator-bookinfo-dev
+      name: trafficgenerator-bookinfo-dev
+      namespace: trafficgenerator-bookinfo-dev
+    spec:
+      progressDeadlineSeconds: 600
+      replicas: 1
+      selector:
+        matchLabels:
+          app: trafficgenerator-bookinfo-dev
+      strategy:
+        rollingUpdate:
+          maxSurge: 25%
+          maxUnavailable: 25%
+        type: RollingUpdate
+      template:
+        metadata:
+          labels:
+            app: trafficgenerator-bookinfo-dev
+        spec:
+          containers:
+            - args:
+                - /bin/sh
+                - -c
+                - 'while true; do sleep 60; curl -vIX GET -H"Host: bookinfo-dev.tetrate.io" bookinfo-dev-gw.bookinfo-dev/productpage; sleep 60; curl -vIX GET -H"Host: bookinfo-dev.tetrate.io" tier1-dev-gw.tier1-dev/productpage; done'
+              image: appropriate/curl
+              imagePullPolicy: Always
+              name: trafficgenerator-bookinfo-dev
+              resources: {}
+              terminationMessagePath: /dev/termination-log
+              terminationMessagePolicy: File
+          dnsPolicy: ClusterFirst
+          restartPolicy: Always
+---

@@ -1,0 +1,37 @@
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: tsb-server-cert
+  namespace: cert-manager
+spec:
+  secretName: tsb-server-cert
+  duration: 21600h # 900d
+  issuerRef:
+    name: selfsigned-ca
+    kind: ClusterIssuer
+    group: cert-manager.io
+  dnsNames:
+    - "${tsb_fqdn}"
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: istiod-cacerts
+  namespace: cert-manager
+spec:
+  secretName: istiod-cacerts
+  duration: 8766h # 1year
+  renewBefore: 360h # 15days
+  commonName: istiod.istio-system.svc
+  isCA: true
+  usages:
+    - digital signature
+    - key encipherment
+    - cert sign
+  dnsNames:
+    - istiod.istio-system.svc
+  issuerRef:
+    name: selfsigned-ca
+    kind: ClusterIssuer
+    group: cert-manager.io

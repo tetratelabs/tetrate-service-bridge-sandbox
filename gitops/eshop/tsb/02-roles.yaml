@@ -1,0 +1,16 @@
+apiVersion: rbac.tsb.tetrate.io/v2
+kind: Role
+metadata:
+  name: tenant-reader
+  namespace: eshop-config
+  annotations:
+    argocd.argoproj.io/sync-wave: "20"
+spec:
+  displayName: Tenant Reader
+  rules:
+  - permissions:
+    - READ
+    types:
+    - apiGroup: api.tsb.tetrate.io/v2
+      kinds:
+      - Tenant

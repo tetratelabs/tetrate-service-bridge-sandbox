@@ -1,0 +1,17 @@
+{{- $tsb := default dict .Values.tsb }}
+apiVersion: security.tsb.tetrate.io/v2
+kind: Group
+metadata:
+  name: {{ .Release.Name }}-sg
+  annotations:
+    "helm.sh/hook-weight": "0"
+    "helm.sh/hook": "pre-install"
+    tsb.tetrate.io/organization: {{ $tsb.org }}
+    tsb.tetrate.io/tenant: {{ $tsb.tenant }}
+    tsb.tetrate.io/workspace: {{ .Release.Name }}-ws
+spec:
+  configMode: BRIDGED
+  displayName: {{ .Release.Name }}-sg
+  namespaceSelector:
+    names:
+    - "*/{{ $tsb.appNamespace }}"

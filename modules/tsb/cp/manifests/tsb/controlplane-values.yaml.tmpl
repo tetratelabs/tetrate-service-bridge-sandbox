@@ -1,0 +1,98 @@
+image:%{ if length(regexall("dev", tsb_version)) == 0 }${"\n"}  tag: ${tsb_version}%{ endif }
+  registry: ${registry}
+secrets:
+  elasticsearch:
+    username: ${es_username}
+    password: ${es_password}
+  clusterServiceAccount:
+    clusterFQN: ${serviceaccount_clusterfqn}
+    JWK: '${serviceaccount_jwk}'
+spec:
+  hub: ${registry}
+  %{ if identity_propagation_enabled }
+  imagePullSecrets:
+  - name: cr-pull-secret
+  %{ endif }
+  telemetryStore:
+    elastic:
+      host: ${es_host}
+      port: 9200
+      version: 7
+      protocol: https
+      selfSigned: true
+  managementPlane:
+    host: ${tsb_fqdn}
+    port: 443
+    clusterName: ${cluster_name}
+    selfSigned: true
+  components:
+    xcp:
+      centralAuthMode: JWT
+      configProtection: {}
+      enableHttpMeshInternalIdentityPropagation: ${identity_propagation_enabled}
+      isolationBoundaries:
+      - name: global
+        revisions:
+        - name: default
+      - name: dev
+        revisions:
+        - name: dev-stable
+      - name: qa
+        revisions:
+        - name: qa-stable
+      kubeSpec:
+        deployment:
+          env:
+            - name: ENABLE_GATEWAY_DELETE_HOLD
+              value: "true"
+            - name: GATEWAY_DELETE_HOLD_SECONDS
+              value: "20"
+        overlays:
+          - apiVersion: install.xcp.tetrate.io/v1alpha1
+            kind: EdgeXcp
+            name: edge-xcp
+            patches:
+              - path: spec.components.edgeServer.kubeSpec.deployment.env[-1]
+                value:
+                  name: ENABLE_ENHANCED_EAST_WEST_ROUTING
+                  value: "true"
+              - path: spec.components.edgeServer.kubeSpec.deployment.env[-1]
+                value:
+                  name: DISABLE_TIER1_TIER2_SEPARATION
+                  value: "true"
+              - path: spec.components.edgeServer.kubeSpec.deployment.env[-1]
+                value:
+                  name: ENABLE_DNS_RESOLUTION_AT_EDGE
+                  value: "true"
+              - path: spec.components.edgeServer.kubeSpec.deployment.env[-1]
+                value:
+                  name: ENABLE_NETWORK_POLICY_TRANSLATION
+                  value: “true”
+              - path: spec.components.edgeServer.kubeSpec.deployment.env[-1]
+                value:
+                  name: ENABLE_NON_INGRESS_HOST_LEVEL_AUTHORIZATION
+                  value: “true”
+    gitops:
+      enabled: true
+      reconcileInterval: 600s
+    internalCertProvider:
+      certManager:
+        managed: EXTERNAL
+    oap:
+      streamingLogEnabled: true
+    %{ if ratelimit_enabled }
+    rateLimitServer:
+      domain: local
+      backend:
+        redis:
+          uri: redis-master.${ratelimit_namespace}.svc.cluster.local:6379
+    %{ endif }
+  meshExpansion: {}
+  meshObservability:
+    settings:
+      apiEndpointMetricsEnabled: true  
+operator:
+  deployment:
+    env:
+    - name: ISTIO_ISOLATION_BOUNDARIES
+      value: "true"
