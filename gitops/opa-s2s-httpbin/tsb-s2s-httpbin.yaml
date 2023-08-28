@@ -40,3 +40,70 @@ spec:
     http:
       external:
         uri: "grpc://127.0.0.1:9191"
+---        
+apiVersion: install.tetrate.io/v1alpha1
+kind: IngressGateway
+metadata:
+  name: opa-api-httpbin-gw
+  namespace: opa-s2s-httpbin
+spec:
+  kubeSpec:
+    service:
+      type: LoadBalancer
+---
+apiVersion: application.tsb.tetrate.io/v2
+kind: Application
+metadata:
+  name: opa-api-httpbin-app
+  annotations:
+    tsb.tetrate.io/organization: tetrate
+    tsb.tetrate.io/tenant: dev
+spec:
+  description: httpbin application
+  displayName: httpbin application
+  workspace: organizations/tetrate/tenants/dev/workspaces/opa-s2s-httpbin-ws
+---
+apiVersion: application.tsb.tetrate.io/v2
+kind: API
+metadata:
+  annotations:
+    tsb.tetrate.io/organization: tetrate
+    tsb.tetrate.io/tenant: dev
+    tsb.tetrate.io/application: opa-api-httpbin-app
+  name: opa-api-httpbin-gw
+spec:
+  description: Httpbin OpenAPI
+  workloadSelector:
+    namespace: opa-s2s-httpbin
+    labels:
+      app: opa-api-httpbin-gw
+  openapi: |
+    openapi: 3.0.1
+    info:
+      version: '1.0-oas3'
+      title: httpbin
+      description: An unofficial OpenAPI definition for httpbin
+      x-tsb-service: httpbin-with-opa.opa-s2s-httpbin
+
+    servers:
+      - url: https://httpbin.tetrate.io
+        x-tsb-cors:
+          allowOrigin:
+            - "*"
+        x-tsb-tls:
+          mode: SIMPLE
+          secretName: httpbin-cert
+    paths:
+      /get:
+        get:
+          tags:
+            - HTTP methods
+          summary: |
+            Returns the GET request's data.
+          responses:
+            '200': 
+              description: OK
+              content:
+                application/json:
+                  schema:
+                    type: object

@@ -1,0 +1,15 @@
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: httpbin-cert
+  namespace: opa-s2s-httpbin
+spec:
+  secretName: httpbin-cert
+  duration: 21600h # 900d
+  issuerRef:
+    name: selfsigned-ca
+    kind: ClusterIssuer
+    group: cert-manager.io
+  dnsNames:
+    - "httpbin.tetrate.io"
