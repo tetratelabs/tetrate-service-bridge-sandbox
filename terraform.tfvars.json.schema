@@ -1,0 +1,52 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "type": "object",
+    "properties": {
+        "cp_clusters": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "cloud_provider": { "type": "string" },
+                    "name": { "type": "string" },
+                    "region": { "type": "string" },
+                    "version": { "type": "string" },
+                    "zones": {
+                        "type": "array",
+                        "items": { "type": "string" }
+                    }
+                },
+                "required": ["cloud_provider", "name", "region", "version", "zones"]
+            }
+        },
+        "dns_provider": { "type": "string" },
+        "mp_cluster": {
+            "type": "object",
+            "properties": {
+                "cloud_provider": { "type": "string" },
+                "name": { "type": "string" },
+                "region": { "type": "string" },
+                "version": { "type": "string" },
+                "zones": {
+                    "type": "array",
+                    "items": { "type": "string" }
+                }
+            },
+            "required": ["cloud_provider", "name", "region", "version", "zones"]
+        },
+        "name_prefix": { "type": "string" },
+        "tsb": {
+            "type": "object",
+            "properties": {
+                "fqdn": { "type": "string" },
+                "image_sync_apikey": { "type": "string" },
+                "image_sync_username": { "type": "string" },
+                "organisation": { "type": "string" },
+                "password": { "type": "string" },
+                "version": { "type": "string" }
+            },
+            "required": ["fqdn", "image_sync_apikey", "image_sync_username", "organisation", "password", "version"]
+        }
+    },
+    "required": ["cp_clusters", "dns_provider", "mp_cluster", "name_prefix", "tsb"]
+}
