@@ -32,11 +32,11 @@ module "aws_jumpbox" {
   vpc_id                  = module.aws_base.vpc_id
   vpc_subnet              = module.aws_base.vpc_subnets[0]
   cidr                    = module.aws_base.cidr
-  tsb_version             = var.tsb_version
-  tsb_helm_repository     = var.tsb_helm_repository
+  tsb_version             = local.tsb.version
+  tsb_image_sync_username = local.tsb.image_sync_username
+  tsb_image_sync_apikey   = local.tsb.image_sync_apikey
+  tsb_helm_repository     = local.tsb.helm_repository
   jumpbox_username        = var.jumpbox_username
-  tsb_image_sync_username = var.tsb_image_sync_username
-  tsb_image_sync_apikey   = var.tsb_image_sync_apikey
   registry                = module.aws_base.registry
   registry_name           = module.aws_base.registry_name
   tags                    = local.default_tags

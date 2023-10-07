@@ -19,27 +19,24 @@ variable "cidr" {
   default     = "172.20.0.0/16"
 }
 
-variable "tsb_image_sync_username" {
-  type = string
-}
-
-variable "tsb_image_sync_apikey" {
-  type = string
-}
-
-variable "tsb_version" {
-  type    = string
-  default = "1.7.0"
-}
-
-variable "tsb_helm_repository" {
-  type    = string
-  default = "https://charts.dl.tetrate.io/public/helm/charts/"
-}
-
 variable "jumpbox_username" {
   type    = string
   default = "tsbadmin"
+}
+
+variable "tsb" {
+  type    = map(any)
+  default = {}
+}
+
+locals {
+  tsb_defaults = {
+    version             = "1.7.0"
+    image_sync_username = "demo"
+    image_sync_apikey   = "demo"
+    helm_repository     = "https://charts.dl.tetrate.io/public/helm/charts/"
+  }
+  tsb = merge(local.tsb_defaults, var.tsb)
 }
 
 variable "azure_k8s_region" {
@@ -57,36 +54,29 @@ variable "output_path" {
   default = "../../outputs"
 }
 
-variable "tetrate_owner" {
-  type = string
+variable "tetrate" {
+  type    = map(any)
+  default = {}
 }
 
-variable "tetrate_team" {
-  type = string
-}
-
-variable "tetrate_purpose" {
-  type    = string
-  default = "demo"
-}
-
-variable "tetrate_lifespan" {
-  type    = string
-  default = "oneoff"
-}
-
-variable "tetrate_customer" {
-  type    = string
-  default = "internal"
+locals {
+  tetrate_defaults = {
+    customer = "internal"
+    lifespan = "oneoff"
+    owner    = "demo"
+    purpose  = "demo"
+    team     = "demo"
+  }
+  tetrate = merge(local.tetrate_defaults, var.tetrate)
 }
 
 locals {
   default_tags = {
-    "tetrate:owner"    = coalesce(var.tetrate_owner, replace(var.tsb_image_sync_username, "/\\W+/", "-"))
-    "tetrate:team"     = var.tetrate_team
-    "tetrate:purpose"  = var.tetrate_purpose
-    "tetrate:lifespan" = var.tetrate_lifespan
-    "tetrate:customer" = var.tetrate_customer
+    "tetrate:customer" = local.tetrate.customer
+    "tetrate:lifespan" = local.tetrate.lifespan
+    "tetrate:owner"    = coalesce(local.tetrate.owner, replace(local.tsb.image_sync_username, "/\\W+/", "-"))
+    "tetrate:purpose"  = local.tetrate.purpose
+    "tetrate:team"     = local.tetrate.team
     "environment"      = var.name_prefix
   }
 }

@@ -32,7 +32,7 @@
     },
     {
       "cloud_provider": "azure",
-      "name": "demou4",
+      "name": "demo 4",
       "region": "northeurope",
       "version": "1.24",
       "zones": [

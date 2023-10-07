@@ -23,6 +23,10 @@ variable "registry" {
   type = string
 }
 
+variable "jumpbox_username" {
+  type = string
+}
+
 variable "tsb_image_sync_username" {
   type = string
 }
@@ -38,10 +42,6 @@ variable "tsb_version" {
 variable "tsb_helm_repository" {
   type    = string
   default = ""
-}
-
-variable "jumpbox_username" {
-  type = string
 }
 
 variable "machine_type" {

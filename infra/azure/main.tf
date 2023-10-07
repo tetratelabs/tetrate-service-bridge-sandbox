@@ -22,11 +22,11 @@ module "azure_jumpbox" {
   resource_group_name     = module.azure_base.resource_group_name
   cidr                    = module.azure_base.cidr
   vnet_subnet             = module.azure_base.vnet_subnets[0]
-  tsb_version             = var.tsb_version
-  tsb_helm_repository     = var.tsb_helm_repository
+  tsb_version             = local.tsb.version
+  tsb_image_sync_username = local.tsb.image_sync_username
+  tsb_image_sync_apikey   = local.tsb.image_sync_apikey
+  tsb_helm_repository     = local.tsb.helm_repository
   jumpbox_username        = var.jumpbox_username
-  tsb_image_sync_username = var.tsb_image_sync_username
-  tsb_image_sync_apikey   = var.tsb_image_sync_apikey
   registry                = module.azure_base.registry
   registry_username       = module.azure_base.registry_username
   registry_password       = module.azure_base.registry_password

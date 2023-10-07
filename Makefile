@@ -93,10 +93,10 @@ destroy_remote:  ## Destroys the environment
 	@$(MAKE) destroy_k8s
 
 destroy_external-dns: ## Destroys external-dns
-	@echo "Refreshing k8s access tokens..."
-	@$(MAKE) k8s_auth
-	@echo "Destroying external-dns..."
-	@/bin/bash make.sh destroy_external_dns
+	# @echo "Refreshing k8s access tokens..."
+	# @$(MAKE) k8s_auth
+	# @echo "Destroying external-dns..."
+	# @/bin/bash make.sh destroy_external_dns
 
 destroy_k8s:
 	@echo "Destroying k8s..."

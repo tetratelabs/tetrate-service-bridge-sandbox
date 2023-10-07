@@ -70,9 +70,9 @@ function deploy_k8s_clusters() {
       local name_from_json=$(echo "${cluster}" | jq -r '.name')
       # [backwards compatibility] if name not set or empty, fall back to previous naming convention
       if [ -n "${name_from_json}" ] && [ "${name_from_json}" != "null" ]; then
-        cluster_name="aks-${name_from_json}"
+        cluster_name="${cloud_provider}-${name_from_json}"
       else 
-        cluster_name="aks-${name_prefix}-${region}-${index}"
+        cluster_name="${cloud_provider}-${name_prefix}-${region}-${index}"
       fi
       # [todo] zones is not implemented yet
       local zones=$(echo "${cluster}" | jq -r '.zones | join(",")')
@@ -115,9 +115,9 @@ function deploy_k8s_auths() {
       local name_from_json=$(echo "${cluster}" | jq -r '.name')
       # [backwards compatibility] if name not set or empty, fall back to previous naming convention
       if [ -n "${name_from_json}" ] && [ "${name_from_json}" != "null" ]; then
-        cluster_name="aks-${name_from_json}"
+        cluster_name="${cloud_provider}-${name_from_json}"
       else 
-        cluster_name="aks-${name_prefix}-${region}-${index}"
+        cluster_name="${cloud_provider}-${name_prefix}-${region}-${index}"
       fi
       print_info "cloud=${cloud_provider} region=${region} cluster_id=${index} cluster_name=${cluster_name}"
 
@@ -209,9 +209,9 @@ function deploy_addon() {
       local name_from_json=$(echo "${cluster}" | jq -r '.name')
       # [backwards compatibility] if name not set or empty, fall back to previous naming convention
       if [ -n "${name_from_json}" ] && [ "${name_from_json}" != "null" ]; then
-        cluster_name="aks-${name_from_json}"
+        cluster_name="${cloud_provider}-${name_from_json}"
       else 
-        cluster_name="aks-${name_prefix}-${region}-${index}"
+        cluster_name="${cloud_provider}-${name_prefix}-${region}-${index}"
       fi
       print_info "cloud=${cloud_provider} region=${region} cluster_id=${index} cluster_name=${cluster_name}"
         
@@ -248,9 +248,9 @@ function deploy_external_dns() {
       local name_from_json=$(echo "${cluster}" | jq -r '.name')
       # [backwards compatibility] if name not set or empty, fall back to previous naming convention
       if [ -n "${name_from_json}" ] && [ "${name_from_json}" != "null" ]; then
-        cluster_name="aks-${name_from_json}"
+        cluster_name="${cloud_provider}-${name_from_json}"
       else 
-        cluster_name="aks-${name_prefix}-${region}-${index}"
+        cluster_name="${cloud_provider}-${name_prefix}-${region}-${index}"
       fi
       print_info "cloud=${cloud_provider} region=${region} cluster_id=${index} cluster_name=${cluster_name}"
         
@@ -286,9 +286,9 @@ function destroy_external_dns() {
       local name_from_json=$(echo "${cluster}" | jq -r '.name')
       # [backwards compatibility] if name not set or empty, fall back to previous naming convention
       if [ -n "${name_from_json}" ] && [ "${name_from_json}" != "null" ]; then
-        cluster_name="aks-${name_from_json}"
+        cluster_name="${cloud_provider}-${name_from_json}"
       else 
-        cluster_name="aks-${name_prefix}-${region}-${index}"
+        cluster_name="${cloud_provider}-${name_prefix}-${region}-${index}"
       fi
       print_info "cloud=${cloud_provider} region=${region} cluster_id=${index} cluster_name=${cluster_name}"
         
@@ -306,6 +306,7 @@ function destroy_external_dns() {
 }
 
 function destroy_remote() {
+
   local cloud_provider=$(jq -r '.mp_cluster.cloud_provider' ${JSON_TFVARS})
   local fqdn=$(jq -r '.tsb.fqdn' ${JSON_TFVARS})
   local address=$(jq -r 'if .ingress_ip.value != "" then .ingress_ip.value else .ingress_hostname.value end' outputs/terraform_outputs/terraform-tsb-mp.json)
@@ -339,16 +340,16 @@ function destroy_k8s_clusters() {
       local name_from_json=$(echo "${cluster}" | jq -r '.name')
       # [backwards compatibility] if name not set or empty, fall back to previous naming convention
       if [ -n "${name_from_json}" ] && [ "${name_from_json}" != "null" ]; then
-        cluster_name="aks-${name_from_json}"
+        cluster_name="${cloud_provider}-${name_from_json}"
       else 
-        cluster_name="aks-${name_prefix}-${region}-${index}"
+        cluster_name="${cloud_provider}-${name_prefix}-${region}-${index}"
       fi
       print_info "cloud=${cloud_provider} region=${region} zones=${zones} cluster_id=${index} cluster_name=${cluster_name}"
 
       cd "infra/${cloud_provider}"
       terraform workspace select ${cloud_provider}-${index}-${region}
       cluster_name=$(terraform output cluster_name | jq . -r)
-      terraform destroy ${TERRAFORM_DESTROY_ARGS} -var-file="../../${JSON_TFVARS}" -var=$*_k8s_region=${region} -var=cluster_id=${index} -var=cluster_name=${cluster_name}
+      terraform destroy ${TERRAFORM_DESTROY_ARGS} -var-file="../../${JSON_TFVARS}" -var=${cloud_provider}_k8s_region=${region} -var=cluster_id=${index} -var=cluster_name=${cluster_name}
       terraform workspace select default
       terraform workspace delete ${TERRAFORM_WORKSPACE_ARGS} ${cloud_provider}-${index}-${region}
 

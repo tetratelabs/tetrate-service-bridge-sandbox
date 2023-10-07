@@ -39,12 +39,12 @@ module "gcp_jumpbox" {
   project_id              = coalesce(var.gcp_project_id, google_project.tsb[0].project_id)
   vpc_id                  = module.gcp_base.vpc_id
   vpc_subnet              = module.gcp_base.vpc_subnets[0]
-  tsb_version             = var.tsb_version
-  tsb_helm_repository     = var.tsb_helm_repository
+  tsb_version             = local.tsb.version
+  tsb_image_sync_username = local.tsb.image_sync_username
+  tsb_image_sync_apikey   = local.tsb.image_sync_apikey
+  tsb_helm_repository     = local.tsb.helm_repository
   jumpbox_username        = var.jumpbox_username
   machine_type            = var.jumpbox_machine_type
-  tsb_image_sync_username = var.tsb_image_sync_username
-  tsb_image_sync_apikey   = var.tsb_image_sync_apikey
   registry                = module.gcp_base.registry
   output_path             = var.output_path
   tags                    = local.default_tags
