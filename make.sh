@@ -6,15 +6,13 @@
 export BASE_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 
 JSON_TFVARS="terraform.tfvars.json"
+TERRAFORM_APPLY_ARGS="-compact-warnings -auto-approve"
+TERRAFORM_DESTROY_ARGS="-compact-warnings -auto-approve"
+TERRAFORM_WORKSPACE_ARGS="-force"
+TERRAFORM_OUTPUT_ARGS="-json"
 
 # Enable debug
 # set -o xtrace
-
-# Default terraform variables
-terraform_apply_args="-compact-warnings -auto-approve"
-terraform_destroy_args="-compact-warnings -auto-approve"
-terraform_workspace_args="-force"
-terraform_output_args="-json"
 
 function validate_json_structure() {    
   if jq -e '.cp_clusters[] | select(.cloud_provider and .name and .region and .version and .zones)' "$JSON_TFVARS" > /dev/null && \
@@ -65,9 +63,9 @@ function deploy_k8s_clusters() {
       terraform workspace new ${cloud_provider}-${index}-${region} || true
       terraform workspace select ${cloud_provider}-${index}-${region}
       terraform init
-      terraform apply ${terraform_apply_args} -target module.${cloud_provider}_base -var-file="../../${JSON_TFVARS}" -var=${cloud_provider}_k8s_region=${region} -var=cluster_name=${cluster_name} -var=cluster_id=${index}
-      terraform apply ${terraform_apply_args} -var-file="../../${JSON_TFVARS}" -var=${cloud_provider}_k8s_region=${region} -var=cluster_name=${cluster_name} -var=cluster_id=${index}
-      terraform output ${terraform_output_args} | jq . > ../../outputs/terraform_outputs/terraform-${cloud_provider}-${cluster_name}-${index}.json
+      terraform apply ${TERRAFORM_APPLY_ARGS} -target module.${cloud_provider}_base -var-file="../../${JSON_TFVARS}" -var=${cloud_provider}_k8s_region=${region} -var=cluster_name=${cluster_name} -var=cluster_id=${index}
+      terraform apply ${TERRAFORM_APPLY_ARGS} -var-file="../../${JSON_TFVARS}" -var=${cloud_provider}_k8s_region=${region} -var=cluster_name=${cluster_name} -var=cluster_id=${index}
+      terraform output ${TERRAFORM_OUTPUT_ARGS} | jq . > ../../outputs/terraform_outputs/terraform-${cloud_provider}-${cluster_name}-${index}.json
       terraform workspace select default
 
       index=$((index+1))
@@ -109,7 +107,7 @@ function deploy_k8s_auths() {
       terraform workspace new "${cloud_provider}-${index}-${region}" || true
       terraform workspace select "${cloud_provider}-${index}-${region}"
       terraform init
-      terraform apply -refresh=false ${terraform_apply_args} -var-file="../../../${JSON_TFVARS}" -var="${cloud_provider}_k8s_region=${region}" -var=cluster_id=${index}      
+      terraform apply -refresh=false ${TERRAFORM_APPLY_ARGS} -var-file="../../../${JSON_TFVARS}" -var="${cloud_provider}_k8s_region=${region}" -var=cluster_id=${index}      
       terraform workspace select default
 
       index=$((index+1))
@@ -134,16 +132,16 @@ function deploy_tsb_mp() {
   cd "tsb/mp"
   terraform workspace select default
   terraform init
-  terraform apply ${terraform_apply_args} -target=module.cert-manager -target=module.es -target="data.terraform_remote_state.infra" -var-file="../../${JSON_TFVARS}"
-  terraform apply ${terraform_apply_args} -target=module.tsb_mp.kubectl_manifest.manifests_certs -target="data.terraform_remote_state.infra" -var-file="../../${JSON_TFVARS}"
-  terraform apply ${terraform_apply_args} -var-file="../../${JSON_TFVARS}"
-  terraform output ${terraform_output_args} | jq . > ../../outputs/terraform_outputs/terraform-tsb-mp.json
+  terraform apply ${TERRAFORM_APPLY_ARGS} -target=module.cert-manager -target=module.es -target="data.terraform_remote_state.infra" -var-file="../../${JSON_TFVARS}"
+  terraform apply ${TERRAFORM_APPLY_ARGS} -target=module.tsb_mp.kubectl_manifest.manifests_certs -target="data.terraform_remote_state.infra" -var-file="../../${JSON_TFVARS}"
+  terraform apply ${TERRAFORM_APPLY_ARGS} -var-file="../../${JSON_TFVARS}"
+  terraform output ${TERRAFORM_OUTPUT_ARGS} | jq . > ../../outputs/terraform_outputs/terraform-tsb-mp.json
 
   local fqdn=$(jq -r '.tsb.fqdn' ../../${JSON_TFVARS})
   local address=$(jq -r "if .ingress_ip.value != \"\" then .ingress_ip.value else .ingress_hostname.value end" ../../outputs/terraform_outputs/terraform-tsb-mp.json)
 
   terraform -chdir=../fqdn/${dns_provider} init
-  terraform -chdir=../fqdn/${dns_provider} apply ${terraform_apply_args} -var-file="../../../${JSON_TFVARS}" -var=address=${address} -var=fqdn=${fqdn}
+  terraform -chdir=../fqdn/${dns_provider} apply ${TERRAFORM_APPLY_ARGS} -var-file="../../../${JSON_TFVARS}" -var=address=${address} -var=fqdn=${fqdn}
   terraform workspace select default
 
   cd "../.."
@@ -166,7 +164,7 @@ function deploy_tsb_cps() {
       terraform workspace new ${cloud_provider}-${index}-${region} || true
       terraform workspace select ${cloud_provider}-${index}-${region}
       terraform init
-      terraform apply ${terraform_apply_args} -var-file="../../${JSON_TFVARS}" -var=cloud=${cloud_provider} -var=cluster_id=${index}
+      terraform apply ${TERRAFORM_APPLY_ARGS} -var-file="../../${JSON_TFVARS}" -var=cloud=${cloud_provider} -var=cluster_id=${index}
       terraform workspace select default
 
       index=$((index+1))
@@ -206,8 +204,8 @@ function deploy_addon() {
       terraform workspace new ${cloud_provider}-${index}-${region} || true
       terraform workspace select ${cloud_provider}-${index}-${region}
       terraform init
-      terraform apply ${terraform_apply_args} -var-file="../../${JSON_TFVARS}" -var=cloud=${cloud_provider} -var=cluster_id=${index}
-      terraform output ${terraform_output_args} | jq . > ../../outputs/terraform_outputs/terraform-${addon}-${cloud_provider}-${index}.json
+      terraform apply ${TERRAFORM_APPLY_ARGS} -var-file="../../${JSON_TFVARS}" -var=cloud=${cloud_provider} -var=cluster_id=${index}
+      terraform output ${TERRAFORM_OUTPUT_ARGS} | jq . > ../../outputs/terraform_outputs/terraform-${addon}-${cloud_provider}-${index}.json
       terraform workspace select default
       index=$((index+1))
       cd "../.."
@@ -246,7 +244,7 @@ function deploy_external_dns() {
       terraform workspace new ${cloud_provider}-${index}-${region} || true
       terraform workspace select ${cloud_provider}-${index}-${region}
       terraform init
-      terraform apply ${terraform_apply_args} -var-file="../../../${JSON_TFVARS}" -var=cloud=${cloud_provider} -var=cluster_id=${index}
+      terraform apply ${TERRAFORM_APPLY_ARGS} -var-file="../../../${JSON_TFVARS}" -var=cloud=${cloud_provider} -var=cluster_id=${index}
       terraform workspace select default
       index=$((index+1))
       cd "../../.."
@@ -285,7 +283,7 @@ function destroy_external_dns() {
       terraform workspace new ${cloud_provider}-${index}-${region} || true
       terraform workspace select ${cloud_provider}-${index}-${region}
       terraform init
-      terraform destroy ${terraform_apply_args} -var-file="../../../${JSON_TFVARS}" -var=cloud=${cloud_provider} -var=cluster_id=$index
+      terraform destroy ${TERRAFORM_APPLY_ARGS} -var-file="../../../${JSON_TFVARS}" -var=cloud=${cloud_provider} -var=cluster_id=$index
       terraform workspace select default
 
       index=$((index+1))
@@ -301,7 +299,7 @@ function destroy_remote() {
 
   cd "tsb/fqdn/$cloud_provider"
   terraform init
-  terraform destroy ${terraform_apply_args} -var-file="../../../${JSON_TFVARS}" -var=address=${address} -var=fqdn=${fqdn}
+  terraform destroy ${TERRAFORM_APPLY_ARGS} -var-file="../../../${JSON_TFVARS}" -var=address=${address} -var=fqdn=${fqdn}
   rm -rf terraform.tfstate.d/
   rm -rf terraform.tfstate
   cd "../../.."
@@ -338,7 +336,7 @@ function destroy_k8s_clusters() {
       cd "infra/${cloud_provider}"
       terraform workspace select ${cloud_provider}-${index}-${region}
       cluster_name=$(terraform output cluster_name | jq . -r)
-      terraform destroy ${terraform_destroy_args} -var-file="../../${JSON_TFVARS}" -var=$*_k8s_region=${region} -var=cluster_id=${index} -var=cluster_name=${cluster_name}
+      terraform destroy ${TERRAFORM_DESTROY_ARGS} -var-file="../../${JSON_TFVARS}" -var=$*_k8s_region=${region} -var=cluster_id=${index} -var=cluster_name=${cluster_name}
       terraform workspace select default
 
       index=$((index+1))
