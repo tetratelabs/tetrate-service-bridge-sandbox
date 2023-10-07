@@ -11,6 +11,26 @@ TERRAFORM_DESTROY_ARGS="-compact-warnings -auto-approve"
 TERRAFORM_WORKSPACE_ARGS="-force"
 TERRAFORM_OUTPUT_ARGS="-json"
 
+
+# Helper print functions
+
+END="\033[0m"
+REDB="\033[1;31m"
+GREENB="\033[1;32m"
+BLUEB="\033[1;34m"
+
+function print_info() {
+  echo -e "${GREENB}${1}${END}"
+}
+
+function print_error() {
+  echo -e "${REDB}${1}${END}"
+}
+
+function print_stage() {
+  echo -e "${BLUEB}******************** ${1} ********************${END}"
+}
+
 # Enable debug
 # set -o xtrace
 
@@ -22,9 +42,9 @@ function validate_json_structure() {
      jq -e '.tsb | select(.fqdn and .image_sync_apikey and .image_sync_username and .organisation and .password and .version)' "$JSON_TFVARS" > /dev/null && \
      jq -e '.cp_clusters[] | select(.cloud_provider == "aws" or .cloud_provider == "gcp" or .cloud_provider == "azure")' "$JSON_TFVARS" > /dev/null && \
      jq -e '.mp_cluster | select(.cloud_provider == "aws" or .cloud_provider == "gcp" or .cloud_provider == "azure")' "$JSON_TFVARS" > /dev/null; then
-    echo "JSON structure is valid."
+    print_info "JSON structure is valid."
   else
-    echo "JSON structure is invalid."
+    print_error "JSON structure is invalid."
     return 1
   fi
 }
@@ -56,8 +76,7 @@ function deploy_k8s_clusters() {
       fi
       # [todo] zones is not implemented yet
       local zones=$(echo "${cluster}" | jq -r '.zones | join(",")')
-      echo "cloud=${cloud_provider} region=${region} zones=${zones} cluster_id=${index} cluster_name=${cluster_name}"
-      continue
+      print_info "cloud=${cloud_provider} region=${region} zones=${zones} cluster_id=${index} cluster_name=${cluster_name}"
 
       cd "infra/${cloud_provider}"
       terraform workspace new ${cloud_provider}-${index}-${region} || true
@@ -100,8 +119,7 @@ function deploy_k8s_auths() {
       else 
         cluster_name="aks-${name_prefix}-${region}-${index}"
       fi
-      echo "cloud=${cloud_provider} region=${region} cluster_id=${index} cluster_name=${cluster_name}"
-      continue
+      print_info "cloud=${cloud_provider} region=${region} cluster_id=${index} cluster_name=${cluster_name}"
 
       cd "infra/${cloud_provider}/k8s_auth"
       terraform workspace new "${cloud_provider}-${index}-${region}" || true
@@ -126,8 +144,7 @@ function deploy_tsb_mp() {
     # TODO: review this logic
     dns_provider=$(jq -r '.tsb.fqdn' ${JSON_TFVARS} | cut -d"." -f2 | sed 's/sandbox/gcp/g')
   fi
-  echo "cloud=${cloud_provider} region=${region} cluster_id=0 cluster_name=${cluster_name}"
-  return
+  print_info "cloud=${cloud_provider} region=${region} cluster_id=0 cluster_name=${cluster_name}"
 
   cd "tsb/mp"
   terraform workspace select default
@@ -148,28 +165,27 @@ function deploy_tsb_mp() {
 }
 
 function deploy_tsb_cps() {
-    set -e
-    local index=0
-    clusters=$(jq -c '.cp_clusters[]' ${JSON_TFVARS})
+  set -e
+  local index=0
+  clusters=$(jq -c '.cp_clusters[]' ${JSON_TFVARS})
 
-    for cluster in $clusters; do
-      cloud_provider=$(echo $cluster | jq -r '.cloud_provider')
-      cluster_name=$(echo $cluster | jq -r '.name')
-      region=$(echo $cluster | jq -r '.region')
-      version=$(echo $cluster | jq -r '.version')
-      echo "cloud=${cloud_provider} region=${region} cluster_id=${index} cluster_name=${cluster_name}"
-      continue
+  for cluster in $clusters; do
+    cloud_provider=$(echo $cluster | jq -r '.cloud_provider')
+    cluster_name=$(echo $cluster | jq -r '.name')
+    region=$(echo $cluster | jq -r '.region')
+    version=$(echo $cluster | jq -r '.version')
+    print_info "cloud=${cloud_provider} region=${region} cluster_id=${index} cluster_name=${cluster_name}"
 
-      cd "tsb/cp"
-      terraform workspace new ${cloud_provider}-${index}-${region} || true
-      terraform workspace select ${cloud_provider}-${index}-${region}
-      terraform init
-      terraform apply ${TERRAFORM_APPLY_ARGS} -var-file="../../${JSON_TFVARS}" -var=cloud=${cloud_provider} -var=cluster_id=${index}
-      terraform workspace select default
+    cd "tsb/cp"
+    terraform workspace new ${cloud_provider}-${index}-${region} || true
+    terraform workspace select ${cloud_provider}-${index}-${region}
+    terraform init
+    terraform apply ${TERRAFORM_APPLY_ARGS} -var-file="../../${JSON_TFVARS}" -var=cloud=${cloud_provider} -var=cluster_id=${index}
+    terraform workspace select default
 
-      index=$((index+1))
-      cd "../../.."
-    done
+    index=$((index+1))
+    cd "../../.."
+  done
 }
 
 function deploy_addon() {
@@ -197,8 +213,7 @@ function deploy_addon() {
       else 
         cluster_name="aks-${name_prefix}-${region}-${index}"
       fi
-      echo "cloud=${cloud_provider} region=${region} cluster_id=${index} cluster_name=${cluster_name}"
-      continue
+      print_info "cloud=${cloud_provider} region=${region} cluster_id=${index} cluster_name=${cluster_name}"
         
       cd "addons/${addon}"
       terraform workspace new ${cloud_provider}-${index}-${region} || true
@@ -237,8 +252,7 @@ function deploy_external_dns() {
       else 
         cluster_name="aks-${name_prefix}-${region}-${index}"
       fi
-      echo "cloud=${cloud_provider} region=${region} cluster_id=${index} cluster_name=${cluster_name}"
-      continue
+      print_info "cloud=${cloud_provider} region=${region} cluster_id=${index} cluster_name=${cluster_name}"
         
       cd "addons/${cloud_provider}/external-dns"
       terraform workspace new ${cloud_provider}-${index}-${region} || true
@@ -276,8 +290,7 @@ function destroy_external_dns() {
       else 
         cluster_name="aks-${name_prefix}-${region}-${index}"
       fi
-      echo "cloud=${cloud_provider} region=${region} cluster_id=${index} cluster_name=${cluster_name}"
-      continue
+      print_info "cloud=${cloud_provider} region=${region} cluster_id=${index} cluster_name=${cluster_name}"
         
       cd "addons/${cloud_provider}/external-dns"
       terraform workspace new ${cloud_provider}-${index}-${region} || true
@@ -330,22 +343,20 @@ function destroy_k8s_clusters() {
       else 
         cluster_name="aks-${name_prefix}-${region}-${index}"
       fi
-      echo "cloud=${cloud_provider} region=${region} zones=${zones} cluster_id=${index} cluster_name=${cluster_name}"
-      continue
+      print_info "cloud=${cloud_provider} region=${region} zones=${zones} cluster_id=${index} cluster_name=${cluster_name}"
 
       cd "infra/${cloud_provider}"
       terraform workspace select ${cloud_provider}-${index}-${region}
       cluster_name=$(terraform output cluster_name | jq . -r)
       terraform destroy ${TERRAFORM_DESTROY_ARGS} -var-file="../../${JSON_TFVARS}" -var=$*_k8s_region=${region} -var=cluster_id=${index} -var=cluster_name=${cluster_name}
       terraform workspace select default
+      terraform workspace delete ${TERRAFORM_WORKSPACE_ARGS} ${cloud_provider}-${index}-${region}
 
       index=$((index+1))
       cd "../.."
     done
   done
 }
-
-
 
 
 #
@@ -356,39 +367,51 @@ case "$1" in
     help
     ;;
   validate)
+    print_stage "validate_json_structure"
     validate_json_structure
     ;;
   k8s_clusters)
+    print_stage "deploy_k8s_clusters"
     deploy_k8s_clusters
     ;;
   k8s_auths)
+    print_stage "deploy_k8s_auths"
     deploy_k8s_auths
     ;;
   tsb_mp)
+    print_stage "deploy_tsb_mp"
     deploy_tsb_mp
     ;;
   tsb_cps)
+    print_stage "deploy_tsb_cps"
     deploy_tsb_cps
     ;;
   fluxcd)
+    print_stage "deploy_addon fluxcd"
     deploy_addon "fluxcd"
     ;;
   argocd)
+    print_stage "deploy_addon argocd"
     deploy_addon "argocd"
     ;;
   tsb_monitoring)
+    print_stage "deploy_addon tsb-monitoring"
     deploy_addon "tsb-monitoring"
     ;;
   external_dns)
+    print_stage "deploy_external_dns"
     deploy_external_dns
     ;;
   destroy_external_dns)
+    print_stage "destroy_external_dns"
     destroy_external_dns
     ;;
   destroy_remote)
+    print_stage "destroy_remote"
     destroy_remote
     ;;
   destroy_k8s)
+    print_stage "destroy_k8s_clusters"
     destroy_k8s_clusters
     ;;
   *)
