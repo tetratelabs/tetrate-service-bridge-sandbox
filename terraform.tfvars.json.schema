@@ -1,52 +1,113 @@
 {
-    "$schema": "http://json-schema.org/draft-07/schema#",
-    "type": "object",
-    "properties": {
-        "cp_clusters": {
-            "type": "array",
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "properties": {
+    "cp_clusters": {
+      "items": {
+        "properties": {
+          "cloud_provider": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "region": {
+            "type": "string"
+          },
+          "version": {
+            "type": "string"
+          },
+          "zones": {
             "items": {
-                "type": "object",
-                "properties": {
-                    "cloud_provider": { "type": "string" },
-                    "name": { "type": "string" },
-                    "region": { "type": "string" },
-                    "version": { "type": "string" },
-                    "zones": {
-                        "type": "array",
-                        "items": { "type": "string" }
-                    }
-                },
-                "required": ["cloud_provider", "name", "region", "version", "zones"]
-            }
-        },
-        "dns_provider": { "type": "string" },
-        "mp_cluster": {
-            "type": "object",
-            "properties": {
-                "cloud_provider": { "type": "string" },
-                "name": { "type": "string" },
-                "region": { "type": "string" },
-                "version": { "type": "string" },
-                "zones": {
-                    "type": "array",
-                    "items": { "type": "string" }
-                }
+              "type": "string"
             },
-            "required": ["cloud_provider", "name", "region", "version", "zones"]
+            "type": "array"
+          }
         },
-        "name_prefix": { "type": "string" },
-        "tsb": {
-            "type": "object",
-            "properties": {
-                "fqdn": { "type": "string" },
-                "image_sync_apikey": { "type": "string" },
-                "image_sync_username": { "type": "string" },
-                "organisation": { "type": "string" },
-                "password": { "type": "string" },
-                "version": { "type": "string" }
-            },
-            "required": ["fqdn", "image_sync_apikey", "image_sync_username", "organisation", "password", "version"]
-        }
+        "required": [
+          "cloud_provider",
+          "name",
+          "region",
+          "version",
+          "zones"
+        ],
+        "type": "object"
+      },
+      "type": "array"
     },
-    "required": ["cp_clusters", "dns_provider", "mp_cluster", "name_prefix", "tsb"]
+    "dns_provider": {
+      "type": "string"
+    },
+    "mp_cluster": {
+      "properties": {
+        "cloud_provider": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "region": {
+          "type": "string"
+        },
+        "version": {
+          "type": "string"
+        },
+        "zones": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        }
+      },
+      "required": [
+        "cloud_provider",
+        "name",
+        "region",
+        "version",
+        "zones"
+      ],
+      "type": "object"
+    },
+    "name_prefix": {
+      "type": "string"
+    },
+    "tsb": {
+      "properties": {
+        "fqdn": {
+          "type": "string"
+        },
+        "image_sync_apikey": {
+          "type": "string"
+        },
+        "image_sync_username": {
+          "type": "string"
+        },
+        "organisation": {
+          "type": "string"
+        },
+        "password": {
+          "type": "string"
+        },
+        "version": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "fqdn",
+        "image_sync_apikey",
+        "image_sync_username",
+        "organisation",
+        "password",
+        "version"
+      ],
+      "type": "object"
+    }
+  },
+  "required": [
+    "cp_clusters",
+    "dns_provider",
+    "mp_cluster",
+    "name_prefix",
+    "tsb"
+  ],
+  "type": "object"
 }

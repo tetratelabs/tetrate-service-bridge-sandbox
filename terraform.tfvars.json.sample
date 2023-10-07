@@ -1,77 +1,77 @@
 {
   "cp_clusters": [
-      {
-          "cloud_provider": "aws",
-          "name": "demo1",
-          "region": "eu-west-1",
-          "version": "1.24",
-          "zones": [
-              "eu-west-1a",
-              "eu-west-1b"
-          ]
-      },
-      {
-          "cloud_provider": "aws",
-          "name": "demo2",
-          "region": "eu-west-2",
-          "version": "1.24",
-          "zones": [
-              "eu-west-2b",
-              "eu-west-2c"
-          ]
-      },
-      {
-          "cloud_provider": "azure",
-          "name": "demo3",
-          "region": "westeurope",
-          "version": "1.24",
-          "zones": [
-              "1",
-              "2"
-          ]
-      },
-      {
-          "cloud_provider": "azure",
-          "name": "demou4",
-          "region": "northeurope",
-          "version": "1.24",
-          "zones": [
-              "2",
-              "3"
-          ]
-      },
-      {
-          "cloud_provider": "gcp",
-          "name": "demo5",
-          "region": "europe-west2",
-          "version": "1.24",
-          "zones": [
-              "europe-west2-a",
-              "europe-west2-b"
-          ]
-      },
-      {
-          "cloud_provider": "gcp",
-          "name": "demo6",
-          "region": "europe-west2",
-          "version": "1.24",
-          "zones": [
-              "europe-west2-b",
-              "europe-west2-c"
-          ]
-      }
+    {
+      "cloud_provider": "aws",
+      "name": "demo1",
+      "region": "eu-west-1",
+      "version": "1.24",
+      "zones": [
+        "eu-west-1a",
+        "eu-west-1b"
+      ]
+    },
+    {
+      "cloud_provider": "aws",
+      "name": "demo2",
+      "region": "eu-west-2",
+      "version": "1.24",
+      "zones": [
+        "eu-west-2b",
+        "eu-west-2c"
+      ]
+    },
+    {
+      "cloud_provider": "azure",
+      "name": "demo3",
+      "region": "westeurope",
+      "version": "1.24",
+      "zones": [
+        "1",
+        "2"
+      ]
+    },
+    {
+      "cloud_provider": "azure",
+      "name": "demou4",
+      "region": "northeurope",
+      "version": "1.24",
+      "zones": [
+        "2",
+        "3"
+      ]
+    },
+    {
+      "cloud_provider": "gcp",
+      "name": "demo5",
+      "region": "europe-west2",
+      "version": "1.24",
+      "zones": [
+        "europe-west2-a",
+        "europe-west2-b"
+      ]
+    },
+    {
+      "cloud_provider": "gcp",
+      "name": "demo6",
+      "region": "europe-west2",
+      "version": "1.24",
+      "zones": [
+        "europe-west2-b",
+        "europe-west2-c"
+      ]
+    }
   ],
   "dns_provider": "gcp",
   "mp_cluster": {
-      "cloud_provider": "gcp",
-      "name": "mp-demo",
-      "region": "europe-west1",
-      "version": "1.24",
-      "zones": [
-          "europe-west1-b",
-          "europe-west1-c",
-          "europe-west1-d"
-      ]
+    "cloud_provider": "gcp",
+    "name": "mp-demo",
+    "region": "europe-west1",
+    "version": "1.24",
+    "zones": [
+      "europe-west1-b",
+      "europe-west1-c",
+      "europe-west1-d"
+    ]
   },
   "name_prefix": "box-perf-bart",
   "tetrate": {
@@ -82,8 +82,8 @@
     "fqdn": "<YOUR UNIQUE PREFIX NAME TO BE CREATED>.<YOUR_AWS_ACCT_PREFIX>.sandbox.tetrate.io",
     "image_sync_apikey": "<TSB_REPO_APIKEY>",
     "image_sync_username": "<TSB_REPO_USERNAME>",
-      "organisation": "tetrate",
-      "password": "Tetrate123",
-      "version": "1.7.0"
+    "organisation": "tetrate",
+    "password": "Tetrate123",
+    "version": "1.7.0"
   }
 }
