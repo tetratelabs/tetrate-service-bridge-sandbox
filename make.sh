@@ -31,7 +31,7 @@ function validate_json_structure() {
   fi
 }
 
-function deploy_k8s_cluster() {
+function deploy_k8s_clusters() {
   set -e
   local index=0
   local name_prefix=$(jq -r '.name_prefix' ${JSON_TFVARS})
@@ -65,8 +65,8 @@ function deploy_k8s_cluster() {
       terraform workspace new ${cloud_provider}-${index}-${region} || true
       terraform workspace select ${cloud_provider}-${index}-${region}
       terraform init
-      terraform apply ${terraform_apply_args} -target module.${cloud_provider}_base -var-file="../../terraform.tfvars.json" -var=${cloud_provider}_k8s_region=${region} -var=cluster_name=${cluster_name} -var=cluster_id=${index}
-      terraform apply ${terraform_apply_args} -var-file="../../terraform.tfvars.json" -var=${cloud_provider}_k8s_region=${region} -var=cluster_name=${cluster_name} -var=cluster_id=${index}
+      terraform apply ${terraform_apply_args} -target module.${cloud_provider}_base -var-file="../../${JSON_TFVARS}" -var=${cloud_provider}_k8s_region=${region} -var=cluster_name=${cluster_name} -var=cluster_id=${index}
+      terraform apply ${terraform_apply_args} -var-file="../../${JSON_TFVARS}" -var=${cloud_provider}_k8s_region=${region} -var=cluster_name=${cluster_name} -var=cluster_id=${index}
       terraform output ${terraform_output_args} | jq . > ../../outputs/terraform_outputs/terraform-${cloud_provider}-${cluster_name}-${index}.json
       terraform workspace select default
 
@@ -76,7 +76,7 @@ function deploy_k8s_cluster() {
   done
 }
 
-function deploy_k8s_auth() {
+function deploy_k8s_auths() {
   set -e
   local cloud_provider=${1}
   local index=0
@@ -109,7 +109,7 @@ function deploy_k8s_auth() {
       terraform workspace new "${cloud_provider}-${index}-${region}" || true
       terraform workspace select "${cloud_provider}-${index}-${region}"
       terraform init
-      terraform apply -refresh=false ${terraform_apply_args} -var-file="../../../terraform.tfvars.json" -var="${cloud_provider}_k8s_region=${region}" -var=cluster_id=${index}      
+      terraform apply -refresh=false ${terraform_apply_args} -var-file="../../../${JSON_TFVARS}" -var="${cloud_provider}_k8s_region=${region}" -var=cluster_id=${index}      
       terraform workspace select default
 
       index=$((index+1))
@@ -118,7 +118,7 @@ function deploy_k8s_auth() {
   done
 }
 
-deploy_tsb_mp() {
+function deploy_tsb_mp() {
   set -e
   local cloud_provider=$(jq -r '.mp_cluster.cloud_provider' ${JSON_TFVARS})
   local region=$(jq -r '.mp_cluster.region' ${JSON_TFVARS})
@@ -149,7 +149,7 @@ deploy_tsb_mp() {
   cd "../.."
 }
 
-deploy_tsb_cps() {
+function deploy_tsb_cps() {
     set -e
     local index=0
     clusters=$(jq -c '.cp_clusters[]' ${JSON_TFVARS})
@@ -174,7 +174,7 @@ deploy_tsb_cps() {
     done
 }
 
-deploy_addon() {
+function deploy_addon() {
   set -e
   local index=0
   local addon=${1}
@@ -215,7 +215,7 @@ deploy_addon() {
   done
 }
 
-deploy_external_dns() {
+function deploy_external_dns() {
   set -e
   local index=0
 
@@ -251,7 +251,104 @@ deploy_external_dns() {
       index=$((index+1))
       cd "../../.."
     done
+  done
 }
+
+function destroy_external_dns() {
+  set -e
+  local index=0
+
+  # Process both cp_clusters and mp_cluster
+  for cluster_type in cp_clusters mp_cluster; do
+    if [ "${cluster_type}" == "mp_cluster" ]; then
+      local clusters=$(jq -c ".${cluster_type}" ${JSON_TFVARS})
+    else
+      local clusters=$(jq -c ".${cluster_type}[]" ${JSON_TFVARS})
+    fi
+    if [ -z "${clusters}" ]; then continue; fi
+
+    echo "${clusters}" | while read -r cluster; do
+      local region=$(echo "${cluster}" | jq -r '.region')
+      local cloud_provider=$(echo "${cluster}" | jq -r '.cloud_provider')
+      local cluster_name=""
+      local name_from_json=$(echo "${cluster}" | jq -r '.name')
+      # [backwards compatibility] if name not set or empty, fall back to previous naming convention
+      if [ -n "${name_from_json}" ] && [ "${name_from_json}" != "null" ]; then
+        cluster_name="aks-${name_from_json}"
+      else 
+        cluster_name="aks-${name_prefix}-${region}-${index}"
+      fi
+      echo "cloud=${cloud_provider} region=${region} cluster_id=${index} cluster_name=${cluster_name}"
+      continue
+        
+      cd "addons/${cloud_provider}/external-dns"
+      terraform workspace new ${cloud_provider}-${index}-${region} || true
+      terraform workspace select ${cloud_provider}-${index}-${region}
+      terraform init
+      terraform destroy ${terraform_apply_args} -var-file="../../../${JSON_TFVARS}" -var=cloud=${cloud_provider} -var=cluster_id=$index
+      terraform workspace select default
+
+      index=$((index+1))
+      cd "../../.."
+    done
+  done
+}
+
+function destroy_remote() {
+  local cloud_provider=$(jq -r '.mp_cluster.cloud_provider' ${JSON_TFVARS})
+  local fqdn=$(jq -r '.tsb.fqdn' ${JSON_TFVARS})
+  local address=$(jq -r 'if .ingress_ip.value != "" then .ingress_ip.value else .ingress_hostname.value end' outputs/terraform_outputs/terraform-tsb-mp.json)
+
+  cd "tsb/fqdn/$cloud_provider"
+  terraform init
+  terraform destroy ${terraform_apply_args} -var-file="../../../${JSON_TFVARS}" -var=address=${address} -var=fqdn=${fqdn}
+  rm -rf terraform.tfstate.d/
+  rm -rf terraform.tfstate
+  cd "../../.."
+}
+
+function destroy_k8s_clusters() {
+  set -e
+  local index=0
+  local name_prefix=$(jq -r '.name_prefix' ${JSON_TFVARS})
+
+  # Process both cp_clusters and mp_cluster
+  for cluster_type in cp_clusters mp_cluster; do
+    if [ "${cluster_type}" == "mp_cluster" ]; then
+      local clusters=$(jq -c ".${cluster_type}" ${JSON_TFVARS})
+    else
+      local clusters=$(jq -c ".${cluster_type}[]" ${JSON_TFVARS})
+    fi
+    if [ -z "${clusters}" ]; then continue; fi
+
+    echo "${clusters}" | while read -r cluster; do
+      local region=$(echo "${cluster}" | jq -r '.region')
+      local cloud_provider=$(echo "${cluster}" | jq -r '.cloud_provider')
+      local cluster_name=""
+      local name_from_json=$(echo "${cluster}" | jq -r '.name')
+      # [backwards compatibility] if name not set or empty, fall back to previous naming convention
+      if [ -n "${name_from_json}" ] && [ "${name_from_json}" != "null" ]; then
+        cluster_name="aks-${name_from_json}"
+      else 
+        cluster_name="aks-${name_prefix}-${region}-${index}"
+      fi
+      echo "cloud=${cloud_provider} region=${region} zones=${zones} cluster_id=${index} cluster_name=${cluster_name}"
+      continue
+
+      cd "infra/${cloud_provider}"
+      terraform workspace select ${cloud_provider}-${index}-${region}
+      cluster_name=$(terraform output cluster_name | jq . -r)
+      terraform destroy ${terraform_destroy_args} -var-file="../../${JSON_TFVARS}" -var=$*_k8s_region=${region} -var=cluster_id=${index} -var=cluster_name=${cluster_name}
+      terraform workspace select default
+
+      index=$((index+1))
+      cd "../.."
+    done
+  done
+}
+
+
+
 
 #
 # Main execution
@@ -264,10 +361,10 @@ case "$1" in
     validate_json_structure
     ;;
   k8s_clusters)
-    deploy_k8s_cluster
+    deploy_k8s_clusters
     ;;
   k8s_auths)
-    deploy_k8s_auth
+    deploy_k8s_auths
     ;;
   tsb_mp)
     deploy_tsb_mp
@@ -286,6 +383,15 @@ case "$1" in
     ;;
   external_dns)
     deploy_external_dns
+    ;;
+  destroy_external_dns)
+    destroy_external_dns
+    ;;
+  destroy_remote)
+    destroy_remote
+    ;;
+  destroy_k8s)
+    destroy_k8s_clusters
     ;;
   *)
     echo "Invalid option. Use 'help' to see available commands."
