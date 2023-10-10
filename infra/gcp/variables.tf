@@ -102,7 +102,7 @@ locals {
     "tetrate_lifespan" = replace(local.tetrate.lifespan, "/\\W+/", "-")
     "tetrate_owner"    = coalesce(local.tetrate.owner, replace(local.tsb.image_sync_username, "/\\W+/", "-"))
     "tetrate_purpose"  = replace(local.tetrate.purpose, "/\\W+/", "-")
-    "tetrate_team"     = replace(local.tetrate.team, "/\\W+/", "-") 
+    "tetrate_team"     = replace(local.tetrate.team, "/\\W+/", "-")
     "environment"      = replace(var.name_prefix, "/\\W+/", "-")
   }
 }
