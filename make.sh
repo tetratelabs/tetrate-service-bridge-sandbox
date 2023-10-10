@@ -258,7 +258,7 @@ function deploy_tsb_cps() {
     terraform workspace select default
 
     index=$((index+1))
-    cd "../../.."
+    cd "../.."
   done < <(echo "${clusters}")
 }
 
