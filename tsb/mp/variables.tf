@@ -1,14 +1,13 @@
 variable "cloud" {
-  default = null
+  type = string
 }
 variable "cluster_id" {
-  default = null
 }
 variable "cluster_name" {
-  default = null
+  type = string
 }
 variable "cluster_region" {
-  default = null
+  type = string
 }
 variable "owner" {
   default = "tsb-sandbox@tetrate.io"

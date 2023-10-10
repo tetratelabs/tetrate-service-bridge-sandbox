@@ -208,15 +208,15 @@ function deploy_tsb_mp() {
   print_info "cloud=${cloud_provider} region=${region} cluster_id=0 cluster_name=${cluster_name}"
   print_terraform "tsb/mp" \
                   "default" \
-                  "-var="cloud=${cloud_provider}" -var=cluster_id=${index} -var=cluster_region=${region}" \
+                  "-var="cloud=${cloud_provider}" -var=cluster_id=${index} -var=cluster_region=${region} -var=cluster_name=${cluster_name}" \
                   "outputs/terraform_outputs/terraform-tsb-mp.json"
 
   cd "tsb/mp"
   terraform workspace select default
   terraform init
-  terraform apply ${TERRAFORM_APPLY_ARGS} -target=module.cert-manager -target=module.es -target="data.terraform_remote_state.infra" -var-file="../../${JSON_TFVARS}" -var="cloud=${cloud_provider}" -var=cluster_id=${index} -var=cluster_region=${region}
-  terraform apply ${TERRAFORM_APPLY_ARGS} -target=module.tsb_mp.kubectl_manifest.manifests_certs -target="data.terraform_remote_state.infra" -var-file="../../${JSON_TFVARS}" -var="cloud=${cloud_provider}" -var=cluster_id=${index} -var=cluster_region=${region}
-  terraform apply ${TERRAFORM_APPLY_ARGS} -var-file="../../${JSON_TFVARS}"
+  terraform apply ${TERRAFORM_APPLY_ARGS} -target=module.cert-manager -target=module.es -target="data.terraform_remote_state.infra" -var-file="../../${JSON_TFVARS}" -var="cloud=${cloud_provider}" -var=cluster_id=${index} -var=cluster_region=${region} -var=cluster_name=${cluster_name}
+  terraform apply ${TERRAFORM_APPLY_ARGS} -target=module.tsb_mp.kubectl_manifest.manifests_certs -target="data.terraform_remote_state.infra" -var-file="../../${JSON_TFVARS}" -var="cloud=${cloud_provider}" -var=cluster_id=${index} -var=cluster_region=${region} -var=cluster_name=${cluster_name}
+  terraform apply ${TERRAFORM_APPLY_ARGS} -var-file="../../${JSON_TFVARS}" -var="cloud=${cloud_provider}" -var=cluster_id=${index} -var=cluster_region=${region} -var=cluster_name=${cluster_name}
   terraform output ${TERRAFORM_OUTPUT_ARGS} | jq . > ../../outputs/terraform_outputs/terraform-tsb-mp.json
 
   local fqdn=$(jq -r '.tsb.fqdn' ../../${JSON_TFVARS})
@@ -247,14 +247,14 @@ function deploy_tsb_cps() {
     print_info "cloud=${cloud_provider} region=${region} cluster_id=${index} cluster_name=${cluster_name}"
     print_terraform "tsb/cp" \
                     "${cloud_provider}-${index}-${region}" \
-                    "-var=cloud=${cloud_provider} -var=cluster_id=${index} -var=cluster_region=${region}" \
+                    "-var=cloud=${cloud_provider} -var=cluster_id=${index} -var=cluster_region=${region} -var=cluster_name=${cluster_name}" \
                     " "
 
     cd "tsb/cp"
     terraform workspace new ${cloud_provider}-${index}-${region} || true
     terraform workspace select ${cloud_provider}-${index}-${region}
     terraform init
-    terraform apply ${TERRAFORM_APPLY_ARGS} -var-file="../../${JSON_TFVARS}" -var=cloud=${cloud_provider} -var=cluster_id=${index}  -var=cluster_region=${region}
+    terraform apply ${TERRAFORM_APPLY_ARGS} -var-file="../../${JSON_TFVARS}" -var=cloud=${cloud_provider} -var=cluster_id=${index} -var=cluster_region=${region} -var=cluster_name=${cluster_name}
     terraform workspace select default
 
     index=$((index+1))
