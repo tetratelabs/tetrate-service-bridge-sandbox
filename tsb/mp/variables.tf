@@ -7,15 +7,11 @@ variable "cluster_id" {
 variable "cluster_name" {
   default = null
 }
+variable "cluster_region" {
+  default = null
+}
 variable "owner" {
   default = "tsb-sandbox@tetrate.io"
-}
-
-locals {
-
-  k8s_regions = var.tsb_mp["cloud"] == "aws" ? var.aws_k8s_regions : (
-    var.tsb_mp["cloud"] == "azure" ? var.azure_k8s_regions : var.gcp_k8s_regions
-  )
 }
 
 variable "name_prefix" {
@@ -27,42 +23,26 @@ variable "cidr" {
   default     = "172.20.0.0/16"
 }
 
-variable "tsb_image_sync_username" {
+variable "tsb" {
+  type    = map(any)
+  default = {}
 }
 
-variable "tsb_image_sync_apikey" {
-}
-
-variable "tsb_username" {
-  default = "admin"
-}
-
-variable "tsb_password" {
-  default = ""
-}
-
-variable "tsb_version" {
-  default = "1.5.0"
-}
-variable "tsb_helm_repository" {
-  default = "https://charts.dl.tetrate.io/public/helm/charts/"
-}
-variable "tsb_helm_repository_username" {
-  default = ""
-}
-
-variable "tsb_helm_repository_password" {
-  default = ""
-}
-variable "tsb_helm_version" {
-  default = null
-}
-variable "tsb_fqdn" {
-  default = "toa.cx.tetrate.info"
-}
-
-variable "tsb_org" {
-  default = "tetrate"
+locals {
+  tsb_defaults = {
+    fqdn                     = "toa.cx.tetrate.info"
+    helm_repository          = "https://charts.dl.tetrate.io/public/helm/charts/"
+    helm_repository_password = "demo"
+    helm_repository_username = "demo"
+    helm_version             = "demo"
+    image_sync_apikey        = "demo"
+    image_sync_username      = "demo"
+    organisation             = "tetrate"
+    password                 = "admin123"
+    username                 = "admin"
+    version                  = "1.7.0"
+  }
+  tsb = merge(local.tsb_defaults, var.tsb)
 }
 
 variable "mp_as_tier1_cluster" {
@@ -70,23 +50,6 @@ variable "mp_as_tier1_cluster" {
 }
 variable "jumpbox_username" {
   default = "tsbadmin"
-}
-
-variable "aws_k8s_regions" {
-  default = []
-}
-
-# variable to communicated over a workspace only
-variable "aws_k8s_region" {
-  default = null
-}
-
-variable "azure_k8s_regions" {
-  default = []
-}
-
-variable "gcp_k8s_regions" {
-  default = []
 }
 
 variable "gcp_project_id" {

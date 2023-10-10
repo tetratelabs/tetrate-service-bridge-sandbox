@@ -36,7 +36,7 @@ module "azure_jumpbox" {
 
 module "azure_k8s" {
   source              = "../../modules/azure/k8s"
-  k8s_version         = var.azure_aks_k8s_version
+  k8s_version         = var.azure_k8s_version
   resource_group_name = module.azure_base.resource_group_name
   location            = var.azure_k8s_region
   name_prefix         = "${var.name_prefix}-${var.cluster_id}"

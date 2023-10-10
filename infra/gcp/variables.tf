@@ -31,10 +31,10 @@ variable "tsb" {
 
 locals {
   tsb_defaults = {
-    version             = "1.7.0"
-    image_sync_username = "demo"
-    image_sync_apikey   = "demo"
     helm_repository     = "https://charts.dl.tetrate.io/public/helm/charts/"
+    image_sync_apikey   = "demo"
+    image_sync_username = "demo"
+    version             = "1.7.0"
   }
   tsb = merge(local.tsb_defaults, var.tsb)
 }
@@ -65,7 +65,7 @@ variable "gcp_billing_id" {
   default = "0183E5-447B34-776DEB"
 }
 
-variable "gcp_gke_k8s_version" {
+variable "gcp_k8s_version" {
   type    = string
   default = "1.26"
 }

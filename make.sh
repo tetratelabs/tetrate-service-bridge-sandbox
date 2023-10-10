@@ -31,7 +31,7 @@ function print_error() {
 }
 
 function print_stage() {
-  echo -e "${BLUEB}**************************************** ${1} ****************************************${END}"
+  echo -e "${BLUEB}***************************************** ${1} *****************************************${END}"
 }
 
 # print_terraform: Prints the provided Terraform information in a formatted manner.
@@ -105,8 +105,8 @@ function deploy_k8s_clusters() {
   local index=0
   local name_prefix=$(jq -r '.name_prefix' ${JSON_TFVARS})
 
-  # Process both cp_clusters and mp_cluster
-  for cluster_type in cp_clusters mp_cluster; do
+  # Process both mp_cluster (index 0) and cp_clusters (index 1...n)
+  for cluster_type in mp_cluster cp_clusters; do
     if [ "${cluster_type}" == "mp_cluster" ]; then
       local clusters=$(jq -c ".${cluster_type}" ${JSON_TFVARS})
     else
@@ -116,6 +116,7 @@ function deploy_k8s_clusters() {
 
     while read -r cluster; do
       local region=$(echo "${cluster}" | jq -r '.region')
+      local k8s_version=$(echo "${cluster}" | jq -r '.version')
       local cloud_provider=$(echo "${cluster}" | jq -r '.cloud_provider')
       local cluster_name=""
       local name_from_json=$(echo "${cluster}" | jq -r '.name')
@@ -130,15 +131,15 @@ function deploy_k8s_clusters() {
       print_info "cloud=${cloud_provider} region=${region} zones=${zones} cluster_id=${index} cluster_name=${cluster_name}"
       print_terraform "infra/${cloud_provider}" \
                       "${cloud_provider}-${index}-${region}" \
-                      "-var=${cloud_provider}_k8s_region=${region} -var=cluster_name=${cluster_name} -var=cluster_id=${index}" \
+                      "-var=${cloud_provider}_k8s_region=${region} -var=cluster_name=${cluster_name} -var=cluster_id=${index} -var=${cloud_provider}_k8s_version=${k8s_version}" \
                       "outputs/terraform_outputs/terraform-${cloud_provider}-${cluster_name}-${index}.json"
 
       cd "infra/${cloud_provider}"
       terraform workspace new ${cloud_provider}-${index}-${region} || true
       terraform workspace select ${cloud_provider}-${index}-${region}
       terraform init
-      terraform apply ${TERRAFORM_APPLY_ARGS} -target module.${cloud_provider}_base -var-file="../../${JSON_TFVARS}" -var=${cloud_provider}_k8s_region=${region} -var=cluster_name=${cluster_name} -var=cluster_id=${index}
-      terraform apply ${TERRAFORM_APPLY_ARGS} -var-file="../../${JSON_TFVARS}" -var=${cloud_provider}_k8s_region=${region} -var=cluster_name=${cluster_name} -var=cluster_id=${index}
+      terraform apply ${TERRAFORM_APPLY_ARGS} -target module.${cloud_provider}_base -var-file="../../${JSON_TFVARS}" -var=${cloud_provider}_k8s_region=${region} -var=cluster_name=${cluster_name} -var=cluster_id=${index} -var=${cloud_provider}_k8s_version=${k8s_version}
+      terraform apply ${TERRAFORM_APPLY_ARGS} -var-file="../../${JSON_TFVARS}" -var=${cloud_provider}_k8s_region=${region} -var=cluster_name=${cluster_name} -var=cluster_id=${index} -var=${cloud_provider}_k8s_version=${k8s_version}
       terraform output ${TERRAFORM_OUTPUT_ARGS} | jq . > ../../outputs/terraform_outputs/terraform-${cloud_provider}-${cluster_name}-${index}.json
       terraform workspace select default
 
@@ -154,8 +155,8 @@ function deploy_k8s_auths() {
   local index=0
   local name_prefix=$(jq -r '.name_prefix' ${JSON_TFVARS})
 
-  # Process both cp_clusters and mp_cluster
-  for cluster_type in cp_clusters mp_cluster; do
+  # Process both mp_cluster (index 0) and cp_clusters (index 1...n)
+  for cluster_type in mp_cluster cp_clusters; do
     if [ "${cluster_type}" == "mp_cluster" ]; then
       local clusters=$(jq -c ".${cluster_type}" ${JSON_TFVARS})
     else
@@ -199,6 +200,7 @@ function deploy_tsb_mp() {
   local region=$(jq -r '.mp_cluster.region' ${JSON_TFVARS})
   local cluster_name=$(jq -r '.mp_cluster.name' ${JSON_TFVARS})
   local dns_provider=$(jq -r '.dns_provider' ${JSON_TFVARS})
+  local index=0
   if [ "${dns_provider}" == "null" ] || [ -z "${dns_provider}" ] ; then
     # TODO: review this logic
     dns_provider=$(jq -r '.tsb.fqdn' ${JSON_TFVARS} | cut -d"." -f2 | sed 's/sandbox/gcp/g')
@@ -206,14 +208,14 @@ function deploy_tsb_mp() {
   print_info "cloud=${cloud_provider} region=${region} cluster_id=0 cluster_name=${cluster_name}"
   print_terraform "tsb/mp" \
                   "default" \
-                  " " \
+                  "-var="cloud=${cloud_provider}" -var=cluster_id=${index} -var=cluster_region=${region}" \
                   "outputs/terraform_outputs/terraform-tsb-mp.json"
 
   cd "tsb/mp"
   terraform workspace select default
   terraform init
-  terraform apply ${TERRAFORM_APPLY_ARGS} -target=module.cert-manager -target=module.es -target="data.terraform_remote_state.infra" -var-file="../../${JSON_TFVARS}"
-  terraform apply ${TERRAFORM_APPLY_ARGS} -target=module.tsb_mp.kubectl_manifest.manifests_certs -target="data.terraform_remote_state.infra" -var-file="../../${JSON_TFVARS}"
+  terraform apply ${TERRAFORM_APPLY_ARGS} -target=module.cert-manager -target=module.es -target="data.terraform_remote_state.infra" -var-file="../../${JSON_TFVARS}" -var="cloud=${cloud_provider}" -var=cluster_id=${index} -var=cluster_region=${region}
+  terraform apply ${TERRAFORM_APPLY_ARGS} -target=module.tsb_mp.kubectl_manifest.manifests_certs -target="data.terraform_remote_state.infra" -var-file="../../${JSON_TFVARS}" -var="cloud=${cloud_provider}" -var=cluster_id=${index} -var=cluster_region=${region}
   terraform apply ${TERRAFORM_APPLY_ARGS} -var-file="../../${JSON_TFVARS}"
   terraform output ${TERRAFORM_OUTPUT_ARGS} | jq . > ../../outputs/terraform_outputs/terraform-tsb-mp.json
 
@@ -245,14 +247,14 @@ function deploy_tsb_cps() {
     print_info "cloud=${cloud_provider} region=${region} cluster_id=${index} cluster_name=${cluster_name}"
     print_terraform "tsb/cp" \
                     "${cloud_provider}-${index}-${region}" \
-                    "-var=cloud=${cloud_provider} -var=cluster_id=${index}" \
+                    "-var=cloud=${cloud_provider} -var=cluster_id=${index} -var=cluster_region=${region}" \
                     " "
 
     cd "tsb/cp"
     terraform workspace new ${cloud_provider}-${index}-${region} || true
     terraform workspace select ${cloud_provider}-${index}-${region}
     terraform init
-    terraform apply ${TERRAFORM_APPLY_ARGS} -var-file="../../${JSON_TFVARS}" -var=cloud=${cloud_provider} -var=cluster_id=${index}
+    terraform apply ${TERRAFORM_APPLY_ARGS} -var-file="../../${JSON_TFVARS}" -var=cloud=${cloud_provider} -var=cluster_id=${index}  -var=cluster_region=${region}
     terraform workspace select default
 
     index=$((index+1))
@@ -265,8 +267,8 @@ function deploy_addon() {
   local index=0
   local addon=${1}
 
-  # Process both cp_clusters and mp_cluster
-  for cluster_type in cp_clusters mp_cluster; do
+  # Process both mp_cluster (index 0) and cp_clusters (index 1...n)
+  for cluster_type in mp_cluster cp_clusters; do
     if [ "${cluster_type}" == "mp_cluster" ]; then
       local clusters=$(jq -c ".${cluster_type}" ${JSON_TFVARS})
     else
@@ -308,8 +310,8 @@ function deploy_external_dns() {
   set -e
   local index=0
 
-  # Process both cp_clusters and mp_cluster
-  for cluster_type in cp_clusters mp_cluster; do
+  # Process both mp_cluster (index 0) and cp_clusters (index 1...n)
+  for cluster_type in mp_cluster cp_clusters; do
     if [ "${cluster_type}" == "mp_cluster" ]; then
       local clusters=$(jq -c ".${cluster_type}" ${JSON_TFVARS})
     else
@@ -350,8 +352,8 @@ function destroy_external_dns() {
   set -e
   local index=0
 
-  # Process both cp_clusters and mp_cluster
-  for cluster_type in cp_clusters mp_cluster; do
+  # Process both mp_cluster (index 0) and cp_clusters (index 1...n)
+  for cluster_type in mp_cluster cp_clusters; do
     if [ "${cluster_type}" == "mp_cluster" ]; then
       local clusters=$(jq -c ".${cluster_type}" ${JSON_TFVARS})
     else
@@ -404,8 +406,8 @@ function destroy_k8s_clusters() {
   local index=0
   local name_prefix=$(jq -r '.name_prefix' ${JSON_TFVARS})
 
-  # Process both cp_clusters and mp_cluster
-  for cluster_type in cp_clusters mp_cluster; do
+  # Process both mp_cluster (index 0) and cp_clusters (index 1...n)
+  for cluster_type in mp_cluster cp_clusters; do
     if [ "${cluster_type}" == "mp_cluster" ]; then
       local clusters=$(jq -c ".${cluster_type}" ${JSON_TFVARS})
     else

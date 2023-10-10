@@ -45,7 +45,7 @@ module "aws_jumpbox" {
 
 module "aws_k8s" {
   source               = "../../modules/aws/k8s"
-  k8s_version          = var.aws_eks_k8s_version
+  k8s_version          = var.aws_k8s_version
   region               = var.aws_k8s_region
   vpc_id               = module.aws_base.vpc_id
   vpc_subnets          = module.aws_base.vpc_subnets

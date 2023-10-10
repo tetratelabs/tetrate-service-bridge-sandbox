@@ -59,7 +59,7 @@ module "gcp_k8s" {
   vpc_subnet        = module.gcp_base.vpc_subnets[0]
   region            = var.gcp_k8s_region
   preemptible_nodes = var.preemptible_nodes
-  k8s_version       = var.gcp_gke_k8s_version
+  k8s_version       = var.gcp_k8s_version
   output_path       = var.output_path
   tags              = local.default_tags
   depends_on        = [module.gcp_jumpbox]
