@@ -66,16 +66,16 @@ module "tsb_cp" {
   registry_username               = data.terraform_remote_state.infra.outputs.registry_username
   tier1_cluster                   = tonumber(var.cluster_id) == tonumber(var.tsb_mp["cluster_id"]) && var.cloud == var.tsb_mp["cloud"] ? var.mp_as_tier1_cluster : false
   tsb_cacert                      = data.terraform_remote_state.tsb_mp.outputs.tsb_cacert
-  tsb_fqdn                        = var.tsb.fqdn
-  tsb_helm_repository             = var.tsb.helm_repository
-  tsb_helm_repository_password    = var.tsb.helm_repository_password
-  tsb_helm_repository_username    = var.tsb.helm_repository_username
-  tsb_helm_version                = coalesce(var.tsb.helm_version, var.tsb.version)
-  tsb_image_sync_apikey           = var.tsb.image_sync_apikey
-  tsb_image_sync_username         = var.tsb.image_sync_username
+  tsb_fqdn                        = local.tsb.fqdn
+  tsb_helm_repository             = local.tsb.helm_repository
+  tsb_helm_repository_password    = local.tsb.helm_repository_password
+  tsb_helm_repository_username    = local.tsb.helm_repository_username
+  tsb_helm_version                = coalesce(local.tsb.helm_version, local.tsb.version)
+  tsb_image_sync_apikey           = local.tsb.image_sync_apikey
+  tsb_image_sync_username         = local.tsb.image_sync_username
   tsb_mp_host                     = data.terraform_remote_state.tsb_mp.outputs.fqdn
   tsb_org                         = var.tsb_org
   tsb_password                    = data.terraform_remote_state.tsb_mp.outputs.tsb_password
-  tsb_username                    = var.tsb.username
-  tsb_version                     = var.tsb.version
+  tsb_username                    = local.tsb.username
+  tsb_version                     = local.tsb.version
 }

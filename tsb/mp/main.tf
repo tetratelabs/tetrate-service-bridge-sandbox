@@ -41,15 +41,15 @@ module "tsb_mp" {
   k8s_host                        = data.terraform_remote_state.infra.outputs.host
   name_prefix                     = var.name_prefix
   registry                        = data.terraform_remote_state.infra.outputs.registry
-  tsb_fqdn                        = var.tsb.fqdn
-  tsb_helm_repository             = var.tsb.helm_repository
-  tsb_helm_repository_password    = var.tsb.helm_repository_password
-  tsb_helm_repository_username    = var.tsb.helm_repository_username
-  tsb_helm_version                = coalesce(var.tsb.helm_version, var.tsb.version)
-  tsb_image_sync_apikey           = var.tsb.image_sync_apikey
-  tsb_image_sync_username         = var.tsb.image_sync_username
-  tsb_org                         = var.tsb.organisation
-  tsb_password                    = var.tsb.password
-  tsb_username                    = var.tsb.username
-  tsb_version                     = var.tsb.version
+  tsb_fqdn                        = local.tsb.fqdn
+  tsb_helm_repository             = local.tsb.helm_repository
+  tsb_helm_repository_password    = local.tsb.helm_repository_password
+  tsb_helm_repository_username    = local.tsb.helm_repository_username
+  tsb_helm_version                = coalesce(local.tsb.helm_version, local.tsb.version)
+  tsb_image_sync_apikey           = local.tsb.image_sync_apikey
+  tsb_image_sync_username         = local.tsb.image_sync_username
+  tsb_org                         = local.tsb.organisation
+  tsb_password                    = local.tsb.password
+  tsb_username                    = local.tsb.username
+  tsb_version                     = local.tsb.version
 }
