@@ -5,7 +5,7 @@
 #
 export BASE_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 
-JSON_TFVARS="terraform.tfvars.json"
+JSON_TFVARS="terraform.aws.tfvars.json"
 TERRAFORM_APPLY_ARGS="-compact-warnings -auto-approve"
 TERRAFORM_DESTROY_ARGS="-compact-warnings -auto-approve"
 TERRAFORM_WORKSPACE_ARGS="-force"
@@ -34,20 +34,38 @@ function print_stage() {
 # Enable debug
 # set -o xtrace
 
-function validate_json_structure() {    
-  if jq -e '.cp_clusters[] | select(.cloud_provider and .name and .region and .version and .zones)' "$JSON_TFVARS" > /dev/null && \
-     jq -e '.dns_provider | select(. == "aws" or . == "gcp" or . == "azure")' "$JSON_TFVARS" > /dev/null && \
-     jq -e '.mp_cluster | select(.cloud_provider and .name and .region and .version and .zones)' "$JSON_TFVARS" > /dev/null && \
-     jq -e '.name_prefix' "$JSON_TFVARS" > /dev/null && \
-     jq -e '.tsb | select(.fqdn and .image_sync_apikey and .image_sync_username and .organisation and .password and .version)' "$JSON_TFVARS" > /dev/null && \
-     jq -e '.cp_clusters[] | select(.cloud_provider == "aws" or .cloud_provider == "gcp" or .cloud_provider == "azure")' "$JSON_TFVARS" > /dev/null && \
-     jq -e '.mp_cluster | select(.cloud_provider == "aws" or .cloud_provider == "gcp" or .cloud_provider == "azure")' "$JSON_TFVARS" > /dev/null; then
-    print_info "JSON structure is valid."
-  else
-    print_error "JSON structure is invalid."
+function validate_json_structure() {
+  if ! jq -e '.cp_clusters[] | select(.cloud_provider and .name and .region and .version and .zones)' "$JSON_TFVARS" > /dev/null; then
+    print_error "Invalid structure in 'cp_clusters'. Ensure each cluster has 'cloud_provider', 'name', 'region', 'version', and 'zones'."
     return 1
   fi
+  if ! jq -e '.dns_provider | select(. == "aws" or . == "gcp" or . == "azure")' "$JSON_TFVARS" > /dev/null; then
+    print_error "Invalid 'dns_provider' value. It should be 'aws', 'gcp', or 'azure'."
+    return 1
+  fi
+  if ! jq -e '.mp_cluster | select(.cloud_provider and .name and .region and .version and .zones)' "$JSON_TFVARS" > /dev/null; then
+    print_error "Invalid structure in 'mp_cluster'. Ensure it has 'cloud_provider', 'name', 'region', 'version', and 'zones'."
+    return 1
+  fi
+  if ! jq -e '.name_prefix' "$JSON_TFVARS" > /dev/null; then
+    print_error "Missing 'name_prefix' in the JSON."
+    return 1
+  fi
+  if ! jq -e '.tsb | select(.fqdn and .image_sync_apikey and .image_sync_username and .organisation and .password and .version)' "$JSON_TFVARS" > /dev/null; then
+    print_error "Invalid structure in 'tsb'. Ensure it has 'fqdn', 'image_sync_apikey', 'image_sync_username', 'organisation', 'password', and 'version'."
+    return 1
+  fi
+  if ! jq -e '.cp_clusters[] | select(.cloud_provider == "aws" or .cloud_provider == "gcp" or .cloud_provider == "azure")' "$JSON_TFVARS" > /dev/null; then
+    print_error "Invalid 'cloud_provider' value in 'cp_clusters'. It should be 'aws', 'gcp', or 'azure'."
+    return 1
+  fi
+  if ! jq -e '.mp_cluster | select(.cloud_provider == "aws" or .cloud_provider == "gcp" or .cloud_provider == "azure")' "$JSON_TFVARS" > /dev/null; then
+    print_error "Invalid 'cloud_provider' value in 'mp_cluster'. It should be 'aws', 'gcp', or 'azure'."
+    return 1
+  fi
+  print_info "JSON structure is valid."
 }
+
 
 function deploy_k8s_clusters() {
   set -e

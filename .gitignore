@@ -1,3 +1,12 @@
+
+# Ignore Mac system files
+.DS_Store
+
+# Ignore IDE files
+.vscode/
+.idea/
+*.iml
+
 # Local .terraform directories
 **/.terraform/*
 tests/*
@@ -33,7 +42,6 @@ override.tf.json
 # Include tfplan files to ignore the plan output of command: terraform plan -out=tfplan
 # example: *tfplan*
 terraform.tfvars
-*DS_Store
 modules/tsb/mp/manifests/tctl/*.yaml
 modules/tsb/cp/manifests/tctl/*.yaml
 *.pem
