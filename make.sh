@@ -236,10 +236,10 @@ function deploy_tsb_mp() {
 
 function deploy_tsb_cps() {
   set -e
-  local index=0
+  local index=1 # index 0 was reserved for mp
   clusters=$(jq -c '.cp_clusters[]' ${JSON_TFVARS})
 
-  for cluster in $clusters; do
+  while read -r cluster; do
     cloud_provider=$(echo $cluster | jq -r '.cloud_provider')
     cluster_name=$(echo $cluster | jq -r '.name')
     region=$(echo $cluster | jq -r '.region')
@@ -259,7 +259,7 @@ function deploy_tsb_cps() {
 
     index=$((index+1))
     cd "../../.."
-  done
+  done < <(echo "${clusters}")
 }
 
 function deploy_addon() {

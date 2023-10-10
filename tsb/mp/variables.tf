@@ -29,13 +29,13 @@ variable "tsb" {
 
 locals {
   tsb_defaults = {
-    fqdn                     = "toa.cx.tetrate.info"
+    fqdn                     = ""
     helm_repository          = "https://charts.dl.tetrate.io/public/helm/charts/"
-    helm_repository_password = "demo"
-    helm_repository_username = "demo"
-    helm_version             = "demo"
-    image_sync_apikey        = "demo"
-    image_sync_username      = "demo"
+    helm_repository_password = ""
+    helm_repository_username = ""
+    helm_version             = ""
+    image_sync_apikey        = ""
+    image_sync_username      = ""
     organisation             = "tetrate"
     password                 = "admin123"
     username                 = "admin"
