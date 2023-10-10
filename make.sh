@@ -14,10 +14,13 @@ TERRAFORM_OUTPUT_ARGS="-json"
 
 # Helper print functions
 
-END="\033[0m"
-REDB="\033[1;31m"
-GREENB="\033[1;32m"
 BLUEB="\033[1;34m"
+END="\033[0m"
+GREENB="\033[1;32m"
+PURPLEB="\033[1;35m"
+REDB="\033[1;31m"
+YELLOWB="\033[1;33m"
+
 
 function print_info() {
   echo -e "${GREENB}${1}${END}"
@@ -28,7 +31,37 @@ function print_error() {
 }
 
 function print_stage() {
-  echo -e "${BLUEB}******************** ${1} ********************${END}"
+  echo -e "${BLUEB}**************************************** ${1} ****************************************${END}"
+}
+
+# print_terraform: Prints the provided Terraform information in a formatted manner.
+#
+# Arguments:
+#   module_path:     The path to the Terraform module.
+#   workspace_name:  The name of the Terraform workspace.
+#   extra_vars:      Any additional variables to be passed to Terraform.
+#   output_file:     The file where Terraform output will be saved.
+#
+# Outputs:
+#   Prints the Terraform information in a formatted manner.
+#
+# Usage:
+#   print_terraform "/path/to/module" "my_workspace" "-var=value" "output.txt"
+#
+function print_terraform() {
+  local module_path=${1}
+  local workspace_name=${2}
+  local extra_vars=${3}
+  local output_file=${4}
+
+  echo -e "${YELLOWB}
+----------------------------------------------------------------------------------------------------
+Module path:    ${module_path}
+Workspace name: ${workspace_name}
+Extra vars:     ${extra_vars}
+Output file:    ${output_file}
+----------------------------------------------------------------------------------------------------
+${END}"
 }
 
 # Enable debug
@@ -81,7 +114,7 @@ function deploy_k8s_clusters() {
     fi
     if [ -z "${clusters}" ]; then continue; fi
 
-    echo "${clusters}" | while read -r cluster; do
+    while read -r cluster; do
       local region=$(echo "${cluster}" | jq -r '.region')
       local cloud_provider=$(echo "${cluster}" | jq -r '.cloud_provider')
       local cluster_name=""
@@ -95,6 +128,10 @@ function deploy_k8s_clusters() {
       # [todo] zones is not implemented yet
       local zones=$(echo "${cluster}" | jq -r '.zones | join(",")')
       print_info "cloud=${cloud_provider} region=${region} zones=${zones} cluster_id=${index} cluster_name=${cluster_name}"
+      print_terraform "infra/${cloud_provider}" \
+                      "${cloud_provider}-${index}-${region}" \
+                      "-var=${cloud_provider}_k8s_region=${region} -var=cluster_name=${cluster_name} -var=cluster_id=${index}" \
+                      "outputs/terraform_outputs/terraform-${cloud_provider}-${cluster_name}-${index}.json"
 
       cd "infra/${cloud_provider}"
       terraform workspace new ${cloud_provider}-${index}-${region} || true
@@ -107,7 +144,7 @@ function deploy_k8s_clusters() {
 
       index=$((index+1))
       cd "../.."
-    done
+    done < <(echo "${clusters}")
   done
 }
 
@@ -126,7 +163,7 @@ function deploy_k8s_auths() {
     fi
     if [ -z "${clusters}" ]; then continue; fi
 
-    echo "${clusters}" | while read -r cluster; do
+    while read -r cluster; do
       local region=$(echo "${cluster}" | jq -r '.region')
       local cloud_provider=$(echo "${cluster}" | jq -r '.cloud_provider')
       local cluster_name=""
@@ -138,17 +175,21 @@ function deploy_k8s_auths() {
         cluster_name="${cloud_provider}-${name_prefix}-${region}-${index}"
       fi
       print_info "cloud=${cloud_provider} region=${region} cluster_id=${index} cluster_name=${cluster_name}"
+      print_terraform "infra/${cloud_provider}/k8s_auth" \
+                      "${cloud_provider}-${index}-${region}" \
+                      "-var="${cloud_provider}_k8s_region=${region}" -var=cluster_id=${index}" \
+                      " "
 
       cd "infra/${cloud_provider}/k8s_auth"
       terraform workspace new "${cloud_provider}-${index}-${region}" || true
       terraform workspace select "${cloud_provider}-${index}-${region}"
       terraform init
-      terraform apply -refresh=false ${TERRAFORM_APPLY_ARGS} -var-file="../../../${JSON_TFVARS}" -var="${cloud_provider}_k8s_region=${region}" -var=cluster_id=${index}      
+      terraform apply -refresh=false ${TERRAFORM_APPLY_ARGS} -var-file="../../../${JSON_TFVARS}" -var="${cloud_provider}_k8s_region=${region}" -var=cluster_id=${index}
       terraform workspace select default
 
       index=$((index+1))
       cd "../../.."
-    done
+    done < <(echo "${clusters}")
   done
 }
 
@@ -163,6 +204,10 @@ function deploy_tsb_mp() {
     dns_provider=$(jq -r '.tsb.fqdn' ${JSON_TFVARS} | cut -d"." -f2 | sed 's/sandbox/gcp/g')
   fi
   print_info "cloud=${cloud_provider} region=${region} cluster_id=0 cluster_name=${cluster_name}"
+  print_terraform "tsb/mp" \
+                  "default" \
+                  " " \
+                  "outputs/terraform_outputs/terraform-tsb-mp.json"
 
   cd "tsb/mp"
   terraform workspace select default
@@ -174,6 +219,11 @@ function deploy_tsb_mp() {
 
   local fqdn=$(jq -r '.tsb.fqdn' ../../${JSON_TFVARS})
   local address=$(jq -r "if .ingress_ip.value != \"\" then .ingress_ip.value else .ingress_hostname.value end" ../../outputs/terraform_outputs/terraform-tsb-mp.json)
+
+  print_terraform "tsb/fqdn/${dns_provider}" \
+                  "default" \
+                  "-var=address=${address} -var=fqdn=${fqdn}" \
+                  " "
 
   terraform -chdir=../fqdn/${dns_provider} init
   terraform -chdir=../fqdn/${dns_provider} apply ${TERRAFORM_APPLY_ARGS} -var-file="../../../${JSON_TFVARS}" -var=address=${address} -var=fqdn=${fqdn}
@@ -193,6 +243,10 @@ function deploy_tsb_cps() {
     region=$(echo $cluster | jq -r '.region')
     version=$(echo $cluster | jq -r '.version')
     print_info "cloud=${cloud_provider} region=${region} cluster_id=${index} cluster_name=${cluster_name}"
+    print_terraform "tsb/cp" \
+                    "${cloud_provider}-${index}-${region}" \
+                    "-var=cloud=${cloud_provider} -var=cluster_id=${index}" \
+                    " "
 
     cd "tsb/cp"
     terraform workspace new ${cloud_provider}-${index}-${region} || true
@@ -220,7 +274,7 @@ function deploy_addon() {
     fi
     if [ -z "${clusters}" ]; then continue; fi
 
-    echo "${clusters}" | while read -r cluster; do
+    while read -r cluster; do
       local region=$(echo "${cluster}" | jq -r '.region')
       local cloud_provider=$(echo "${cluster}" | jq -r '.cloud_provider')
       local cluster_name=""
@@ -232,7 +286,11 @@ function deploy_addon() {
         cluster_name="${cloud_provider}-${name_prefix}-${region}-${index}"
       fi
       print_info "cloud=${cloud_provider} region=${region} cluster_id=${index} cluster_name=${cluster_name}"
-        
+      print_terraform "addons/${addon}" \
+                      "${cloud_provider}-${index}-${region}" \
+                      "-var=cloud=${cloud_provider} -var=cluster_id=${index}" \
+                      "outputs/terraform_outputs/terraform-${addon}-${cloud_provider}-${index}.json"
+
       cd "addons/${addon}"
       terraform workspace new ${cloud_provider}-${index}-${region} || true
       terraform workspace select ${cloud_provider}-${index}-${region}
@@ -242,7 +300,7 @@ function deploy_addon() {
       terraform workspace select default
       index=$((index+1))
       cd "../.."
-    done
+    done < <(echo "${clusters}")
   done
 }
 
@@ -259,7 +317,7 @@ function deploy_external_dns() {
     fi
     if [ -z "${clusters}" ]; then continue; fi
 
-    echo "${clusters}" | while read -r cluster; do
+    while read -r cluster; do
       local region=$(echo "${cluster}" | jq -r '.region')
       local cloud_provider=$(echo "${cluster}" | jq -r '.cloud_provider')
       local cluster_name=""
@@ -271,7 +329,11 @@ function deploy_external_dns() {
         cluster_name="${cloud_provider}-${name_prefix}-${region}-${index}"
       fi
       print_info "cloud=${cloud_provider} region=${region} cluster_id=${index} cluster_name=${cluster_name}"
-        
+      print_terraform "addons/${cloud_provider}/external-dns" \
+                      "${cloud_provider}-${index}-${region}" \
+                      "-var=cloud=${cloud_provider} -var=cluster_id=${index}" \
+                      " "
+
       cd "addons/${cloud_provider}/external-dns"
       terraform workspace new ${cloud_provider}-${index}-${region} || true
       terraform workspace select ${cloud_provider}-${index}-${region}
@@ -280,7 +342,7 @@ function deploy_external_dns() {
       terraform workspace select default
       index=$((index+1))
       cd "../../.."
-    done
+    done < <(echo "${clusters}")
   done
 }
 
@@ -297,7 +359,7 @@ function destroy_external_dns() {
     fi
     if [ -z "${clusters}" ]; then continue; fi
 
-    echo "${clusters}" | while read -r cluster; do
+    while read -r cluster; do
       local region=$(echo "${cluster}" | jq -r '.region')
       local cloud_provider=$(echo "${cluster}" | jq -r '.cloud_provider')
       local cluster_name=""
@@ -319,7 +381,7 @@ function destroy_external_dns() {
 
       index=$((index+1))
       cd "../../.."
-    done
+    done < <(echo "${clusters}")
   done
 }
 
@@ -351,7 +413,7 @@ function destroy_k8s_clusters() {
     fi
     if [ -z "${clusters}" ]; then continue; fi
 
-    echo "${clusters}" | while read -r cluster; do
+    while read -r cluster; do
       local region=$(echo "${cluster}" | jq -r '.region')
       local cloud_provider=$(echo "${cluster}" | jq -r '.cloud_provider')
       local cluster_name=""
@@ -373,7 +435,7 @@ function destroy_k8s_clusters() {
 
       index=$((index+1))
       cd "../.."
-    done
+    done < <(echo "${clusters}")
   done
 }
 
