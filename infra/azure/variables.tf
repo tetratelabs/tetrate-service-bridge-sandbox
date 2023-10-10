@@ -72,11 +72,11 @@ locals {
 
 locals {
   default_tags = {
-    "tetrate:customer" = local.tetrate.customer
-    "tetrate:lifespan" = local.tetrate.lifespan
-    "tetrate:owner"    = coalesce(local.tetrate.owner, replace(local.tsb.image_sync_username, "/\\W+/", "-"))
-    "tetrate:purpose"  = local.tetrate.purpose
-    "tetrate:team"     = local.tetrate.team
+    "tetrate_customer" = local.tetrate.customer
+    "tetrate_lifespan" = local.tetrate.lifespan
+    "tetrate_owner"    = coalesce(local.tetrate.owner, replace(local.tsb.image_sync_username, "/\\W+/", "-"))
+    "tetrate_purpose"  = local.tetrate.purpose
+    "tetrate_team"     = local.tetrate.team
     "environment"      = var.name_prefix
   }
 }

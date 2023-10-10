@@ -41,11 +41,11 @@ variable "tetrate_customer" {
 
 locals {
   default_tags = {
-       "tetrate:owner"    = coalesce(var.tetrate_owner, replace(var.tsb_image_sync_username, "/\\W+/", "-"))
-       "tetrate:team"     = var.tetrate_team
-       "tetrate:purpose"  = var.tetrate_purpose
-       "tetrate:lifespan" = var.tetrate_lifespan
-       "tetrate:customer" = var.tetrate_customer
+       "tetrate_owner"    = coalesce(var.tetrate_owner, replace(var.tsb_image_sync_username, "/\\W+/", "-"))
+       "tetrate_team"     = var.tetrate_team
+       "tetrate_purpose"  = var.tetrate_purpose
+       "tetrate_lifespan" = var.tetrate_lifespan
+       "tetrate_customer" = var.tetrate_customer
        "environment"      = var.name_prefix
   }
 }

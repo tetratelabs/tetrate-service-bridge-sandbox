@@ -55,11 +55,11 @@ The `Makefile` in this directory provides ability to fast-forward to any point o
 - (optional) GCP role configured and assumed `gcloud auth application-default login`
 - please refer for the Cloud [Tagging Requirements](https://github.com/tetrateio/tetrate/blob/master/cloud/docs/gcp/labels.md)
   ```s
-       "tetrate:owner"    = var.tetrate_owner
-       "tetrate:team"     = var.tetrate_team
-       "tetrate:purpose"  = var.tetrate_purpose
-       "tetrate:lifespan" = var.tetrate_lifespan
-       "tetrate:customer" = var.tetrate_customer
+       "tetrate_owner"    = var.tetrate_owner
+       "tetrate_team"     = var.tetrate_team
+       "tetrate_purpose"  = var.tetrate_purpose
+       "tetrate_lifespan" = var.tetrate_lifespan
+       "tetrate_customer" = var.tetrate_customer
   ```
 ## Setup
 
