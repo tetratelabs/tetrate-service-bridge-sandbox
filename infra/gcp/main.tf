@@ -19,7 +19,7 @@ resource "google_project" "tsb" {
   org_id          = var.gcp_org_id
   billing_account = var.gcp_billing_id
 
-  labels = merge(local.default_tags, {
+  labels = merge(local.tags, {
     name = "${var.name_prefix}_project"
   })
 }
@@ -28,14 +28,14 @@ module "gcp_base" {
   source      = "../../modules/gcp/base"
   name_prefix = "${var.name_prefix}-${var.cluster_id}"
   project_id  = coalesce(google_project.tsb[0].project_id, var.gcp_project_id)
-  region      = var.gcp_k8s_region
+  region      = var.cluster_region
   cidr        = cidrsubnet(var.cidr, 4, 8 + tonumber(var.cluster_id))
 }
 
 module "gcp_jumpbox" {
   source                  = "../../modules/gcp/jumpbox"
   name_prefix             = "${var.name_prefix}-${var.cluster_id}"
-  region                  = var.gcp_k8s_region
+  region                  = var.cluster_region
   project_id              = coalesce(var.gcp_project_id, google_project.tsb[0].project_id)
   vpc_id                  = module.gcp_base.vpc_id
   vpc_subnet              = module.gcp_base.vpc_subnets[0]
@@ -47,21 +47,21 @@ module "gcp_jumpbox" {
   machine_type            = var.jumpbox_machine_type
   registry                = module.gcp_base.registry
   output_path             = var.output_path
-  tags                    = local.default_tags
+  tags                    = local.tags
 }
 
 module "gcp_k8s" {
   source            = "../../modules/gcp/k8s"
   name_prefix       = "${var.name_prefix}-${var.cluster_id}"
-  cluster_name      = coalesce(var.cluster_name, "gke-${var.gcp_k8s_region}-${var.name_prefix}")
+  cluster_name      = coalesce(var.cluster_name, "gke-${var.cluster_region}-${var.name_prefix}")
   project_id        = coalesce(var.gcp_project_id, google_project.tsb[0].project_id)
   vpc_id            = module.gcp_base.vpc_id
   vpc_subnet        = module.gcp_base.vpc_subnets[0]
-  region            = var.gcp_k8s_region
+  region            = var.cluster_region
   preemptible_nodes = var.preemptible_nodes
-  k8s_version       = var.gcp_k8s_version
+  k8s_version       = var.cluster_version
   output_path       = var.output_path
-  tags              = local.default_tags
+  tags              = local.tags
   depends_on        = [module.gcp_jumpbox]
 }
 

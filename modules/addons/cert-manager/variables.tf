@@ -10,9 +10,9 @@ variable "k8s_cluster_ca_certificate" {
 variable "k8s_client_token" {
 }
 
-variable "cert-manager_enabled" {
+variable "cert_manager_enabled" {
 }
 
-variable "cert-manager_version" {
-  default = "v1.10.2"
+variable "cert_manager_version" {
+  default = "v1.13.1"
 }

@@ -34,13 +34,14 @@
     "cloud_provider": "gcp",
     "name": "mp-demo",
     "region": "us-east1",
+    "tier1": true,
     "version": "1.24",
     "zones": []
   },
   "name_prefix": "<YOUR UNIQUE PREFIX NAME TO BE CREATED>",
-  "tetrate": {
-    "owner": "username",
-    "team": "function:team"
+  "tags": {
+    "tetrate_owner": "username",
+    "tetrate_team": "function:team"
   },
   "tsb": {
     "fqdn": "<YOUR UNIQUE PREFIX NAME TO BE CREATED>.gcp.sandbox.tetrate.io",

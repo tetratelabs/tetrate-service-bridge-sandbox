@@ -1,133 +1,119 @@
-variable "cloud" {
-  default = null
+############################## cluster unique vars ##############################
+
+variable "cloud_provider" {
+  default     = null
+  description = "Cloud provider"
+  type        = string
 }
+
 variable "cluster_id" {
-  default = null
+  default     = null
+  description = "Kubernetes global unique cluster id (0..N)"
+  type        = string
 }
+
 variable "cluster_name" {
-  default = null
-}
-variable "owner" {
-  default = "tsb-sandbox@tetrate.io"
-}
-
-locals {
-  infra = data.terraform_remote_state.infra
-
-  k8s_regions = var.tsb_mp["cloud"] == "aws" ? var.aws_k8s_regions : (
-    var.tsb_mp["cloud"] == "azure" ? var.azure_k8s_regions : var.gcp_k8s_regions
-  )
+  default     = null
+  description = "Kubernetes cluster name"
+  type        = string
 }
 
-variable "name_prefix" {
-  description = "name prefix"
-}
-
-variable "cidr" {
-  description = "cidr"
-  default     = "172.20.0.0/16"
-}
-
-variable "tsb_image_sync_username" {
-}
-
-variable "tsb_image_sync_apikey" {
-}
-
-variable "tsb_username" {
-  default = "admin"
-}
-
-variable "tsb_password" {
-  default = ""
-}
-
-variable "tsb_version" {
-  default = "1.5.0"
-}
-variable "tsb_helm_repository" {
-  default = "https://charts.dl.tetrate.io/public/helm/charts/"
-}
-variable "tsb_helm_version" {
-  default = null
-}
-variable "tsb_fqdn" {
-  default = "toa.cx.tetrate.info"
-}
-variable "dns_zone" {
-  default = "cx.tetrate.info"
-}
-
-variable "tsb_org" {
-  default = "tetrate"
-}
-
-variable "mp_as_tier1_cluster" {
-  default = true
-}
-variable "jumpbox_username" {
-  default = "tsbadmin"
-}
-
-variable "aws_k8s_regions" {
-  default = []
-}
-
-# variable to communicated over a workspace only
-variable "aws_k8s_region" {
-  default = null
-}
-
-variable "azure_k8s_regions" {
-  default = []
-}
-
-variable "gcp_k8s_regions" {
-  default = []
-}
-
-variable "gcp_project_id" {
-  default = null
-}
-
-variable "gcp_org_id" {
-  default = "775566979306"
-}
-
-variable "gcp_billing_id" {
-  default = "0183E5-447B34-776DEB"
-}
-variable "aws_eks_k8s_version" {
-  default = "1.22"
-}
-
-variable "azure_aks_k8s_version" {
-  default = "1.23.5"
-}
-
-variable "gcp_gke_k8s_version" {
-  default = "1.21.12-gke.1500"
-}
-
-variable "tsb_mp" {
-  default = {
-    cloud      = "azure"
-    cluster_id = 0
-  }
-}
-
-variable "output_path" {
-  default = "../../outputs"
-}
-
-variable "cert-manager_enabled" {
-  default = true
-}
-
-variable "monitoring_namespace" {
-  default = "tsb-monitoring"
+variable "cluster_region" {
+  default     = null
+  description = "Kubernetes cluster region"
+  type        = string
 }
 
 variable "grafana_service_type" {
   default = "ClusterIP"
+  description = "Grafana service exposure type"
+  type        = string
+}
+
+variable "monitoring_namespace" {
+  default = "tsb-monitoring"
+  description = "TSB monitorig namespace"
+  type        = string
+}
+
+############################## global config tfvars ##############################
+
+variable "cp_clusters" {
+  description = "A list of control plane configuration objects"
+  type = list(object({
+    cloud_provider = string
+    name           = string
+    region         = string
+    version        = string
+    zones          = list(string)
+  }))
+}
+
+variable "dns_provider" {
+  description = "DNS provider used for exposing the TSB GUI"
+  type        = string
+}
+
+variable "mp_cluster" {
+  description = "Management plane configuration object"
+  type = object({
+    cloud_provider = string
+    name           = string
+    region         = string
+    version        = string
+    zones          = list(string)
+  })
+}
+
+variable "name_prefix" {
+  description = "Unique name prefix used for your resources"
+  type        = string
+}
+
+variable "tags" {
+  description = "A map of resource tags, with 'owner' and 'team' as mandatory tags"
+  type        = map(string)
+  default     = {}
+}
+
+locals {
+  mandatory_tags = {
+    tetrate_owner = try(var.tags["tetrate_owner"], error("Missing 'tetrate_owner' tag")),
+    tetrate_team  = try(var.tags["tetrate_team"], error("Missing 'tetrate_team' tag")),
+  }
+  optional_tags = {
+    environment      = coalesce(lookup(var.tags, "environment", null), var.name_prefix)
+    tetrate_customer = coalesce(lookup(var.tags, "tetrate_customer", null), "internal")
+    tetrate_lifespan = coalesce(lookup(var.tags, "tetrate_lifespan", null), "oneoff")
+    tetrate_purpose  = coalesce(lookup(var.tags, "tetrate_purpose", null), "demo")
+  }
+  all_tags_merged = merge(local.mandatory_tags, local.optional_tags, var.tags)
+  tags = {
+    for k, v in local.all_tags_merged : k => replace(v, ":", "_")
+  }
+}
+
+variable "tsb" {
+  description = "A map of tsb configuration, with 'fqdn', 'image_sync_apikey', 'image_sync_username' and 'version' as mandatory configuration"
+  type        = map(string)
+  default     = {}
+}
+
+locals {
+  mandatory_tsb = {
+    fqdn                = try(var.tsb["fqdn"], error("Missing 'fqdn' tsb configuration")),
+    image_sync_apikey   = try(var.tsb["image_sync_apikey"], error("Missing 'image_sync_apikey' tsb configuration")),
+    image_sync_username = try(var.tsb["image_sync_username"], error("Missing 'image_sync_username' tsb configuration")),
+    version             = try(var.tsb["version"], error("Missing 'version' tsb configuration")),
+  }
+  optional_tsb = {
+    helm_repository          = coalesce(lookup(var.tsb, "helm_repository", null), "https://charts.dl.tetrate.io/public/helm/charts/")
+    helm_repository_password = coalesce(lookup(var.tsb, "helm_repository_password", null), var.tsb["image_sync_apikey"])
+    helm_repository_username = coalesce(lookup(var.tsb, "helm_repository_username", null), var.tsb["image_sync_username"])
+    helm_version             = coalesce(lookup(var.tsb, "helm_version", null), var.tsb["version"])
+    organisation             = coalesce(lookup(var.tsb, "organisation", null), "tetrate")
+    password                 = coalesce(lookup(var.tsb, "password", null), "Tetrate123")
+    username                 = coalesce(lookup(var.tsb, "username", null), "admin")
+  }
+  tsb = merge(local.mandatory_tsb, local.optional_tsb)
 }

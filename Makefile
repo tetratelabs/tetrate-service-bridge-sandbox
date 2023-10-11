@@ -9,6 +9,9 @@ terraform_output_args = -json
 # Functions
 .DEFAULT_GOAL := help
 
+# Environment configuration
+json_tfvars ?= terraform.tfvars.json
+
 .PHONY: all
 all: tsb
 
@@ -23,34 +26,34 @@ init:  ## Terraform init
 
 .PHONY: validate
 validate:  ## Validate terraform.tfvars.json
-	@/bin/bash make.sh validate
+	@JSON_TFVARS=${json_tfvars} /bin/bash make.sh validate
 
-.PHONY: k8s
-k8s: ## Deploys k8s cluster for MP and N-number of CPs(*) 
+.PHONY:
+k8s: validate ## Deploys k8s cluster for MP and N-number of CPs(*) 
 	@echo "Deploying k8s clusters..."
-	@/bin/bash make.sh k8s_clusters
+	@JSON_TFVARS=${json_tfvars} /bin/bash make.sh k8s_clusters
 
 .PHONY: k8s_auth
 k8s_auth: ## Refreshes k8s auth token
 	@echo "Refreshing k8s auths..."
-	@/bin/bash make.sh k8s_auths
+	@JSON_TFVARS=${json_tfvars} /bin/bash make.sh k8s_auths
 
 .PHONY: tsb_mp
 tsb_mp: ## Deploys MP
 	@echo "Refreshing k8s access tokens..."
 	@$(MAKE) k8s_auth
 	@echo "Deploying TSB Management Plane..."
-	@/bin/bash make.sh tsb_mp
+	@JSON_TFVARS=${json_tfvars} /bin/bash make.sh tsb_mp
 
 .PHONY: tsb_cp
 tsb_cp: ## Onboards Control Plane clusters
 	@echo "Refreshing k8s access tokens..."
 	@$(MAKE) k8s_auth
 	@echo "Deploying TSB Control Planes..."
-	@/bin/bash make.sh tsb_cps
+	@JSON_TFVARS=${json_tfvars} /bin/bash make.sh tsb_cps
 
 .PHONY: tsb
-tsb: k8s tsb_mp tsb_cp  ## Deploys a full environment (MP+CP)
+tsb: validate k8s tsb_mp tsb_cp  ## Deploys a full environment (MP+CP)
 	@echo "Magic is on the way..."
 
 .PHONY: argocd
@@ -59,48 +62,48 @@ argocd_%:
 	@echo "Refreshing k8s access tokens..."
 	@$(MAKE) k8s_auth
 	@echo "Deploying ArgoCD..."
-	@/bin/bash make.sh argo_cd
+	@JSON_TFVARS=${json_tfvars} /bin/bash make.sh argo_cd
 
 .PHONY: fluxcd
 fluxcd: ## Deploys FluxCD
 	@echo "Refreshing k8s access tokens..."
 	@$(MAKE) k8s_auth_$*
 	@echo "Deploying FluxCD..."
-	@/bin/bash make.sh flux_cd
+	@JSON_TFVARS=${json_tfvars} /bin/bash make.sh flux_cd
 
 .PHONY: tsb-monitoring
 tsb-monitoring:  ## Deploys the TSB monitoring stack
 	@echo "Refreshing k8s access tokens..."
 	@$(MAKE) k8s_auth
 	@echo "Deploying TSB monitoring stack..."
-	@/bin/bash make.sh tsb_monitoring
+	@JSON_TFVARS=${json_tfvars} /bin/bash make.sh tsb_monitoring
 
 .PHONY: external-dns
 external-dns: ## Deploys external-dns
 	@echo "Refreshing k8s access tokens..."
 	@$(MAKE) k8s_auth
 	@echo "Deploying external-dns..."
-	@/bin/bash make.sh external_dns
+	@JSON_TFVARS=${json_tfvars} /bin/bash make.sh external_dns
 
 .PHONY: destroy
-destroy: destroy_remote destroy_local
+destroy: validate destroy_remote destroy_local
 
 .PHONY: destroy_remote
 destroy_remote:  ## Destroys the environment
 	@echo "Destroying remote environment..."
-	@/bin/bash make.sh destroy_remote
-	@$(MAKE) destroy_external-dns
+	@JSON_TFVARS=${json_tfvars} /bin/bash make.sh destroy_remote
+	@$(MAKE) destroy_external_dns
 	@$(MAKE) destroy_k8s
 
-destroy_external-dns: ## Destroys external-dns
-	# @echo "Refreshing k8s access tokens..."
-	# @$(MAKE) k8s_auth
-	# @echo "Destroying external-dns..."
-	# @/bin/bash make.sh destroy_external_dns
+destroy_external_dns: ## Destroys external-dns
+	@echo "Refreshing k8s access tokens..."
+	@$(MAKE) k8s_auth
+	@echo "Destroying external-dns..."
+	@JSON_TFVARS=${json_tfvars} /bin/bash make.sh destroy_external_dns
 
 destroy_k8s:
 	@echo "Destroying k8s..."
-	@/bin/bash make.sh destroy_k8s
+	@JSON_TFVARS=${json_tfvars} /bin/bash make.sh destroy_k8s
 
 .PHONY: destroy_local
 destroy_local:  ## Destroys the local Terraform state and cache

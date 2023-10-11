@@ -1,23 +1,5 @@
 ############################## cluster unique vars ##############################
 
-variable "argocd_include_example_apps" {
-  default = true
-  description = "Enable sample application inclusion"
-  type = bool
-}
-
-variable "argocd_service_type" {
-  default = "LoadBalancer"
-  description = "ArgcoCD service exposure type"
-  type = string
-}
-
-variable "cloud_provider" {
-  default     = null
-  description = "Cloud provider"
-  type        = string
-}
-
 variable "cluster_id" {
   default     = null
   description = "Kubernetes global unique cluster id (0..N)"
@@ -33,6 +15,42 @@ variable "cluster_name" {
 variable "cluster_region" {
   default     = null
   description = "Kubernetes cluster region"
+  type        = string
+}
+
+variable "external_dns_annotation_filter" {
+  default = ""
+  description = "Annotation filter for external DNS"
+  type = string
+}
+
+variable "external_dns_interval" {
+  default = "5s"
+  description = "Interval for external DNS"
+  type = string
+}
+
+variable "external_dns_label_filter" {
+  default = ""
+  description = "Label filter for external DNS"
+  type = string
+}
+
+variable "external_dns_sources" {
+  default = "service"
+  description = "Sources for external DNS (service or ingress)"
+  type = string
+}
+
+variable "external_dns_zone" {
+  default = "gcp.sandbox.tetrate.io"
+  description = "Zone for external GCP DNS"
+  type = string
+}
+
+variable "output_path" {
+  default     = "../../../outputs"
+  description = "Output folder"
   type        = string
 }
 

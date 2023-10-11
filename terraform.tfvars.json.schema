@@ -48,6 +48,9 @@
         "region": {
           "type": "string"
         },
+        "tier1": {
+          "type": "boolean"
+        },
         "version": {
           "type": "string"
         },
@@ -62,6 +65,7 @@
         "cloud_provider",
         "name",
         "region",
+        "tier1",
         "version",
         "zones"
       ],
@@ -69,6 +73,21 @@
     },
     "name_prefix": {
       "type": "string"
+    },
+    "tags": {
+      "properties": {
+        "tetrate_owner": {
+          "type": "string"
+        },
+        "tetrate_team": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "tetrate_owner",
+        "tetrate_team"
+      ],
+      "type": "object"
     },
     "tsb": {
       "properties": {
@@ -95,8 +114,6 @@
         "fqdn",
         "image_sync_apikey",
         "image_sync_username",
-        "organisation",
-        "password",
         "version"
       ],
       "type": "object"
@@ -107,6 +124,7 @@
     "dns_provider",
     "mp_cluster",
     "name_prefix",
+    "tags",
     "tsb"
   ],
   "type": "object"

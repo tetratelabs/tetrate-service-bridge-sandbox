@@ -1,14 +1,14 @@
 data "terraform_remote_state" "infra" {
   backend = "local"
   config = {
-    path = "../../infra/${var.tsb_mp["cloud"]}/terraform.tfstate.d/${var.tsb_mp["cloud"]}-${var.tsb_mp["cluster_id"]}-${local.k8s_regions[tonumber(var.tsb_mp["cluster_id"])]}/terraform.tfstate"
+    path = "../../infra/${var.cloud_provider}/terraform.tfstate.d/${var.cloud_provider}-${var.cluster_id}-${var.cluster_region}/terraform.tfstate"
   }
 }
 
 data "terraform_remote_state" "k8s_auth" {
   backend = "local"
   config = {
-    path = "../../infra/${var.tsb_mp["cloud"]}/k8s_auth/terraform.tfstate.d/${var.tsb_mp["cloud"]}-${var.tsb_mp["cluster_id"]}-${local.k8s_regions[tonumber(var.tsb_mp["cluster_id"])]}/terraform.tfstate"
+    path = "../../infra/${var.cloud_provider}/k8s_auth/terraform.tfstate.d/${var.cloud_provider}-${var.cluster_id}-${var.cluster_region}/terraform.tfstate"
   }
 }
 
@@ -29,7 +29,7 @@ module "grafana" {
   k8s_client_token           = data.terraform_remote_state.k8s_auth.outputs.token
   namespace                  = var.monitoring_namespace
   service_type               = var.grafana_service_type
-  password                   = var.tsb_password
+  password                   = local.tsb.password
   
   dashboards = {for d in fileset("${path.module}/dashboards", "*.json") : d => file("${path.module}/dashboards/${d}")}
 }

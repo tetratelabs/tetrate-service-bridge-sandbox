@@ -40,7 +40,7 @@ output "token" {
 }
 
 output "locality_region" {
-  value = var.azure_k8s_region
+  value = var.cluster_region
 }
 output "vnet_id" {
   value = module.azure_base.vnet_id

@@ -1,14 +1,14 @@
 data "terraform_remote_state" "infra" {
   backend = "local"
   config = {
-    path = "../../infra/${var.cloud}/terraform.tfstate.d/${var.cloud}-${var.cluster_id}-${local.k8s_regions[var.cluster_id]}/terraform.tfstate"
+    path = "../../infra/${var.cloud_provider}/terraform.tfstate.d/${var.cloud_provider}-${var.cluster_id}-${var.cluster_region}/terraform.tfstate"
   }
 }
 
 data "terraform_remote_state" "k8s_auth" {
   backend = "local"
   config = {
-    path = "../../infra/${var.cloud}/k8s_auth/terraform.tfstate.d/${var.cloud}-${var.cluster_id}-${local.k8s_regions[var.cluster_id]}/terraform.tfstate"
+    path = "../../infra/${var.cloud_provider}/k8s_auth/terraform.tfstate.d/${var.cloud_provider}-${var.cluster_id}-${var.cluster_region}/terraform.tfstate"
   }
 }
 

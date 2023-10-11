@@ -27,13 +27,14 @@
     "cloud_provider": "gcp",
     "name": "mp-demo",
     "region": "us-west1",
+    "tier1": true,
     "version": "1.24",
     "zones": []
   },
   "name_prefix": "<YOUR UNIQUE PREFIX NAME TO BE CREATED>",
-  "tetrate": {
-    "owner": "Change me! (https://github.com/tetrateio/tetrate/blob/master/cloud/docs/misc/tags.md)",
-    "team": "Change me! (https://github.com/tetrateio/tetrate/blob/master/cloud/docs/misc/tags.md)"
+  "tags": {
+    "tetrate_owner": "Change me! (https://github.com/tetrateio/tetrate/blob/master/cloud/docs/misc/tags.md)",
+    "tetrate_team": "Change me! (https://github.com/tetrateio/tetrate/blob/master/cloud/docs/misc/tags.md)"
   },
   "tsb": {
     "fqdn": "<YOUR UNIQUE PREFIX NAME TO BE CREATED>.gcp.sandbox.tetrate.io",

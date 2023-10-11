@@ -66,6 +66,7 @@
     "cloud_provider": "gcp",
     "name": "mp-demo",
     "region": "europe-west1",
+    "tier1": true,
     "version": "1.24",
     "zones": [
       "europe-west1-b",
@@ -74,9 +75,9 @@
     ]
   },
   "name_prefix": "box-perf-bart",
-  "tetrate": {
-    "owner": "Change me! (https://github.com/tetrateio/tetrate/blob/master/cloud/docs/gcp/labels.md)",
-    "team": "Change me! (https://github.com/tetrateio/tetrate/blob/master/cloud/docs/gcp/labels.md)"
+  "tags": {
+    "tetrate_owner": "Change me! (https://github.com/tetrateio/tetrate/blob/master/cloud/docs/gcp/labels.md)",
+    "tetrate_team": "Change me! (https://github.com/tetrateio/tetrate/blob/master/cloud/docs/gcp/labels.md)"
   },
   "tsb": {
     "fqdn": "<YOUR UNIQUE PREFIX NAME TO BE CREATED>.<YOUR_AWS_ACCT_PREFIX>.sandbox.tetrate.io",

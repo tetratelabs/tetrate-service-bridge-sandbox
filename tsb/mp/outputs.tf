@@ -7,7 +7,7 @@ output "ingress_hostname" {
 }
 
 output "fqdn" {
-  value = var.tsb.fqdn
+  value = local.tsb.fqdn
 }
 
 output "tsb_cacert" {

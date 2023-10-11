@@ -3,14 +3,14 @@ provider "azurerm" {
 
   #https://github.com/hashicorp/terraform-provider-azurerm/issues/13776
   /* default_tags {
-    tags = local.default_tags
+    tags = local.tags
   } */
 }
 
 data "terraform_remote_state" "infra" {
   backend = "local"
   config = {
-    path = "../terraform.tfstate.d/${var.cloud}-${var.cluster_id}-${local.k8s_region}/terraform.tfstate"
+    path = "../terraform.tfstate.d/${var.cloud_provider}-${var.cluster_id}-${var.cluster_region}/terraform.tfstate"
   }
 }
 
