@@ -7,7 +7,7 @@ export REPO_PREFIX="${registry_name}"
 
 count=0
 
-while $(aws ec2 describe-vpcs --vpc-ids $VPC_ID &>/dev/null); do
+while $(aws ec2 describe-vpcs --region $REGION --vpc-ids $VPC_ID &>/dev/null); do
 
   echo 'Destroying ECR repositories...'
   for repo in $(aws ecr describe-repositories --region $REGION --query 'repositories[*].repositoryName' --no-paginate --output text); do
