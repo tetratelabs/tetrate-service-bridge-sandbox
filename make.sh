@@ -425,7 +425,7 @@ function destroy_k8s_clusters() {
     print_info "cloud=${cloud_provider} region=${cluster_region} cluster_id=${index} cluster_name=${cluster_name}"
     print_terraform "infra/${cloud_provider}" \
                     "${cloud_provider}-${index}-${cluster_region}" \
-                    " -var=${cloud_provider}_k8s_region=${cluster_region} -var=cluster_id=${index} -var=cluster_name=${cluster_name}" \
+                    "-var=cluster_id=${index} -var=cluster_name=${cluster_name} -var=cluster_region=${cluster_region} -var=cluster_version=${cluster_version}" \
                     " "
 
     cd "infra/${cloud_provider}"
@@ -435,7 +435,7 @@ function destroy_k8s_clusters() {
       cd "../.."
       continue
     fi
-    terraform destroy ${TERRAFORM_DESTROY_ARGS} -var-file="../../${JSON_TFVARS}" -var=${cloud_provider}_k8s_region=${cluster_region} -var=cluster_id=${index} -var=cluster_name=${cluster_name}
+    terraform destroy ${TERRAFORM_DESTROY_ARGS} -var-file="../../${JSON_TFVARS}" -var=cluster_id=${index} -var=cluster_name=${cluster_name} -var=cluster_region=${cluster_region} -var=cluster_version=${cluster_version}
     terraform workspace select default
     terraform workspace delete ${TERRAFORM_WORKSPACE_ARGS} ${cloud_provider}-${index}-${cluster_region}
 
