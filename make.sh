@@ -334,6 +334,12 @@ function deploy_addon_cloud_specific() {
                     "outputs/terraform_outputs/terraform-${addon}-${cloud_provider}-${index}.json"
 
     cd "addons/${addon}/${cloud_provider}"
+    if ! $(terraform workspace select ${cloud_provider}-${index}-${cluster_region} &>/dev/null) ; then
+      print_info "Workspace ${cloud_provider}-${index}-${cluster_region} no longer exists or was never created..."
+      index=$((index+1))
+      cd "../../.."
+      continue
+    fi
     terraform workspace new ${cloud_provider}-${index}-${cluster_region} || true
     terraform workspace select ${cloud_provider}-${index}-${cluster_region}
     terraform init
@@ -424,7 +430,7 @@ function destroy_k8s_clusters() {
 
     cd "infra/${cloud_provider}"
     if ! $(terraform workspace select ${cloud_provider}-${index}-${cluster_region} &>/dev/null) ; then
-      print_info "Workspace ${cloud_provider}-${index}-${cluster_region} no longer exist..."
+      print_info "Workspace ${cloud_provider}-${index}-${cluster_region} no longer exists or was never created..."
       index=$((index+1))
       cd "../.."
       continue
