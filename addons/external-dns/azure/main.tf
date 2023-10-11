@@ -1,19 +1,19 @@
 data "terraform_remote_state" "infra" {
   backend = "local"
   config = {
-    path = "../../infra/azure/terraform.tfstate.d/azure-${var.cluster_id}-${var.cluster_region}/terraform.tfstate"
+    path = "../../../infra/azure/terraform.tfstate.d/azure-${var.cluster_id}-${var.cluster_region}/terraform.tfstate"
   }
 }
 
 data "terraform_remote_state" "k8s_auth" {
   backend = "local"
   config = {
-    path = "../../infra/azure/k8s_auth/terraform.tfstate.d/azure-${var.cluster_id}-${var.cluster_region}/terraform.tfstate"
+    path = "../../../infra/azure/k8s_auth/terraform.tfstate.d/azure-${var.cluster_id}-${var.cluster_region}/terraform.tfstate"
   }
 }
 
 module "external_dns" {
-  source                     = "../../modules/addons/external-dns/azure"
+  source                     = "../../../modules/addons/external-dns/azure"
   name_prefix                = "${var.name_prefix}-${var.cluster_id}"
   cluster_name               = data.terraform_remote_state.infra.outputs.cluster_name
   k8s_host                   = data.terraform_remote_state.infra.outputs.host
