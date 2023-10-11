@@ -1,7 +1,7 @@
 data "terraform_remote_state" "infra" {
   backend = "local"
   config = {
-    path = "../terraform.tfstate.d/${var.cloud_provider}-${var.cluster_id}-${var.cluster_region}/terraform.tfstate"
+    path = "../terraform.tfstate.d/gcp-${var.cluster_id}-${var.cluster_region}/terraform.tfstate"
   }
 }
 
