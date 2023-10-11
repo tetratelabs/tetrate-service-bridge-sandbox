@@ -72,8 +72,8 @@ ${END}"
 # set -o xtrace
 
 function validate_json_structure() {
-  if ! jq -e '.cp_clusters[] | select(.cloud_provider and .name and .region and .version and .zones)' "$JSON_TFVARS" > /dev/null; then
-    print_error "Invalid structure in 'cp_clusters'. Ensure each cluster has 'cloud_provider', 'name', 'region', 'version', and 'zones'."
+  if ! jq -e '.cp_clusters[] | select(.cloud_provider and .name and .region and .version)' "$JSON_TFVARS" > /dev/null; then
+    print_error "Invalid structure in 'cp_clusters'. Ensure each cluster has 'cloud_provider', 'name', 'region' and 'version'."
     return 1
   fi
   if ! jq -e '.dns_provider | select(. == "aws" or . == "gcp" or . == "azure")' "$JSON_TFVARS" > /dev/null; then
@@ -81,7 +81,7 @@ function validate_json_structure() {
     return 1
   fi
   if ! jq -e '.mp_cluster | select(.cloud_provider and .name and .region and .tier1 and .version and .zones)' "$JSON_TFVARS" > /dev/null; then
-    print_error "Invalid structure in 'mp_cluster'. Ensure it has 'cloud_provider', 'name', 'region', 'tier1', 'version', and 'zones'."
+    print_error "Invalid structure in 'mp_cluster'. Ensure it has 'cloud_provider', 'name', 'region', 'tier1' and 'version'."
     return 1
   fi
   if ! jq -e '.name_prefix' "$JSON_TFVARS" > /dev/null; then

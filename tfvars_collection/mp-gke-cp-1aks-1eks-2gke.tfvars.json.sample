@@ -49,6 +49,6 @@
     "image_sync_username": "<TSB_REPO_USERNAME>",
     "organisation": "tetrate",
     "password": "Tetrate123",
-    "version": "1.6.0"
+    "version": "1.7.0"
   }
 }

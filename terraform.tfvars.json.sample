@@ -66,7 +66,7 @@
     "cloud_provider": "gcp",
     "name": "mp-demo",
     "region": "europe-west1",
-    "tier1": true,
+    "tier1": false,
     "version": "1.24",
     "zones": [
       "europe-west1-b",

@@ -73,25 +73,49 @@ git clone https://github.com/tetrateio/tetrate-service-bridge-sandbox.git
 
 Please refer to [tfvars collection](/tfvars_collection) for more examples, i.e. tested options.
 
+> **WARNING** the tfvar format has changed drastically to allow for more fine grained cluster configuration. There is a conversion script [convert.tfvars.sh](./convert.tfvars.sh) to migrate to the new expected format. The [Makefile](./Makefile) targets will call an extra `validate` target before installation to avoid distaster. There is also a new schema validation file [terraform.tfvars.json.schema](./terraform.tfvars.json.schema) that you can use in VSCode for JSON schema validation.
+
 ```json
 {
-  "name_prefix": "<YOUR UNIQUE PREFIX NAME TO BE CREATED>",
+  "cp_clusters": [
+    {
+      "cloud_provider": "aws",
+      "name": "demo-cp1",
+      "region": "eu-west-2",
+      "version": "1.27"
+    }, {
+      "cloud_provider": "azure",
+      "name": "demo-cp2",
+      "region": "northeurope",
+      "version": "1.25"
+    }, {
+      "cloud_provider": "gcp",
+      "name": "demo-cp2",
+      "region": "europe-west2",
+      "version": "1.26"
+    }, 
+  ],
   "dns_provider": "azure",
-  "tsb_fqdn": "<YOUR UNIQUE PREFIX NAME TO BE CREATED>.azure.sandbox.tetrate.io",
-  "tsb_version": "1.6.0",
-  "tsb_image_sync_username": "<TSB_REPO_USERNAME>",
-  "tsb_image_sync_apikey": "<TSB_REPO_APIKEY>",
-  "tsb_password": "Tetrate123",
-  "tsb_mp": {
-    "cloud": "azure",
-    "cluster_id": 0
+  "mp_cluster": {
+    "cloud_provider": "azure",
+    "name": "demo-mp",
+    "region": "westeurope",
+    "tier1": true,
+    "version": "1.27"
   },
-  "tsb_org": "tetrate",
-  "aws_k8s_regions": [],
-  "azure_k8s_regions": ["eastus"],
-  "gcp_k8s_regions": ["us-west1", "us-east1"],
-  "tetrate_owner": "Change me! (https://github.com/tetrateio/tetrate/blob/master/cloud/docs/gcp/labels.md)",
-  "tetrate_team": "Change me! (https://github.com/tetrateio/tetrate/blob/master/cloud/docs/gcp/labels.md)"
+  "name_prefix": "<YOUR UNIQUE PREFIX NAME TO BE CREATED>",
+  "tags": {
+    "tetrate_owner": "Change me! (https://github.com/tetrateio/tetrate/blob/master/cloud/docs/gcp/labels.md)",
+    "tetrate_team": "Change me! (https://github.com/tetrateio/tetrate/blob/master/cloud/docs/gcp/labels.md)"
+  },
+  "tsb": {
+    "fqdn": "<YOUR UNIQUE PREFIX NAME TO BE CREATED>.azure.sandbox.tetrate.io",
+    "image_sync_apikey": "<TSB_REPO_USERNAME>",
+    "image_sync_username": "<TSB_REPO_APIKEY>",
+    "organisation": "tetrate",
+    "password": "Tetrate123",
+    "version": "1.7.0"
+  }
 }
 ```
 
