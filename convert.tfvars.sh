@@ -54,6 +54,7 @@ jq -n --argjson input "$(cat ${input_json})" \
       else 
         $input.gcp_k8s_regions[$input.tsb_mp.cluster_id] 
       end),
+    tier1: true,
     version: "1.24",
     zones: []
   },
