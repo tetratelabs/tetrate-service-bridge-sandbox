@@ -4,61 +4,37 @@
       "cloud_provider": "aws",
       "name": "demo1",
       "region": "eu-west-1",
-      "version": "1.24",
-      "zones": [
-        "eu-west-1a",
-        "eu-west-1b"
-      ]
+      "version": "1.24"
     },
     {
       "cloud_provider": "aws",
       "name": "demo2",
       "region": "eu-west-2",
-      "version": "1.24",
-      "zones": [
-        "eu-west-2b",
-        "eu-west-2c"
-      ]
+      "version": "1.24"
     },
     {
       "cloud_provider": "azure",
       "name": "demo3",
       "region": "westeurope",
-      "version": "1.24",
-      "zones": [
-        "1",
-        "2"
-      ]
+      "version": "1.24"
     },
     {
       "cloud_provider": "azure",
       "name": "demo 4",
       "region": "northeurope",
-      "version": "1.24",
-      "zones": [
-        "2",
-        "3"
-      ]
+      "version": "1.24"
     },
     {
       "cloud_provider": "gcp",
       "name": "demo5",
       "region": "europe-west2",
-      "version": "1.24",
-      "zones": [
-        "europe-west2-a",
-        "europe-west2-b"
-      ]
+      "version": "1.24"
     },
     {
       "cloud_provider": "gcp",
       "name": "demo6",
       "region": "europe-west2",
-      "version": "1.24",
-      "zones": [
-        "europe-west2-b",
-        "europe-west2-c"
-      ]
+      "version": "1.24"
     }
   ],
   "dns_provider": "gcp",
@@ -67,12 +43,7 @@
     "name": "mp-demo",
     "region": "europe-west1",
     "tier1": false,
-    "version": "1.24",
-    "zones": [
-      "europe-west1-b",
-      "europe-west1-c",
-      "europe-west1-d"
-    ]
+    "version": "1.24"
   },
   "name_prefix": "box-perf-bart",
   "tags": {

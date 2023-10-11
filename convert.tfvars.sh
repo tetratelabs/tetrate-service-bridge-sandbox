@@ -24,22 +24,19 @@ jq -n --argjson input "$(cat ${input_json})" \
       cloud_provider: "aws",
       name: ("demo" + (.key + 1 | tostring)),
       region: .value,
-      version: "1.24",
-      zones: []
+      version: "1.24"
     })) +
     ($input.azure_k8s_regions | to_entries | map({
       cloud_provider: "azure",
       name: ("demo" + (.key + 1 + ($input.aws_k8s_regions | length) | tostring)),
       region: .value,
-      version: "1.24",
-      zones: []
+      version: "1.24"
     })) +
     ($input.gcp_k8s_regions | to_entries | map({
       cloud_provider: "gcp",
       name: ("demo" + (.key + 1 + ($input.aws_k8s_regions | length) + ($input.azure_k8s_regions | length) | tostring)),
       region: .value,
-      version: "1.24",
-      zones: []
+      version: "1.24"
     }))
   ),
   dns_provider: $input.dns_provider,
@@ -55,8 +52,7 @@ jq -n --argjson input "$(cat ${input_json})" \
         $input.gcp_k8s_regions[$input.tsb_mp.cluster_id] 
       end),
     tier1: true,
-    version: "1.24",
-    zones: []
+    version: "1.24"
   },
   name_prefix: $input.name_prefix,
   tetrate: {

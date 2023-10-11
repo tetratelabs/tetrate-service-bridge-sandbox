@@ -80,7 +80,7 @@ function validate_json_structure() {
     print_error "Invalid 'dns_provider' value. It should be 'aws', 'gcp', or 'azure'."
     return 1
   fi
-  if ! jq -e '.mp_cluster | select(.cloud_provider and .name and .region and .tier1 and .version and .zones)' "$JSON_TFVARS" > /dev/null; then
+  if ! jq -e '.mp_cluster | select(.cloud_provider and .name and .region and .tier1 and .version)' "$JSON_TFVARS" > /dev/null; then
     print_error "Invalid structure in 'mp_cluster'. Ensure it has 'cloud_provider', 'name', 'region', 'tier1' and 'version'."
     return 1
   fi
@@ -237,10 +237,10 @@ function deploy_tsb_cps() {
   # Check if MP is also configured as CP (default true for backwards compatibility)
   tier1=$(jq -r ".mp_cluster.tier1" ${JSON_TFVARS})
   if [ "$tier1" == "null" ] || [ "$tier1" == "true" ]; then
-    clusters=$(jq -c '[.mp_cluster, .cp_clusters[]]' ${JSON_TFVARS})
+    clusters=$(jq -c '.mp_cluster, .cp_clusters[]' ${JSON_TFVARS})
     index=0 # index 0 was reserved for mp_cluster (index 0) and cp_clusters (index 1...n)
   else
-    clusters=$(jq -c '[.cp_clusters[]]' ${JSON_TFVARS})
+    clusters=$(jq -c '.cp_clusters[]' ${JSON_TFVARS})
     index=1 # index 0 was reserved for mp, start from cp_clusters (index 1...n)
   fi
 
@@ -416,7 +416,7 @@ function destroy_k8s_clusters() {
     else
       cluster_name="${cloud_provider}-${name_prefix}-${cluster_region}-${index}"
     fi
-    print_info "cloud=${cloud_provider} region=${cluster_region} zones=${zones} cluster_id=${index} cluster_name=${cluster_name}"
+    print_info "cloud=${cloud_provider} region=${cluster_region} cluster_id=${index} cluster_name=${cluster_name}"
     print_terraform "infra/${cloud_provider}" \
                     "${cloud_provider}-${index}-${cluster_region}" \
                     " -var=${cloud_provider}_k8s_region=${cluster_region} -var=cluster_id=${index} -var=cluster_name=${cluster_name}" \

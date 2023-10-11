@@ -25,7 +25,7 @@ module "cert-manager" {
   k8s_host                   = data.terraform_remote_state.infra.outputs.host
   k8s_cluster_ca_certificate = data.terraform_remote_state.infra.outputs.cluster_ca_certificate
   k8s_client_token           = data.terraform_remote_state.k8s_auth.outputs.token
-  cert_manager_enabled       = var.cert_manager_enabled # TODO: fix the case where MP is also CP
+  cert_manager_enabled       = tonumber(var.cluster_id) == 0 && var.mp_cluster.tier1 ? false : var.cert_manager_enabled
 }
 
 module "ratelimit" {
@@ -64,7 +64,7 @@ module "tsb_cp" {
   registry                     = data.terraform_remote_state.infra.outputs.registry
   registry_password            = data.terraform_remote_state.infra.outputs.registry_password
   registry_username            = data.terraform_remote_state.infra.outputs.registry_username
-  tier1_cluster                = tonumber(var.cluster_id) == tonumber(var.tsb_mp["cluster_id"]) && var.cloud_provider == var.tsb_mp["cloud"] ? var.mp_as_tier1_cluster : false
+  tier1_cluster                = tonumber(var.cluster_id) == 0 && var.mp_cluster.tier1
   tsb_cacert                   = data.terraform_remote_state.tsb_mp.outputs.tsb_cacert
   tsb_fqdn                     = local.tsb.fqdn
   tsb_helm_repository          = local.tsb.helm_repository

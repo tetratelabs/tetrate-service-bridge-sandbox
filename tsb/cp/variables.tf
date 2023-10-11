@@ -41,12 +41,6 @@ variable "jumpbox_username" {
   type        = string
 }
 
-variable "mp_as_tier1_cluster" {
-  default     = true
-  description = "Enable management plane as tier1 cluster"
-  type        = bool
-}
-
 variable "output_path" {
   default     = "../../outputs"
   description = "Output folder"
@@ -68,7 +62,6 @@ variable "cp_clusters" {
     name           = string
     region         = string
     version        = string
-    zones          = list(string)
   }))
 }
 
@@ -83,8 +76,8 @@ variable "mp_cluster" {
     cloud_provider = string
     name           = string
     region         = string
+    tier1          = bool
     version        = string
-    zones          = list(string)
   })
 }
 

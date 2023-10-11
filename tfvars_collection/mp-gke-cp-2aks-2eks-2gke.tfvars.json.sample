@@ -4,43 +4,37 @@
       "cloud_provider": "aws",
       "name": "demo1",
       "region": "eu-west-1",
-      "version": "1.24",
-      "zones": []
+      "version": "1.24"
     },
     {
       "cloud_provider": "aws",
       "name": "demo2",
       "region": "eu-west-1",
-      "version": "1.24",
-      "zones": []
+      "version": "1.24"
     },
     {
       "cloud_provider": "azure",
       "name": "demo3",
       "region": "eastus",
-      "version": "1.24",
-      "zones": []
+      "version": "1.24"
     },
     {
       "cloud_provider": "azure",
       "name": "demo4",
       "region": "eastus",
-      "version": "1.24",
-      "zones": []
+      "version": "1.24"
     },
     {
       "cloud_provider": "gcp",
       "name": "demo5",
       "region": "us-east1",
-      "version": "1.24",
-      "zones": []
+      "version": "1.24"
     },
     {
       "cloud_provider": "gcp",
       "name": "demo6",
       "region": "us-east1",
-      "version": "1.24",
-      "zones": []
+      "version": "1.24"
     }
   ],
   "dns_provider": "gcp",
@@ -49,8 +43,7 @@
     "name": "mp-demo",
     "region": "us-east1",
     "tier1": true,
-    "version": "1.24",
-    "zones": []
+    "version": "1.24"
   },
   "name_prefix": "<YOUR UNIQUE PREFIX NAME TO BE CREATED>",
   "tags": {

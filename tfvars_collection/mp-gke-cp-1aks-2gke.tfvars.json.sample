@@ -4,22 +4,19 @@
       "cloud_provider": "azure",
       "name": "demo1",
       "region": "eastus",
-      "version": "1.24",
-      "zones": []
+      "version": "1.24"
     },
     {
       "cloud_provider": "gcp",
       "name": "demo2",
       "region": "us-west1",
-      "version": "1.24",
-      "zones": []
+      "version": "1.24"
     },
     {
       "cloud_provider": "gcp",
       "name": "demo3",
       "region": "us-east1",
-      "version": "1.24",
-      "zones": []
+      "version": "1.24"
     }
   ],
   "dns_provider": "gcp",
@@ -28,8 +25,7 @@
     "name": "mp-demo",
     "region": "us-west1",
     "tier1": true,
-    "version": "1.24",
-    "zones": []
+    "version": "1.24"
   },
   "name_prefix": "<YOUR UNIQUE PREFIX NAME TO BE CREATED>",
   "tags": {

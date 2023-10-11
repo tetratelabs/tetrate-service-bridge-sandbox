@@ -15,20 +15,13 @@
           },
           "version": {
             "type": "string"
-          },
-          "zones": {
-            "items": {
-              "type": "string"
-            },
-            "type": "array"
           }
         },
         "required": [
           "cloud_provider",
           "name",
           "region",
-          "version",
-          "zones"
+          "version"
         ],
         "type": "object"
       },
@@ -53,12 +46,6 @@
         },
         "version": {
           "type": "string"
-        },
-        "zones": {
-          "items": {
-            "type": "string"
-          },
-          "type": "array"
         }
       },
       "required": [
@@ -66,8 +53,7 @@
         "name",
         "region",
         "tier1",
-        "version",
-        "zones"
+        "version"
       ],
       "type": "object"
     },
