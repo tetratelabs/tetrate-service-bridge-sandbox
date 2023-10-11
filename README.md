@@ -134,6 +134,7 @@ Please refer to [tfvars collection](/tfvars_collection) for more examples, i.e. 
 
 All `Make` commands should be executed from root of repo as this is where the `Makefile` is.
 
+
 1. a) Stand up full demo
 
 ```bash
@@ -159,6 +160,21 @@ The completion of the above steps will result in:
 - all the generated outputs will be provided under `./outputs` folder
 - output kubeconfig files for all the created aks clusters in format of: $cluster_name-kubeconfig
 - output IP address and private key for the jumpbox (ssh username: tsbadmin), using shell scripts login to the jumpbox, for example to reach gcp jumpbox just run the script `ssh-to-gcp-jumpbox.sh`
+
+1. c) Override default terraform.tfvars.json file
+
+You can override the default tfvars.json file with the `Makefile` parameter `json_tfvars=<filename>`, in case you maintain a list of tfvars.json files for different environments.
+
+```bash
+# Run your AWS Setup
+make tsb json_tfvars=terraform.aws.tfvars.json
+
+# Run your Azure Setup
+make tsb json_tfvars=terraform.azure.tfvars.json
+
+# Run your GCP Setup
+make tsb json_tfvars=terraform.gcp.tfvars.json
+```
 
 ## Deployment Scenarios
 
