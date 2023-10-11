@@ -81,7 +81,7 @@ Please refer to [tfvars collection](/tfvars_collection) for more examples, i.e. 
     {
       "cloud_provider": "aws",
       "name": "demo-cp1",
-      "region": "eu-west-2",
+      "region": "eu-west-1",
       "version": "1.27"
     }, {
       "cloud_provider": "azure",
@@ -90,8 +90,8 @@ Please refer to [tfvars collection](/tfvars_collection) for more examples, i.e. 
       "version": "1.25"
     }, {
       "cloud_provider": "gcp",
-      "name": "demo-cp2",
-      "region": "europe-west2",
+      "name": "demo-cp3",
+      "region": "europe-west1",
       "version": "1.26"
     }, 
   ],
