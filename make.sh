@@ -33,10 +33,8 @@ if [ ! -f "${JSON_TFVARS}" ]; then
   exit 1
 fi
 
-# TERRAFORM_APPLY_ARGS="-compact-warnings -auto-approve"
-TERRAFORM_APPLY_ARGS="-auto-approve"
-# TERRAFORM_DESTROY_ARGS="-compact-warnings -auto-approve"
-TERRAFORM_DESTROY_ARGS="-auto-approve"
+TERRAFORM_APPLY_ARGS="-compact-warnings -auto-approve"
+TERRAFORM_DESTROY_ARGS="-compact-warnings -auto-approve"
 TERRAFORM_WORKSPACE_ARGS="-force"
 TERRAFORM_OUTPUT_ARGS="-json"
 
@@ -112,47 +110,41 @@ function deploy_k8s_clusters() {
   local name_prefix=$(jq -r '.name_prefix' ${JSON_TFVARS})
 
   # Process both mp_cluster (index 0) and cp_clusters (index 1...n)
-  for cluster_type in mp_cluster cp_clusters; do
-    if [ "${cluster_type}" == "mp_cluster" ]; then
-      local clusters=$(jq -c ".${cluster_type}" ${JSON_TFVARS})
+  local clusters=$(jq -c '.mp_cluster, .cp_clusters[]' ${JSON_TFVARS})
+
+  while read -r cluster; do
+    local cluster_region=$(echo "${cluster}" | jq -r '.region')
+    local cluster_version=$(echo "${cluster}" | jq -r '.version')
+    local cloud_provider=$(echo "${cluster}" | jq -r '.cloud_provider')
+    local cluster_name_from_json=$(echo "${cluster}" | jq -r '.name')
+
+    # [backwards compatibility] if name not set or empty, fall back to previous naming convention
+    local cluster_name=""
+    if [ -n "${cluster_name_from_json}" ] && [ "${cluster_name_from_json}" != "null" ]; then
+      cluster_name="${cloud_provider}-${cluster_name_from_json}"
     else
-      local clusters=$(jq -c ".${cluster_type}[]" ${JSON_TFVARS})
+      cluster_name="${cloud_provider}-${name_prefix}-${cluster_region}-${index}"
     fi
-    if [ -z "${clusters}" ]; then continue; fi
 
-    while read -r cluster; do
-      local cluster_region=$(echo "${cluster}" | jq -r '.region')
-      local cluster_version=$(echo "${cluster}" | jq -r '.version')
-      local cloud_provider=$(echo "${cluster}" | jq -r '.cloud_provider')
-      local cluster_name_from_json=$(echo "${cluster}" | jq -r '.name')
+    print_info "cloud_provider=${cloud_provider} cluster_id=${index} cluster_name=${cluster_name}" cluster_region=${cluster_region}
+    print_terraform "infra/${cloud_provider}" \
+                    "${cloud_provider}-${index}-${cluster_region}" \
+                    "-var=cluster_id=${index} -var=cluster_name=${cluster_name} -var=cluster_region=${cluster_region} -var=cluster_version=${cluster_version}" \
+                    "outputs/terraform_outputs/terraform-${cloud_provider}-${cluster_name}-${index}.json"
 
-      # [backwards compatibility] if name not set or empty, fall back to previous naming convention
-      local cluster_name=""
-      if [ -n "${cluster_name_from_json}" ] && [ "${cluster_name_from_json}" != "null" ]; then
-        cluster_name="${cloud_provider}-${cluster_name_from_json}"
-      else 
-        cluster_name="${cloud_provider}-${name_prefix}-${cluster_region}-${index}"
-      fi
+    cd "infra/${cloud_provider}"
+    terraform workspace new ${cloud_provider}-${index}-${cluster_region} || true
+    terraform workspace select ${cloud_provider}-${index}-${cluster_region}
+    terraform init
+    terraform apply ${TERRAFORM_APPLY_ARGS} -target module.${cloud_provider}_base -var-file="../../${JSON_TFVARS}" -var=cluster_id=${index} -var=cluster_name=${cluster_name} -var=cluster_region=${cluster_region} -var=cluster_version=${cluster_version}
+    terraform apply ${TERRAFORM_APPLY_ARGS} -var-file="../../${JSON_TFVARS}" -var=cluster_id=${index} -var=cluster_name=${cluster_name} -var=cluster_region=${cluster_region} -var=cluster_version=${cluster_version}
+    terraform output ${TERRAFORM_OUTPUT_ARGS} | jq . > ../../outputs/terraform_outputs/terraform-${cloud_provider}-${cluster_name}-${index}.json
+    terraform workspace select default
 
-      print_info "cloud_provider=${cloud_provider} cluster_id=${index} cluster_name=${cluster_name}" cluster_region=${cluster_region}
-      print_terraform "infra/${cloud_provider}" \
-                      "${cloud_provider}-${index}-${cluster_region}" \
-                      "-var=cluster_id=${index} -var=cluster_name=${cluster_name} -var=cluster_region=${cluster_region} -var=cluster_version=${cluster_version}" \
-                      "outputs/terraform_outputs/terraform-${cloud_provider}-${cluster_name}-${index}.json"
+    index=$((index+1))
+    cd "../.."
+  done < <(echo "${clusters}")
 
-      cd "infra/${cloud_provider}"
-      terraform workspace new ${cloud_provider}-${index}-${cluster_region} || true
-      terraform workspace select ${cloud_provider}-${index}-${cluster_region}
-      terraform init
-      terraform apply ${TERRAFORM_APPLY_ARGS} -target module.${cloud_provider}_base -var-file="../../${JSON_TFVARS}" -var=cluster_id=${index} -var=cluster_name=${cluster_name} -var=cluster_region=${cluster_region} -var=cluster_version=${cluster_version}
-      terraform apply ${TERRAFORM_APPLY_ARGS} -var-file="../../${JSON_TFVARS}" -var=cluster_id=${index} -var=cluster_name=${cluster_name} -var=cluster_region=${cluster_region} -var=cluster_version=${cluster_version}
-      terraform output ${TERRAFORM_OUTPUT_ARGS} | jq . > ../../outputs/terraform_outputs/terraform-${cloud_provider}-${cluster_name}-${index}.json
-      terraform workspace select default
-
-      index=$((index+1))
-      cd "../.."
-    done < <(echo "${clusters}")
-  done
 }
 
 function deploy_k8s_auths() {
@@ -162,44 +154,38 @@ function deploy_k8s_auths() {
   local name_prefix=$(jq -r '.name_prefix' ${JSON_TFVARS})
 
   # Process both mp_cluster (index 0) and cp_clusters (index 1...n)
-  for cluster_type in mp_cluster cp_clusters; do
-    if [ "${cluster_type}" == "mp_cluster" ]; then
-      local clusters=$(jq -c ".${cluster_type}" ${JSON_TFVARS})
+  local clusters=$(jq -c '.mp_cluster, .cp_clusters[]' ${JSON_TFVARS})
+
+  while read -r cluster; do
+    local cluster_region=$(echo "${cluster}" | jq -r '.region')
+    local cloud_provider=$(echo "${cluster}" | jq -r '.cloud_provider')
+    local cluster_name_from_json=$(echo "${cluster}" | jq -r '.name')
+
+    # [backwards compatibility] if name not set or empty, fall back to previous naming convention
+    local cluster_name=""
+    if [ -n "${cluster_name_from_json}" ] && [ "${cluster_name_from_json}" != "null" ]; then
+      cluster_name="${cloud_provider}-${cluster_name_from_json}"
     else
-      local clusters=$(jq -c ".${cluster_type}[]" ${JSON_TFVARS})
+      cluster_name="${cloud_provider}-${name_prefix}-${cluster_region}-${index}"
     fi
-    if [ -z "${clusters}" ]; then continue; fi
 
-    while read -r cluster; do
-      local cluster_region=$(echo "${cluster}" | jq -r '.region')
-      local cloud_provider=$(echo "${cluster}" | jq -r '.cloud_provider')
-      local cluster_name_from_json=$(echo "${cluster}" | jq -r '.name')
+    print_info "cloud_provider=${cloud_provider} cluster_id=${index} cluster_name=${cluster_name}" cluster_region=${cluster_region}
+    print_terraform "infra/${cloud_provider}/k8s_auth" \
+                    "${cloud_provider}-${index}-${cluster_region}" \
+                    "-var=cloud_provider=${cloud_provider} -var=cluster_id=${index} -var=cluster_region=${cluster_region}" \
+                    " "
 
-      # [backwards compatibility] if name not set or empty, fall back to previous naming convention
-      local cluster_name=""
-      if [ -n "${cluster_name_from_json}" ] && [ "${cluster_name_from_json}" != "null" ]; then
-        cluster_name="${cloud_provider}-${cluster_name_from_json}"
-      else 
-        cluster_name="${cloud_provider}-${name_prefix}-${cluster_region}-${index}"
-      fi
+    cd "infra/${cloud_provider}/k8s_auth"
+    terraform workspace new "${cloud_provider}-${index}-${cluster_region}" || true
+    terraform workspace select "${cloud_provider}-${index}-${cluster_region}"
+    terraform init
+    terraform apply -refresh=false ${TERRAFORM_APPLY_ARGS} -var-file="../../../${JSON_TFVARS}" -var=cloud_provider=${cloud_provider} -var=cluster_id=${index} -var=cluster_region=${cluster_region}
+    terraform workspace select default
 
-      print_info "cloud_provider=${cloud_provider} cluster_id=${index} cluster_name=${cluster_name}" cluster_region=${cluster_region}
-      print_terraform "infra/${cloud_provider}/k8s_auth" \
-                      "${cloud_provider}-${index}-${cluster_region}" \
-                      "-var=cloud_provider=${cloud_provider} -var=cluster_id=${index} -var=cluster_region=${cluster_region}" \
-                      " "
+    index=$((index+1))
+    cd "../../.."
+  done < <(echo "${clusters}")
 
-      cd "infra/${cloud_provider}/k8s_auth"
-      terraform workspace new "${cloud_provider}-${index}-${cluster_region}" || true
-      terraform workspace select "${cloud_provider}-${index}-${cluster_region}"
-      terraform init
-      terraform apply -refresh=false ${TERRAFORM_APPLY_ARGS} -var-file="../../../${JSON_TFVARS}" -var=cloud_provider=${cloud_provider} -var=cluster_id=${index} -var=cluster_region=${cluster_region}
-      terraform workspace select default
-
-      index=$((index+1))
-      cd "../../.."
-    done < <(echo "${clusters}")
-  done
 }
 
 function deploy_tsb_mp() {
@@ -210,8 +196,7 @@ function deploy_tsb_mp() {
   local dns_provider=$(jq -r '.dns_provider' ${JSON_TFVARS})
   local index=0
   if [ "${dns_provider}" == "null" ] || [ -z "${dns_provider}" ] ; then
-    # TODO: review this logic
-    dns_provider=$(jq -r '.tsb.fqdn' ${JSON_TFVARS} | cut -d"." -f2 | sed 's/sandbox/gcp/g')
+    dns_provider=$(jq -r '.tsb.fqdn' ${JSON_TFVARS} | jq -Rr 'split(".")[1] | if . == "azure" then "azure" elif . == "gcp" then "gcp" else "aws" end')
   fi
 
   print_info "cloud_provider=${cloud_provider} cluster_id=${index} cluster_name=${cluster_name}" cluster_region=${cluster_region}
@@ -245,8 +230,19 @@ function deploy_tsb_mp() {
 
 function deploy_tsb_cps() {
   set -e
-  local index=1 # index 0 was reserved for mp
-  clusters=$(jq -c '.cp_clusters[]' ${JSON_TFVARS})
+
+  local clusters
+  local index
+
+  # Check if MP is also configured as CP (default true for backwards compatibility)
+  tier1=$(jq -r ".mp_cluster.tier1" ${JSON_TFVARS})
+  if [ "$tier1" == "null" ] || [ "$tier1" == "true" ]; then
+    clusters=$(jq -c '[.mp_cluster, .cp_clusters[]]' ${JSON_TFVARS})
+    index=0 # index 0 was reserved for mp_cluster (index 0) and cp_clusters (index 1...n)
+  else
+    clusters=$(jq -c '[.cp_clusters[]]' ${JSON_TFVARS})
+    index=1 # index 0 was reserved for mp, start from cp_clusters (index 1...n)
+  fi
 
   while read -r cluster; do
     cloud_provider=$(echo $cluster | jq -r '.cloud_provider')
@@ -277,44 +273,37 @@ function deploy_addon() {
   local addon=${1}
 
   # Process both mp_cluster (index 0) and cp_clusters (index 1...n)
-  for cluster_type in mp_cluster cp_clusters; do
-    if [ "${cluster_type}" == "mp_cluster" ]; then
-      local clusters=$(jq -c ".${cluster_type}" ${JSON_TFVARS})
+  local clusters=$(jq -c '.mp_cluster, .cp_clusters[]' ${JSON_TFVARS})
+
+  while read -r cluster; do
+    local cluster_region=$(echo "${cluster}" | jq -r '.region')
+    local cloud_provider=$(echo "${cluster}" | jq -r '.cloud_provider')
+    local cluster_name_from_json=$(echo "${cluster}" | jq -r '.name')
+
+    # [backwards compatibility] if name not set or empty, fall back to previous naming convention
+    local cluster_name=""
+    if [ -n "${cluster_name_from_json}" ] && [ "${cluster_name_from_json}" != "null" ]; then
+      cluster_name="${cloud_provider}-${cluster_name_from_json}"
     else
-      local clusters=$(jq -c ".${cluster_type}[]" ${JSON_TFVARS})
+      cluster_name="${cloud_provider}-${name_prefix}-${cluster_region}-${index}"
     fi
-    if [ -z "${clusters}" ]; then continue; fi
 
-    while read -r cluster; do
-      local cluster_region=$(echo "${cluster}" | jq -r '.region')
-      local cloud_provider=$(echo "${cluster}" | jq -r '.cloud_provider')
-      local cluster_name_from_json=$(echo "${cluster}" | jq -r '.name')
+    print_info "cloud=${cloud_provider} cluster_region=${cluster_region} cluster_id=${index} cluster_name=${cluster_name}"
+    print_terraform "addons/${addon}" \
+                    "${cloud_provider}-${index}-${cluster_region}" \
+                    " -var=cloud_provider=${cloud_provider} -var=cluster_id=${index} -var=cluster_region=${cluster_region}" \
+                    "outputs/terraform_outputs/terraform-${addon}-${cloud_provider}-${index}.json"
 
-      # [backwards compatibility] if name not set or empty, fall back to previous naming convention
-      local cluster_name=""
-      if [ -n "${cluster_name_from_json}" ] && [ "${cluster_name_from_json}" != "null" ]; then
-        cluster_name="${cloud_provider}-${cluster_name_from_json}"
-      else 
-        cluster_name="${cloud_provider}-${name_prefix}-${cluster_region}-${index}"
-      fi
-
-      print_info "cloud=${cloud_provider} cluster_region=${cluster_region} cluster_id=${index} cluster_name=${cluster_name}"
-      print_terraform "addons/${addon}" \
-                      "${cloud_provider}-${index}-${cluster_region}" \
-                      " -var=cloud_provider=${cloud_provider} -var=cluster_id=${index} -var=cluster_region=${cluster_region}" \
-                      "outputs/terraform_outputs/terraform-${addon}-${cloud_provider}-${index}.json"
-
-      cd "addons/${addon}"
-      terraform workspace new ${cloud_provider}-${index}-${cluster_region} || true
-      terraform workspace select ${cloud_provider}-${index}-${cluster_region}
-      terraform init
-      terraform apply ${TERRAFORM_APPLY_ARGS} -var-file="../../${JSON_TFVARS}" -var=cloud_provider=${cloud_provider} -var=cluster_id=${index} -var=cluster_region=${cluster_region}
-      terraform output ${TERRAFORM_OUTPUT_ARGS} | jq . > ../../outputs/terraform_outputs/terraform-${addon}-${cloud_provider}-${index}.json
-      terraform workspace select default
-      index=$((index+1))
-      cd "../.."
-    done < <(echo "${clusters}")
-  done
+    cd "addons/${addon}"
+    terraform workspace new ${cloud_provider}-${index}-${cluster_region} || true
+    terraform workspace select ${cloud_provider}-${index}-${cluster_region}
+    terraform init
+    terraform apply ${TERRAFORM_APPLY_ARGS} -var-file="../../${JSON_TFVARS}" -var=cloud_provider=${cloud_provider} -var=cluster_id=${index} -var=cluster_region=${cluster_region}
+    terraform output ${TERRAFORM_OUTPUT_ARGS} | jq . > ../../outputs/terraform_outputs/terraform-${addon}-${cloud_provider}-${index}.json
+    terraform workspace select default
+    index=$((index+1))
+    cd "../.."
+  done < <(echo "${clusters}")
 }
 
 function deploy_addon_cloud_specific() {
@@ -323,44 +312,37 @@ function deploy_addon_cloud_specific() {
   local addon=${1}
 
   # Process both mp_cluster (index 0) and cp_clusters (index 1...n)
-  for cluster_type in mp_cluster cp_clusters; do
-    if [ "${cluster_type}" == "mp_cluster" ]; then
-      local clusters=$(jq -c ".${cluster_type}" ${JSON_TFVARS})
+  local clusters=$(jq -c '.mp_cluster, .cp_clusters[]' ${JSON_TFVARS})
+
+  while read -r cluster; do
+    local cluster_region=$(echo "${cluster}" | jq -r '.region')
+    local cloud_provider=$(echo "${cluster}" | jq -r '.cloud_provider')
+    local cluster_name_from_json=$(echo "${cluster}" | jq -r '.name')
+
+    # [backwards compatibility] if name not set or empty, fall back to previous naming convention
+    local cluster_name=""
+    if [ -n "${cluster_name_from_json}" ] && [ "${cluster_name_from_json}" != "null" ]; then
+      cluster_name="${cloud_provider}-${cluster_name_from_json}"
     else
-      local clusters=$(jq -c ".${cluster_type}[]" ${JSON_TFVARS})
+      cluster_name="${cloud_provider}-${name_prefix}-${cluster_region}-${index}"
     fi
-    if [ -z "${clusters}" ]; then continue; fi
 
-    while read -r cluster; do
-      local cluster_region=$(echo "${cluster}" | jq -r '.region')
-      local cloud_provider=$(echo "${cluster}" | jq -r '.cloud_provider')
-      local cluster_name_from_json=$(echo "${cluster}" | jq -r '.name')
+    print_info "cloud=${cloud_provider} cluster_region=${cluster_region} cluster_id=${index} cluster_name=${cluster_name}"
+    print_terraform "addons/${addon}" \
+                    "${cloud_provider}-${index}-${cluster_region}" \
+                    "-var=cluster_id=${index} -var=cluster_region=${cluster_region}" \
+                    "outputs/terraform_outputs/terraform-${addon}-${cloud_provider}-${index}.json"
 
-      # [backwards compatibility] if name not set or empty, fall back to previous naming convention
-      local cluster_name=""
-      if [ -n "${cluster_name_from_json}" ] && [ "${cluster_name_from_json}" != "null" ]; then
-        cluster_name="${cloud_provider}-${cluster_name_from_json}"
-      else 
-        cluster_name="${cloud_provider}-${name_prefix}-${cluster_region}-${index}"
-      fi
-
-      print_info "cloud=${cloud_provider} cluster_region=${cluster_region} cluster_id=${index} cluster_name=${cluster_name}"
-      print_terraform "addons/${addon}" \
-                      "${cloud_provider}-${index}-${cluster_region}" \
-                      "-var=cluster_id=${index} -var=cluster_region=${cluster_region}" \
-                      "outputs/terraform_outputs/terraform-${addon}-${cloud_provider}-${index}.json"
-
-      cd "addons/${cloud_provider}/${addon}"
-      terraform workspace new ${cloud_provider}-${index}-${cluster_region} || true
-      terraform workspace select ${cloud_provider}-${index}-${cluster_region}
-      terraform init
-      terraform apply ${TERRAFORM_APPLY_ARGS} -var-file="../../../${JSON_TFVARS}" -var=cluster_id=${index} -var=cluster_region=${cluster_region}
-      terraform output ${TERRAFORM_OUTPUT_ARGS} | jq . > ../../../outputs/terraform_outputs/terraform-${addon}-${cloud_provider}-${index}.json
-      terraform workspace select default
-      index=$((index+1))
-      cd "../../.."
-    done < <(echo "${clusters}")
-  done
+    cd "addons/${cloud_provider}/${addon}"
+    terraform workspace new ${cloud_provider}-${index}-${cluster_region} || true
+    terraform workspace select ${cloud_provider}-${index}-${cluster_region}
+    terraform init
+    terraform apply ${TERRAFORM_APPLY_ARGS} -var-file="../../../${JSON_TFVARS}" -var=cluster_id=${index} -var=cluster_region=${cluster_region}
+    terraform output ${TERRAFORM_OUTPUT_ARGS} | jq . > ../../../outputs/terraform_outputs/terraform-${addon}-${cloud_provider}-${index}.json
+    terraform workspace select default
+    index=$((index+1))
+    cd "../../.."
+  done < <(echo "${clusters}")
 }
 
 function destroy_addon_cloud_specific() {
@@ -369,43 +351,36 @@ function destroy_addon_cloud_specific() {
   local addon=${1}
 
   # Process both mp_cluster (index 0) and cp_clusters (index 1...n)
-  for cluster_type in mp_cluster cp_clusters; do
-    if [ "${cluster_type}" == "mp_cluster" ]; then
-      local clusters=$(jq -c ".${cluster_type}" ${JSON_TFVARS})
+  local clusters=$(jq -c '.mp_cluster, .cp_clusters[]' ${JSON_TFVARS})
+
+  while read -r cluster; do
+    local cluster_region=$(echo "${cluster}" | jq -r '.region')
+    local cloud_provider=$(echo "${cluster}" | jq -r '.cloud_provider')
+    local cluster_name_from_json=$(echo "${cluster}" | jq -r '.name')
+
+    # [backwards compatibility] if name not set or empty, fall back to previous naming convention
+    local cluster_name=""
+    if [ -n "${cluster_name_from_json}" ] && [ "${cluster_name_from_json}" != "null" ]; then
+      cluster_name="${cloud_provider}-${cluster_name_from_json}"
     else
-      local clusters=$(jq -c ".${cluster_type}[]" ${JSON_TFVARS})
+      cluster_name="${cloud_provider}-${name_prefix}-${cluster_region}-${index}"
     fi
-    if [ -z "${clusters}" ]; then continue; fi
 
-    while read -r cluster; do
-      local cluster_region=$(echo "${cluster}" | jq -r '.region')
-      local cloud_provider=$(echo "${cluster}" | jq -r '.cloud_provider')
-      local cluster_name_from_json=$(echo "${cluster}" | jq -r '.name')
+    print_info "cloud=${cloud_provider} cluster_region=${cluster_region} cluster_id=${index} cluster_name=${cluster_name}"
+    print_terraform "addons/${cloud_provider}/${addon}" \
+                    "${cloud_provider}-${index}-${cluster_region}" \
+                    "-var=cluster_id=${index} -var=cluster_region=${cluster_region}" \
+                    " "
 
-      # [backwards compatibility] if name not set or empty, fall back to previous naming convention
-      local cluster_name=""
-      if [ -n "${cluster_name_from_json}" ] && [ "${cluster_name_from_json}" != "null" ]; then
-        cluster_name="${cloud_provider}-${cluster_name_from_json}"
-      else 
-        cluster_name="${cloud_provider}-${name_prefix}-${cluster_region}-${index}"
-      fi
-
-      print_info "cloud=${cloud_provider} cluster_region=${cluster_region} cluster_id=${index} cluster_name=${cluster_name}"
-      print_terraform "addons/${cloud_provider}/${addon}" \
-                      "${cloud_provider}-${index}-${cluster_region}" \
-                      "-var=cluster_id=${index} -var=cluster_region=${cluster_region}" \
-                      " "
-
-      cd "addons/${cloud_provider}/${addon}"
-      terraform workspace new ${cloud_provider}-${index}-${cluster_region} || true
-      terraform workspace select ${cloud_provider}-${index}-${cluster_region}
-      terraform init
-      terraform destroy ${TERRAFORM_APPLY_ARGS} -var-file="../../../${JSON_TFVARS}" -var=cluster_id=${index} -var=cluster_region=${cluster_region}
-      terraform workspace select default
-      index=$((index+1))
-      cd "../../.."
-    done < <(echo "${clusters}")
-  done
+    cd "addons/${cloud_provider}/${addon}"
+    terraform workspace new ${cloud_provider}-${index}-${cluster_region} || true
+    terraform workspace select ${cloud_provider}-${index}-${cluster_region}
+    terraform init
+    terraform destroy ${TERRAFORM_APPLY_ARGS} -var-file="../../../${JSON_TFVARS}" -var=cluster_id=${index} -var=cluster_region=${cluster_region}
+    terraform workspace select default
+    index=$((index+1))
+    cd "../../.."
+  done < <(echo "${clusters}")
 }
 
 function destroy_remote() {
@@ -428,46 +403,39 @@ function destroy_k8s_clusters() {
   local name_prefix=$(jq -r '.name_prefix' ${JSON_TFVARS})
 
   # Process both mp_cluster (index 0) and cp_clusters (index 1...n)
-  for cluster_type in mp_cluster cp_clusters; do
-    if [ "${cluster_type}" == "mp_cluster" ]; then
-      local clusters=$(jq -c ".${cluster_type}" ${JSON_TFVARS})
+  local clusters=$(jq -c '.mp_cluster, .cp_clusters[]' ${JSON_TFVARS})
+
+  while read -r cluster; do
+    local cluster_region=$(echo "${cluster}" | jq -r '.region')
+    local cloud_provider=$(echo "${cluster}" | jq -r '.cloud_provider')
+    local cluster_name=""
+    local name_from_json=$(echo "${cluster}" | jq -r '.name')
+    # [backwards compatibility] if name not set or empty, fall back to previous naming convention
+    if [ -n "${name_from_json}" ] && [ "${name_from_json}" != "null" ]; then
+      cluster_name="${cloud_provider}-${name_from_json}"
     else
-      local clusters=$(jq -c ".${cluster_type}[]" ${JSON_TFVARS})
+      cluster_name="${cloud_provider}-${name_prefix}-${cluster_region}-${index}"
     fi
-    if [ -z "${clusters}" ]; then continue; fi
+    print_info "cloud=${cloud_provider} region=${cluster_region} zones=${zones} cluster_id=${index} cluster_name=${cluster_name}"
+    print_terraform "infra/${cloud_provider}" \
+                    "${cloud_provider}-${index}-${cluster_region}" \
+                    " -var=${cloud_provider}_k8s_region=${cluster_region} -var=cluster_id=${index} -var=cluster_name=${cluster_name}" \
+                    " "
 
-    while read -r cluster; do
-      local cluster_region=$(echo "${cluster}" | jq -r '.region')
-      local cloud_provider=$(echo "${cluster}" | jq -r '.cloud_provider')
-      local cluster_name=""
-      local name_from_json=$(echo "${cluster}" | jq -r '.name')
-      # [backwards compatibility] if name not set or empty, fall back to previous naming convention
-      if [ -n "${name_from_json}" ] && [ "${name_from_json}" != "null" ]; then
-        cluster_name="${cloud_provider}-${name_from_json}"
-      else 
-        cluster_name="${cloud_provider}-${name_prefix}-${cluster_region}-${index}"
-      fi
-      print_info "cloud=${cloud_provider} region=${cluster_region} zones=${zones} cluster_id=${index} cluster_name=${cluster_name}"
-      print_terraform "infra/${cloud_provider}" \
-                      "${cloud_provider}-${index}-${cluster_region}" \
-                      " -var=${cloud_provider}_k8s_region=${cluster_region} -var=cluster_id=${index} -var=cluster_name=${cluster_name}" \
-                      " "
-
-      cd "infra/${cloud_provider}"
-      if ! $(terraform workspace select ${cloud_provider}-${index}-${cluster_region} &>/dev/null) ; then
-        print_info "Workspace ${cloud_provider}-${index}-${cluster_region} no longer exist..."
-        index=$((index+1))
-        cd "../.."
-        continue
-      fi
-      terraform destroy ${TERRAFORM_DESTROY_ARGS} -var-file="../../${JSON_TFVARS}" -var=${cloud_provider}_k8s_region=${cluster_region} -var=cluster_id=${index} -var=cluster_name=${cluster_name}
-      terraform workspace select default
-      terraform workspace delete ${TERRAFORM_WORKSPACE_ARGS} ${cloud_provider}-${index}-${cluster_region}
-
+    cd "infra/${cloud_provider}"
+    if ! $(terraform workspace select ${cloud_provider}-${index}-${cluster_region} &>/dev/null) ; then
+      print_info "Workspace ${cloud_provider}-${index}-${cluster_region} no longer exist..."
       index=$((index+1))
       cd "../.."
-    done < <(echo "${clusters}")
-  done
+      continue
+    fi
+    terraform destroy ${TERRAFORM_DESTROY_ARGS} -var-file="../../${JSON_TFVARS}" -var=${cloud_provider}_k8s_region=${cluster_region} -var=cluster_id=${index} -var=cluster_name=${cluster_name}
+    terraform workspace select default
+    terraform workspace delete ${TERRAFORM_WORKSPACE_ARGS} ${cloud_provider}-${index}-${cluster_region}
+
+    index=$((index+1))
+    cd "../.."
+  done < <(echo "${clusters}")
 }
 
 
