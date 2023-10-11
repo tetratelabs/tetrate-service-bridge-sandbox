@@ -333,7 +333,7 @@ function deploy_addon_cloud_specific() {
                     "-var=cluster_id=${index} -var=cluster_region=${cluster_region}" \
                     "outputs/terraform_outputs/terraform-${addon}-${cloud_provider}-${index}.json"
 
-    cd "addons/${cloud_provider}/${addon}"
+    cd "addons/${addon}/${cloud_provider}"
     terraform workspace new ${cloud_provider}-${index}-${cluster_region} || true
     terraform workspace select ${cloud_provider}-${index}-${cluster_region}
     terraform init
@@ -372,7 +372,7 @@ function destroy_addon_cloud_specific() {
                     "-var=cluster_id=${index} -var=cluster_region=${cluster_region}" \
                     " "
 
-    cd "addons/${cloud_provider}/${addon}"
+    cd "addons/${addon}/${cloud_provider}"
     terraform workspace new ${cloud_provider}-${index}-${cluster_region} || true
     terraform workspace select ${cloud_provider}-${index}-${cluster_region}
     terraform init
