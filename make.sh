@@ -72,7 +72,7 @@ ${END}"
 # set -o xtrace
 
 function validate_json_structure() {
-  if ! jq -e '.cp_clusters[] | select(.cloud_provider and .name and .region and .version)' "$JSON_TFVARS" > /dev/null; then
+  if ! jq -e '.cp_clusters[] | select(has("cloud_provider") and has("name") and has("region") and has("version"))' "$JSON_TFVARS" > /dev/null; then
     print_error "Invalid structure in 'cp_clusters'. Ensure each cluster has 'cloud_provider', 'name', 'region' and 'version'."
     return 1
   fi
@@ -80,7 +80,7 @@ function validate_json_structure() {
     print_error "Invalid 'dns_provider' value. It should be 'aws', 'gcp', or 'azure'."
     return 1
   fi
-  if ! jq -e '.mp_cluster | select(.cloud_provider and .name and .region and .tier1 and .version)' "$JSON_TFVARS" > /dev/null; then
+  if ! jq -e '.mp_cluster | select(has("cloud_provider") and has("name") and has("region") and has("tier1") and has("version"))' "$JSON_TFVARS" > /dev/null; then
     print_error "Invalid structure in 'mp_cluster'. Ensure it has 'cloud_provider', 'name', 'region', 'tier1' and 'version'."
     return 1
   fi
@@ -88,7 +88,7 @@ function validate_json_structure() {
     print_error "Missing 'name_prefix' in the JSON."
     return 1
   fi
-  if ! jq -e '.tsb | select(.fqdn and .image_sync_apikey and .image_sync_username and .organisation and .password and .version)' "$JSON_TFVARS" > /dev/null; then
+  if ! jq -e '.tsb | select(has("fqdn") and has("image_sync_apikey") and has("image_sync_username") and has("organisation") and has("password") and has("version"))' "$JSON_TFVARS" > /dev/null; then
     print_error "Invalid structure in 'tsb'. Ensure it has 'fqdn', 'image_sync_apikey', 'image_sync_username', 'organisation', 'password', and 'version'."
     return 1
   fi
