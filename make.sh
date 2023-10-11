@@ -413,12 +413,14 @@ function destroy_k8s_clusters() {
 
   while read -r cluster; do
     local cluster_region=$(echo "${cluster}" | jq -r '.region')
+    local cluster_version=$(echo "${cluster}" | jq -r '.version')
     local cloud_provider=$(echo "${cluster}" | jq -r '.cloud_provider')
-    local cluster_name=""
-    local name_from_json=$(echo "${cluster}" | jq -r '.name')
+    local cluster_name_from_json=$(echo "${cluster}" | jq -r '.name')
+
     # [backwards compatibility] if name not set or empty, fall back to previous naming convention
-    if [ -n "${name_from_json}" ] && [ "${name_from_json}" != "null" ]; then
-      cluster_name="${cloud_provider}-${name_from_json}"
+    local cluster_name=""
+    if [ -n "${cluster_name_from_json}" ] && [ "${cluster_name_from_json}" != "null" ]; then
+      cluster_name="${cloud_provider}-${cluster_name_from_json}"
     else
       cluster_name="${cloud_provider}-${name_prefix}-${cluster_region}-${index}"
     fi
