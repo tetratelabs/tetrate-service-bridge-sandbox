@@ -12,6 +12,12 @@ variable "cluster_id" {
   type        = string
 }
 
+variable "cluster_name" {
+  default     = null
+  description = "Kubernetes cluster name"
+  type        = string
+}
+
 variable "cluster_region" {
   default     = null
   description = "Kubernetes cluster region"

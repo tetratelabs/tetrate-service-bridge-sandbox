@@ -172,14 +172,14 @@ function deploy_k8s_auths() {
     print_info "cloud_provider=${cloud_provider} cluster_id=${index} cluster_name=${cluster_name}" cluster_region=${cluster_region}
     print_terraform "infra/${cloud_provider}/k8s_auth" \
                     "${cloud_provider}-${index}-${cluster_region}" \
-                    "-var=cloud_provider=${cloud_provider} -var=cluster_id=${index} -var=cluster_region=${cluster_region}" \
+                    "-var=cloud_provider=${cloud_provider} -var=cluster_id=${index} -var=cluster_name=${cluster_name} -var=cluster_region=${cluster_region}" \
                     " "
 
     cd "infra/${cloud_provider}/k8s_auth"
     terraform workspace new "${cloud_provider}-${index}-${cluster_region}" || true
     terraform workspace select "${cloud_provider}-${index}-${cluster_region}"
     terraform init
-    terraform apply -refresh=false ${TERRAFORM_APPLY_ARGS} -var-file="../../../${JSON_TFVARS}" -var=cloud_provider=${cloud_provider} -var=cluster_id=${index} -var=cluster_region=${cluster_region}
+    terraform apply -refresh=false ${TERRAFORM_APPLY_ARGS} -var-file="../../../${JSON_TFVARS}" -var=cloud_provider=${cloud_provider} -var=cluster_id=${index} -var=cluster_name=${cluster_name} -var=cluster_region=${cluster_region}
     terraform workspace select default
 
     index=$((index+1))
