@@ -1,5 +1,8 @@
 # Copyright (c) Tetrate, Inc 2021 All Rights Reserved.
 
+# Environment configuration
+tfvars_json ?= terraform.tfvars.json
+
 # Default variables
 terraform_apply_args = -compact-warnings -auto-approve
 terraform_destroy_args = -compact-warnings -auto-approve 
@@ -20,6 +23,11 @@ help: Makefile ## This help
 .PHONY: init
 init:  ## Terraform init
 	@echo "Please refer to the latest instructions and terraform.tfvars.json file format at https://github.com/tetrateio/tetrate-service-bridge-sandbox#usage"
+
+
+.PHONY: validate
+validate:  ## Validate terraform input
+	export TFVARS_JSON=${tfvars_json} && ./make/validate.sh validate_input
 
 .PHONY: k8s
 k8s: azure_k8s aws_k8s gcp_k8s  ## Deploys k8s cluster for MP and N-number of CPs(*) 
