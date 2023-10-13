@@ -1,10 +1,22 @@
 #!/usr/bin/env bash
 #
 # Helper script to validate terraform input (avoid disaster).
-export BASE_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
-source ${BASE_DIR}/helpers.sh
+BASE_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
+export BASE_DIR
+
+# shellcheck source=/dev/null
+source "${BASE_DIR}/helpers.sh"
+# shellcheck source=/dev/null
+source "${BASE_DIR}/variables.sh"
 
 ACTION=${1}
+
+# Validate input values.
+SUPPORTED_ACTIONS=("validate_input")
+if ! [[ " ${SUPPORTED_ACTIONS[*]} " == *" ${ACTION} "* ]]; then
+  print_error "Invalid action. Must be one of '${SUPPORTED_ACTIONS[*]}'."
+  exit 1
+fi
 
 # This function provides help information for the script.
 function help() {
@@ -14,24 +26,6 @@ function help() {
   echo "  validate_input  Validate the structure of TFVAR JSON file."
 }
 
-# Check if the input parameters are correctly given.
-if [[ -z "${ACTION}" ]]; then
-  print_error "No command provided."
-  help
-  exit 1
-fi
-
-# Check if TFVARS_JSON is not defined and exit.
-if [ -z "${TFVARS_JSON}" ]; then
-  print_error "TFVARS_JSON is not defined."
-  exit 1
-fi
-
-# Check if the file pointed to by TFVARS_JSON does not exist and exit.
-if [ ! -f "${TFVARS_JSON}" ]; then
-  print_error "File '${TFVARS_JSON}' does not exist."
-  exit 1
-fi
 
 # This function is used to validate the structure of a JSON input based on a specific schema.
 # It checks for the presence and validity of the fields in the provided JSON.
@@ -39,13 +33,13 @@ fi
 # Parameters:
 #   $1 - The path to the JSON file to be validated.
 #
-# Usage: validate_tfvars_json "/path/to/your/json/file.json"
-function validate_tfvars_json() {
-  local json_tfvars="$1"
+# Usage: validate_input "/path/to/your/json/file.json"
+function validate_input() {
+  [[ -z "${1}" ]] && print_error "Please provide tfvar.json file as 1st argument" && return 1 || local json_tfvars="${1}" ;
 
   # Check if the file exists
   if [[ ! -f "${json_tfvars}" ]]; then
-    print_error "File ${json_tfvars} does not exist."
+    print_error "File '${json_tfvars}' does not exist."
     exit 1
   fi
 
@@ -133,7 +127,7 @@ function validate_tfvars_json() {
     return 1
   fi
 
-  print_info "JSON structure is valid."
+  print_info "JSON structure of '${json_tfvars}' is valid."
 }
 
 #
@@ -145,7 +139,7 @@ case "${ACTION}" in
     ;;
   validate_input)
     print_stage "Going to validate ${TFVARS_JSON} for correctness"
-    validate_tfvars_json "${TFVARS_JSON}" 
+    validate_input "${TFVARS_JSON}"
     ;;
   *)
     print_error "Invalid option. Use 'help' to see available commands."

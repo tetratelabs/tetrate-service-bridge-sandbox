@@ -1,13 +1,35 @@
 #!/usr/bin/env bash
 #
 # Helper script for addons: deploy and destroy of argocd, fluxcd, tsb-monitoring and external-dns.
+BASE_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
+export BASE_DIR
 
-export BASE_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
-source ${BASE_DIR}/helpers.sh
+# shellcheck source=/dev/null
+source "${BASE_DIR}/helpers.sh"
+# shellcheck source=/dev/null
+source "${BASE_DIR}/variables.sh"
 
 ACTION=${1}
 CLOUD_PROVIDER=${2}
 ADDON_NAME=${3}
+
+# Validate input values.
+SUPPORTED_ACTIONS=("deploy_infra" "destroy_infra" "refresh_token_k8s")
+if ! [[ " ${SUPPORTED_ACTIONS[*]} " == *" ${ACTION} "* ]]; then
+  print_error "Invalid action. Must be one of '${SUPPORTED_ACTIONS[*]}'."
+  exit 1
+fi
+SUPPORTED_CLOUDS=("azure" "aws" "gcp")
+if ! [[ " ${SUPPORTED_CLOUDS[*]} " == *" ${ACTION} "* ]]; then
+  print_error "Invalid cloud provider. Must be one of '${SUPPORTED_CLOUDS[*]}'."
+  exit 1
+fi
+SUPPORTED_ADDONS=("argocd" "fluxcd" "tsb-monitoring" "external-dns")
+if ! [[ " ${SUPPORTED_ADDONS[*]} " == *" ${ADDON_NAME} "* ]]; then
+  print_error "Invalid addon name. Must be one of '${SUPPORTED_ADDONS[*]}'."
+  exit 1
+fi
+
 
 # This function provides help information for the script.
 function help() {
@@ -18,38 +40,6 @@ function help() {
   echo "  destroy_addon <cloud_provider> <addon_name> Destroy addon on the specified cloud provider."
 }
 
-# Check if the input parameters are correctly given.
-if [[ -z "${ACTION}" ]]; then
-  print_error "No command provided."
-  help
-  exit 1
-fi
-
-# Check if TFVARS_JSON is not defined and exit.
-if [ -z "${TFVARS_JSON}" ]; then
-  print_error "TFVARS_JSON is not defined."
-  exit 1
-fi
-
-# Check if the file pointed to by TFVARS_JSON does not exist and exit.
-if [ ! -f "${TFVARS_JSON}" ]; then
-  print_error "File '${TFVARS_JSON}' does not exist."
-  exit 1
-fi
-
-# Validate input values.
-if [[ "${ACTION}" == "deploy_addon" || "${ACTION}" == "destroy_addon" ]]; then
-  if [[ "${CLOUD_PROVIDER}" != "azure" && "${CLOUD_PROVIDER}" != "aws" && "${CLOUD_PROVIDER}" != "gcp" ]]; then
-    print_error "Invalid cloud provider. Must be one of 'azure', 'aws', or 'gcp'."
-    exit 1
-  fi
-  if [[ "${ADDON_NAME}" != "argocd" && "${ADDON_NAME}" != "fluxcd" && "${ADDON_NAME}" != "tsb-monitoring" && "${ADDON_NAME}" != "external-dns" ]]; then
-    print_error "Invalid addon. Must be one of 'argocd', 'fluxcd', 'tsb-monitoring' or 'external-dns'."
-    exit 1
-  fi
-fi
-
-
 
 # This function deploys the specified addon on the specified cloud provider.
 #
@@ -59,9 +49,11 @@ fi
 #
 # Usage: deploy_addon "azure" "argocd"
 function deploy_addon() {
-  local cloud_provider=${1}
-  local addon_name=${2}
+  [[ -z "${1}" ]] && print_error "Please provide cloud provider as 1st argument" && return 1 || local cloud_provider="${1}" ;
+  [[ -z "${2}" ]] && print_error "Please provide addon name as 2nd argument" && return 1 || local addon_name="${2}" ;
+
   # Deployment logic here
+  print_info "Going to deploy addon '${addon_name}' on cloud '${cloud_provider}'"
 }
 
 # This function destroy the specified addon on the specified cloud provider.
@@ -72,9 +64,11 @@ function deploy_addon() {
 #
 # Usage: destroy_addon "azure" "argocd"
 function destroy_addon() {
-  local cloud_provider=${1}
-  local addon=${2}
+  [[ -z "${1}" ]] && print_error "Please provide cloud provider as 1st argument" && return 1 || local cloud_provider="${1}" ;
+  [[ -z "${2}" ]] && print_error "Please provide addon name as 2nd argument" && return 1 || local addon_name="${2}" ;
+
   # Destroy logic here
+  print_info "Going to destroy addon '${addon_name}' on cloud '${cloud_provider}'"
 }
 
 
