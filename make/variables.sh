@@ -23,14 +23,68 @@ fi
 # Output folder for deployment artifacts
 export OUTPUTS_DIR=${BASE_DIR}/../outputs
 
-# Terraform command line paramaters
+# Terraform command line variables
 export TERRAFORM_APPLY_ARGS="-compact-warnings -auto-approve"
 export TERRAFORM_DESTROY_ARGS="-compact-warnings -auto-approve"
 export TERRAFORM_WORKSPACE_ARGS="-force"
 export TERRAFORM_OUTPUT_ARGS="-json"
 
+# Required tfvars.json variables
+#   format: "<parameter>:<allowed_value1>,<allowed_value2>,..."
+export REQUIRED_VARS=(
+  "aws_k8s_regions:"
+  "azure_k8s_regions:"
+  "dns_provider:aws,azure,gcp"
+  "gcp_k8s_regions:"
+  "name_prefix:"
+  "tetrate_owner:"
+  "tetrate_team:"
+  "tsb_fqdn:"
+  "tsb_image_sync_apikey:"
+  "tsb_image_sync_username:"
+  "tsb_mp.cloud:aws,azure,gcp"
+  "tsb_mp.cluster_id:"
+  "tsb_org:"
+  "tsb_password:"
+  "tsb_version:"
+  )
 
-# Parse tfvar.json and export variables
+# This function is used to validate the structure of a JSON input based on a specific schema.
+# It checks for the presence and validity of the fields in the provided JSON.
+#
+# Parameters:
+#   $1 - The path to the JSON file to be validated.
+#
+# Usage: validate_input "/path/to/your/json/file.tfvars.json"
+function validate_input() {
+  [[ -z "${1}" ]] && print_error "Please provide tfvar.json file as 1st argument" && return 1 || local json_tfvars="${1}" ;
+
+  # Check if the file exists
+  if [[ ! -f "${json_tfvars}" ]]; then
+    print_error "File '${json_tfvars}' does not exist."
+    exit 1
+  fi
+
+  # Validate individual fields
+  for item in "${REQUIRED_VARS[@]}"; do
+    variable="${item%%:*}" ; # Extracts everything before the colon
+    allowed_values="${item##*:}" ; # Extracts everything after the colon
+    current_value=$(jq -r ".${variable}" "${json_tfvars}")
+    if [[ -z "${current_value}" ]]; then
+        echo "Missing ${variable} in the JSON.";
+    fi
+    if [[ -n "${allowed_values}" ]] && ! [[ "${allowed_values}" =~ .*"${current_value}".* ]] ; then
+        print_error "Validation error: ${variable} is set to the incorrect value: '${current_value}', allowed values: '${allowed_values}'\n";
+    fi
+  done
+
+  print_info "JSON structure of '${json_tfvars}' is valid."
+}
+
+# Validate input values
+validate_input "${TFVARS_JSON}"
+
+# Parse tfvars.json and export variables
 AWS_K8S_REGIONS=$(jq -r '.aws_k8s_regions | join(" ")' "${TFVARS_JSON}")
 export AWS_K8S_REGIONS
 AZURE_K8S_REGIONS=$(jq -r '.azure_k8s_regions | join(" ")' "${TFVARS_JSON}")

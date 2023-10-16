@@ -14,13 +14,13 @@ CLOUD_PROVIDER=${2}
 ADDON_NAME=${3}
 
 # Validate input values.
-SUPPORTED_ACTIONS=("deploy_infra" "destroy_infra" "refresh_token_k8s")
+SUPPORTED_ACTIONS=("deploy_addon" "destroy_addon")
 if ! [[ " ${SUPPORTED_ACTIONS[*]} " == *" ${ACTION} "* ]]; then
   print_error "Invalid action. Must be one of '${SUPPORTED_ACTIONS[*]}'."
   exit 1
 fi
 SUPPORTED_CLOUDS=("azure" "aws" "gcp")
-if ! [[ " ${SUPPORTED_CLOUDS[*]} " == *" ${ACTION} "* ]]; then
+if ! [[ " ${SUPPORTED_CLOUDS[*]} " == *" ${CLOUD_PROVIDER} "* ]]; then
   print_error "Invalid cloud provider. Must be one of '${SUPPORTED_CLOUDS[*]}'."
   exit 1
 fi

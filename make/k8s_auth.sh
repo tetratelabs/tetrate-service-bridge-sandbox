@@ -20,7 +20,7 @@ if ! [[ " ${SUPPORTED_ACTIONS[*]} " == *" ${ACTION} "* ]]; then
   exit 1
 fi
 SUPPORTED_CLOUDS=("azure" "aws" "gcp")
-if ! [[ " ${SUPPORTED_CLOUDS[*]} " == *" ${ACTION} "* ]]; then
+if ! [[ " ${SUPPORTED_CLOUDS[*]} " == *" ${CLOUD_PROVIDER} "* ]]; then
   print_error "Invalid cloud provider. Must be one of '${SUPPORTED_CLOUDS[*]}'."
   exit 1
 fi
