@@ -34,7 +34,7 @@ export TERRAFORM_OUTPUT_ARGS="-json"
 export REQUIRED_VARS=(
   "aws_k8s_regions:"
   "azure_k8s_regions:"
-  "dns_provider:aws,azure,gcp"
+  "dns_provider:null,aws,azure,gcp"
   "gcp_k8s_regions:"
   "name_prefix:"
   "tetrate_owner:"
