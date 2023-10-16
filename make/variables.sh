@@ -34,7 +34,6 @@ export TERRAFORM_OUTPUT_ARGS="-json"
 export REQUIRED_VARS=(
   "aws_k8s_regions:"
   "azure_k8s_regions:"
-  "dns_provider:null,aws,azure,gcp"
   "gcp_k8s_regions:"
   "name_prefix:"
   "tetrate_owner:"
@@ -70,11 +69,13 @@ function validate_input() {
     variable="${item%%:*}" ; # Extracts everything before the colon
     allowed_values="${item##*:}" ; # Extracts everything after the colon
     current_value=$(jq -r ".${variable}" "${json_tfvars}")
-    if [[ -z "${current_value}" ]]; then
+    if [[ "${current_value}" == "null" ]]; then
         echo "Missing ${variable} in the JSON.";
+        exit 1;
     fi
     if [[ -n "${allowed_values}" ]] && ! [[ "${allowed_values}" =~ .*"${current_value}".* ]] ; then
         print_error "Validation error: ${variable} is set to the incorrect value: '${current_value}', allowed values: '${allowed_values}'\n";
+        exit 1;
     fi
   done
 
