@@ -70,6 +70,7 @@ function deploy_addon_per_region() {
   if ! [[ " ${SUPPORTED_REGIONAL_ADDONS[*]} " == *" ${addon_name} "* ]]; then print_error "Invalid regional addon. Must be one of '${SUPPORTED_REGIONAL_ADDONS[*]}'." ; return 1 ; fi
 
   print_info "Going to deploy regional addon '${addon_name}' on cloud '${cloud_provider}'"
+  source ${BASE_DIR}/k8s_auth.sh k8s_auth_${cloud_provider}
   set -e
 
   local index=0
@@ -79,19 +80,19 @@ function deploy_addon_per_region() {
     echo cloud="${cloud_provider} region=${region} cluster_id=${index} cluster_name=${cluster_name}"
 
     if [[ "${addon_name}" == "external-dns" ]]; then
-      run_or_print "pushd addons/${cloud_provider}/${addon_name} > /dev/null"
+      run "pushd addons/${cloud_provider}/${addon_name} > /dev/null"
       root_path="../../.."
     else
-      run_or_print "pushd addons/${addon_name} > /dev/null"
+      run "pushd addons/${addon_name} > /dev/null"
       root_path="../.."
     fi
-    run_or_print "terraform workspace new ${cloud_provider}-${index}-${region} || true"
-    run_or_print "terraform workspace select ${cloud_provider}-${index}-${region}"
-    run_or_print "terraform init"
-    run_or_print "terraform apply ${TERRAFORM_APPLY_ARGS} -var-file=${root_path}/${TFVARS_JSON} -var=cloud=${cloud_provider} -var=cluster_id=${index}"
-    run_or_print "terraform output ${TERRAFORM_OUTPUT_ARGS} | jq . > ${root_path}/outputs/terraform_outputs/terraform-${addon_name}-${cloud}-${index}.json"
-    run_or_print "terraform workspace select default"
-    run_or_print "popd > /dev/null"
+    run "terraform workspace new ${cloud_provider}-${index}-${region} || true"
+    run "terraform workspace select ${cloud_provider}-${index}-${region}"
+    run "terraform init"
+    run "terraform apply ${TERRAFORM_APPLY_ARGS} -var-file=${root_path}/${TFVARS_JSON} -var=cloud=${cloud_provider} -var=cluster_id=${index}"
+    run "terraform output ${TERRAFORM_OUTPUT_ARGS} | jq . > ${root_path}/outputs/terraform_outputs/terraform-${addon_name}-${cloud}-${index}.json"
+    run "terraform workspace select default"
+    run "popd > /dev/null"
     
     index=$((index+1))
   done < <(jq -r ".${cloud_provider}_k8s_regions[]" "${TFVARS_JSON}")
@@ -106,19 +107,21 @@ function deploy_addon_per_region() {
 #
 # Usage: deploy_addon_global "tsb-monitoring"
 function deploy_addon_global() {
-  [[ -z "${1}" ]] && print_error "Please provide regional addon name as 1st argument" && return 1 || local addon_name="${1}" ;
+  [[ -z "${1}" ]] && print_error "Please provide global addon name as 1st argument" && return 1 || local addon_name="${1}" ;
   if ! [[ " ${SUPPORTED_GLOBAL_ADDONS[*]} " == *" ${addon_name} "* ]]; then print_error "Invalid global addon. Must be one of '${SUPPORTED_GLOBAL_ADDONS[*]}'." ; return 1 ; fi
 
   print_info "Going to deploy global addon '${addon_name}'"
+  local cloud_provider=$(jq -r '.tsb_mp.cloud' "${TFVARS_JSON}")
+  source ${BASE_DIR}/k8s_auth.sh k8s_auth_${cloud_provider}
   set -e
 
-  run_or_print "pushd addons/${addon_name} > /dev/null"
-  run_or_print "terraform workspace select default"
-  run_or_print "terraform init"
-  run_or_print "terraform apply ${TERRAFORM_APPLY_ARGS} -var-file=../../${TFVARS_JSON}"
-  run_or_print "terraform output ${TERRAFORM_OUTPUT_ARGS} | jq . > ../../outputs/terraform_outputs/terraform-${addon_name}.json"
-  run_or_print "terraform workspace select default"
-  run_or_print "popd > /dev/null"
+  run "pushd addons/${addon_name} > /dev/null"
+  run "terraform workspace select default"
+  run "terraform init"
+  run "terraform apply ${TERRAFORM_APPLY_ARGS} -var-file=../../${TFVARS_JSON}"
+  run "terraform output ${TERRAFORM_OUTPUT_ARGS} | jq . > ../../outputs/terraform_outputs/terraform-${addon_name}.json"
+  run "terraform workspace select default"
+  run "popd > /dev/null"
 
   print_info "Finished deploying global addon '${addon_name}'"
 }
@@ -137,6 +140,7 @@ function destroy_addon_per_region() {
   if ! [[ " ${SUPPORTED_REGIONAL_ADDONS[*]} " == *" ${addon_name} "* ]]; then print_error "Invalid regional addon. Must be one of '${SUPPORTED_REGIONAL_ADDONS[*]}'." ; return 1 ; fi
 
   print_info "Going to destroy regional addon '${addon_name}' on cloud '${cloud_provider}'"
+  source ${BASE_DIR}/k8s_auth.sh k8s_auth_${cloud_provider}
   set -e
 
   local index=0
@@ -146,19 +150,19 @@ function destroy_addon_per_region() {
     echo cloud="${cloud_provider} region=${region} cluster_id=${index} cluster_name=${cluster_name}"
 
     if [[ "${addon_name}" == "external-dns" ]]; then
-      run_or_print "pushd addons/${cloud_provider}/${addon_name} > /dev/null"
+      run "pushd addons/${cloud_provider}/${addon_name} > /dev/null"
       root_path="../../.."
     else
-      run_or_print "pushd addons/${addon_name} > /dev/null"
+      run "pushd addons/${addon_name} > /dev/null"
       root_path="../.."
     fi
-    run_or_print "terraform workspace new ${cloud_provider}-${index}-${region} || true"
-    run_or_print "terraform workspace select ${cloud_provider}-${index}-${region}"
-    run_or_print "terraform init"
-    run_or_print "terraform destroy ${TERRAFORM_DESTROY_ARGS} -var-file=${root_path}/${TFVARS_JSON} -var=cloud=${cloud_provider} -var=cluster_id=${index}"
-    run_or_print "terraform workspace select default"
-    run_or_print "terraform workspace delete ${TERRAFORM_WORKSPACE_ARGS} ${cloud_provider}-${index}-${region}"
-    run_or_print "popd > /dev/null"
+    run "terraform workspace new ${cloud_provider}-${index}-${region} || true"
+    run "terraform workspace select ${cloud_provider}-${index}-${region}"
+    run "terraform init"
+    run "terraform destroy ${TERRAFORM_DESTROY_ARGS} -var-file=${root_path}/${TFVARS_JSON} -var=cloud=${cloud_provider} -var=cluster_id=${index}"
+    run "terraform workspace select default"
+    run "terraform workspace delete ${TERRAFORM_WORKSPACE_ARGS} ${cloud_provider}-${index}-${region}"
+    run "popd > /dev/null"
 
     index=$((index+1))
   done < <(jq -r ".${cloud_provider}_k8s_regions[]" "${TFVARS_JSON}")
@@ -166,7 +170,6 @@ function destroy_addon_per_region() {
   print_info "Finished destroying regional addon '${addon_name}' on cloud '${cloud_provider}'"
 
 }
-
 
 # This function destroys the specified addon globally.
 #
@@ -179,14 +182,16 @@ function destroy_addon_global() {
   if ! [[ " ${SUPPORTED_GLOBAL_ADDONS[*]} " == *" ${addon_name} "* ]]; then print_error "Invalid global addon. Must be one of '${SUPPORTED_GLOBAL_ADDONS[*]}'." ; return 1 ; fi
 
   print_info "Going to destroy global addon '${addon_name}'"
+  local cloud_provider=$(jq -r '.tsb_mp.cloud' "${TFVARS_JSON}")
+  source ${BASE_DIR}/k8s_auth.sh k8s_auth_${cloud_provider}
   set -e
 
-  run_or_print "pushd addons/${addon_name} > /dev/null"
-  run_or_print "terraform workspace select default"
-  run_or_print "terraform init"
-  run_or_print "terraform destroy ${TERRAFORM_DESTROY_ARGS} -var-file=../../${TFVARS_JSON}"
-  run_or_print "terraform workspace select default"
-  run_or_print "popd > /dev/null"
+  run "pushd addons/${addon_name} > /dev/null"
+  run "terraform workspace select default"
+  run "terraform init"
+  run "terraform destroy ${TERRAFORM_DESTROY_ARGS} -var-file=../../${TFVARS_JSON}"
+  run "terraform workspace select default"
+  run "popd > /dev/null"
 
   print_info "Finished destroying global addon '${addon_name}'"
 }

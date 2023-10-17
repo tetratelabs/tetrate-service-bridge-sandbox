@@ -50,13 +50,13 @@ function refresh_token_k8s() {
     cluster_name="${cloud_provider}-${name_prefix}-${region}-${index}"
     echo cloud="${cloud_provider} region=${region} cluster_id=${index} cluster_name=${cluster_name}"
     
-    run_or_print "pushd infra/${cloud_provider}/k8s_auth > /dev/null"
-    run_or_print "terraform workspace new ${cloud_provider}-${index}-${region} || true"
-    run_or_print "terraform workspace select ${cloud_provider}-${index}-${region}"
-    run_or_print "terraform init"
-    run_or_print "terraform apply ${TERRAFORM_APPLY_ARGS} -refresh=false -var-file=../../../${TFVARS_JSON} -var=${cloud_provider}_k8s_region=${region} -var=cluster_id=${index}"
-    run_or_print "terraform workspace select default"
-    run_or_print "popd > /dev/null"
+    run "pushd infra/${cloud_provider}/k8s_auth > /dev/null"
+    run "terraform workspace new ${cloud_provider}-${index}-${region} || true"
+    run "terraform workspace select ${cloud_provider}-${index}-${region}"
+    run "terraform init"
+    run "terraform apply ${TERRAFORM_APPLY_ARGS} -refresh=false -var-file=../../../${TFVARS_JSON} -var=${cloud_provider}_k8s_region=${region} -var=cluster_id=${index}"
+    run "terraform workspace select default"
+    run "popd > /dev/null"
 
     index=$((index+1))
   done < <(jq -r ".${cloud_provider}_k8s_regions[]" "${TFVARS_JSON}")

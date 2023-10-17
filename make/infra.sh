@@ -55,15 +55,15 @@ function deploy_infra() {
     cluster_name="${cloud_provider}-${name_prefix}-${region}-${index}"
     echo cloud="${cloud_provider} region=${region} cluster_id=${index} cluster_name=${cluster_name}"
 
-    run_or_print "pushd infra/${cloud_provider} > /dev/null"
-    run_or_print "terraform workspace new ${cloud_provider}-${index}-${region} || true"
-    run_or_print "terraform workspace select ${cloud_provider}-${index}-${region}"
-    run_or_print "terraform init"
-    run_or_print "terraform apply ${TERRAFORM_APPLY_ARGS} -target module.${cloud_provider}_base -var-file=../../${TFVARS_JSON} -var=${cloud_provider}_k8s_region=${region} -var=cluster_name=${cluster_name} -var=cluster_id=${index}"
-    run_or_print "terraform apply ${TERRAFORM_APPLY_ARGS} -var-file=../../${TFVARS_JSON} -var=${cloud_provider}_k8s_region=${region} -var=cluster_name=${cluster_name} -var=cluster_id=${index}"
-    run_or_print "terraform output ${TERRAFORM_OUTPUT_ARGS} | jq . > ../../outputs/terraform_outputs/terraform-${cloud_provider}-${cluster_name}-${index}.json"
-    run_or_print "terraform workspace select default"
-    run_or_print "popd > /dev/null"
+    run "pushd infra/${cloud_provider} > /dev/null"
+    run "terraform workspace new ${cloud_provider}-${index}-${region} || true"
+    run "terraform workspace select ${cloud_provider}-${index}-${region}"
+    run "terraform init"
+    run "terraform apply ${TERRAFORM_APPLY_ARGS} -target module.${cloud_provider}_base -var-file=../../${TFVARS_JSON} -var=${cloud_provider}_k8s_region=${region} -var=cluster_name=${cluster_name} -var=cluster_id=${index}"
+    run "terraform apply ${TERRAFORM_APPLY_ARGS} -var-file=../../${TFVARS_JSON} -var=${cloud_provider}_k8s_region=${region} -var=cluster_name=${cluster_name} -var=cluster_id=${index}"
+    run "terraform output ${TERRAFORM_OUTPUT_ARGS} | jq . > ../../outputs/terraform_outputs/terraform-${cloud_provider}-${cluster_name}-${index}.json"
+    run "terraform workspace select default"
+    run "popd > /dev/null"
 
     index=$((index+1))
   done < <(jq -r ".${cloud_provider}_k8s_regions[]" "${TFVARS_JSON}")
@@ -92,12 +92,12 @@ function destroy_infra() {
     cluster_name="${cloud_provider}-${name_prefix}-${region}-${index}"
     echo "cloud=${cloud_provider} region=${region} cluster_id=${index} cluster_name=${cluster_name}"
 
-    run_or_print "cd infra/${cloud_provider}"
-    run_or_print "terraform workspace select ${cloud_provider}-${index}-${region}"
-    run_or_print "terraform destroy ${TERRAFORM_DESTROY_ARGS} -var-file=../../${TFVARS_JSON} -var=${cloud_provider}_k8s_region=${region} -var=cluster_id=${index} -var=cluster_name=${cluster_name}"
-    run_or_print "terraform workspace select default"
-    run_or_print "terraform workspace delete ${TERRAFORM_WORKSPACE_ARGS} ${cloud_provider}-${index}-${region}"
-    run_or_print "cd ../.."
+    run "cd infra/${cloud_provider}"
+    run "terraform workspace select ${cloud_provider}-${index}-${region}"
+    run "terraform destroy ${TERRAFORM_DESTROY_ARGS} -var-file=../../${TFVARS_JSON} -var=${cloud_provider}_k8s_region=${region} -var=cluster_id=${index} -var=cluster_name=${cluster_name}"
+    run "terraform workspace select default"
+    run "terraform workspace delete ${TERRAFORM_WORKSPACE_ARGS} ${cloud_provider}-${index}-${region}"
+    run "cd ../.."
 
     index=$((index+1))
   done < <(jq -r ".${cloud_provider}_k8s_regions[]" "${TFVARS_JSON}")

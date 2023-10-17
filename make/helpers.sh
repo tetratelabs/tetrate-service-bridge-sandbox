@@ -149,9 +149,9 @@ function print_stage {
 #   $@ - The command and its arguments to be executed or printed.
 #
 # Usage:
-#   run_or_print cd "directory/path"
-#   run_or_print terraform apply "arguments"
-function run_or_print() {
+#   run cd "directory/path"
+#   run terraform apply "arguments"
+function run() {
   if ${DRY_RUN}; then
     printf "%s\n" "$*"
   else

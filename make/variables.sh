@@ -29,6 +29,11 @@ export TERRAFORM_DESTROY_ARGS="-compact-warnings -auto-approve"
 export TERRAFORM_WORKSPACE_ARGS="-force"
 export TERRAFORM_OUTPUT_ARGS="-json"
 
+# Terraform environment variables
+if [ -z "${TF_LOG}" ]; then
+  export TF_LOG="ERROR"
+fi
+
 # Required tfvars.json variables
 #   format: "<parameter>:<allowed_value1>,<allowed_value2>,..."
 export REQUIRED_VARS=(

@@ -35,7 +35,7 @@ function help() {
 function destroy_tfstate() {
   set -e
   print_info "Going to destroy terraform tfstate"
-  run_or_print "find . -name *tfstate* -exec rm -rf {} +"
+  run "find . -name *tfstate* -exec rm -rf {} +"
   print_info "Finished destroying terraform tfstate"
 }
 
@@ -45,8 +45,8 @@ function destroy_tfstate() {
 function destroy_tfcache() {
   set -e
   print_info "Going to destroy terraform tfcache"
-  run_or_print "find . -name .terraform -exec rm -rf {} +"
-  run_or_print "find . -name .terraform.lock.hcl -delete"
+  run "find . -name .terraform -exec rm -rf {} +"
+  run "find . -name .terraform.lock.hcl -delete"
   print_info "Finished destroying terraform tfcache"
 }
 
@@ -56,8 +56,8 @@ function destroy_tfcache() {
 function destroy_outputs() {
   set -e
   print_info "Going to destroy terraform output artifacts"
-	run_or_print "rm -f outputs/*-kubeconfig.sh outputs/*-jumpbox.sh outputs/*-kubeconfig outputs/*.jwk outputs/*.pem outputs/*-cleanup.sh"
-	run_or_print "rm -f outputs/terraform_outputs/*.json"
+	run "rm -f outputs/*-kubeconfig.sh outputs/*-jumpbox.sh outputs/*-kubeconfig outputs/*.jwk outputs/*.pem outputs/*-cleanup.sh"
+	run "rm -f outputs/terraform_outputs/*.json"
   print_info "Finished destroying terraform output artifacts"
 }
 
