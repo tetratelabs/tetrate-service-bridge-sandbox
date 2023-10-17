@@ -71,10 +71,12 @@ function validate_input() {
     allowed_values="${item##*:}" ; # Extracts everything after the colon
     current_value=$(jq -r ".${variable}" "${json_tfvars}")
     if [[ -z "${current_value}" ]]; then
-        echo "Missing ${variable} in the JSON.";
+      print_error "Missing ${variable} in the JSON.";
+      exit 1
     fi
     if [[ -n "${allowed_values}" ]] && ! [[ "${allowed_values}" =~ .*"${current_value}".* ]] ; then
-        print_error "Validation error: ${variable} is set to the incorrect value: '${current_value}', allowed values: '${allowed_values}'\n";
+      print_error "Validation error: ${variable} is set to the incorrect value: '${current_value}', allowed values: '${allowed_values}'\n";
+      exit 1
     fi
   done
 

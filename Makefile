@@ -1,6 +1,7 @@
 # Copyright (c) Tetrate, Inc 2021 All Rights Reserved.
 
 # Environment configuration
+dry_run     ?= true
 tfvars_json ?= terraform.tfvars.json
 
 # Default variables
@@ -22,76 +23,26 @@ help: Makefile ## This help
 
 .PHONY: init
 init:  ## Terraform init
-	@/bin/sh -c "export TFVARS_JSON=${tfvars_json} && ./make/variables.sh"
+	@/bin/sh -c "export TFVARS_JSON="${tfvars_json}" && ./make/variables.sh"
 	@echo "Please refer to the latest instructions and terraform.tfvars.json file format at https://github.com/tetrateio/tetrate-service-bridge-sandbox#usage"
 
-.PHONY: k8s
-k8s: azure_k8s aws_k8s gcp_k8s  ## Deploys k8s cluster for MP and N-number of CPs(*) 
 
-.PHONY: azure_k8s
-azure_k8s: init  ## Deploys azure k8s cluster for MP and N-number of CPs(*) leveraging AKS
-	@/bin/sh -c '\
-		set -e; \
-		index=0; \
-		name_prefix=`jq -r '.name_prefix' terraform.tfvars.json`; \
-		jq -r '.azure_k8s_regions[]' terraform.tfvars.json | while read -r region; do \
-		cluster_name="aks-$$name_prefix-$$region-$$index"; \
-		echo "cloud=azure region=$$region cluster_id=$$index cluster_name=$$cluster_name"; \
-		cd "infra/azure"; \
-		terraform workspace new azure-$$index-$$region || true; \
-		terraform workspace select azure-$$index-$$region; \
-		terraform init; \
-		terraform apply ${terraform_apply_args} -target module.azure_base -var-file="../../terraform.tfvars.json" -var=azure_k8s_region=$$region -var=cluster_name=$$cluster_name -var=cluster_id=$$index; \
-		terraform apply ${terraform_apply_args} -var-file="../../terraform.tfvars.json" -var=azure_k8s_region=$$region -var=cluster_name=$$cluster_name -var=cluster_id=$$index; \
-		terraform output ${terraform_output_args} | jq . > ../../outputs/terraform_outputs/terraform-azure-$$cluster_name-$$index.json; \
-		terraform workspace select default; \
-		index=$$((index+1)); \
-		cd "../.."; \
-		done; \
-		'
+.PHONY: k8s
+k8s: aws_k8s azure_k8s gcp_k8s  ## Deploys cloud infra and k8s clusters for MP and N-number of CPs
 
 .PHONY: aws_k8s
-aws_k8s: init  ## Deploys EKS K8s cluster (CPs only)
-	@/bin/sh -c '\
-		set -e; \
-		index=0; \
-		name_prefix=`jq -r '.name_prefix' terraform.tfvars.json`; \
-		jq -r '.aws_k8s_regions[]' terraform.tfvars.json | while read -r region; do \
-		cluster_name="eks-$$name_prefix-$$region-$$index"; \
-		echo "cloud=aws region=$$region cluster_id=$$index cluster_name=$$cluster_name"; \
-		cd "infra/aws"; \
-		terraform workspace new aws-$$index-$$region || true; \
-		terraform workspace select aws-$$index-$$region; \
-		terraform init; \
-		terraform apply ${terraform_apply_args} -var-file="../../terraform.tfvars.json" -var=aws_k8s_region=$$region -var=cluster_name=$$cluster_name -var=cluster_id=$$index; \
-		terraform output ${terraform_output_args} | jq . > ../../outputs/terraform_outputs/terraform-aws-$$cluster_name-$$index.json; \
-		terraform workspace select default; \
-		index=$$((index+1)); \
-		cd "../.."; \
-		done; \
-		'
+aws_k8s: init  ## Deploys aws infra and eks k8s clusters for MP and N-number of CPs
+	@/bin/sh -c 'export DRY_RUN="${dry_run}" TFVARS_JSON="${tfvars_json}" && ./make/infra.sh aws_k8s'
+
+.PHONY: azure_k8s
+azure_k8s: init  ## Deploys azure infra and aks k8s clusters for MP and N-number of CPs
+	@/bin/sh -c 'export DRY_RUN="${dry_run}" TFVARS_JSON="${tfvars_json}" && ./make/infra.sh azure_k8s'
 
 .PHONY: gcp_k8s
-gcp_k8s: init  ## Deploys GKE K8s cluster (CPs only)
-	@/bin/sh -c '\
-		set -e; \
-		index=0; \
-		name_prefix=`jq -r '.name_prefix' terraform.tfvars.json`; \
-		jq -r '.gcp_k8s_regions[]' terraform.tfvars.json | while read -r region; do \
-		cluster_name="gke-$$name_prefix-$$region-$$index"; \
-		echo "cloud=gcp region=$$region cluster_id=$$index cluster_name=$$cluster_name"; \
-		cd "infra/gcp"; \
-		terraform workspace new gcp-$$index-$$region || true; \
-		terraform workspace select gcp-$$index-$$region; \
-		terraform init; \
-		terraform apply ${terraform_apply_args} -target module.gcp_base -var-file="../../terraform.tfvars.json" -var=gcp_k8s_region=$$region -var=cluster_name=$$cluster_name -var=cluster_id=$$index; \
-		terraform apply ${terraform_apply_args} -var-file="../../terraform.tfvars.json" -var=gcp_k8s_region=$$region -var=cluster_name=$$cluster_name -var=cluster_id=$$index; \
-		terraform output ${terraform_output_args} | jq . > ../../outputs/terraform_outputs/terraform-gcp-$$cluster_name-$$index.json; \
-		terraform workspace select default; \
-		index=$$((index+1)); \
-		cd "../.."; \
-		done; \
-		'
+gcp_k8s: init  ## Deploys gcp infra and gke k8s clusters for MP and N-number of CPs
+	@/bin/sh -c 'export DRY_RUN="${dry_run}" TFVARS_JSON="${tfvars_json}" && ./make/infra.sh gcp_k8s'
+
+
 
 .PHONY: k8s_auth
 k8s_auth: k8s_auth_gcp k8s_auth_aws k8s_auth_azure  ## Refreshes k8s auth token
@@ -287,22 +238,18 @@ destroy_local:  ## Destroy the local Terraform state and cache
 	@$(MAKE) destroy_tfcache
 	@$(MAKE) destroy_outputs
 
-destroy_%:
-	@/bin/sh -c '\
-		index=0; \
-		name_prefix=`jq -r '.name_prefix' terraform.tfvars.json`; \
-		jq -r '.$*_k8s_regions[]' terraform.tfvars.json | while read -r region; do \
-		echo "cloud=$* region=$$region cluster_id=$$index"; \
-		cd "infra/$*"; \
-		terraform workspace select $*-$$index-$$region; \
-		cluster_name=`terraform output cluster_name | jq . -r`; \
-		terraform destroy ${terraform_destroy_args} -var-file="../../terraform.tfvars.json" -var=$*_k8s_region=$$region -var=cluster_id=$$index -var=cluster_name=$$cluster_name; \
-		terraform workspace select default; \
-		terraform workspace delete ${terraform_workspace_args} $*-$$index-$$region; \
-		index=$$((index+1)); \
-		cd "../.."; \
-		done; \
-		'
+
+.PHONY: destroy_aws
+destroy_aws:  ## Destroy aws infra and eks k8s clusters
+	@/bin/sh -c 'export DRY_RUN="${dry_run}" TFVARS_JSON="${tfvars_json}" && ./make/infra.sh destroy_aws'
+
+.PHONY: destroy_azure
+destroy_azure:  ## Destroy azure infra and aks k8s clusters
+	@/bin/sh -c 'export DRY_RUN="${dry_run}" TFVARS_JSON="${tfvars_json}" && ./make/infra.sh destroy_azure'
+
+.PHONY: destroy_gcp
+destroy_gcp:  ## Destroy gcp infra and gke k8s clusters
+	@/bin/sh -c 'export DRY_RUN="${dry_run}" TFVARS_JSON="${tfvars_json}" && ./make/infra.sh destroy_gcp'
 
 .PHONY: destroy_tfstate
 destroy_tfstate:
