@@ -25,9 +25,13 @@ fi
 function help() {
   echo "Usage: $0 <command> [options]"
   echo "Commands:"
-  echo "  help                           Display this help message."
-  echo "  deploy_infra  <cloud_provider> Deploy infrastructure on the specified cloud provider."
-  echo "  destroy_infra <cloud_provider> Destroy infrastructure on the specified cloud provider."
+  echo "  help            Display this help message."
+  echo "  aws_k8s         Deploy infrastructure on aws."
+  echo "  azure_k8s       Deploy infrastructure on azure."
+  echo "  gcp_k8s         Deploy infrastructure on gcp."
+  echo "  destroy_aws     Destroy infrastructure on aws."
+  echo "  destroy_azure   Destroy infrastructure on azure."
+  echo "  destroy_gcp     Destroy infrastructure on gcp."
 }
 
 # This function deploys infra on the specified cloud provider.
@@ -43,14 +47,14 @@ function deploy_infra() {
   print_info "Going to deploy infra on cloud '${cloud_provider}'"
   set -e
 
-  index=0
-  name_prefix=$(jq -r '.name_prefix' "${TFVARS_JSON}")
+  local index=0
+  local name_prefix=$(jq -r '.name_prefix' "${TFVARS_JSON}")
 
   while read -r region; do
     cluster_name="${cloud_provider}-${name_prefix}-${region}-${index}"
     echo cloud="${cloud_provider} region=${region} cluster_id=${index} cluster_name=${cluster_name}"
 
-    run_or_print "cd infra/${cloud_provider}"
+    run_or_print "pushd infra/${cloud_provider} > /dev/null"
     run_or_print "terraform workspace new ${cloud_provider}-${index}-${region} || true"
     run_or_print "terraform workspace select ${cloud_provider}-${index}-${region}"
     run_or_print "terraform init"
@@ -58,7 +62,7 @@ function deploy_infra() {
     run_or_print "terraform apply ${TERRAFORM_APPLY_ARGS} -var-file=../../terraform.tfvars.json -var=${cloud_provider}_k8s_region=${region} -var=cluster_name=${cluster_name} -var=cluster_id=${index}"
     run_or_print "terraform output ${TERRAFORM_OUTPUT_ARGS} | jq . > ../../outputs/terraform_outputs/terraform-${cloud_provider}-${cluster_name}-${index}.json"
     run_or_print "terraform workspace select default"
-    run_or_print "cd ../.."
+    run_or_print "popd > /dev/null"
 
     index=$((index+1))
   done < <(jq -r ".${cloud_provider}_k8s_regions[]" "${TFVARS_JSON}")

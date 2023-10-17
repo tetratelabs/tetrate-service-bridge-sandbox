@@ -29,40 +29,16 @@ init:  ## Terraform init
 
 .PHONY: k8s
 k8s: aws_k8s azure_k8s gcp_k8s  ## Deploys cloud infra and k8s clusters for MP and N-number of CPs
-
-.PHONY: aws_k8s
-aws_k8s: init  ## Deploys aws infra and eks k8s clusters for MP and N-number of CPs
-	@/bin/sh -c 'export DRY_RUN="${dry_run}" TFVARS_JSON="${tfvars_json}" && ./make/infra.sh aws_k8s'
-
-.PHONY: azure_k8s
-azure_k8s: init  ## Deploys azure infra and aks k8s clusters for MP and N-number of CPs
-	@/bin/sh -c 'export DRY_RUN="${dry_run}" TFVARS_JSON="${tfvars_json}" && ./make/infra.sh azure_k8s'
-
-.PHONY: gcp_k8s
-gcp_k8s: init  ## Deploys gcp infra and gke k8s clusters for MP and N-number of CPs
-	@/bin/sh -c 'export DRY_RUN="${dry_run}" TFVARS_JSON="${tfvars_json}" && ./make/infra.sh gcp_k8s'
-
+%_k8s: init
+	@/bin/sh -c 'export DRY_RUN="${dry_run}" TFVARS_JSON="${tfvars_json}" && ./make/infra.sh $*_k8s'
 
 
 .PHONY: k8s_auth
-k8s_auth: k8s_auth_gcp k8s_auth_aws k8s_auth_azure  ## Refreshes k8s auth token
+k8s_auth: k8s_auth_aws k8s_auth_azure k8s_auth_gcp   ## Refreshes k8s auth token
 k8s_auth_%:
-	@echo "Refreshing k8s_auth..."
-	@/bin/sh -c '\
-		set -e; \
-		index=0; \
-		jq -r '.$*_k8s_regions[]' terraform.tfvars.json | while read -r region; do \
-		echo "cloud=$* region=$$region cluster_id=$$index"; \
-		cd "infra/$*/k8s_auth"; \
-		terraform workspace new $*-$$index-$$region || true; \
-		terraform workspace select $*-$$index-$$region; \
-		terraform init; \
-		terraform apply -refresh=false ${terraform_apply_args} -var-file="../../../terraform.tfvars.json" -var=$*_k8s_region=$$region -var=cluster_id=$$index; \
-		terraform workspace select default; \
-		index=$$((index+1)); \
-		cd "../../.."; \
-		done; \
-		'
+	@/bin/sh -c 'export DRY_RUN="${dry_run}" TFVARS_JSON="${tfvars_json}" && ./make/k8s_auth.sh k8s_auth_$*'
+
+
 
 .PHONY: tsb_mp
 tsb_mp:  ## Deploys MP
