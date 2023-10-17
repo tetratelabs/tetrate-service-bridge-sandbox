@@ -1,13 +1,9 @@
 # Copyright (c) Tetrate, Inc 2021 All Rights Reserved.
 
 # Environment configuration
+dry_run     ?= false
 tfvars_json ?= terraform.tfvars.json
-
-# Default variables
-terraform_apply_args = -compact-warnings -auto-approve
-terraform_destroy_args = -compact-warnings -auto-approve 
-terraform_workspace_args = -force
-terraform_output_args = -json
+tf_log			?= "ERROR"
 
 # Functions
 .DEFAULT_GOAL := help
@@ -18,302 +14,94 @@ all: tsb
 .PHONY: help
 help: Makefile ## This help
 	@awk 'BEGIN {FS = ":.*##"; printf "Usage:\n"} \
-			/^[.a-zA-Z0-9_-]+:.*?##/ { printf "  \033[36mmake %-15s\033[0m %s\n", $$1, $$2 }' $(MAKEFILE_LIST)
+			/^[.a-zA-Z0-9_-]+:.*?##/ { printf "  \033[36mmake %-25s\033[0m %s\n", $$1, $$2 }' $(MAKEFILE_LIST)
 
 .PHONY: init
 init:  ## Terraform init
-	@/bin/sh -c "export TFVARS_JSON=${tfvars_json} && ./make/variables.sh"
+	@/bin/sh -c "export TFVARS_JSON="${tfvars_json}" && ./make/variables.sh"
 	@echo "Please refer to the latest instructions and terraform.tfvars.json file format at https://github.com/tetrateio/tetrate-service-bridge-sandbox#usage"
 
 .PHONY: k8s
-k8s: azure_k8s aws_k8s gcp_k8s  ## Deploys k8s cluster for MP and N-number of CPs(*) 
-
-.PHONY: azure_k8s
-azure_k8s: init  ## Deploys azure k8s cluster for MP and N-number of CPs(*) leveraging AKS
-	@/bin/sh -c '\
-		set -e; \
-		index=0; \
-		name_prefix=`jq -r '.name_prefix' terraform.tfvars.json`; \
-		jq -r '.azure_k8s_regions[]' terraform.tfvars.json | while read -r region; do \
-		cluster_name="aks-$$name_prefix-$$region-$$index"; \
-		echo "cloud=azure region=$$region cluster_id=$$index cluster_name=$$cluster_name"; \
-		cd "infra/azure"; \
-		terraform workspace new azure-$$index-$$region || true; \
-		terraform workspace select azure-$$index-$$region; \
-		terraform init; \
-		terraform apply ${terraform_apply_args} -target module.azure_base -var-file="../../terraform.tfvars.json" -var=azure_k8s_region=$$region -var=cluster_name=$$cluster_name -var=cluster_id=$$index; \
-		terraform apply ${terraform_apply_args} -var-file="../../terraform.tfvars.json" -var=azure_k8s_region=$$region -var=cluster_name=$$cluster_name -var=cluster_id=$$index; \
-		terraform output ${terraform_output_args} | jq . > ../../outputs/terraform_outputs/terraform-azure-$$cluster_name-$$index.json; \
-		terraform workspace select default; \
-		index=$$((index+1)); \
-		cd "../.."; \
-		done; \
-		'
-
-.PHONY: aws_k8s
-aws_k8s: init  ## Deploys EKS K8s cluster (CPs only)
-	@/bin/sh -c '\
-		set -e; \
-		index=0; \
-		name_prefix=`jq -r '.name_prefix' terraform.tfvars.json`; \
-		jq -r '.aws_k8s_regions[]' terraform.tfvars.json | while read -r region; do \
-		cluster_name="eks-$$name_prefix-$$region-$$index"; \
-		echo "cloud=aws region=$$region cluster_id=$$index cluster_name=$$cluster_name"; \
-		cd "infra/aws"; \
-		terraform workspace new aws-$$index-$$region || true; \
-		terraform workspace select aws-$$index-$$region; \
-		terraform init; \
-		terraform apply ${terraform_apply_args} -var-file="../../terraform.tfvars.json" -var=aws_k8s_region=$$region -var=cluster_name=$$cluster_name -var=cluster_id=$$index; \
-		terraform output ${terraform_output_args} | jq . > ../../outputs/terraform_outputs/terraform-aws-$$cluster_name-$$index.json; \
-		terraform workspace select default; \
-		index=$$((index+1)); \
-		cd "../.."; \
-		done; \
-		'
-
-.PHONY: gcp_k8s
-gcp_k8s: init  ## Deploys GKE K8s cluster (CPs only)
-	@/bin/sh -c '\
-		set -e; \
-		index=0; \
-		name_prefix=`jq -r '.name_prefix' terraform.tfvars.json`; \
-		jq -r '.gcp_k8s_regions[]' terraform.tfvars.json | while read -r region; do \
-		cluster_name="gke-$$name_prefix-$$region-$$index"; \
-		echo "cloud=gcp region=$$region cluster_id=$$index cluster_name=$$cluster_name"; \
-		cd "infra/gcp"; \
-		terraform workspace new gcp-$$index-$$region || true; \
-		terraform workspace select gcp-$$index-$$region; \
-		terraform init; \
-		terraform apply ${terraform_apply_args} -target module.gcp_base -var-file="../../terraform.tfvars.json" -var=gcp_k8s_region=$$region -var=cluster_name=$$cluster_name -var=cluster_id=$$index; \
-		terraform apply ${terraform_apply_args} -var-file="../../terraform.tfvars.json" -var=gcp_k8s_region=$$region -var=cluster_name=$$cluster_name -var=cluster_id=$$index; \
-		terraform output ${terraform_output_args} | jq . > ../../outputs/terraform_outputs/terraform-gcp-$$cluster_name-$$index.json; \
-		terraform workspace select default; \
-		index=$$((index+1)); \
-		cd "../.."; \
-		done; \
-		'
-
-.PHONY: k8s_auth
-k8s_auth: k8s_auth_gcp k8s_auth_aws k8s_auth_azure  ## Refreshes k8s auth token
-k8s_auth_%:
-	@echo "Refreshing k8s_auth..."
-	@/bin/sh -c '\
-		set -e; \
-		index=0; \
-		jq -r '.$*_k8s_regions[]' terraform.tfvars.json | while read -r region; do \
-		echo "cloud=$* region=$$region cluster_id=$$index"; \
-		cd "infra/$*/k8s_auth"; \
-		terraform workspace new $*-$$index-$$region || true; \
-		terraform workspace select $*-$$index-$$region; \
-		terraform init; \
-		terraform apply -refresh=false ${terraform_apply_args} -var-file="../../../terraform.tfvars.json" -var=$*_k8s_region=$$region -var=cluster_id=$$index; \
-		terraform workspace select default; \
-		index=$$((index+1)); \
-		cd "../../.."; \
-		done; \
-		'
+k8s: aws_k8s azure_k8s gcp_k8s  ## Deploys cloud infra and k8s clusters for MP and N-number of CPs
+%_k8s: init
+	@/bin/sh -c 'export DRY_RUN="${dry_run}" TF_LOG="${tf_log}" TFVARS_JSON="${tfvars_json}" && ./make/infra.sh $*_k8s'
 
 .PHONY: tsb_mp
-tsb_mp:  ## Deploys MP
-	@echo "Refreshing k8s access tokens..."
-	@$(MAKE) k8s_auth
-	@echo "Deploying TSB Management Plane..."
-	@/bin/sh -c '\
-		set -e; \
-		cloud=`jq -r '.tsb_mp.cloud' terraform.tfvars.json`; \
-		dns_provider=`jq -r '.dns_provider' terraform.tfvars.json`; \
-		[ "$$dns_provider" == "null" ] && dns_provider=`jq -r '.tsb_fqdn' terraform.tfvars.json | cut -d"." -f2 | sed 's/sandbox/gcp/g'`; \
-		cd "tsb/mp"; \
-		terraform workspace select default; \
-		terraform init; \
-		terraform apply ${terraform_apply_args} -target=module.cert-manager -target=module.es -target="data.terraform_remote_state.infra" -var-file="../../terraform.tfvars.json"; \
-		terraform apply ${terraform_apply_args} -target=module.tsb_mp.kubectl_manifest.manifests_certs -target="data.terraform_remote_state.infra" -var-file="../../terraform.tfvars.json"; \
-		terraform apply ${terraform_apply_args} -var-file="../../terraform.tfvars.json"; \
-		terraform output ${terraform_output_args} | jq . > ../../outputs/terraform_outputs/terraform-tsb-mp.json; \
-		fqdn=`jq -r '.tsb_fqdn' ../../terraform.tfvars.json`; \
-		address=`jq -r "if .ingress_ip.value != \"\" then .ingress_ip.value else .ingress_hostname.value end" ../../outputs/terraform_outputs/terraform-tsb-mp.json`; \
-		terraform -chdir=../fqdn/$$dns_provider init; \
-		terraform -chdir=../fqdn/$$dns_provider apply ${terraform_apply_args} -var-file="../../../terraform.tfvars.json" -var=address=$$address -var=fqdn=$$fqdn; \
-		terraform workspace select default; \
-		cd "../.."; \
-		'
+tsb_mp:  ## Onboards TSB Management Plane
+	@echo "Onboarding TSB Management Plane..."
+	@/bin/sh -c 'export DRY_RUN="${dry_run}" TF_LOG="${tf_log}" TFVARS_JSON="${tfvars_json}" && ./make/tsb.sh tsb_mp'
 
 .PHONY: tsb_cp
-tsb_cp: tsb_cp_aws tsb_cp_azure tsb_cp_gcp ## Onboards Control Plane clusters
+tsb_cp: tsb_cp_aws tsb_cp_azure tsb_cp_gcp ## Onboards TSB Control and Data Plane
 tsb_cp_%:
-	@echo "Onboarding clusters, i.e. TSB CP rollouts..."
-	@$(MAKE) k8s_auth_$*
-	@/bin/sh -c '\
-		set -e; \
-		index=0; \
-		jq -r '.$*_k8s_regions[]' terraform.tfvars.json | while read -r region; do \
-		echo "cloud=$* region=$$region cluster_id=$$index"; \
-		cd "tsb/cp"; \
-		terraform workspace new $*-$$index-$$region || true; \
-		terraform workspace select $*-$$index-$$region; \
-		terraform init; \
-		terraform apply ${terraform_apply_args} -var-file="../../terraform.tfvars.json" -var=cloud=$* -var=cluster_id=$$index; \
-		terraform workspace select default; \
-		index=$$((index+1)); \
-		cd "../.."; \
-		done; \
-		'
+	@echo "Onboarding TSB Control and Data Plane on cloud $*..."
+	@/bin/sh -c 'export DRY_RUN="${dry_run}" TF_LOG="${tf_log}" TFVARS_JSON="${tfvars_json}" && ./make/tsb.sh tsb_cp_$*'
 
 .PHONY: tsb
-tsb: k8s tsb_mp tsb_cp  ## Deploys a full environment (MP+CP)
+tsb: k8s tsb_mp tsb_cp  ## Deploys full environment (MP+CP)
 	@echo "Magic is on the way..."
 
 .PHONY: argocd
 argocd: argocd_aws argocd_azure argocd_gcp ## Deploys ArgoCD
 argocd_%:
-	@echo "Deploying ArgoCD..."
-	@$(MAKE) k8s_auth_$*
-	@/bin/sh -c '\
-		set -e; \
-		index=0; \
-		jq -r '.$*_k8s_regions[]' terraform.tfvars.json | while read -r region; do \
-		echo "cloud=$* region=$$region cluster_id=$$index"; \
-		cd "addons/argocd"; \
-		terraform workspace new $*-$$index-$$region || true; \
-		terraform workspace select $*-$$index-$$region; \
-		terraform init; \
-		terraform apply ${terraform_apply_args} -var-file="../../terraform.tfvars.json" -var=cloud=$* -var=cluster_id=$$index; \
-		terraform output ${terraform_output_args} | jq . > ../../outputs/terraform_outputs/terraform-argocd-$*-$$index.json; \
-		terraform workspace select default; \
-		index=$$((index+1)); \
-		cd "../.."; \
-		done; \
-		'
+	@echo "Deploying ArgoCD on cloud $*..."
+	@/bin/sh -c 'export DRY_RUN="${dry_run}" TF_LOG="${tf_log}" TFVARS_JSON="${tfvars_json}" && ./make/addon.sh argocd_$*'
 
 .PHONY: fluxcd
-fluxcd: fluxcd_aws fluxcd_azure fluxcd_gcp ## Deploys ArgoCD
+fluxcd: fluxcd_aws fluxcd_azure fluxcd_gcp ## Deploys FluxCD
 fluxcd_%:
-	@echo "Deploying FluxCD..."
-	@$(MAKE) k8s_auth_$*
-	@/bin/sh -c '\
-		set -e; \
-		index=0; \
-		jq -r '.$*_k8s_regions[]' terraform.tfvars.json | while read -r region; do \
-		echo "cloud=$* region=$$region cluster_id=$$index"; \
-		cd "addons/fluxcd"; \
-		terraform workspace new $*-$$index-$$region || true; \
-		terraform workspace select $*-$$index-$$region; \
-		terraform init; \
-		terraform apply ${terraform_apply_args} -var-file="../../terraform.tfvars.json" -var=cloud=$* -var=cluster_id=$$index; \
-		terraform output ${terraform_output_args} | jq . > ../../outputs/terraform_outputs/terraform-fluxcd-$*-$$index.json; \
-		terraform workspace select default; \
-		index=$$((index+1)); \
-		cd "../.."; \
-		done; \
-		'
+	@echo "Deploying FluxCD on cloud $*..."
+	@/bin/sh -c 'export DRY_RUN="${dry_run}" TF_LOG="${tf_log}" TFVARS_JSON="${tfvars_json}" && ./make/addon.sh fluxcd_$*'
 
-.PHONY: tsb-monitoring
-tsb-monitoring:  ## Deploys the TSB monitoring stack
-	@echo "Deploying TSB monitoring stack..."
-	@$(MAKE) k8s_auth
-	@/bin/sh -c '\
-		set -e; \
-		cd "addons/tsb-monitoring"; \
-		terraform workspace select default; \
-		terraform init; \
-		terraform apply ${terraform_apply_args} -var-file="../../terraform.tfvars.json"; \
-		terraform output ${terraform_output_args} | jq . > ../../outputs/terraform_outputs/terraform-tsb-monitoring.json; \
-		terraform workspace select default; \
-		cd "../.."; \
-		'
+.PHONY: tsb_monitoring
+tsb_monitoring:  ## Deploys TSB monitoring stack
+	@echo "Deploying TSB Monitoring"
+	@/bin/sh -c 'export DRY_RUN="${dry_run}" TF_LOG="${tf_log}" TFVARS_JSON="${tfvars_json}" && ./make/addon.sh tsb_monitoring'
 
 .PHONY: external-dns
-external-dns: external-dns_aws external-dns_azure external-dns_gcp ## Deploys external-dns
-external-dns_%:
-	@echo "Deploying external-dns..."
-	@$(MAKE) k8s_auth_$*
-	@/bin/sh -c '\
-		set -e; \
-		index=0; \
-		jq -r '.$*_k8s_regions[]' terraform.tfvars.json | while read -r region; do \
-		echo "cloud=$* region=$$region cluster_id=$$index"; \
-		cd "addons/$*/external-dns"; \
-		terraform workspace new $*-$$index-$$region || true; \
-		terraform workspace select $*-$$index-$$region; \
-		terraform init; \
-		terraform apply ${terraform_apply_args} -var-file="../../../terraform.tfvars.json" -var=cloud=$* -var=cluster_id=$$index; \
-		terraform workspace select default; \
-		index=$$((index+1)); \
-		cd "../../.."; \
-		done; \
-		'
+external_dns: external_dns_aws external_dns_azure external_dns_gcp ## Deploys External DNS
+external_dns_%:
+	@echo "Deploying External DNS on cloud $*..."
+	@/bin/sh -c 'export DRY_RUN="${dry_run}" TF_LOG="${tf_log}" TFVARS_JSON="${tfvars_json}" && ./make/addon.sh external_dns_$*'
 
-destroy_external-dns: destroy_external-dns_aws destroy_external-dns_azure destroy_external-dns_gcp ## Destroys external-dns
-destroy_external-dns_%:
-	@echo "Deploying external-dns..."
-	@$(MAKE) k8s_auth_$*
-	@/bin/sh -c '\
-		index=0; \
-		jq -r '.$*_k8s_regions[]' terraform.tfvars.json | while read -r region; do \
-		echo "cloud=$* region=$$region cluster_id=$$index"; \
-		cd "addons/$*/external-dns"; \
-		terraform workspace new $*-$$index-$$region || true; \
-		terraform workspace select $*-$$index-$$region; \
-		terraform init; \
-		terraform destroy ${terraform_apply_args} -var-file="../../../terraform.tfvars.json" -var=cloud=$* -var=cluster_id=$$index; \
-		terraform workspace select default; \
-		index=$$((index+1)); \
-		cd "../../.."; \
-		done; \
-		'
+destroy_external_dns: destroy_external_dns_aws destroy_external_dns_azure destroy_external_dns_gcp ## Destroy External DNS
+destroy_external_dns_%:
+	@echo "Destroying External DNS on cloud $*..."
+	@/bin/sh -c 'export DRY_RUN="${dry_run}" TF_LOG="${tf_log}" TFVARS_JSON="${tfvars_json}" && ./make/addon.sh destroy_external_dns_$*'
 
 .PHONY: destroy
-destroy: destroy_remote destroy_local
+destroy: destroy_remote destroy_local ## Destroy environment and local terraform state, cache and output artifacts
 
 .PHONY: destroy_remote
-destroy_remote:  ## Destroy the environment
-	@/bin/sh -c '\
-		cloud=`jq -r '.tsb_mp.cloud' terraform.tfvars.json`; \
-		fqdn=`jq -r '.tsb_fqdn' terraform.tfvars.json`; \
-		address=`jq -r "if .ingress_ip.value != \"\" then .ingress_ip.value else .ingress_hostname.value end" outputs/terraform_outputs/terraform-tsb-mp.json`; \
-		cd "tsb/fqdn/$$cloud"; \
-		terraform init; \
-		terraform destroy ${terraform_apply_args} -var-file="../../../terraform.tfvars.json" -var=address=$$address -var=fqdn=$$fqdn; \
-		rm -rf terraform.tfstate.d/; \
-		rm -rf terraform.tfstate; \
-		cd "../../.."; \
-		'
-	@$(MAKE) destroy_external-dns
-	@$(MAKE) destroy_aws destroy_azure destroy_gcp
+destroy_remote:  ## Destroy environment
+	@echo "Destroy TSB Management Plane FQDN..."
+	@/bin/sh -c 'export DRY_RUN="${dry_run}" TF_LOG="${tf_log}" TFVARS_JSON="${tfvars_json}" && ./make/tsb.sh destroy_remote'
+	@$(MAKE) destroy_external_dns
+	@$(MAKE) destroy_infra
 
 .PHONY: destroy_local
-destroy_local:  ## Destroy the local Terraform state and cache
+destroy_local:  ## Destroy local Terraform state, cache and output artifacts
 	@$(MAKE) destroy_tfstate
 	@$(MAKE) destroy_tfcache
 	@$(MAKE) destroy_outputs
 
-destroy_%:
-	@/bin/sh -c '\
-		index=0; \
-		name_prefix=`jq -r '.name_prefix' terraform.tfvars.json`; \
-		jq -r '.$*_k8s_regions[]' terraform.tfvars.json | while read -r region; do \
-		echo "cloud=$* region=$$region cluster_id=$$index"; \
-		cd "infra/$*"; \
-		terraform workspace select $*-$$index-$$region; \
-		cluster_name=`terraform output cluster_name | jq . -r`; \
-		terraform destroy ${terraform_destroy_args} -var-file="../../terraform.tfvars.json" -var=$*_k8s_region=$$region -var=cluster_id=$$index -var=cluster_name=$$cluster_name; \
-		terraform workspace select default; \
-		terraform workspace delete ${terraform_workspace_args} $*-$$index-$$region; \
-		index=$$((index+1)); \
-		cd "../.."; \
-		done; \
-		'
+.PHONY: destroy_infra
+destroy_infra: destroy_infra_aws destroy_infra_azure destroy_infra_gcp  ## Destroy cloud infra
+destroy_infra_%: 
+	@echo "Destroy $* infrastructure..."
+	@/bin/sh -c 'export DRY_RUN="${dry_run}" TF_LOG="${tf_log}" TFVARS_JSON="${tfvars_json}" && ./make/infra.sh destroy_$*'
 
 .PHONY: destroy_tfstate
 destroy_tfstate:
-	find . -name *tfstate* -exec rm -rf {} +
+	@echo "Destroy terraform tfstate..."
+	@/bin/sh -c 'export DRY_RUN="${dry_run}" TF_LOG="${tf_log}" TFVARS_JSON="${tfvars_json}" && ./make/destroy.sh destroy_tfstate'
 
 .PHONY: destroy_tfcache
 destroy_tfcache:
-	find . -name .terraform -exec rm -rf {} +
-	find . -name .terraform.lock.hcl -delete
+	@echo "Destroy terraform tfcache..."
+	@/bin/sh -c 'export DRY_RUN="${dry_run}" TF_LOG="${tf_log}" TFVARS_JSON="${tfvars_json}" && ./make/destroy.sh destroy_tfcache'
 
 .PHONY: destroy_outputs
 destroy_outputs:
-	rm -f outputs/*-kubeconfig.sh outputs/*-jumpbox.sh outputs/*-kubeconfig outputs/*.jwk outputs/*.pem outputs/*-cleanup.sh
-	rm -f outputs/terraform_outputs/*.json
+	@echo "Destroy terraform output artifacts..."
+	@/bin/sh -c 'export DRY_RUN="${dry_run}" TF_LOG="${tf_log}" TFVARS_JSON="${tfvars_json}" && ./make/destroy.sh destroy_outputs'

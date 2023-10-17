@@ -130,7 +130,6 @@ function print_command {
   echo -e "${LIGHTBLUE_B}${1}${END}"
 }
 
-
 # This function is used to print stage messages to the console.
 # It displays the message in bold blue color.
 # 
@@ -140,4 +139,22 @@ function print_command {
 # Usage: print_stage "Your stage here"
 function print_stage {
   echo -e "${BLUE_B}${1}${END}"
+}
+
+# This function is used to either execute a given command or print it to the console.
+# The behavior is determined by the DRY_RUN flag. If DRY_RUN is set to true, the function
+# will print the command without executing it. Otherwise, it will execute the command.
+#
+# Parameters:
+#   $@ - The command and its arguments to be executed or printed.
+#
+# Usage:
+#   run cd "directory/path"
+#   run terraform apply "arguments"
+function run() {
+  if ${DRY_RUN}; then
+    printf "%s\n" "$*"
+  else
+    eval "$@"
+  fi
 }
