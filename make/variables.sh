@@ -122,3 +122,9 @@ TSB_PASSWORD=$(jq -r '.tsb_password' "${TFVARS_JSON}")
 export TSB_PASSWORD
 TSB_VERSION=$(jq -r '.tsb_version' "${TFVARS_JSON}")
 export TSB_VERSION
+EXTERNAL_DNS_AWS_DNS_ZONE=$(jq -r '.external_dns_aws_dns_zone' "${TFVARS_JSON}")
+export EXTERNAL_DNS_AWS_DNS_ZONE
+EXTERNAL_DNS_AZURE_DNS_ZONE=$(jq -r '.external_dns_azure_dns_zone' "${TFVARS_JSON}")
+export EXTERNAL_DNS_AZURE_DNS_ZONE
+EXTERNAL_DNS_GCP_DNS_ZONE=$(jq -r '.external_dns_gcp_dns_zone' "${TFVARS_JSON}")
+export EXTERNAL_DNS_GCP_DNS_ZONE
