@@ -74,6 +74,7 @@ function deploy_addon_per_region() {
   set -e
 
   local index=0
+  local name_prefix=$(jq -r '.name_prefix' "${TFVARS_JSON}")
 
   while read -r region; do
     cluster_name="${cloud_provider}-${name_prefix}-${region}-${index}"
@@ -82,6 +83,13 @@ function deploy_addon_per_region() {
     if [[ "${addon_name}" == "external-dns" ]]; then
       run "pushd addons/${cloud_provider}/${addon_name} > /dev/null"
       root_path="../../.."
+      # Dynamic variable lookup based on $cloud_provider value, e.g. aws to AWS to get to EXTERNAL_DNS_AWS_DNS_ZONE
+      CLOUD_PROVIDER=$(echo "$cloud_provider" | tr 'a-z' 'A-Z')
+      local external_dns_cloud_provider_dns_zone="EXTERNAL_DNS_${CLOUD_PROVIDER}_DNS_ZONE"
+      if [[ -n "${!external_dns_cloud_provider_dns_zone}" ]]; then
+        print_error "Missing $(echo "$external_dns_cloud_provider_dns_zone" | tr 'A-Z' 'a-z') variable in the JSON... skipping external-dns zone setup for cloud=${cloud_provider} region=${region} cluster_id=${index} cluster_name=${cluster_name}"
+        continue
+      fi
     else
       run "pushd addons/${addon_name} > /dev/null"
       root_path="../.."
@@ -152,6 +160,13 @@ function destroy_addon_per_region() {
     if [[ "${addon_name}" == "external-dns" ]]; then
       run "pushd addons/${cloud_provider}/${addon_name} > /dev/null"
       root_path="../../.."
+      # Dynamic variable lookup based on $cloud_provider value, e.g. aws to AWS to get to EXTERNAL_DNS_AWS_DNS_ZONE
+      CLOUD_PROVIDER=$(echo "$cloud_provider" | tr 'a-z' 'A-Z')
+      local external_dns_cloud_provider_dns_zone="EXTERNAL_DNS_${CLOUD_PROVIDER}_DNS_ZONE"
+      if [[ -n "${!external_dns_cloud_provider_dns_zone}" ]]; then
+        print_error "Missing $(echo "$external_dns_cloud_provider_dns_zone" | tr 'A-Z' 'a-z') variable in the JSON... skipping external-dns zone setup for cloud=${cloud_provider} region=${region} cluster_id=${index} cluster_name=${cluster_name}"
+        continue
+      fi
     else
       run "pushd addons/${addon_name} > /dev/null"
       root_path="../.."
