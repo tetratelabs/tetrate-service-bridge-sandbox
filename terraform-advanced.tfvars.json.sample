@@ -1,0 +1,60 @@
+{
+  "k8s_clusters": {
+    "aws": [
+      {
+        "name": "aws-mp",
+        "region": "eu-west-1",
+        "version": "1.27",
+        "tetrate": {
+          "management_plane": true,
+          "control_plane": true
+        },
+        "addons": {
+          "argocd": {
+            "enabled": true
+          },
+          "external-dns": {
+            "enabled": true,
+            "dns_zone": "aws-se.sandbox.tetrate.io"
+          },
+          "tsb-monitoring": {
+            "enabled": true
+          }
+        }
+      }
+    ],
+    "azure": [
+      {
+        "name": "azure-cp",
+        "region": "westeurope",
+        "version": "1.27",
+        "tetrate": {
+          "control_plane": true
+        }
+      }
+    ],
+    "gcp": [
+      {
+        "name": "gcp-cp",
+        "region": "europe-west1",
+        "version": "1.27",
+        "tetrate": {
+          "control_plane": true
+        }
+      }
+    ]
+  },
+  "name_prefix": "<YOUR UNIQUE PREFIX NAME TO BE CREATED>",
+  "tags": {
+    "tetrate_owner": "Change me! (https://github.com/tetrateio/tetrate/blob/master/cloud/docs/misc/tags.md)",
+    "tetrate_team": "Change me! (https://github.com/tetrateio/tetrate/blob/master/cloud/docs/misc/tags.md)"
+  },
+  "tetrate": {
+    "fqdn": "<YOUR UNIQUE PREFIX NAME TO BE CREATED>.aws.sandbox.tetrate.io",
+    "image_sync_apikey": "<TSB_REPO_APIKEY>",
+    "image_sync_username": "<TSB_REPO_USERNAME>",
+    "organization": "tetrate",
+    "password": "Tetrate123",
+    "version": "1.7.0"
+  }
+}

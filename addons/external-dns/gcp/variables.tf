@@ -76,18 +76,63 @@ locals {
   }
 }
 
+variable "name_prefix" {
+  description = "name prefix"
+  type        = string
+}
+
+variable "tags" {
+  description = "A map of resource tags, with 'tetrate_owner' and 'tetrate_team' as mandatory tags"
+  type        = map(string)
+  default     = {}
+}
+
+locals {
+  mandatory_tags = {
+    tetrate_owner = try(var.tags["tetrate_owner"], error("Missing 'tetrate_owner' tag")),
+    tetrate_team  = try(var.tags["tetrate_team"], error("Missing 'tetrate_team' tag")),
+  }
+  optional_tags = {
+    environment      = coalesce(lookup(var.tags, "environment", null), var.name_prefix)
+    tetrate_customer = coalesce(lookup(var.tags, "tetrate_customer", null), "internal")
+    tetrate_lifespan = coalesce(lookup(var.tags, "tetrate_lifespan", null), "oneoff")
+    tetrate_purpose  = coalesce(lookup(var.tags, "tetrate_purpose", null), "demo")
+  }
+  all_tags_merged = merge(local.mandatory_tags, local.optional_tags, var.tags)
+  tags = {
+    for k, v in local.all_tags_merged : k => replace(v, ":", "_")
+  }
+}
+
+variable "output_path" {
+  description = "output path"
+  type        = string
+  default     = "../../../outputs"
+}
+
 variable "addon_config" {
   description = "An object containing addon configuration"
   type = object({
-    include_example_apps = optional(bool)
+    dns_annotation_filter = optional(string)
+    dns_interval          = optional(string)
+    dns_label_filter      = optional(string)
+    dns_sources           = optional(string)
+    dns_zone              = string
   })
 }
 
 locals {
   addon_config_defaults = {
-    include_example_apps = true
+    dns_annotation_filter = ""
+    dns_interval          = "5s"
+    dns_label_filter      = ""
+    dns_sources           = "service"
   }
   addon_config = {
-    include_example_apps = coalesce(var.addon_config.include_example_apps, local.addon_config_defaults.include_example_apps)
+    dns_annotation_filter = coalesce(var.addon_config.dns_annotation_filter, local.addon_config_defaults.dns_annotation_filter)
+    dns_interval          = coalesce(var.addon_config.dns_interval, local.addon_config_defaults.dns_interval)
+    dns_label_filter      = coalesce(var.addon_config.dns_label_filter, local.addon_config_defaults.dns_label_filter)
+    dns_sources           = coalesce(var.addon_config.dns_sources, local.addon_config_defaults.dns_sources)
+    dns_zone              = var.addon_config.dns_zone
   }
 }

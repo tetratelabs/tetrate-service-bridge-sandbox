@@ -40,7 +40,7 @@ output "token" {
 }
 
 output "locality_region" {
-  value = var.aws_k8s_region
+  value = local.cluster.region
 }
 
 output "vpc_id" {

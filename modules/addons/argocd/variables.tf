@@ -20,3 +20,7 @@ variable "applications" {
 variable "service_type" {
   default = "ClusterIP"
 }
+
+variable "service_fqdn" {
+  default = "argocd.example.com"
+}

@@ -4,13 +4,13 @@
       {
         "region": "eu-west-1",
         "tetrate": {
-          "control_plane": true
+          "management_plane": true
         }
       }
     ],
     "azure": [
       {
-        "region": "eastus",
+        "region": "westeurope",
         "tetrate": {
           "control_plane": true
         }
@@ -18,14 +18,7 @@
     ],
     "gcp": [
       {
-        "region": "us-east1",
-        "tetrate": {
-          "control_plane": true,
-          "management_plane": true
-        }
-      },
-      {
-        "region": "us-west1",
+        "region": "europe-west1",
         "tetrate": {
           "control_plane": true
         }
@@ -33,8 +26,12 @@
     ]
   },
   "name_prefix": "<YOUR UNIQUE PREFIX NAME TO BE CREATED>",
+  "tags": {
+    "tetrate_owner": "Change me! (https://github.com/tetrateio/tetrate/blob/master/cloud/docs/misc/tags.md)",
+    "tetrate_team": "Change me! (https://github.com/tetrateio/tetrate/blob/master/cloud/docs/misc/tags.md)"
+  },
   "tetrate": {
-    "fqdn": "<YOUR UNIQUE PREFIX NAME TO BE CREATED>.gcp.sandbox.tetrate.io",
+    "fqdn": "<YOUR UNIQUE PREFIX NAME TO BE CREATED>.aws.sandbox.tetrate.io",
     "image_sync_apikey": "<TSB_REPO_APIKEY>",
     "image_sync_username": "<TSB_REPO_USERNAME>",
     "organization": "tetrate",

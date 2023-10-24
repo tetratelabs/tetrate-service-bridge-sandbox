@@ -37,29 +37,28 @@ function help() {
 #
 # Usage: refresh_token_k8s "gcp"
 function refresh_token_k8s() {
-  if [[ -z "${1}" ]] ; then print_error "Please provide cloud provider as 1st argument" ; return 1 ; else local cloud_provider="${1}" ; fi
-  if ! [[ " ${SUPPORTED_CLOUDS[*]} " == *" ${cloud_provider} "* ]]; then print_error "Invalid cloud provider. Must be one of '${SUPPORTED_CLOUDS[*]}'." ; return 1 ; fi
+  if [[ -z "${1}" ]] ; then print_error "Please provide cloud provider as 1st argument" ; return 1 ; else local cloud="${1}" ; fi
+  if ! [[ " ${SUPPORTED_CLOUDS[*]} " == *" ${cloud} "* ]]; then print_error "Invalid cloud provider. Must be one of '${SUPPORTED_CLOUDS[*]}'." ; return 1 ; fi
 
-  print_info "Going to refresh k8s token on cloud '${cloud_provider}'"
+  print_info "Going to refresh k8s token on cloud '${cloud}'"
   set -e
 
-  local index=0
-  local name_prefix=$(jq -r '.name_prefix' "${TFVARS_JSON}")
+  # Get the number of clusters for the specified cloud provider.
+  local cluster_count=$(get_cluster_count "${TFVARS_JSON}" "${cloud}")
 
-  while read -r region; do
-    cluster_name="${cloud_provider}-${name_prefix}-${region}-${index}"
-    echo cloud="${cloud_provider} region=${region} cluster_id=${index} cluster_name=${cluster_name}"
-    
-    run "pushd infra/${cloud_provider}/k8s_auth > /dev/null"
-    run "terraform workspace new ${cloud_provider}-${index}-${region} || true"
-    run "terraform workspace select ${cloud_provider}-${index}-${region}"
+  for ((index = 0; index < cluster_count; index++)); do
+    local cluster=$(get_cluster_config "${TFVARS_JSON}" "${cloud}" "${index}")
+    local workspace=$(get_cluster_workspace "${cluster}")
+    echo processing cluster: "${cluster}"
+
+    run "pushd infra/${cloud}/k8s_auth > /dev/null"
+    run "terraform workspace new ${workspace} || true"
+    run "terraform workspace select ${workspace}"
     run "terraform init"
-    run "terraform apply ${TERRAFORM_APPLY_ARGS} -refresh=false -var-file=../../../${TFVARS_JSON} -var=${cloud_provider}_k8s_region=${region} -var=cluster_id=${index}"
+    run "terraform apply ${TERRAFORM_APPLY_ARGS} -refresh=false -var-file=../../../${TFVARS_JSON} -var=cluster='${cluster}'"
     run "terraform workspace select default"
     run "popd > /dev/null"
-
-    index=$((index+1))
-  done < <(jq -r ".${cloud_provider}_k8s_regions[]" "${TFVARS_JSON}")
+  done
 }
 
 #
