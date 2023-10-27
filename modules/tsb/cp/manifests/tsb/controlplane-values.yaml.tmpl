@@ -26,6 +26,8 @@ spec:
     clusterName: ${cluster_name}
     selfSigned: true
   components:
+    istio:
+      mountInternalWasmExtensions: true
     xcp:
       centralAuthMode: JWT
       configProtection: {}

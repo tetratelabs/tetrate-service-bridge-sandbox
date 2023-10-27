@@ -10,7 +10,7 @@ resource "azurerm_kubernetes_cluster" "k8s" {
   private_cluster_enabled = false
 
   network_profile {
-    network_plugin = "kubenet"
+    network_plugin = "azure"
   }
 
   oidc_issuer_enabled = true
@@ -41,4 +41,14 @@ resource "azurerm_role_assignment" "attach_acr" {
   role_definition_name             = "AcrPull"
   principal_id                     = azurerm_kubernetes_cluster.k8s.kubelet_identity[0].object_id
   skip_service_principal_aad_check = true
+}
+
+data "azurerm_resource_group" "this" {
+  name = var.resource_group_name
+}
+
+resource "azurerm_role_assignment" "enable_azure_internal_lb" {
+  scope                = data.azurerm_resource_group.this.id
+  role_definition_name = "Network Contributor"
+  principal_id         = azurerm_kubernetes_cluster.k8s.identity.0.principal_id
 }

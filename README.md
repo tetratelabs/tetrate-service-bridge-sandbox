@@ -110,14 +110,14 @@ Please refer to [tfvars collection](/tfvars_collection) for more examples, i.e. 
 
 All `Make` commands should be executed from root of repo as this is where the `Makefile` is.
 
-1. a) Stand up full demo
+a) Stand up a complete demo
 
 ```bash
-# Build full demo
-make tsb
+# Build complete demo
+make all
 ```
 
-1. b) Decouple demo/Deploy in stages
+b) Decouple Demo or Deploy in Stages
 
 ```bash
 # setup underlying clusters, registries, jumpboxes
@@ -128,6 +128,19 @@ make tsb_mp
 
 # onboard deployed clusters (dataplane/controlplane)
 make tsb_cp
+```
+
+c) Advanced customization
+
+```bash
+# provide a custom path to variables file
+make all tfvars_json=./path/to/my/environment.tfvars.json
+
+# provide commands to execute, but don't run the deployment pipeline
+make all dry_run=true
+
+# enable TF_LOG, for more details please refer to: https://developer.hashicorp.com/terraform/internals/debugging
+make all tf_log=DEBUG
 ```
 
 The completion of the above steps will result in:
