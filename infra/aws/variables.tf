@@ -15,7 +15,7 @@ variable "name_prefix" {
 variable "cidr" {
   type        = string
   description = "cidr"
-  default     = "172.20.0.0/16"
+  default     = "172.16.0.0/12"
 }
 
 variable "tsb_image_sync_username" {
