@@ -46,7 +46,7 @@ resource "google_container_node_pool" "primary_nodes" {
 
   node_config {
     preemptible  = var.preemptible_nodes
-    machine_type = "n2-standard-8"
+    machine_type = "e2-standard-8"
 
     # Google recommends custom service accounts that have cloud-platform scope and permissions granted via IAM Roles.
     service_account = data.google_compute_default_service_account.default.email
