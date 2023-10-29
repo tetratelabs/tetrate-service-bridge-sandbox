@@ -14,6 +14,8 @@ resource "google_container_cluster" "tsb" {
   min_master_version = var.k8s_version
   network            = var.vpc_id
   subnetwork         = var.vpc_subnet
+  networking_mode    = "VPC_NATIVE"
+  datapath_provider  = "ADVANCED_DATAPATH"
 
   # We can't create a cluster with no node pool defined, but we want to only use
   # separately managed node pools. So we create the smallest possible default
@@ -22,8 +24,13 @@ resource "google_container_cluster" "tsb" {
   initial_node_count       = 1
 
   resource_labels = merge(var.tags, {
-    name        = "${var.cluster_name}_tsb_sandbox_blue"
+    name = "${var.cluster_name}_tsb_sandbox_blue"
   })
+
+  ip_allocation_policy {
+    cluster_secondary_range_name  = "pods"
+    services_secondary_range_name = "services"
+  }
 
   depends_on = [
     google_project_service.container
@@ -39,7 +46,7 @@ resource "google_container_node_pool" "primary_nodes" {
 
   node_config {
     preemptible  = var.preemptible_nodes
-    machine_type = "e2-standard-4"
+    machine_type = "e2-standard-8"
 
     # Google recommends custom service accounts that have cloud-platform scope and permissions granted via IAM Roles.
     service_account = data.google_compute_default_service_account.default.email
