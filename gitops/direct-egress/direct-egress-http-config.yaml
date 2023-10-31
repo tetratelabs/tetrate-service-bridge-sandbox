@@ -1,0 +1,219 @@
+---
+apiVersion: v1
+kind: List
+items:
+  - apiVersion: tsb.tetrate.io/v2
+    kind: Tenant
+    metadata:
+      name: direct-egress
+      annotations:
+        tsb.tetrate.io/organization: tetrate
+    spec:
+      description: direct-egress-tenant
+  - apiVersion: v1
+    kind: Namespace
+    metadata:
+      labels:
+        istio-injection: enabled
+      name: direct-egress-ns
+  - apiVersion: tsb.tetrate.io/v2
+    kind: Workspace
+    metadata:
+      name: direct-egress-ws
+      annotations:
+        tsb.tetrate.io/organization: tetrate
+        tsb.tetrate.io/tenant: direct-egress
+    spec:
+      namespaceSelector:
+        names:
+          - "*/direct-egress-ns"
+  - apiVersion: gateway.tsb.tetrate.io/v2
+    kind: Group
+    metadata:
+      name: direct-egress-gg
+      namespace: direct-egress-ns
+      annotations:
+        tsb.tetrate.io/organization: tetrate
+        tsb.tetrate.io/tenant: direct-egress
+        tsb.tetrate.io/workspace: direct-egress-ws
+    spec:
+      description: direct-egress-gateway-group
+      displayName: direct-egress-gateway-group
+      namespaceSelector:
+        names:
+        - "*/direct-egress-ns"
+      configMode: DIRECT
+  - apiVersion: traffic.tsb.tetrate.io/v2
+    kind: Group
+    metadata:
+      name: direct-egress-tg
+      namespace: direct-egress-ns
+      annotations:
+        tsb.tetrate.io/organization: tetrate
+        tsb.tetrate.io/tenant: direct-egress
+        tsb.tetrate.io/workspace: direct-egress-ws
+    spec:
+      description: direct-egress-traffic-group
+      displayName: direct-egress-traffic-group
+      namespaceSelector:
+        names:
+        - "*/direct-egress-ns"
+      configMode: DIRECT
+  - apiVersion: istiointernal.tsb.tetrate.io/v2
+    kind: Group
+    metadata:
+      name: direct-egress-internal-tg
+      namespace: direct-egress-ns
+      annotations:
+        tsb.tetrate.io/organization: tetrate
+        tsb.tetrate.io/tenant: direct-egress
+        tsb.tetrate.io/workspace: direct-egress-ws
+    spec:
+      description: direct-egress-internal-traffic-group
+      displayName: direct-egress-internal-traffic-group
+      namespaceSelector:
+        names:
+        - "*/direct-egress-ns"
+
+  - apiVersion: networking.istio.io/v1beta1
+    kind: ServiceEntry
+    metadata:
+      name: client-se
+      namespace: direct-egress-ns
+      labels:
+        istio.io/rev: tsb
+      annotations:
+        tsb.tetrate.io/organization: tetrate
+        tsb.tetrate.io/tenant: direct-egress
+        tsb.tetrate.io/workspace: direct-egress-ws
+        tsb.tetrate.io/istioInternalGroup: direct-egress-internal-tg
+    spec:
+      hosts:
+      - developers.google.com
+      location: MESH_EXTERNAL
+      ports:
+      - number: 80
+        name: http
+        protocol: HTTP
+      - number: 443
+        name: https
+        protocol: HTTPS
+      resolution: DNS
+
+  - apiVersion: install.tetrate.io/v1alpha1
+    kind: EgressGateway
+    metadata:
+      name: direct-egress-gateway
+      namespace: direct-egress-ns
+    spec:
+      kubeSpec:
+        service:
+          type: LoadBalancer
+  - apiVersion: networking.istio.io/v1alpha3
+    kind: Gateway
+    metadata:
+      name: direct-istio-egressgateway
+      namespace: direct-egress-ns
+      labels:
+        istio.io/rev: tsb
+      annotations:
+        tsb.tetrate.io/organization: tetrate
+        tsb.tetrate.io/tenant: direct-egress
+        tsb.tetrate.io/workspace: direct-egress-ws
+        tsb.tetrate.io/gatewayGroup: direct-egress-gg
+    spec:
+      selector:
+        app: direct-egress-gateway
+      servers:
+      - hosts:
+        - developers.google.com
+        port:
+          number: 80
+          name: https-port-for-tls-origination
+          protocol: HTTP
+  - apiVersion: networking.istio.io/v1alpha3
+    kind: VirtualService
+    metadata:
+      name: direct-google-through-egress-gateway
+      namespace: direct-egress-ns
+      labels:
+        istio.io/rev: tsb
+      annotations:
+        tsb.tetrate.io/organization: tetrate
+        tsb.tetrate.io/tenant: direct-egress
+        tsb.tetrate.io/workspace: direct-egress-ws
+        tsb.tetrate.io/trafficGroup: direct-egress-tg
+    spec:
+      hosts:
+      - developers.google.com
+      gateways:
+      - mesh
+      - direct-egress-ns/direct-istio-egressgateway
+      http:
+      - match:
+        - gateways:
+          - mesh
+          port: 80
+        route:
+        - destination:
+            host: direct-egress-gateway.direct-egress-ns.svc.cluster.local
+            subset: google
+            port:
+              number: 80
+      - match:
+        - gateways:
+          - direct-egress-ns/direct-istio-egressgateway
+          port: 80
+        route:
+        - destination:
+            host: developers.google.com
+            port:
+              number: 443
+          weight: 100
+  - apiVersion: networking.istio.io/v1alpha3
+    kind: DestinationRule
+    metadata:
+      name: egressgateway-for-google-dr
+      namespace: direct-egress-ns
+      labels:
+        istio.io/rev: tsb
+      annotations:
+        tsb.tetrate.io/organization: tetrate
+        tsb.tetrate.io/tenant: direct-egress
+        tsb.tetrate.io/workspace: direct-egress-ws
+        tsb.tetrate.io/trafficGroup: direct-egress-tg
+    spec:
+      host: direct-egress-gateway.direct-egress-ns.svc.cluster.local
+      subsets:
+      - name: google
+        trafficPolicy:
+          portLevelSettings:
+          - port:
+              number: 15443
+            tls:
+              mode: ISTIO_MUTUAL
+              sni: developers.google.com
+  - apiVersion: networking.istio.io/v1alpha3
+    kind: DestinationRule
+    metadata:
+      name: originate-tls-for-developers-google-com-dr
+      namespace: direct-egress-ns
+      labels:
+        istio.io/rev: tsb
+      annotations:
+        tsb.tetrate.io/organization: tetrate
+        tsb.tetrate.io/tenant: direct-egress
+        tsb.tetrate.io/workspace: direct-egress-ws
+        tsb.tetrate.io/trafficGroup: direct-egress-tg
+    spec:
+      host: developers.google.com
+      trafficPolicy:
+        loadBalancer:
+          simple: ROUND_ROBIN
+        portLevelSettings:
+        - port:
+            number: 443
+          tls:
+            mode: SIMPLE
+            sni: developers.google.com
+---
