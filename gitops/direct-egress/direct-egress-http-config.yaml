@@ -5,11 +5,11 @@ items:
   - apiVersion: tsb.tetrate.io/v2
     kind: Tenant
     metadata:
-      name: direct-egress
+      name: dev
       annotations:
         tsb.tetrate.io/organization: tetrate
-    spec:
-      description: direct-egress-tenant
+      labels:
+        domain: dev
   - apiVersion: v1
     kind: Namespace
     metadata:
@@ -22,7 +22,7 @@ items:
       name: direct-egress-ws
       annotations:
         tsb.tetrate.io/organization: tetrate
-        tsb.tetrate.io/tenant: direct-egress
+        tsb.tetrate.io/tenant: dev
     spec:
       namespaceSelector:
         names:
@@ -34,7 +34,7 @@ items:
       namespace: direct-egress-ns
       annotations:
         tsb.tetrate.io/organization: tetrate
-        tsb.tetrate.io/tenant: direct-egress
+        tsb.tetrate.io/tenant: dev
         tsb.tetrate.io/workspace: direct-egress-ws
     spec:
       description: direct-egress-gateway-group
@@ -50,7 +50,7 @@ items:
       namespace: direct-egress-ns
       annotations:
         tsb.tetrate.io/organization: tetrate
-        tsb.tetrate.io/tenant: direct-egress
+        tsb.tetrate.io/tenant: dev
         tsb.tetrate.io/workspace: direct-egress-ws
     spec:
       description: direct-egress-traffic-group
@@ -66,7 +66,7 @@ items:
       namespace: direct-egress-ns
       annotations:
         tsb.tetrate.io/organization: tetrate
-        tsb.tetrate.io/tenant: direct-egress
+        tsb.tetrate.io/tenant: dev
         tsb.tetrate.io/workspace: direct-egress-ws
     spec:
       description: direct-egress-internal-traffic-group
@@ -84,7 +84,7 @@ items:
         istio.io/rev: tsb
       annotations:
         tsb.tetrate.io/organization: tetrate
-        tsb.tetrate.io/tenant: direct-egress
+        tsb.tetrate.io/tenant: dev
         tsb.tetrate.io/workspace: direct-egress-ws
         tsb.tetrate.io/istioInternalGroup: direct-egress-internal-tg
     spec:
@@ -118,7 +118,7 @@ items:
         istio.io/rev: tsb
       annotations:
         tsb.tetrate.io/organization: tetrate
-        tsb.tetrate.io/tenant: direct-egress
+        tsb.tetrate.io/tenant: dev
         tsb.tetrate.io/workspace: direct-egress-ws
         tsb.tetrate.io/gatewayGroup: direct-egress-gg
     spec:
@@ -140,7 +140,7 @@ items:
         istio.io/rev: tsb
       annotations:
         tsb.tetrate.io/organization: tetrate
-        tsb.tetrate.io/tenant: direct-egress
+        tsb.tetrate.io/tenant: dev
         tsb.tetrate.io/workspace: direct-egress-ws
         tsb.tetrate.io/trafficGroup: direct-egress-tg
     spec:
@@ -179,7 +179,7 @@ items:
         istio.io/rev: tsb
       annotations:
         tsb.tetrate.io/organization: tetrate
-        tsb.tetrate.io/tenant: direct-egress
+        tsb.tetrate.io/tenant: dev
         tsb.tetrate.io/workspace: direct-egress-ws
         tsb.tetrate.io/trafficGroup: direct-egress-tg
     spec:
@@ -202,7 +202,7 @@ items:
         istio.io/rev: tsb
       annotations:
         tsb.tetrate.io/organization: tetrate
-        tsb.tetrate.io/tenant: direct-egress
+        tsb.tetrate.io/tenant: dev
         tsb.tetrate.io/workspace: direct-egress-ws
         tsb.tetrate.io/trafficGroup: direct-egress-tg
     spec:
