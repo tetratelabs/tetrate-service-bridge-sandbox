@@ -177,7 +177,6 @@ metadata:
     app: reviews
     version: v1
 spec:
-  replicas: 1
   selector:
     matchLabels:
       app: reviews
