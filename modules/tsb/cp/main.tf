@@ -77,18 +77,18 @@ resource "helm_release" "controlplane" {
   timeout             = 900
 
   values = [templatefile("${path.module}/manifests/tsb/controlplane-values.yaml.tmpl", {
-    registry                        = var.registry
-    tsb_version                     = var.tsb_version
-    tsb_fqdn                        = var.tsb_fqdn
-    cluster_name                    = var.cluster_name
-    serviceaccount_clusterfqn       = "organizations/${var.tsb_org}/clusters/${var.cluster_name}"
-    serviceaccount_jwk              = data.local_file.service_account.content
-    es_host                         = var.es_host
-    es_username                     = var.es_username
-    es_password                     = var.es_password
-    ratelimit_enabled               = var.ratelimit_enabled
-    ratelimit_namespace             = var.ratelimit_namespace
-    identity_propagation_enabled    = var.identity_propagation_enabled
+    registry                     = var.registry
+    tsb_version                  = var.tsb_version
+    tsb_fqdn                     = var.tsb_fqdn
+    cluster_name                 = var.cluster_name
+    serviceaccount_clusterfqn    = "organizations/${var.tsb_org}/clusters/${var.cluster_name}"
+    serviceaccount_jwk           = data.local_file.service_account.content
+    es_host                      = var.es_host
+    es_username                  = var.es_username
+    es_password                  = var.es_password
+    ratelimit_enabled            = var.ratelimit_enabled
+    ratelimit_namespace          = var.ratelimit_namespace
+    identity_propagation_enabled = var.identity_propagation_enabled
   })]
 
   set {
@@ -117,26 +117,6 @@ resource "kubernetes_secret" "redis_password" {
   data = {
     REDIS_AUTH = var.redis_password
   }
-}
-
-resource "kubernetes_secret_v1" "cacerts" {
-  metadata {
-    name      = "cacerts"
-    namespace = "istio-system"
-    annotations = {
-      clustername = var.cluster_name
-    }
-  }
-
-  data = {
-    "ca-cert.pem"    = var.istiod_cacerts_tls_crt
-    "ca-key.pem"     = var.istiod_cacerts_tls_key
-    "root-cert.pem"  = var.tsb_cacert
-    "cert-chain.pem" = var.istiod_cacerts_tls_crt
-  }
-
-  type       = "kubernetes.io/generic"
-  depends_on = [helm_release.controlplane]
 }
 
 resource "kubernetes_secret_v1" "cr_pull_secret" {

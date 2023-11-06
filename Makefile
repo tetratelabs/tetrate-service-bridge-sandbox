@@ -79,7 +79,7 @@ ifeq ($(interactive),false)
 	@echo "\033[1;31mDestroying without confirmation (interactive=false) \033[0m"
 	@$(MAKE) actual_destroy
 else
-	@echo -n "\033[1;31mDo you really want to destroy (y/n)? \033[0m"  # Bold red text
+	@echo "\033[1;31mDo you really want to destroy (y/n)? \033[0m"  # Bold red text
 	@read -p "" choice; \
 	if [ "$${choice}" = "y" ] || [ "$${choice}" = "Y" ] || [ "$${choice}" = "yes" ] || [ "$${choice}" = "YES" ]; then \
 		$(MAKE) actual_destroy; \

@@ -60,14 +60,6 @@ data "kubernetes_secret" "tsb_server_cert" {
   depends_on = [time_sleep.warmup_90_seconds]
 }
 
-data "kubernetes_secret" "istiod_cacerts" {
-  metadata {
-    name      = "istiod-cacerts"
-    namespace = "cert-manager"
-  }
-  depends_on = [time_sleep.warmup_90_seconds]
-}
-
 resource "random_password" "tsb" {
   length = 16
 }

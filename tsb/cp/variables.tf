@@ -129,10 +129,6 @@ variable "output_path" {
   default = "../../outputs"
 }
 
-variable "cert-manager_enabled" {
-  default = true
-}
-
 variable "ratelimit_enabled" {
   default = true
 }

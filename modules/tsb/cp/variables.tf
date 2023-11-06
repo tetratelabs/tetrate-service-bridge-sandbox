@@ -58,12 +58,6 @@ variable "tsb_password" {
 variable "tsb_cacert" {
 }
 
-variable "istiod_cacerts_tls_crt" {
-}
-
-variable "istiod_cacerts_tls_key" {
-}
-
 variable "tsb_image_sync_username" {
 }
 
