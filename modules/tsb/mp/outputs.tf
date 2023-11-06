@@ -11,14 +11,6 @@ output "tsb_cacert" {
   value = data.kubernetes_secret.selfsigned_ca.data["tls.crt"]
 }
 
-output "istiod_cacerts_tls_crt" {
-  value = data.kubernetes_secret.istiod_cacerts.data["tls.crt"]
-}
-
-output "istiod_cacerts_tls_key" {
-  value = data.kubernetes_secret.istiod_cacerts.data["tls.key"]
-}
-
 output "password" {
   value     = coalesce(var.tsb_password, random_password.tsb.result)
   sensitive = true

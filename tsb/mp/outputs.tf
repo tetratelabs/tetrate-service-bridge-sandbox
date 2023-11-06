@@ -15,16 +15,6 @@ output "tsb_cacert" {
   sensitive = true
 }
 
-output "istiod_cacerts_tls_crt" {
-  value     = module.tsb_mp.istiod_cacerts_tls_crt
-  sensitive = true
-}
-
-output "istiod_cacerts_tls_key" {
-  value     = module.tsb_mp.istiod_cacerts_tls_key
-  sensitive = true
-}
-
 output "es_ip" {
   value = module.es.es_ip
 }
