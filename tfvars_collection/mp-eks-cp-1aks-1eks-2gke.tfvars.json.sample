@@ -32,13 +32,17 @@
       }
     ]
   },
+  "tags": {
+    "tetrate_owner": "Change me! (https://github.com/tetrateio/tetrate/blob/master/cloud/docs/misc/tags.md)",
+    "tetrate_team": "Change me! (https://github.com/tetrateio/tetrate/blob/master/cloud/docs/misc/tags.md)"
+  },
   "name_prefix": "<YOUR UNIQUE PREFIX NAME TO BE CREATED>",
   "tetrate": {
-    "fqdn": "<YOUR UNIQUE PREFIX NAME TO BE CREATED>.aws.sandbox.tetrate.io",
+    "fqdn": "<YOUR UNIQUE PREFIX NAME TO BE CREATED>.<YOUR_AWS_ACCT_PREFIX>.sandbox.tetrate.io",
     "image_sync_apikey": "<TSB_REPO_APIKEY>",
     "image_sync_username": "<TSB_REPO_USERNAME>",
     "organization": "tetrate",
     "password": "Tetrate123",
-    "version": "1.7.0"
+    "version": "1.7.2"
   }
 }

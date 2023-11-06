@@ -32,6 +32,10 @@
       }
     ]
   },
+  "tags": {
+    "tetrate_owner": "username",
+    "tetrate_team": "function:team"
+  },
   "name_prefix": "<YOUR UNIQUE PREFIX NAME TO BE CREATED>",
   "tetrate": {
     "fqdn": "<YOUR UNIQUE PREFIX NAME TO BE CREATED>.gcp.sandbox.tetrate.io",
@@ -39,6 +43,6 @@
     "image_sync_username": "<TSB_REPO_USERNAME>",
     "organization": "tetrate",
     "password": "Tetrate123",
-    "version": "1.7.0"
+    "version": "1.7.2"
   }
 }

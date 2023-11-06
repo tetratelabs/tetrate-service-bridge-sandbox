@@ -11,19 +11,23 @@
     ],
     "gcp": [
       {
-        "region": "us-east1",
+        "region": "us-west1",
         "tetrate": {
           "control_plane": true,
           "management_plane": true
         }
       },
       {
-        "region": "us-west1",
+        "region": "us-east1",
         "tetrate": {
           "control_plane": true
         }
       }
     ]
+  },
+  "tags": {
+    "tetrate_owner": "Change me! (https://github.com/tetrateio/tetrate/blob/master/cloud/docs/misc/tags.md)",
+    "tetrate_team": "Change me! (https://github.com/tetrateio/tetrate/blob/master/cloud/docs/misc/tags.md)"
   },
   "name_prefix": "<YOUR UNIQUE PREFIX NAME TO BE CREATED>",
   "tetrate": {
@@ -32,6 +36,6 @@
     "image_sync_username": "<TSB_REPO_USERNAME>",
     "organization": "tetrate",
     "password": "Tetrate123",
-    "version": "1.7.0"
+    "version": "1.7.2"
   }
 }

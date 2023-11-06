@@ -70,7 +70,7 @@ function validate_input() {
     current_value=$(jq -r ".${variable}" "${tfvars_json}")
 
     if [[ "${current_value}" == "null" ]]; then
-        echo "Missing ${variable} in the JSON.";
+        print_error "Missing ${variable} in the JSON.";
         exit 1;
     fi
     if [[ -n "${allowed_values}" ]] && ! [[ "${allowed_values}" =~ .*"${current_value}".* ]] ; then

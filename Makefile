@@ -16,8 +16,12 @@ help: Makefile ## This help
 	@awk 'BEGIN {FS = ":.*##"; printf "Usage:\n"} \
 			/^[.a-zA-Z0-9_-]+:.*?##/ { printf "  \033[36mmake %-25s\033[0m %s\n", $$1, $$2 }' $(MAKEFILE_LIST)
 
+.PHONY: convert_tfvars
+convert_tfvars:  ## Convert tfvars to the new schema
+	@/bin/sh -c "./make/convert_tfvars.sh ${tfvars_json}"
+
 .PHONY: init
-init:  ## Terraform init
+init: convert_tfvars ## Terraform init
 	@/bin/sh -c "export TFVARS_JSON="${tfvars_json}" && ./make/variables.sh"
 	@echo "Please refer to the latest instructions and terraform.tfvars.json file format at https://github.com/tetrateio/tetrate-service-bridge-sandbox#usage"
 
