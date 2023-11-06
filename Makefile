@@ -95,7 +95,7 @@ actual_destroy: destroy_remote destroy_local
 destroy_remote:  ## Destroy environment
 	@echo "Destroy TSB Management Plane FQDN..."
 	@/bin/sh -c 'export DRY_RUN="${dry_run}" TF_LOG="${tf_log}" TFVARS_JSON="${tfvars_json}" && ./make/tsb.sh destroy_remote'
-	# @$(MAKE) destroy_external_dns
+	@$(MAKE) destroy_external_dns
 	@$(MAKE) destroy_infra
 
 .PHONY: destroy_local
