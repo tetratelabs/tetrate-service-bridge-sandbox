@@ -41,7 +41,7 @@ function deploy_mp() {
 
   local cluster=$(get_mp_cluster_config "${TFVARS_JSON}")
   local cloud=$(get_cluster_cloud "${cluster}")
-  local workspace=$(get_cluster_workspace "${cluster}")
+  local workspace=${NAME_PREFIX}
   source "${BASE_DIR}/k8s_auth.sh" k8s_auth_${cloud}
   echo processing cluster: "${cluster}"
 
@@ -70,7 +70,7 @@ function deploy_mp_fqdn() {
   local fqdn=${TETRATE_FQDN}
   local address=$(jq -r "if .ingress_ip.value != \"\" then .ingress_ip.value else .ingress_hostname.value end" outputs/terraform_outputs/terraform-tsb-mp.json)
   local dns_provider=$(get_cluster_cloud "${cluster}")
-  local workspace=$(get_cluster_workspace "${cluster}")
+  local workspace=${NAME_PREFIX}
 
   print_info "Going to deploy tsb management plane fqdn '${fqdn}' with address '${address}' on cloud '${dns_provider}'"
   echo processing cluster: "${cluster}"
@@ -97,7 +97,7 @@ function destroy_mp_fqdn() {
   local fqdn=${TETRATE_FQDN}
   local address=$(jq -r "if .ingress_ip.value != \"\" then .ingress_ip.value else .ingress_hostname.value end" outputs/terraform_outputs/terraform-tsb-mp.json)
   local dns_provider=$(get_cluster_cloud "${cluster}")
-  local workspace=$(get_cluster_workspace "${cluster}")
+  local workspace=${NAME_PREFIX}
 
   print_info "Going to destroy tsb management plane fqdn '${fqdn}' with address '${address}' on cloud '${dns_provider}'"
   echo processing cluster: "${cluster}"
