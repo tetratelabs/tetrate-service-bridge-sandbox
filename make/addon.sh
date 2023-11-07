@@ -163,7 +163,7 @@ function destroy_addon_per_region() {
     if [[ $(is_cluster_addon_enabled "${cluster}" ${addon_name}) == false ]] ; then continue ; fi
     addon_config=$(get_cluster_addon_config "${cluster}" ${addon_name})
     if [[ "${addon_name}" == "external-dns" ]]; then
-      run "pushd addons/${cloud}/${addon_name} > /dev/null"
+      run "pushd addons/${addon_name}/${cloud} > /dev/null"
       root_path="../../.."
     else
       run "pushd addons/${addon_name} > /dev/null"
