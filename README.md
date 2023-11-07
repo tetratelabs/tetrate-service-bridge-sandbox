@@ -75,23 +75,60 @@ Please refer to [tfvars collection](/tfvars_collection) for more examples, i.e. 
 
 ```json
 {
-  "name_prefix": "<YOUR UNIQUE PREFIX NAME TO BE CREATED>",
-  "dns_provider": "azure",
-  "tsb_fqdn": "<YOUR UNIQUE PREFIX NAME TO BE CREATED>.azure.sandbox.tetrate.io",
-  "tsb_version": "1.6.0",
-  "tsb_image_sync_username": "<TSB_REPO_USERNAME>",
-  "tsb_image_sync_apikey": "<TSB_REPO_APIKEY>",
-  "tsb_password": "Tetrate123",
-  "tsb_mp": {
-    "cloud": "azure",
-    "cluster_id": 0
-  },
-  "tsb_org": "tetrate",
-  "aws_k8s_regions": [],
-  "azure_k8s_regions": ["eastus"],
-  "gcp_k8s_regions": ["us-west1", "us-east1"],
-  "tetrate_owner": "Change me! (https://github.com/tetrateio/tetrate/blob/master/cloud/docs/gcp/labels.md)",
-  "tetrate_team": "Change me! (https://github.com/tetrateio/tetrate/blob/master/cloud/docs/gcp/labels.md)"
+    "k8s_clusters": {
+        "aws": [
+            {
+                "region": "eu-west-1",
+                "tetrate": {
+                    "management_plane": true
+                },
+                "addons": {
+                    "argocd": {
+                        "enabled": true
+                    }
+                }
+            }
+        ],
+        "azure": [
+            {
+                "region": "eastus",
+                "tetrate": {
+                    "control_plane": true
+                },
+                "addons": {
+                    "argocd": {
+                        "enabled": true
+                    }
+                }
+            }
+        ],
+        "gcp": [
+            {
+                "region": "us-west1",
+                "tetrate": {
+                    "control_plane": true
+                },
+                "addons": {
+                    "argocd": {
+                        "enabled": true
+                    }
+                }
+            }
+        ]
+    },
+    "name_prefix": "<YOUR UNIQUE PREFIX NAME TO BE CREATED>",
+    "tags": {
+        "tetrate_owner": "Change me! (https://github.com/tetrateio/tetrate/blob/master/cloud/docs/misc/tags.md)",
+        "tetrate_team": "Change me! (https://github.com/tetrateio/tetrate/blob/master/cloud/docs/misc/tags.md)"
+    },
+    "tetrate": {
+        "fqdn": "<YOUR UNIQUE PREFIX NAME TO BE CREATED>.aws.sandbox.tetrate.io",
+        "image_sync_apikey": "<TSB_REPO_APIKEY>",
+        "image_sync_username": "<TSB_REPO_USERNAME>",
+        "organization": "tetrate",
+        "password": "Tetrate123",
+        "version": "1.7.2"
+    }
 }
 ```
 
