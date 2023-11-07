@@ -3,7 +3,6 @@
 # Helper script with shared helper functions
 
 SUPPORTED_CLOUDS=("azure" "aws" "gcp")
-DEFAULT_K8S_VERSION="1.27"
 
 # Color values sorted as
 #   - bold (<NAME>_B)
@@ -208,11 +207,6 @@ function get_cluster_config() {
     cluster=$(jq --arg name "${cluster_name}" '. + {name: $name}' <<< "${cluster}")
   fi
 
-  # Check if cluster k8s version is set, if not default to DEFAULT_K8S_VERSION
-  if [ -z "${cluster_version}" ]; then
-    cluster=$(jq --arg version "${DEFAULT_K8S_VERSION}" '. + {version: $version}' <<< "${cluster}")
-  fi
-
   # Set a unique terraform workspace in order to support multiple environments in parallel
   # We do support re-using cluster_name accross environments by including name_prefix (unique)
   local workspace_name="${cloud}-${name_prefix}-${cluster_region}-${index}"
@@ -267,11 +261,6 @@ function get_mp_cluster_config() {
   if [ -z "${cluster_name}" ]; then
     cluster_name="${cloud}-${name_prefix}-${cluster_region}-${index}"
     cluster=$(jq --arg name "${cluster_name}" '. + {name: $name}' <<< "${cluster}")
-  fi
-
-  # Check if cluster k8s version is set, if not default to DEFAULT_K8S_VERSION
-  if [ -z "${cluster_version}" ]; then
-    cluster=$(jq --arg version "${DEFAULT_K8S_VERSION}" '. + {version: $version}' <<< "${cluster}")
   fi
 
   # Set a unique terraform workspace in order to support multiple environments in parallel
