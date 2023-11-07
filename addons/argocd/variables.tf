@@ -68,22 +68,20 @@ locals {
 
 variable "addon_config" {
   description = "An object containing addon configuration"
-  type = object({
+  type        = map(any)
+  default     = {}
+  /*
     include_example_apps = optional(bool)
     service_type         = optional(string)
     service_fqdn         = optional(string)
-  })
+  */
 }
 
 locals {
   addon_config_defaults = {
     include_example_apps = true
     service_type         = "LoadBalancer"
-    service_fqdn         = "argocd.example.com"
+    service_fqdn         = "argocd.tetrate.io"
   }
-  addon_config = {
-    include_example_apps = coalesce(var.addon_config.include_example_apps, local.addon_config_defaults.include_example_apps)
-    service_type         = coalesce(var.addon_config.service_type, local.addon_config_defaults.service_type)
-    service_fqdn         = coalesce(var.addon_config.service_fqdn, local.addon_config_defaults.service_fqdn)
-  }
+  addon_config = merge(local.addon_config_defaults, var.addon_config)
 }

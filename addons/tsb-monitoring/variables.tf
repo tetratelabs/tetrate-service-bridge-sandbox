@@ -68,10 +68,12 @@ locals {
 
 variable "addon_config" {
   description = "An object containing addon configuration"
-  type = object({
+  type        = map(any)
+  default     = {}
+  /*
     monitoring_namespace = optional(string)
     grafana_service_type = optional(string)
-  })
+  */
 }
 
 locals {
@@ -79,5 +81,5 @@ locals {
     monitoring_namespace = "tsb-monitoring"
     grafana_service_type = "ClusterIP"
   }
-  addon_config = merge(var.addon_config, local.addon_config_defaults)
+  addon_config = merge(local.addon_config_defaults, var.addon_config)
 }

@@ -102,13 +102,15 @@ variable "output_path" {
 
 variable "addon_config" {
   description = "An object containing addon configuration"
-  type = object({
+  type        = map(string)
+  default     = {}
+  /*
     dns_annotation_filter = optional(string)
     dns_interval          = optional(string)
     dns_label_filter      = optional(string)
     dns_sources           = optional(string)
     dns_zone              = string
-  })
+  */
 }
 
 locals {
@@ -118,11 +120,5 @@ locals {
     dns_label_filter      = ""
     dns_sources           = "service"
   }
-  addon_config = {
-    dns_annotation_filter = coalesce(var.addon_config.dns_annotation_filter, local.addon_config_defaults.dns_annotation_filter)
-    dns_interval          = coalesce(var.addon_config.dns_interval, local.addon_config_defaults.dns_interval)
-    dns_label_filter      = coalesce(var.addon_config.dns_label_filter, local.addon_config_defaults.dns_label_filter)
-    dns_sources           = coalesce(var.addon_config.dns_sources, local.addon_config_defaults.dns_sources)
-    dns_zone              = var.addon_config.dns_zone
-  }
+  addon_config = merge(local.addon_config_defaults, var.addon_config)
 }

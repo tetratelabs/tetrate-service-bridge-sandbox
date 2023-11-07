@@ -68,16 +68,17 @@ locals {
 
 variable "addon_config" {
   description = "An object containing addon configuration"
-  type = object({
+  type        = map(any)
+  default     = {}
+  /*
     include_example_apps = optional(bool)
-  })
+  */
 }
 
 locals {
   addon_config_defaults = {
     include_example_apps = true
   }
-  addon_config = {
-    include_example_apps = coalesce(var.addon_config.include_example_apps, local.addon_config_defaults.include_example_apps)
-  }
+
+  addon_config = merge(local.addon_config_defaults, var.addon_config)
 }
