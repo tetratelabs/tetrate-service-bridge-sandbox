@@ -154,7 +154,7 @@ function print_stage {
 #   run cd "directory/path"
 #   run terraform apply "arguments"
 function run() {
-  if ${DRY_RUN}; then
+  if ${DRY_RUN:-false}; then
     printf "%s\n" "$*"
   else
     eval "$@"
@@ -162,35 +162,39 @@ function run() {
 }
 
 # This function retrieves the number of elements in a specified cloud provider's array
-# from a tfvar.json file.
+# from a terraform.tfvars.json file.
 #
 # Parameters:
-#   $1 - The path to the tfvar.json file.
+#   $1 - The path to the terraform.tfvars.json file.
 #   $2 - The cloud provider ("aws," "azure," or "gcp").
 #
 # Usage:
-#   get_cluster_count "tfvar.json" "azure"
+#   get_cluster_count "terraform.tfvars.json" "azure"
 function get_cluster_count() {
-  [[ -z "${1}" ]] && print_error "Please provide tfvar.json file as 1st argument" && return 1 || local json_file="${1}" ;
+  [[ -z "${1}" ]] && print_error "Please provide terraform.tfvars.json file as 1st argument" && return 1 || local json_file="${1}" ;
   [[ -z "${2}" ]] && print_error "Please provide cloud provider as 2nd argument" && return 1 || local cloud="${2}" ;
-  if ! [[ " ${SUPPORTED_CLOUDS[*]} " == *" ${cloud} "* ]]; then print_error "Invalid cloud provider. Must be one of '${SUPPORTED_CLOUDS[*]}'." ; return 1 ; fi
+
+  if ! [[ " ${SUPPORTED_CLOUDS[*]} " == *" ${cloud} "* ]]; then 
+    print_error "Invalid cloud provider. Must be one of '${SUPPORTED_CLOUDS[*]}'." ; 
+    return 1 ; 
+  fi
 
   jq --arg cloud "${cloud}" '.k8s_clusters[$cloud] | length' "${json_file}"
 }
 
-# This function retrieves the cluster config object from a tfvar.json file
+# This function retrieves the cluster config object from a terraform.tfvars.json file
 # based on the specified cloud provider and index. It sets the 'name' property
 # if it's not available in the cluster configuration.
 #
 # Parameters:
-#   $1 - The path to the tfvar.json file.
+#   $1 - The path to the terraform.tfvars.json file.
 #   $2 - The cloud provider ("aws," "azure," or "gcp").
 #   $3 - The index of the nested array under the specified cloud.
 #
 # Usage:
-#   get_cluster_config "tfvar.json" "azure" 0
+#   get_cluster_config "terraform.tfvars.json" "azure" 0
 function get_cluster_config() {
-  [[ -z "${1}" ]] && print_error "Please provide tfvar.json file as 1st argument" && return 1 || local json_file="${1}" ;
+  [[ -z "${1}" ]] && print_error "Please provide terraform.tfvars.json file as 1st argument" && return 1 || local json_file="${1}" ;
   [[ -z "${2}" ]] && print_error "Please provide cloud provider as 2nd argument" && return 1 || local cloud="${2}" ;
   if ! [[ " ${SUPPORTED_CLOUDS[*]} " == *" ${cloud} "* ]]; then print_error "Invalid cloud provider. Must be one of '${SUPPORTED_CLOUDS[*]}'." ; return 1 ; fi
   [[ -z "${3}" ]] && print_error "Please provide index as 3rd argument" && return 1 || local index="${3}" ;
@@ -217,30 +221,30 @@ function get_cluster_config() {
 }
 
 # This function retrieves the index of the cluster with "management_plane": true
-# from a tfvar.json file, regardless of the cloud provider.
+# from a terraform.tfvars.json file, regardless of the cloud provider.
 #
 # Parameters:
-#   $1 - The path to the tfvar.json file.
+#   $1 - The path to the terraform.tfvars.json file.
 #
 # Usage:
-#   get_mp_cluster_index "tfvar.json"
+#   get_mp_cluster_index "terraform.tfvars.json"
 function get_mp_cluster_index() {
-  [[ -z "${1}" ]] && print_error "Please provide tfvar.json file as 1st argument" && return 1 || local json_file="${1}" ;
+  [[ -z "${1}" ]] && print_error "Please provide terraform.tfvars.json file as 1st argument" && return 1 || local json_file="${1}" ;
 
   jq -r '.k8s_clusters // {} | to_entries[] | .key as $cloud | .value | to_entries[] | select(.value.tetrate.management_plane == true) | .key' "${json_file}"
 }
 
 # This function retrieves the cluster config object with "management_plane": true
-# from a tfvar.json file, regardless of the cloud provider. It sets the 'name' property
+# from a terraform.tfvars.json file, regardless of the cloud provider. It sets the 'name' property
 # if it's not available in the cluster configuration.
 #
 # Parameters:
-#   $1 - The path to the tfvar.json file.
+#   $1 - The path to the terraform.tfvars.json file.
 #
 # Usage:
-#   get_mp_cluster_config "tfvar.json"
+#   get_mp_cluster_config "terraform.tfvars.json"
 function get_mp_cluster_config() {
-  [[ -z "${1}" ]] && print_error "Please provide tfvar.json file as 1st argument" && return 1 || local json_file="${1}" ;
+  [[ -z "${1}" ]] && print_error "Please provide terraform.tfvars.json file as 1st argument" && return 1 || local json_file="${1}" ;
 
   local index=$(get_mp_cluster_index "${1}")
   [[ -z "${index}" ]] && print_error "No cloud with management plane found." && return 1

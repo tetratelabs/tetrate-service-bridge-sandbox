@@ -116,8 +116,8 @@ function destroy_mp_fqdn() {
 # Parameters:
 #   $1 - The cloud provider ("azure", "aws", or "gcp").
 #
-# Usage: destroy_k8s "gcp"
-function deploy_cp_dp() {
+
+function deploy_cp() {
   if [[ -z "${1}" ]] ; then print_error "Please provide cloud provider as 1st argument" ; return 1 ; else local cloud="${1}" ; fi
   if ! [[ " ${SUPPORTED_CLOUDS[*]} " == *" ${cloud} "* ]]; then print_error "Invalid cloud provider. Must be one of '${SUPPORTED_CLOUDS[*]}'." ; return 1 ; fi
 
@@ -161,15 +161,15 @@ case "${ACTION}" in
     ;;
   tsb_cp_aws)
     print_stage "Going to deploy tsb control and data plane on cloud 'aws'"
-    deploy_cp_dp "aws"
+    deploy_cp "aws"
     ;;
   tsb_cp_azure)
     print_stage "Going to deploy tsb control and data plane on cloud 'azure'"
-    deploy_cp_dp "azure"
+    deploy_cp "azure"
     ;;
   tsb_cp_gcp)
     print_stage "Going to deploy tsb control and data plane on cloud 'gcp'"
-    deploy_cp_dp "gcp"
+    deploy_cp "gcp"
     ;;
   destroy_remote)
     print_stage "Going to destroy tsb management plane fqdn"

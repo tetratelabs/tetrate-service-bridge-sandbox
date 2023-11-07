@@ -55,7 +55,7 @@ export REQUIRED_VARS=(
 #
 # Usage: validate_input "/path/to/your/json/file.tfvars.json"
 function validate_input() {
-  [[ -z "${1}" ]] && print_error "Please provide tfvar.json file as 1st argument" && return 1 || local tfvars_json="${1}" ;
+  [[ -z "${1}" ]] && print_error "Please provide terraform.tfvars.json file as 1st argument" && return 1 || local tfvars_json="${1}" ;
 
   # Check if the file exists
   if [[ ! -f "${tfvars_json}" ]]; then
