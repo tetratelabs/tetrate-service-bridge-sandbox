@@ -28,7 +28,7 @@ module "external_dns" {
   k8s_host                   = data.terraform_remote_state.infra.outputs.host
   k8s_cluster_ca_certificate = data.terraform_remote_state.infra.outputs.cluster_ca_certificate
   k8s_client_token           = data.terraform_remote_state.k8s_auth.outputs.token
-  kubelet_identity           = data.terraform_remote_state.infra.outputs.kubelet_identity 
+  kubelet_identity           = data.terraform_remote_state.infra.outputs.kubelet_identity
   resource_group_name        = data.terraform_remote_state.infra.outputs.resource_group_name
   resource_group_id          = data.terraform_remote_state.infra.outputs.resource_group_id
   tags                       = local.tags

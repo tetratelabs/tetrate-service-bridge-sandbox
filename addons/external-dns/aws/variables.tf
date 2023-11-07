@@ -38,7 +38,9 @@ locals {
 
 variable "tetrate" {
   description = "An object containing global tetrate configuration"
-  type = object({
+  type        = map(any)
+  default     = {}
+  /*
     fqdn                = string
     helm_password       = optional(string)
     helm_repository     = optional(string)
@@ -50,7 +52,7 @@ variable "tetrate" {
     password            = string
     username            = optional(string)
     version             = string
-  })
+  */
 }
 
 locals {
@@ -61,19 +63,7 @@ locals {
     helm_version    = null
     username        = "admin"
   }
-  tetrate = {
-    fqdn                = var.tetrate.fqdn
-    helm_password       = coalesce(var.tetrate.helm_password, local.tetrate_defaults.helm_password)
-    helm_repository     = coalesce(var.tetrate.helm_repository, local.tetrate_defaults.helm_repository)
-    helm_username       = coalesce(var.tetrate.helm_username, local.tetrate_defaults.helm_username)
-    helm_version        = coalesce(var.tetrate.helm_version, local.tetrate_defaults.helm_version)
-    image_sync_apikey   = var.tetrate.image_sync_apikey
-    image_sync_username = var.tetrate.image_sync_username
-    organization        = var.tetrate.organization
-    password            = var.tetrate.password
-    username            = coalesce(var.tetrate.username, local.tetrate_defaults.username)
-    version             = var.tetrate.version
-  }
+  tetrate = merge(local.tetrate_defaults, var.tetrate)
 }
 
 variable "name_prefix" {
