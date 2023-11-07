@@ -86,13 +86,6 @@ function deploy_addon_per_region() {
     if [[ "${addon_name}" == "external-dns" ]]; then
       run "pushd addons/${addon_name}/${cloud} > /dev/null"
       root_path="../../.."
-      # Dynamic variable lookup based on $cloud_provider value, e.g. aws to AWS to get to EXTERNAL_DNS_AWS_DNS_ZONE
-      CLOUD_PROVIDER=$(echo "$cloud_provider" | tr 'a-z' 'A-Z')
-      local external_dns_cloud_provider_dns_zone="EXTERNAL_DNS_${cloud}_DNS_ZONE"
-      if [[ -n "${!external_dns_cloud_provider_dns_zone}" ]]; then
-        print_error "Missing $(echo "$external_dns_cloud_provider_dns_zone" | tr 'A-Z' 'a-z') variable in the JSON... skipping external-dns zone setup for cluster='${cluster}'"
-        continue
-      fi
     else
       run "pushd addons/${addon_name} > /dev/null"
       root_path="../.."
@@ -172,13 +165,6 @@ function destroy_addon_per_region() {
     if [[ "${addon_name}" == "external-dns" ]]; then
       run "pushd addons/${cloud}/${addon_name} > /dev/null"
       root_path="../../.."
-      # Dynamic variable lookup based on $cloud_provider value, e.g. aws to AWS to get to EXTERNAL_DNS_AWS_DNS_ZONE
-      CLOUD_PROVIDER=$(echo "$cloud_provider" | tr 'a-z' 'A-Z')
-      local external_dns_cloud_provider_dns_zone="EXTERNAL_DNS_${cloud}_DNS_ZONE"
-      if [[ -n "${!external_dns_cloud_provider_dns_zone}" ]]; then
-        print_error "Missing $(echo "$external_dns_cloud_provider_dns_zone" | tr 'A-Z' 'a-z') variable in the JSON... skipping external-dns zone setup for cluster='${cluster}'"
-        continue
-      fi
     else
       run "pushd addons/${addon_name} > /dev/null"
       root_path="../.."

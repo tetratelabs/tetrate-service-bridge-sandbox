@@ -36,7 +36,7 @@ locals {
   }
 }
 
-vvariable "tetrate" {
+variable "tetrate" {
   description = "An object containing global tetrate configuration"
   type        = map(any)
   default     = {}

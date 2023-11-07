@@ -1,41 +1,51 @@
 {
-  "k8s_clusters": {
-    "aws": [],
-    "azure": [
-      {
-        "region": "eastus",
-        "tetrate": {
-          "control_plane": true,
-          "management_plane": true
-        }
-      }
-    ],
-    "gcp": [
-      {
-        "region": "us-west1",
-        "tetrate": {
-          "control_plane": true
-        }
-      },
-      {
-        "region": "us-east1",
-        "tetrate": {
-          "control_plane": true
-        }
-      }
-    ]
-  },
-  "tags": {
-    "tetrate_owner": "Change me! (https://github.com/tetrateio/tetrate/blob/master/cloud/docs/misc/tags.md)",
-    "tetrate_team": "Change me! (https://github.com/tetrateio/tetrate/blob/master/cloud/docs/misc/tags.md)"
-  },
-  "name_prefix": "<YOUR UNIQUE PREFIX NAME TO BE CREATED>",
-  "tetrate": {
-    "fqdn": "<YOUR UNIQUE PREFIX NAME TO BE CREATED>.azure.sandbox.tetrate.io",
-    "image_sync_apikey": "<TSB_REPO_APIKEY>",
-    "image_sync_username": "<TSB_REPO_USERNAME>",
-    "organization": "tetrate",
-    "password": "Tetrate123",
-    "version": "1.7.2"
-  }
+    "k8s_clusters": {
+        "aws": [],
+        "azure": [
+            {
+                "region": "eastus",
+                "tetrate": {
+                    "control_plane": true,
+                    "management_plane": true
+                }
+            }
+        ],
+        "gcp": [
+            {
+                "region": "us-west1",
+                "tetrate": {
+                    "control_plane": true
+                },
+                "addons": {
+                    "argocd": {
+                        "enabled": true
+                    }
+                }
+            },
+            {
+                "region": "us-east1",
+                "tetrate": {
+                    "control_plane": true
+                },
+                "addons": {
+                    "argocd": {
+                        "enabled": true
+                    }
+                }
+            }
+        ]
+    },
+    "tags": {
+        "tetrate_owner": "Change me! (https://github.com/tetrateio/tetrate/blob/master/cloud/docs/misc/tags.md)",
+        "tetrate_team": "Change me! (https://github.com/tetrateio/tetrate/blob/master/cloud/docs/misc/tags.md)"
+    },
+    "name_prefix": "<YOUR UNIQUE PREFIX NAME TO BE CREATED>",
+    "tetrate": {
+        "fqdn": "<YOUR UNIQUE PREFIX NAME TO BE CREATED>.azure.sandbox.tetrate.io",
+        "image_sync_apikey": "<TSB_REPO_APIKEY>",
+        "image_sync_username": "<TSB_REPO_USERNAME>",
+        "organization": "tetrate",
+        "password": "Tetrate123",
+        "version": "1.7.2"
+    }
 }
