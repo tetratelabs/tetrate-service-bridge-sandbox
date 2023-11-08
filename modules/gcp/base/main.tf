@@ -48,14 +48,24 @@ data "google_compute_zones" "available" {
 }
 
 resource "google_compute_subnetwork" "tsb" {
-  count = min(var.min_az_count, var.max_az_count)
+  count = 1
   name  = "${var.name_prefix}-subnet${data.google_compute_zones.available.names[count.index]}"
 
   project = var.project_id
   region  = var.region
   network = google_compute_network.tsb.self_link
 
-  ip_cidr_range = cidrsubnet(var.cidr, 4, count.index)
+  ip_cidr_range = cidrsubnet(var.cidr, 2, count.index)
+
+  secondary_ip_range {
+    range_name    = "pods"
+    ip_cidr_range = cidrsubnet(var.cidr, 2, count.index + 1)
+  }
+
+  secondary_ip_range {
+    range_name    = "services"
+    ip_cidr_range = cidrsubnet(var.cidr, 2, count.index + 2)
+  }
 }
 
 resource "google_compute_router_nat" "tsb" {
