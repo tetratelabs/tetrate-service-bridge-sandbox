@@ -78,8 +78,7 @@ validate_input "${TFVARS_JSON}"
 
 # Parse tfvars.json and export variables
 # DNS Provider variable
-export DNS_PROVIDER=$(jq -r '.tetrate.dns_provider // .tetrate.fqdn | if . == null then empty else split(".")[1] | sub("sandbox"; "gcp") end' "${TFVARS_JSON}")
-# Parse tfvars.json and export variables
+export DNS_PROVIDER=$(jq -r '.tetrate.dns_provider // .tetrate.fqdn | select(type == "string") | split(".") | if length > 1 then .[1] else .[0] end | select(. != null) | sub("sandbox"; "gcp")' "${TFVARS_JSON}")
 AWS_K8S_REGIONS=$(jq -r '[.k8s_clusters.aws[].region] | join(" ")' "${TFVARS_JSON}")
 export AWS_K8S_REGIONS
 AZURE_K8S_REGIONS=$(jq -r '[.k8s_clusters.azure[].region] | join(" ")' "${TFVARS_JSON}")
