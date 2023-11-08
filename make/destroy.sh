@@ -1,18 +1,16 @@
 #!/usr/bin/env bash
 #
 # Helper script to destroy and cleanup the environment.
-
+#
 BASE_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 export BASE_DIR
 
-# shellcheck source=/dev/null
 source "${BASE_DIR}/helpers.sh"
-# shellcheck source=/dev/null
-source "${BASE_DIR}/variables.sh"
 
 ACTION=${1}
 
 # Validate input values.
+#
 SUPPORTED_ACTIONS=("help" "destroy_tfstate" "destroy_tfcache" "destroy_outputs")
 if ! [[ " ${SUPPORTED_ACTIONS[*]} " == *" ${ACTION} "* ]]; then
   print_error "Invalid action '${ACTION}'. Must be one of '${SUPPORTED_ACTIONS[*]}'."
@@ -20,6 +18,7 @@ if ! [[ " ${SUPPORTED_ACTIONS[*]} " == *" ${ACTION} "* ]]; then
 fi
 
 # This function provides help information for the script.
+#
 function help() {
   echo "Usage: $0 <command> [options]"
   echo "Commands:"
@@ -31,7 +30,6 @@ function help() {
 
 # This function destroys terraform tfstate.
 #
-# Usage: destroy_tfstate
 function destroy_tfstate() {
   set -e
   print_info "Going to destroy terraform tfstate"
@@ -41,7 +39,6 @@ function destroy_tfstate() {
 
 # This function destroys terraform tfcache.
 #
-# Usage: destroy_tfcache
 function destroy_tfcache() {
   set -e
   print_info "Going to destroy terraform tfcache"
@@ -52,7 +49,6 @@ function destroy_tfcache() {
 
 # This function destroys terraform output artifacts.
 #
-# Usage: destroy_outputs
 function destroy_outputs() {
   set -e
   print_info "Going to destroy terraform output artifacts"
@@ -62,7 +58,6 @@ function destroy_outputs() {
 }
 
 
-#
 # Main execution
 #
 case "${ACTION}" in

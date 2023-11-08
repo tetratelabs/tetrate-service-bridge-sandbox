@@ -1,4 +1,5 @@
 #!/bin/bash
+# This script converts the older tfvars format to the new one. 
 
 # Ensure we have a filename
 if [ $# -eq 0 ]; then
