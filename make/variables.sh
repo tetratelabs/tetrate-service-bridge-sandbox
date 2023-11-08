@@ -3,6 +3,7 @@
 # Global variables file
 BASE_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 export BASE_DIR
+source "${BASE_DIR}/prints.sh"
 
 # Check if TFVARS_JSON is not defined and exit.
 if [ -z "${TFVARS_JSON}" ]; then
