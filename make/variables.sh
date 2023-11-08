@@ -76,16 +76,9 @@ function validate_input() {
 # Validate input values
 validate_input "${TFVARS_JSON}"
 
-# Parse tfvars.json and export dns_provider
-dns_provider=$(jq -r '.tetrate.dns_provider' "${TFVARS_JSON}")
-
-if [ "${dns_provider}" == "null" ]; then
-  tetrate_fqdn=$(jq -r '.tetrate.fqdn' "${TFVARS_JSON}")
-  dns_provider=$(echo "${tetrate_fqdn}" | cut -d"." -f2 | sed 's/sandbox/gcp/g')
-fi
+# Parse tfvars.json and export variables
 # DNS Provider variable
-export DNS_PROVIDER="${dns_provider}"
-echo ${DNS_PROVIDER}
+export DNS_PROVIDER=$(jq -r '.tetrate.dns_provider // .tetrate.fqdn | if . == null then empty else split(".")[1] | sub("sandbox"; "gcp") end' "${TFVARS_JSON}")
 # Parse tfvars.json and export variables
 AWS_K8S_REGIONS=$(jq -r '[.k8s_clusters.aws[].region] | join(" ")' "${TFVARS_JSON}")
 export AWS_K8S_REGIONS
