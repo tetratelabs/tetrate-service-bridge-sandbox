@@ -44,9 +44,9 @@ resource "kubectl_manifest" "manifests" {
   depends_on = [time_sleep.wait_90_seconds]
 }
 
-resource "time_sleep" "wait_60_seconds" {
+resource "time_sleep" "wait_120_seconds" {
   depends_on      = [time_sleep.wait_90_seconds]
-  create_duration = "60s"
+  create_duration = "120s"
 }
 
 data "kubernetes_secret" "es_password" {
@@ -54,7 +54,7 @@ data "kubernetes_secret" "es_password" {
     name      = "tsb-es-elastic-user"
     namespace = "elastic-system"
   }
-  depends_on = [time_sleep.wait_60_seconds]
+  depends_on = [time_sleep.wait_120_seconds]
 }
 
 data "kubernetes_secret" "es_cacert" {
@@ -62,7 +62,7 @@ data "kubernetes_secret" "es_cacert" {
     name      = "tsb-es-http-ca-internal"
     namespace = "elastic-system"
   }
-  depends_on = [time_sleep.wait_60_seconds]
+  depends_on = [time_sleep.wait_120_seconds]
 }
 
 
@@ -71,5 +71,5 @@ data "kubernetes_service" "es" {
     name      = "tsb-es-http"
     namespace = "elastic-system"
   }
-  depends_on = [time_sleep.wait_60_seconds]
+  depends_on = [time_sleep.wait_120_seconds]
 }
