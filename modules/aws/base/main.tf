@@ -81,7 +81,7 @@ resource "null_resource" "aws_cleanup" {
     on_failure = continue
   }
 
-  depends_on = [aws_internet_gateway.tsb, local_file.aws_cleanup]
+  depends_on = [aws_subnet.tsb, local_file.aws_cleanup]
 
 }
 
