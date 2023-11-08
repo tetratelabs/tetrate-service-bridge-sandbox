@@ -72,7 +72,6 @@ function destroy_infra() {
   if ! [[ " ${SUPPORTED_CLOUDS[*]} " == *" ${cloud} "* ]]; then print_error "Invalid cloud provider. Must be one of '${SUPPORTED_CLOUDS[*]}'." ; return 1 ; fi
 
   print_info "Going to destroy infra on cloud '${cloud}'"
-  set -e
 
   # Get the number of clusters for the specified cloud provider.
   local cluster_count=$(get_cluster_count "${TFVARS_JSON}" "${cloud}")
