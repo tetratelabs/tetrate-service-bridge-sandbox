@@ -1,13 +1,11 @@
 #!/usr/bin/env bash
 #
 # Helper script for addons: deploy and destroy of argocd, fluxcd, tsb-monitoring and external-dns.
+#
 BASE_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 export BASE_DIR
 
-# shellcheck source=/dev/null
 source "${BASE_DIR}/helpers.sh"
-# shellcheck source=/dev/null
-source "${BASE_DIR}/variables.sh"
 
 ACTION=${1}
 SUPPORTED_CLOUDS=("azure" "aws" "gcp")
@@ -15,6 +13,7 @@ SUPPORTED_REGIONAL_ADDONS=("argocd" "fluxcd" "external-dns")
 SUPPORTED_MP_ADDONS=("tsb-monitoring")
 
 # Validate input values.
+#
 SUPPORTED_ACTIONS=("help"
                    "argocd_aws" "argocd_azure" "argocd_gcp"
                    "fluxcd_aws" "fluxcd_azure" "fluxcd_gcp" 
@@ -30,6 +29,7 @@ if ! [[ " ${SUPPORTED_ACTIONS[*]} " == *" ${ACTION} "* ]]; then
 fi
 
 # This function provides help information for the script.
+#
 function help() {
   echo "Usage: $0 <command> [options]"
   echo "Commands:"
@@ -58,11 +58,6 @@ function help() {
 
 # This function deploys the specified addon on the specified cloud provider per region.
 #
-# Parameters:
-#   $1 - The cloud provider ("azure", "aws", or "gcp").
-#   $2 - The addon name ("argocd", "fluxcd" or "external-dns").
-#
-# Usage: deploy_addon_per_region "azure" "argocd"
 function deploy_addon_per_region() {
   if [[ -z "${1}" ]] ; then print_error "Please provide cloud provider as 1st argument" ; return 1 ; else local cloud="${1}" ; fi
   if ! [[ " ${SUPPORTED_CLOUDS[*]} " == *" ${cloud} "* ]]; then print_error "Invalid cloud provider. Must be one of '${SUPPORTED_CLOUDS[*]}'." ; return 1 ; fi
@@ -104,10 +99,6 @@ function deploy_addon_per_region() {
 
 # This function deploys the specified addon in the management plane cluster.
 #
-# Parameters:
-#   $1 - The addon name ("tsb-monitoring").
-#
-# Usage: deploy_addon_mp_cluster "tsb-monitoring"
 function deploy_addon_mp_cluster() {
   [[ -z "${1}" ]] && print_error "Please provide global addon name as 1st argument" && return 1 || local addon_name="${1}" ;
   if ! [[ " ${SUPPORTED_MP_ADDONS[*]} " == *" ${addon_name} "* ]]; then print_error "Invalid global addon. Must be one of '${SUPPORTED_MP_ADDONS[*]}'." ; return 1 ; fi
@@ -137,11 +128,6 @@ function deploy_addon_mp_cluster() {
 
 # This function destroy the specified addon on the specified cloud provider per region.
 #
-# Parameters:
-#   $1 - The cloud provider ("azure", "aws", or "gcp").
-#   $2 - The addon name ("argocd", "fluxcd" or "external-dns").
-#
-# Usage: destroy_addon_per_region "azure" "argocd"
 function destroy_addon_per_region() {
   if [[ -z "${1}" ]] ; then print_error "Please provide cloud provider as 1st argument" ; return 1 ; else local cloud="${1}" ; fi
   if ! [[ " ${SUPPORTED_CLOUDS[*]} " == *" ${cloud} "* ]]; then print_error "Invalid cloud provider. Must be one of '${SUPPORTED_CLOUDS[*]}'." ; return 1 ; fi
@@ -183,10 +169,6 @@ function destroy_addon_per_region() {
 
 # This function destroys the specified addon in the management plane cluster.
 #
-# Parameters:
-#   $1 - The addon name ("tsb-monitoring").
-#
-# Usage: destroy_addon_mp_cluster "tsb-monitoring"
 function destroy_addon_mp_cluster() {
   [[ -z "${1}" ]] && print_error "Please provide regional addon name as 1st argument" && return 1 || local addon_name="${1}" ;
   if ! [[ " ${SUPPORTED_MP_ADDONS[*]} " == *" ${addon_name} "* ]]; then print_error "Invalid global addon. Must be one of '${SUPPORTED_MP_ADDONS[*]}'." ; return 1 ; fi
@@ -212,8 +194,6 @@ function destroy_addon_mp_cluster() {
   print_info "Finished destroying management cluster addon '${addon_name}'"
 }
 
-
-#
 # Main execution.
 #
 case "${ACTION}" in

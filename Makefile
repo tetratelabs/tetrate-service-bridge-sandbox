@@ -22,7 +22,7 @@ convert_tfvars:  ## Convert tfvars to the new schema
 
 .PHONY: init
 init: convert_tfvars ## Terraform init
-	@/bin/sh -c "export TFVARS_JSON="${tfvars_json}" && ./make/variables.sh"
+	@/bin/sh -c "export TFVARS_JSON="${tfvars_json}" && ./make/helpers.sh"
 	@echo "Please refer to the latest instructions and terraform.tfvars.json file format at https://github.com/tetrateio/tetrate-service-bridge-sandbox#usage"
 
 .PHONY: k8s

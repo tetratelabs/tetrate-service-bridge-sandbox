@@ -1,12 +1,8 @@
 #!/usr/bin/env bash
 #
-# Helper script for global settings, environment file parsing and exposure.
-
+# Global variables file
 BASE_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 export BASE_DIR
-
-# shellcheck source=/dev/null
-source "${BASE_DIR}/helpers.sh"
 
 # Check if TFVARS_JSON is not defined and exit.
 if [ -z "${TFVARS_JSON}" ]; then
@@ -47,13 +43,8 @@ export REQUIRED_VARS=(
   "tetrate.version:"
 )
 
-# This function is used to validate the structure of a JSON input based on a specific schema.
-# It checks for the presence and validity of the fields in the provided JSON.
-#
-# Parameters:
-#   $1 - The path to the JSON file to be validated.
-#
-# Usage: validate_input "/path/to/your/json/file.tfvars.json"
+# This function is used to validate the structure of a JSON input based on a specific schema. It checks for the presence and validity of the fields in the provided JSON.
+
 function validate_input() {
   [[ -z "${1}" ]] && print_error "Please provide terraform.tfvars.json file as 1st argument" && return 1 || local tfvars_json="${1}" ;
 

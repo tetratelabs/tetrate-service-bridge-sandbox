@@ -1,14 +1,11 @@
 #!/usr/bin/env bash
 #
 # Helper script to deploy and destroy cloud infra (including k8s)
-
+#
 BASE_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 export BASE_DIR
 
-# shellcheck source=/dev/null
 source "${BASE_DIR}/helpers.sh"
-# shellcheck source=/dev/null
-source "${BASE_DIR}/variables.sh"
 
 ACTION=${1}
 SUPPORTED_CLOUDS=("azure" "aws" "gcp")
@@ -23,6 +20,7 @@ if ! [[ " ${SUPPORTED_ACTIONS[*]} " == *" ${ACTION} "* ]]; then
 fi
 
 # This function provides help information for the script.
+#
 function help() {
   echo "Usage: $0 <command> [options]"
   echo "Commands:"
@@ -37,10 +35,6 @@ function help() {
 
 # This function deploys infra on the specified cloud provider.
 #
-# Parameters:
-#   $1 - The cloud provider ("azure", "aws", or "gcp").
-#
-# Usage: deploy_infra "azure"
 function deploy_infra() {
   if [[ -z "${1}" ]] ; then print_error "Please provide cloud provider as 1st argument" ; return 1 ; else local cloud="${1}" ; fi
   if ! [[ " ${SUPPORTED_CLOUDS[*]} " == *" ${cloud} "* ]]; then print_error "Invalid cloud provider. Must be one of '${SUPPORTED_CLOUDS[*]}'." ; return 1 ; fi
@@ -72,10 +66,6 @@ function deploy_infra() {
 
 # This function destroys infra on the specified cloud provider.
 #
-# Parameters:
-#   $1 - The cloud provider ("azure", "aws", or "gcp").
-#
-# Usage: destroy_infra "gcp"
 function destroy_infra() {
   if [[ -z "${1}" ]] ; then print_error "Please provide cloud provider as 1st argument" ; return 1 ; else local cloud="${1}" ; fi
   if ! [[ " ${SUPPORTED_CLOUDS[*]} " == *" ${cloud} "* ]]; then print_error "Invalid cloud provider. Must be one of '${SUPPORTED_CLOUDS[*]}'." ; return 1 ; fi
@@ -102,7 +92,6 @@ function destroy_infra() {
   print_info "Finished destroying infra on cloud '${cloud}'"
 }
 
-#
 # Main execution.
 #
 case "${ACTION}" in

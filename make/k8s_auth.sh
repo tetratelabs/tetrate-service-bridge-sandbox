@@ -1,14 +1,11 @@
 #!/usr/bin/env bash
 #
 # Helper script to refresh kubernetes tokens.
-
+#
 BASE_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 export BASE_DIR
 
-# shellcheck source=/dev/null
 source "${BASE_DIR}/helpers.sh"
-# shellcheck source=/dev/null
-source "${BASE_DIR}/variables.sh"
 
 ACTION=${1}
 SUPPORTED_CLOUDS=("azure" "aws" "gcp")
@@ -21,6 +18,7 @@ if ! [[ " ${SUPPORTED_ACTIONS[*]} " == *" ${ACTION} "* ]]; then
 fi
 
 # This function provides help information for the script.
+#
 function help() {
   echo "Usage: $0 <command> [options]"
   echo "Commands:"
@@ -32,10 +30,6 @@ function help() {
 
 # This function refreshes the Kubernetes access token for the specified cloud provider.
 #
-# Parameters:
-#   $1 - The cloud provider ("azure", "aws", or "gcp").
-#
-# Usage: refresh_token_k8s "gcp"
 function refresh_token_k8s() {
   if [[ -z "${1}" ]] ; then print_error "Please provide cloud provider as 1st argument" ; return 1 ; else local cloud="${1}" ; fi
   if ! [[ " ${SUPPORTED_CLOUDS[*]} " == *" ${cloud} "* ]]; then print_error "Invalid cloud provider. Must be one of '${SUPPORTED_CLOUDS[*]}'." ; return 1 ; fi
@@ -61,7 +55,6 @@ function refresh_token_k8s() {
   done
 }
 
-#
 # Main execution.
 #
 case "${ACTION}" in
