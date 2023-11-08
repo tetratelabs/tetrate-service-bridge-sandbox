@@ -91,7 +91,7 @@ output=$(cat <<-END
     "organization": "$(jq -r '.tsb_org' "$filename")",
     "password": "$(jq -r '.tsb_password' "$filename")",
     "version": "$(jq -r '.tsb_version' "$filename")"
-    $(if [ -n "${dns_provider}" ]; then
+    $(if [ -z "${dns_provider}" ]; then
       echo ', "dns_provider": "'"$dns_provider"'"'
     fi)
   }
