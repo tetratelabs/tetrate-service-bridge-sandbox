@@ -42,6 +42,7 @@
     "name_prefix": "<YOUR UNIQUE PREFIX NAME TO BE CREATED>",
     "tetrate": {
         "fqdn": "<YOUR UNIQUE PREFIX NAME TO BE CREATED>.azure.sandbox.tetrate.io",
+        "dns_provider": "azure",
         "image_sync_apikey": "<TSB_REPO_APIKEY>",
         "image_sync_username": "<TSB_REPO_USERNAME>",
         "organization": "tetrate",

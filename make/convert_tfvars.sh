@@ -21,6 +21,9 @@ if jq -e '.k8s_clusters' "$filename" &>/dev/null; then
   exit 0
 fi
 
+# DNS Provider
+dns_provider=$(jq -r '.dns_provider' "$filename")
+
 # Parse the cloud and cluster id where the management plane should be set
 mp_cloud=$(jq -r '.tsb_mp.cloud' "$filename")
 mp_cluster_id=$(jq -r '.tsb_mp.cluster_id' "$filename")
@@ -80,6 +83,9 @@ output=$(cat <<-END
     "organization": "$(jq -r '.tsb_org' "$filename")",
     "password": "$(jq -r '.tsb_password' "$filename")",
     "version": "$(jq -r '.tsb_version' "$filename")"
+    $(if [ -n "${dns_provider}" ]; then
+      echo ', "dns_provider": "'"$dns_provider"'"'
+    fi)
   }
 }
 END

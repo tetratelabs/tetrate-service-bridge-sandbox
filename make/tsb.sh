@@ -68,8 +68,8 @@ function deploy_mp_fqdn() {
 
   local cluster=$(get_mp_cluster_config "${TFVARS_JSON}")
   local fqdn=${TETRATE_FQDN}
+  local dns_provider=${DNS_PROVIDER}
   local address=$(jq -r "if .ingress_ip.value != \"\" then .ingress_ip.value else .ingress_hostname.value end" outputs/terraform_outputs/terraform-tsb-mp.json)
-  local dns_provider=$(get_cluster_cloud "${cluster}")
   local workspace=${NAME_PREFIX}
 
   print_info "Going to deploy tsb management plane fqdn '${fqdn}' with address '${address}' on cloud '${dns_provider}'"
@@ -95,8 +95,8 @@ function destroy_mp_fqdn() {
 
   local cluster=$(get_mp_cluster_config "${TFVARS_JSON}")
   local fqdn=${TETRATE_FQDN}
+  local dns_provider=${DNS_PROVIDER}
   local address=$(jq -r "if .ingress_ip.value != \"\" then .ingress_ip.value else .ingress_hostname.value end" outputs/terraform_outputs/terraform-tsb-mp.json)
-  local dns_provider=$(get_cluster_cloud "${cluster}")
   local workspace=${NAME_PREFIX}
 
   print_info "Going to destroy tsb management plane fqdn '${fqdn}' with address '${address}' on cloud '${dns_provider}'"

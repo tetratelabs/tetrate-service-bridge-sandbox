@@ -54,6 +54,7 @@
     "name_prefix": "<YOUR UNIQUE PREFIX NAME TO BE CREATED>",
     "tetrate": {
         "fqdn": "<YOUR UNIQUE PREFIX NAME TO BE CREATED>.<YOUR_AWS_ACCT_PREFIX>.sandbox.tetrate.io",
+        "dns_provider": "aws",
         "image_sync_apikey": "<TSB_REPO_APIKEY>",
         "image_sync_username": "<TSB_REPO_USERNAME>",
         "organization": "tetrate",
