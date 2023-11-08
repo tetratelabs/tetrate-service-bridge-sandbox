@@ -56,13 +56,20 @@ END
       mp_set=true
     fi
 
+    # Add the addons section here, outside of the "tetrate" key
     clusters_output+="
+        },
+        \"addons\": {
+          \"argocd\": {
+            \"enabled\": true
+          }
         }
       },"
   done
   # Remove the last comma
   echo "${clusters_output%,}"
 }
+
 
 # Collect the output in a variable
 output=$(cat <<-END
