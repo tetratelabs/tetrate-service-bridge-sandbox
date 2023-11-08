@@ -43,7 +43,8 @@ function refresh_token_k8s() {
   for ((index = 0; index < cluster_count; index++)); do
     local cluster=$(get_cluster_config "${TFVARS_JSON}" "${cloud}" "${index}")
     local workspace=$(get_cluster_workspace "${cluster}")
-    echo processing cluster: "${cluster}"
+    echo "Processing cluster:" 
+    echo "${cluster}" | jq '.'
 
     run "pushd infra/${cloud}/k8s_auth > /dev/null"
     run "terraform workspace new ${workspace} || true"

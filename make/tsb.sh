@@ -40,7 +40,8 @@ function deploy_mp() {
   local cloud=$(get_cluster_cloud "${cluster}")
   local workspace=${NAME_PREFIX}
   source "${BASE_DIR}/k8s_auth.sh" k8s_auth_${cloud}
-  echo processing cluster: "${cluster}"
+  echo "Processing cluster:" 
+  echo "${cluster}" | jq '.'
 
   run "pushd tsb/mp > /dev/null"
   run "terraform workspace new ${workspace} || true"
@@ -69,7 +70,8 @@ function deploy_mp_fqdn() {
   local workspace=${NAME_PREFIX}
 
   print_info "Going to deploy tsb management plane fqdn '${fqdn}' with address '${address}' on cloud '${dns_provider}'"
-  echo processing cluster: "${cluster}"
+  echo "Processing cluster:" 
+  echo "${cluster}" | jq '.'
 
   run "pushd tsb/fqdn/${dns_provider} > /dev/null"
   run "terraform workspace new ${workspace} || true"
@@ -95,7 +97,8 @@ function destroy_mp_fqdn() {
   local workspace=${NAME_PREFIX}
 
   print_info "Going to destroy tsb management plane fqdn '${fqdn}' with address '${address}' on cloud '${dns_provider}'"
-  echo processing cluster: "${cluster}"
+  echo "Processing cluster:" 
+  echo "${cluster}" | jq '.'
 
   run "pushd tsb/fqdn/${dns_provider} > /dev/null"
   run "terraform workspace select ${workspace}"
@@ -123,7 +126,8 @@ function deploy_cp() {
     local cluster=$(get_cluster_config "${TFVARS_JSON}" "${cloud}" "${index}")
     local workspace=$(get_cluster_workspace "${cluster}")
     if [[ $(is_cluster_cp "${cluster}") == false ]] ; then echo "Skipping mp only" ; continue ; fi
-    echo processing cluster: "${cluster}"
+    echo "Processing cluster:" 
+    echo "${cluster}" | jq '.'
 
     run "pushd tsb/cp > /dev/null"
     run "terraform workspace new ${workspace} || true"

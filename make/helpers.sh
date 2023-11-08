@@ -62,7 +62,7 @@ function get_cluster_config() {
   cluster=$(jq --arg workspace "${workspace_name}" '. + {workspace: $workspace}' <<< "${cluster}")
 
   # Return resulting augmented cluster object
-  echo $(jq --sort-keys . <<< ${cluster})
+  echo $(jq -c --sort-keys . <<< ${cluster})
 }
 
 # This function retrieves the index of the cluster with "management_plane": true
@@ -107,7 +107,7 @@ function get_mp_cluster_config() {
   cluster=$(jq --arg workspace "${workspace_name}" '. + {workspace: $workspace}' <<< "${cluster}")
 
   # Return resulting augmented cluster object
-  echo $(jq --sort-keys . <<< ${cluster})
+  echo $(jq -c --sort-keys . <<< ${cluster})
 }
 
 # This function retrieves the workspace information from a given cluster configuration.
@@ -170,5 +170,5 @@ function get_cluster_addon_config() {
     return 0
   fi
 
-  echo $(jq --sort-keys -r --arg addon "$addon_name" '.addons[$addon]' <<< "${cluster}")
+  echo $(jq -c --sort-keys -r --arg addon "$addon_name" '.addons[$addon]' <<< "${cluster}")
 }

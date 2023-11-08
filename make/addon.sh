@@ -74,7 +74,8 @@ function deploy_addon_per_region() {
   for ((index = 0; index < cluster_count; index++)); do
     local cluster=$(get_cluster_config "${TFVARS_JSON}" "${cloud}" "${index}")
     local workspace=$(get_cluster_workspace "${cluster}")
-    echo processing cluster: "${cluster}"
+    echo "Processing cluster:" 
+    echo "${cluster}" | jq '.'
 
     if [[ $(is_cluster_addon_enabled "${cluster}" ${addon_name}) == false ]] ; then continue ; fi
     addon_config=$(get_cluster_addon_config "${cluster}" ${addon_name})
@@ -106,7 +107,8 @@ function deploy_addon_mp_cluster() {
   local cluster=$(get_mp_cluster_config "${TFVARS_JSON}")
   local cloud=$(get_cluster_cloud "${cluster}")
   local workspace=$(get_cluster_workspace "${cluster}")
-  echo processing cluster: "${cluster}"
+  echo "Processing cluster:" 
+  echo "${cluster}" | jq '.'
 
   if [[ $(is_cluster_addon_enabled "${cluster}" ${addon_name}) == false ]] ; then return ; fi
   addon_config=$(get_cluster_addon_config "${cluster}" ${addon_name})
@@ -144,7 +146,8 @@ function destroy_addon_per_region() {
   for ((index = 0; index < cluster_count; index++)); do
     local cluster=$(get_cluster_config "${TFVARS_JSON}" "${cloud}" "${index}")
     local workspace=$(get_cluster_workspace "${cluster}")
-    echo processing cluster: "${cluster}"
+    echo "Processing cluster:" 
+    echo "${cluster}" | jq '.'
 
     if [[ $(is_cluster_addon_enabled "${cluster}" ${addon_name}) == false ]] ; then continue ; fi
     addon_config=$(get_cluster_addon_config "${cluster}" ${addon_name})
@@ -176,7 +179,8 @@ function destroy_addon_mp_cluster() {
   local cluster=$(get_mp_cluster_config "${TFVARS_JSON}")
   local cloud=$(get_cluster_cloud "${cluster}")
   local workspace=$(get_cluster_workspace "${cluster}")
-  echo processing cluster: "${cluster}"
+  echo "Processing cluster:" 
+  echo "${cluster}" | jq '.'
 
   if [[ $(is_cluster_addon_enabled "${cluster}" ${addon_name}) == false ]] ; then return ; fi
   addon_config=$(get_cluster_addon_config "${cluster}" ${addon_name})
