@@ -1,20 +1,19 @@
 #!/usr/bin/env bash
 #
 # Helper script for addons: deploy and destroy of argocd, fluxcd, tsb-monitoring and external-dns.
+#
 BASE_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 export BASE_DIR
 
-# shellcheck source=/dev/null
 source "${BASE_DIR}/helpers.sh"
-# shellcheck source=/dev/null
-source "${BASE_DIR}/variables.sh"
 
 ACTION=${1}
 SUPPORTED_CLOUDS=("azure" "aws" "gcp")
 SUPPORTED_REGIONAL_ADDONS=("argocd" "fluxcd" "external-dns")
-SUPPORTED_GLOBAL_ADDONS=("tsb-monitoring")
+SUPPORTED_MP_ADDONS=("tsb-monitoring")
 
 # Validate input values.
+#
 SUPPORTED_ACTIONS=("help"
                    "argocd_aws" "argocd_azure" "argocd_gcp"
                    "fluxcd_aws" "fluxcd_azure" "fluxcd_gcp" 
@@ -30,6 +29,7 @@ if ! [[ " ${SUPPORTED_ACTIONS[*]} " == *" ${ACTION} "* ]]; then
 fi
 
 # This function provides help information for the script.
+#
 function help() {
   echo "Usage: $0 <command> [options]"
   echo "Commands:"
@@ -58,161 +58,146 @@ function help() {
 
 # This function deploys the specified addon on the specified cloud provider per region.
 #
-# Parameters:
-#   $1 - The cloud provider ("azure", "aws", or "gcp").
-#   $2 - The addon name ("argocd", "fluxcd" or "external-dns").
-#
-# Usage: deploy_addon_per_region "azure" "argocd"
 function deploy_addon_per_region() {
-  if [[ -z "${1}" ]] ; then print_error "Please provide cloud provider as 1st argument" ; return 1 ; else local cloud_provider="${1}" ; fi
-  if ! [[ " ${SUPPORTED_CLOUDS[*]} " == *" ${cloud_provider} "* ]]; then print_error "Invalid cloud provider. Must be one of '${SUPPORTED_CLOUDS[*]}'." ; return 1 ; fi
+  if [[ -z "${1}" ]] ; then print_error "Please provide cloud provider as 1st argument" ; return 1 ; else local cloud="${1}" ; fi
+  if ! [[ " ${SUPPORTED_CLOUDS[*]} " == *" ${cloud} "* ]]; then print_error "Invalid cloud provider. Must be one of '${SUPPORTED_CLOUDS[*]}'." ; return 1 ; fi
   [[ -z "${2}" ]] && print_error "Please provide regional addon name as 2nd argument" && return 1 || local addon_name="${2}" ;
   if ! [[ " ${SUPPORTED_REGIONAL_ADDONS[*]} " == *" ${addon_name} "* ]]; then print_error "Invalid regional addon. Must be one of '${SUPPORTED_REGIONAL_ADDONS[*]}'." ; return 1 ; fi
 
-  print_info "Going to deploy regional addon '${addon_name}' on cloud '${cloud_provider}'"
-  source ${BASE_DIR}/k8s_auth.sh k8s_auth_${cloud_provider}
+  print_info "Going to deploy regional addon '${addon_name}' on cloud '${cloud}'"
+  source "${BASE_DIR}/k8s_auth.sh" k8s_auth_${cloud}
   set -e
 
-  local index=0
-  local name_prefix=$(jq -r '.name_prefix' "${TFVARS_JSON}")
+  # Get the number of clusters for the specified cloud provider.
+  local cluster_count=$(get_cluster_count "${TFVARS_JSON}" "${cloud}")
 
-  while read -r region; do
-    cluster_name="${cloud_provider}-${name_prefix}-${region}-${index}"
-    echo cloud="${cloud_provider} region=${region} cluster_id=${index} cluster_name=${cluster_name}"
+  for ((index = 0; index < cluster_count; index++)); do
+    local cluster=$(get_cluster_config "${TFVARS_JSON}" "${cloud}" "${index}")
+    local workspace=$(get_cluster_workspace "${cluster}")
+    echo "Processing cluster:" 
+    echo "${cluster}" | jq '.'
 
+    if [[ $(is_cluster_addon_enabled "${cluster}" ${addon_name}) == false ]] ; then continue ; fi
+    addon_config=$(get_cluster_addon_config "${cluster}" ${addon_name})
     if [[ "${addon_name}" == "external-dns" ]]; then
-      run "pushd addons/${cloud_provider}/${addon_name} > /dev/null"
+      run "pushd addons/${addon_name}/${cloud} > /dev/null"
       root_path="../../.."
-      # Dynamic variable lookup based on $cloud_provider value, e.g. aws to AWS to get to EXTERNAL_DNS_AWS_DNS_ZONE
-      CLOUD_PROVIDER=$(echo "$cloud_provider" | tr 'a-z' 'A-Z')
-      local external_dns_cloud_provider_dns_zone="EXTERNAL_DNS_${CLOUD_PROVIDER}_DNS_ZONE"
-      if [[ -n "${!external_dns_cloud_provider_dns_zone}" ]]; then
-        print_error "Missing $(echo "$external_dns_cloud_provider_dns_zone" | tr 'A-Z' 'a-z') variable in the JSON... skipping external-dns zone setup for cloud=${cloud_provider} region=${region} cluster_id=${index} cluster_name=${cluster_name}"
-        continue
-      fi
     else
       run "pushd addons/${addon_name} > /dev/null"
       root_path="../.."
     fi
-    run "terraform workspace new ${cloud_provider}-${index}-${region} || true"
-    run "terraform workspace select ${cloud_provider}-${index}-${region}"
+    run "terraform workspace new ${workspace} || true"
+    run "terraform workspace select ${workspace}"
     run "terraform init"
-    run "terraform apply ${TERRAFORM_APPLY_ARGS} -var-file=${root_path}/${TFVARS_JSON} -var=cloud=${cloud_provider} -var=cluster_id=${index}"
-    run "terraform output ${TERRAFORM_OUTPUT_ARGS} | jq . > ${root_path}/outputs/terraform_outputs/terraform-${addon_name}-${cloud}-${index}.json"
+    run "terraform apply ${TERRAFORM_APPLY_ARGS} -var-file=${root_path}/${TFVARS_JSON} -var=cluster='${cluster}' -var=addon_config='${addon_config}'"
+    run "terraform output ${TERRAFORM_OUTPUT_ARGS} | jq . > ${root_path}/outputs/terraform_outputs/terraform-${workspace}.json"
     run "terraform workspace select default"
     run "popd > /dev/null"
-    
-    index=$((index+1))
-  done < <(jq -r ".${cloud_provider}_k8s_regions[]" "${TFVARS_JSON}")
+  done
 
-  print_info "Finished deploying regional addon '${addon_name}' on cloud '${cloud_provider}'"
+  print_info "Finished deploying regional addon '${addon_name}' on cloud '${cloud}'"
 }
 
-# This function deploys the specified addon globally.
+# This function deploys the specified addon in the management plane cluster.
 #
-# Parameters:
-#   $1 - The addon name ("tsb-monitoring").
-#
-# Usage: deploy_addon_global "tsb-monitoring"
-function deploy_addon_global() {
+function deploy_addon_mp_cluster() {
   [[ -z "${1}" ]] && print_error "Please provide global addon name as 1st argument" && return 1 || local addon_name="${1}" ;
-  if ! [[ " ${SUPPORTED_GLOBAL_ADDONS[*]} " == *" ${addon_name} "* ]]; then print_error "Invalid global addon. Must be one of '${SUPPORTED_GLOBAL_ADDONS[*]}'." ; return 1 ; fi
+  if ! [[ " ${SUPPORTED_MP_ADDONS[*]} " == *" ${addon_name} "* ]]; then print_error "Invalid global addon. Must be one of '${SUPPORTED_MP_ADDONS[*]}'." ; return 1 ; fi
+  
+  local cluster=$(get_mp_cluster_config "${TFVARS_JSON}")
+  local cloud=$(get_cluster_cloud "${cluster}")
+  local workspace=$(get_cluster_workspace "${cluster}")
+  echo "Processing cluster:" 
+  echo "${cluster}" | jq '.'
 
-  print_info "Going to deploy global addon '${addon_name}'"
-  local cloud_provider=$(jq -r '.tsb_mp.cloud' "${TFVARS_JSON}")
-  source ${BASE_DIR}/k8s_auth.sh k8s_auth_${cloud_provider}
+  if [[ $(is_cluster_addon_enabled "${cluster}" ${addon_name}) == false ]] ; then return ; fi
+  addon_config=$(get_cluster_addon_config "${cluster}" ${addon_name})
+  source "${BASE_DIR}/k8s_auth.sh" k8s_auth_${cloud}
+  print_info "Going to deploy management cluster addon '${addon_name}'"
   set -e
 
   run "pushd addons/${addon_name} > /dev/null"
-  run "terraform workspace select default"
+  run "terraform workspace new ${workspace} || true"
+  run "terraform workspace select ${workspace}"
   run "terraform init"
-  run "terraform apply ${TERRAFORM_APPLY_ARGS} -var-file=../../${TFVARS_JSON}"
+  run "terraform apply ${TERRAFORM_APPLY_ARGS} -var-file=../../${TFVARS_JSON} -var=cluster='${cluster}' -var=addon_config='${addon_config}'"
   run "terraform output ${TERRAFORM_OUTPUT_ARGS} | jq . > ../../outputs/terraform_outputs/terraform-${addon_name}.json"
   run "terraform workspace select default"
   run "popd > /dev/null"
 
-  print_info "Finished deploying global addon '${addon_name}'"
+  print_info "Finished deploying management cluster addon '${addon_name}'"
 }
 
 # This function destroy the specified addon on the specified cloud provider per region.
 #
-# Parameters:
-#   $1 - The cloud provider ("azure", "aws", or "gcp").
-#   $2 - The addon name ("argocd", "fluxcd" or "external-dns").
-#
-# Usage: destroy_addon_per_region "azure" "argocd"
 function destroy_addon_per_region() {
-  if [[ -z "${1}" ]] ; then print_error "Please provide cloud provider as 1st argument" ; return 1 ; else local cloud_provider="${1}" ; fi
-  if ! [[ " ${SUPPORTED_CLOUDS[*]} " == *" ${cloud_provider} "* ]]; then print_error "Invalid cloud provider. Must be one of '${SUPPORTED_CLOUDS[*]}'." ; return 1 ; fi
+  if [[ -z "${1}" ]] ; then print_error "Please provide cloud provider as 1st argument" ; return 1 ; else local cloud="${1}" ; fi
+  if ! [[ " ${SUPPORTED_CLOUDS[*]} " == *" ${cloud} "* ]]; then print_error "Invalid cloud provider. Must be one of '${SUPPORTED_CLOUDS[*]}'." ; return 1 ; fi
   [[ -z "${2}" ]] && print_error "Please provide regional addon name as 2nd argument" && return 1 || local addon_name="${2}" ;
   if ! [[ " ${SUPPORTED_REGIONAL_ADDONS[*]} " == *" ${addon_name} "* ]]; then print_error "Invalid regional addon. Must be one of '${SUPPORTED_REGIONAL_ADDONS[*]}'." ; return 1 ; fi
 
-  print_info "Going to destroy regional addon '${addon_name}' on cloud '${cloud_provider}'"
-  source ${BASE_DIR}/k8s_auth.sh k8s_auth_${cloud_provider}
+  print_info "Going to destroy regional addon '${addon_name}' on cloud '${cloud}'"
+  source "${BASE_DIR}/k8s_auth.sh" k8s_auth_${cloud}
   set -e
 
-  local index=0
+  # Get the number of clusters for the specified cloud provider.
+  local cluster_count=$(get_cluster_count "${TFVARS_JSON}" "${cloud}")
 
-  while read -r region; do
-    cluster_name="${cloud_provider}-${name_prefix}-${region}-${index}"
-    echo cloud="${cloud_provider} region=${region} cluster_id=${index} cluster_name=${cluster_name}"
+  for ((index = 0; index < cluster_count; index++)); do
+    local cluster=$(get_cluster_config "${TFVARS_JSON}" "${cloud}" "${index}")
+    local workspace=$(get_cluster_workspace "${cluster}")
+    echo "Processing cluster:" 
+    echo "${cluster}" | jq '.'
 
+    if [[ $(is_cluster_addon_enabled "${cluster}" ${addon_name}) == false ]] ; then continue ; fi
+    addon_config=$(get_cluster_addon_config "${cluster}" ${addon_name})
     if [[ "${addon_name}" == "external-dns" ]]; then
-      run "pushd addons/${cloud_provider}/${addon_name} > /dev/null"
+      run "pushd addons/${addon_name}/${cloud} > /dev/null"
       root_path="../../.."
-      # Dynamic variable lookup based on $cloud_provider value, e.g. aws to AWS to get to EXTERNAL_DNS_AWS_DNS_ZONE
-      CLOUD_PROVIDER=$(echo "$cloud_provider" | tr 'a-z' 'A-Z')
-      local external_dns_cloud_provider_dns_zone="EXTERNAL_DNS_${CLOUD_PROVIDER}_DNS_ZONE"
-      if [[ -n "${!external_dns_cloud_provider_dns_zone}" ]]; then
-        print_error "Missing $(echo "$external_dns_cloud_provider_dns_zone" | tr 'A-Z' 'a-z') variable in the JSON... skipping external-dns zone setup for cloud=${cloud_provider} region=${region} cluster_id=${index} cluster_name=${cluster_name}"
-        continue
-      fi
     else
       run "pushd addons/${addon_name} > /dev/null"
       root_path="../.."
     fi
-    run "terraform workspace new ${cloud_provider}-${index}-${region} || true"
-    run "terraform workspace select ${cloud_provider}-${index}-${region}"
+    run "terraform workspace new ${workspace} || true"
+    run "terraform workspace select ${workspace}"
     run "terraform init"
-    run "terraform destroy ${TERRAFORM_DESTROY_ARGS} -var-file=${root_path}/${TFVARS_JSON} -var=cloud=${cloud_provider} -var=cluster_id=${index}"
+    run "terraform destroy ${TERRAFORM_DESTROY_ARGS} -var-file=${root_path}/${TFVARS_JSON} -var=cluster='${cluster}' -var=addon_config='${addon_config}' || true"
     run "terraform workspace select default"
-    run "terraform workspace delete ${TERRAFORM_WORKSPACE_ARGS} ${cloud_provider}-${index}-${region}"
+    run "terraform workspace delete ${TERRAFORM_WORKSPACE_ARGS} ${workspace}"
     run "popd > /dev/null"
+  done
 
-    index=$((index+1))
-  done < <(jq -r ".${cloud_provider}_k8s_regions[]" "${TFVARS_JSON}")
-
-  print_info "Finished destroying regional addon '${addon_name}' on cloud '${cloud_provider}'"
-
+  print_info "Finished destroying regional addon '${addon_name}' on cloud '${cloud}'"
 }
 
-# This function destroys the specified addon globally.
+# This function destroys the specified addon in the management plane cluster.
 #
-# Parameters:
-#   $1 - The addon name ("tsb-monitoring").
-#
-# Usage: destroy_addon_global "tsb-monitoring"
-function destroy_addon_global() {
+function destroy_addon_mp_cluster() {
   [[ -z "${1}" ]] && print_error "Please provide regional addon name as 1st argument" && return 1 || local addon_name="${1}" ;
-  if ! [[ " ${SUPPORTED_GLOBAL_ADDONS[*]} " == *" ${addon_name} "* ]]; then print_error "Invalid global addon. Must be one of '${SUPPORTED_GLOBAL_ADDONS[*]}'." ; return 1 ; fi
+  if ! [[ " ${SUPPORTED_MP_ADDONS[*]} " == *" ${addon_name} "* ]]; then print_error "Invalid global addon. Must be one of '${SUPPORTED_MP_ADDONS[*]}'." ; return 1 ; fi
 
-  print_info "Going to destroy global addon '${addon_name}'"
-  local cloud_provider=$(jq -r '.tsb_mp.cloud' "${TFVARS_JSON}")
-  source ${BASE_DIR}/k8s_auth.sh k8s_auth_${cloud_provider}
+  local cluster=$(get_mp_cluster_config "${TFVARS_JSON}")
+  local cloud=$(get_cluster_cloud "${cluster}")
+  local workspace=$(get_cluster_workspace "${cluster}")
+  echo "Processing cluster:" 
+  echo "${cluster}" | jq '.'
+
+  if [[ $(is_cluster_addon_enabled "${cluster}" ${addon_name}) == false ]] ; then return ; fi
+  addon_config=$(get_cluster_addon_config "${cluster}" ${addon_name})
+  source "${BASE_DIR}/k8s_auth.sh" k8s_auth_${cloud}
+  print_info "Going to destroy management cluster addon '${addon_name}'"
   set -e
 
   run "pushd addons/${addon_name} > /dev/null"
-  run "terraform workspace select default"
+  run "terraform workspace select ${workspace}"
   run "terraform init"
-  run "terraform destroy ${TERRAFORM_DESTROY_ARGS} -var-file=../../${TFVARS_JSON}"
+  run "terraform destroy ${TERRAFORM_DESTROY_ARGS} -var-file=../../${TFVARS_JSON} -var=cluster='${cluster}' -var=addon_config='${addon_config}' || true"
   run "terraform workspace select default"
   run "popd > /dev/null"
 
-  print_info "Finished destroying global addon '${addon_name}'"
+  print_info "Finished destroying management cluster addon '${addon_name}'"
 }
 
-
-#
 # Main execution.
 #
 case "${ACTION}" in
@@ -245,7 +230,7 @@ case "${ACTION}" in
     ;;
   tsb_monitoring)
     print_stage "Going to deploy addon 'tsb-monitoring'" 
-    deploy_addon_global "tsb-monitoring"
+    deploy_addon_mp_cluster "tsb-monitoring"
     ;;
   external_dns_aws)
     print_stage "Going to deploy addon 'external-dns' on cloud 'aws'" 
@@ -285,7 +270,7 @@ case "${ACTION}" in
     ;;
   destroy_tsb_monitoring)
     print_stage "Going to destroy addon 'tsb-monitoring'" 
-    destroy_addon_global "tsb-monitoring"
+    destroy_addon_mp_cluster "tsb-monitoring"
     ;;
   destroy_external_dns_aws)
     print_stage "Going to destroy addon 'external-dns' on cloud 'aws'" 

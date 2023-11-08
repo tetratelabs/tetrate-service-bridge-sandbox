@@ -9,3 +9,9 @@ terraform {
     }
   }
 }
+
+provider "google" {
+  /* https://github.com/hashicorp/terraform-provider-google/issues/7325
+  default_labels = {
+  } */
+}

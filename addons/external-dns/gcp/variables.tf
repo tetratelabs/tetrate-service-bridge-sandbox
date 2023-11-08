@@ -66,20 +66,59 @@ locals {
   tetrate = merge(local.tetrate_defaults, var.tetrate)
 }
 
+variable "name_prefix" {
+  description = "name prefix"
+  type        = string
+}
+
+variable "tags" {
+  description = "A map of resource tags, with 'tetrate_owner' and 'tetrate_team' as mandatory tags"
+  type        = map(string)
+  default     = {}
+}
+
+locals {
+  mandatory_tags = {
+    tetrate_owner = try(var.tags["tetrate_owner"], error("Missing 'tetrate_owner' tag")),
+    tetrate_team  = try(var.tags["tetrate_team"], error("Missing 'tetrate_team' tag")),
+  }
+  optional_tags = {
+    environment      = coalesce(lookup(var.tags, "environment", null), var.name_prefix)
+    tetrate_customer = coalesce(lookup(var.tags, "tetrate_customer", null), "internal")
+    tetrate_lifespan = coalesce(lookup(var.tags, "tetrate_lifespan", null), "oneoff")
+    tetrate_purpose  = coalesce(lookup(var.tags, "tetrate_purpose", null), "demo")
+  }
+  all_tags_merged = merge(local.mandatory_tags, local.optional_tags, var.tags)
+  tags = {
+    for k, v in local.all_tags_merged : k => replace(v, ":", "_")
+  }
+}
+
+variable "output_path" {
+  description = "output path"
+  type        = string
+  default     = "../../../outputs"
+}
+
 variable "addon_config" {
   description = "An object containing addon configuration"
-  type        = map(any)
+  type        = map(string)
   default     = {}
   /*
-    monitoring_namespace = optional(string)
-    grafana_service_type = optional(string)
+    dns_annotation_filter = optional(string)
+    dns_interval          = optional(string)
+    dns_label_filter      = optional(string)
+    dns_sources           = optional(string)
+    dns_zone              = string
   */
 }
 
 locals {
   addon_config_defaults = {
-    monitoring_namespace = "tsb-monitoring"
-    grafana_service_type = "ClusterIP"
+    dns_annotation_filter = ""
+    dns_interval          = "5s"
+    dns_label_filter      = ""
+    dns_sources           = "service"
   }
   addon_config = merge(local.addon_config_defaults, var.addon_config)
 }

@@ -1,56 +1,108 @@
-variable "cluster_id" {
-  type    = string
-  default = null
+variable "cluster" {
+  description = "An object containing the cluster configuration"
+  type = object({
+    cloud  = string
+    index  = number
+    name   = string
+    region = string
+    tetrate = object({
+      control_plane    = optional(bool)
+      management_plane = optional(bool)
+    })
+    version   = optional(string)
+    workspace = string
+  })
 }
 
-variable "cluster_name" {
-  type    = string
-  default = null
+locals {
+  cluster_defaults = {
+    tetrate = {
+      control_plane    = false
+      management_plane = false
+    }
+    version = "1.27"
+  }
+  cluster = {
+    cloud  = var.cluster.cloud
+    index  = var.cluster.index
+    name   = var.cluster.name
+    region = var.cluster.region
+    tetrate = {
+      control_plane    = coalesce(var.cluster.tetrate.control_plane, local.cluster_defaults.tetrate.control_plane)
+      management_plane = coalesce(var.cluster.tetrate.management_plane, local.cluster_defaults.tetrate.management_plane)
+    }
+    version   = coalesce(var.cluster.version, local.cluster_defaults.version)
+    workspace = var.cluster.workspace
+  }
+}
+
+variable "tetrate" {
+  description = "An object containing global tetrate configuration"
+  type        = map(any)
+  default     = {}
+  /*
+    fqdn                = string
+    helm_password       = optional(string)
+    helm_repository     = optional(string)
+    helm_username       = optional(string)
+    helm_version        = optional(string)
+    image_sync_apikey   = string
+    image_sync_username = string
+    organization        = string
+    password            = string
+    username            = optional(string)
+    version             = string
+  */
+}
+
+locals {
+  tetrate_defaults = {
+    helm_password   = ""
+    helm_repository = "https://charts.dl.tetrate.io/public/helm/charts/"
+    helm_username   = ""
+    helm_version    = null
+    username        = "admin"
+  }
+  tetrate = merge(local.tetrate_defaults, var.tetrate)
 }
 
 variable "name_prefix" {
-  type        = string
   description = "name prefix"
+  type        = string
+}
+
+variable "tags" {
+  description = "A map of resource tags, with 'tetrate_owner' and 'tetrate_team' as mandatory tags"
+  type        = map(string)
+  default     = {}
+}
+
+locals {
+  mandatory_tags = {
+    tetrate_owner = try(var.tags["tetrate_owner"], error("Missing 'tetrate_owner' tag")),
+    tetrate_team  = try(var.tags["tetrate_team"], error("Missing 'tetrate_team' tag")),
+  }
+  optional_tags = {
+    environment      = coalesce(lookup(var.tags, "environment", null), var.name_prefix)
+    tetrate_customer = coalesce(lookup(var.tags, "tetrate_customer", null), "internal")
+    tetrate_lifespan = coalesce(lookup(var.tags, "tetrate_lifespan", null), "oneoff")
+    tetrate_purpose  = coalesce(lookup(var.tags, "tetrate_purpose", null), "demo")
+  }
+  all_tags_merged = merge(local.mandatory_tags, local.optional_tags, var.tags)
+  tags = {
+    for k, v in local.all_tags_merged : k => replace(v, ":", "_")
+  }
 }
 
 variable "cidr" {
-  type        = string
   description = "cidr"
+  type        = string
   default     = "172.16.0.0/12"
 }
 
-variable "tsb_image_sync_username" {
-  type = string
-}
-
-variable "tsb_image_sync_apikey" {
-  type = string
-}
-
-variable "tsb_version" {
+variable "gcp_billing_id" {
   type    = string
-  default = "1.7.0"
-}
-
-variable "tsb_helm_repository" {
-  type    = string
-  default = "https://charts.dl.tetrate.io/public/helm/charts/"
-}
-
-variable "jumpbox_username" {
-  type    = string
-  default = "tsbadmin"
-}
-
-variable "jumpbox_machine_type" {
-  type    = string
-  default = "n1-standard-2"
-}
-
-
-variable "gcp_k8s_region" {
-  type    = string
-  default = null
+  default = "0183E5-447B34-776DEB"
 }
 
 variable "gcp_project_id" {
@@ -63,19 +115,15 @@ variable "gcp_org_id" {
   default = "775566979306"
 }
 
-variable "gcp_billing_id" {
+variable "jumpbox_machine_type" {
   type    = string
-  default = "0183E5-447B34-776DEB"
+  default = "n1-standard-2"
 }
 
-variable "gcp_gke_k8s_version" {
-  type    = string
-  default = "1.26"
-}
-
-variable "output_path" {
-  type    = string
-  default = "../../outputs"
+variable "jumpbox_username" {
+  description = "jumpbox username"
+  type        = string
+  default     = "tsbadmin"
 }
 
 variable "preemptible_nodes" {
@@ -83,36 +131,8 @@ variable "preemptible_nodes" {
   default = false
 }
 
-variable "tetrate_owner" {
-  type = string
-}
-
-variable "tetrate_team" {
-  type = string
-}
-
-variable "tetrate_purpose" {
-  type    = string
-  default = "demo"
-}
-
-variable "tetrate_lifespan" {
-  type    = string
-  default = "oneoff"
-}
-
-variable "tetrate_customer" {
-  type    = string
-  default = "internal"
-}
-
-locals {
-  default_tags = {
-    tetrate_owner    = replace(coalesce(var.tetrate_owner, var.tsb_image_sync_username), "/\\W+/", "_")
-    tetrate_team     = replace(var.tetrate_team, "/\\W+/", "_")
-    tetrate_purpose  = var.tetrate_purpose
-    tetrate_lifespan = var.tetrate_lifespan
-    tetrate_customer = var.tetrate_customer
-    environment      = var.name_prefix
-  }
+variable "output_path" {
+  description = "output path"
+  type        = string
+  default     = "../../outputs"
 }

@@ -110,7 +110,7 @@ resource "azurerm_linux_virtual_machine" "jumpbox" {
   name                  = "${var.name_prefix}-jumpbox-vm"
   location              = var.location
   resource_group_name   = var.resource_group_name
-  size                  = "Standard_F2s_v2"
+  size                  = var.machine_type
   network_interface_ids = [azurerm_network_interface.jumpbox_nic.id]
   admin_username        = var.jumpbox_username
   custom_data = base64encode(templatefile("${path.module}/jumpbox.userdata", {

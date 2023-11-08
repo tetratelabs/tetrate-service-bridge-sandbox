@@ -39,6 +39,12 @@ resource "helm_release" "argocd" {
     name  = "server.service.type"
     value = var.service_type
   }
+
+  set {
+    name  = "server.service.annotations.external-dns\\.alpha\\.kubernetes\\.io/hostname"
+    value = var.service_fqdn
+    type  = "string"
+  }
 }
 
 resource "kubectl_manifest" "manifests_argocd_apps" {

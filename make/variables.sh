@@ -1,12 +1,9 @@
 #!/usr/bin/env bash
 #
-# Helper script for global settings, environment file parsing and exposure.
-
+# Global variables file
 BASE_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 export BASE_DIR
-
-# shellcheck source=/dev/null
-source "${BASE_DIR}/helpers.sh"
+source "${BASE_DIR}/prints.sh"
 
 # Check if TFVARS_JSON is not defined and exit.
 if [ -z "${TFVARS_JSON}" ]; then
@@ -37,35 +34,24 @@ fi
 # Required tfvars.json variables
 #   format: "<parameter>:<allowed_value1>,<allowed_value2>,..."
 export REQUIRED_VARS=(
-  "aws_k8s_regions:"
-  "azure_k8s_regions:"
-  "gcp_k8s_regions:"
+  "k8s_clusters:"
   "name_prefix:"
-  "tetrate_owner:"
-  "tetrate_team:"
-  "tsb_fqdn:"
-  "tsb_image_sync_apikey:"
-  "tsb_image_sync_username:"
-  "tsb_mp.cloud:aws,azure,gcp"
-  "tsb_mp.cluster_id:"
-  "tsb_org:"
-  "tsb_password:"
-  "tsb_version:"
-  )
+  "tetrate.fqdn:"
+  "tetrate.image_sync_apikey:"
+  "tetrate.image_sync_username:"
+  "tetrate.organization:"
+  "tetrate.password:"
+  "tetrate.version:"
+)
 
-# This function is used to validate the structure of a JSON input based on a specific schema.
-# It checks for the presence and validity of the fields in the provided JSON.
-#
-# Parameters:
-#   $1 - The path to the JSON file to be validated.
-#
-# Usage: validate_input "/path/to/your/json/file.tfvars.json"
+# This function is used to validate the structure of a JSON input based on a specific schema. It checks for the presence and validity of the fields in the provided JSON.
+
 function validate_input() {
-  [[ -z "${1}" ]] && print_error "Please provide tfvar.json file as 1st argument" && return 1 || local json_tfvars="${1}" ;
+  [[ -z "${1}" ]] && print_error "Please provide terraform.tfvars.json file as 1st argument" && return 1 || local tfvars_json="${1}" ;
 
   # Check if the file exists
-  if [[ ! -f "${json_tfvars}" ]]; then
-    print_error "File '${json_tfvars}' does not exist."
+  if [[ ! -f "${tfvars_json}" ]]; then
+    print_error "File '${tfvars_json}' does not exist."
     exit 1
   fi
 
@@ -73,10 +59,10 @@ function validate_input() {
   for item in "${REQUIRED_VARS[@]}"; do
     variable="${item%%:*}" ; # Extracts everything before the colon
     allowed_values="${item##*:}" ; # Extracts everything after the colon
-    current_value=$(jq -r ".${variable}" "${json_tfvars}")
+    current_value=$(jq -r ".${variable}" "${tfvars_json}")
 
     if [[ "${current_value}" == "null" ]]; then
-        echo "Missing ${variable} in the JSON.";
+        print_error "Missing ${variable} in the JSON.";
         exit 1;
     fi
     if [[ -n "${allowed_values}" ]] && ! [[ "${allowed_values}" =~ .*"${current_value}".* ]] ; then
@@ -85,46 +71,33 @@ function validate_input() {
     fi
   done
 
-  print_info "JSON structure of '${json_tfvars}' is valid."
+  print_info "JSON structure of '${tfvars_json}' is valid."
 }
 
 # Validate input values
 validate_input "${TFVARS_JSON}"
 
 # Parse tfvars.json and export variables
-AWS_K8S_REGIONS=$(jq -r '.aws_k8s_regions | join(" ")' "${TFVARS_JSON}")
+# DNS Provider variable
+export DNS_PROVIDER=$(jq -r '.tetrate.dns_provider // .tetrate.fqdn | select(type == "string") | split(".") | if length > 1 then .[1] else .[0] end | select(. != null) | sub("sandbox"; "gcp")' "${TFVARS_JSON}")
+AWS_K8S_REGIONS=$(jq -r '[.k8s_clusters.aws[].region] | join(" ")' "${TFVARS_JSON}")
 export AWS_K8S_REGIONS
-AZURE_K8S_REGIONS=$(jq -r '.azure_k8s_regions | join(" ")' "${TFVARS_JSON}")
+AZURE_K8S_REGIONS=$(jq -r '[.k8s_clusters.azure[].region] | join(" ")' "${TFVARS_JSON}")
 export AZURE_K8S_REGIONS
-DNS_PROVIDER=$(jq -r '.dns_provider' "${TFVARS_JSON}")
-export DNS_PROVIDER
-GCP_K8S_REGIONS=$(jq -r '.gcp_k8s_regions | join(" ")' "${TFVARS_JSON}")
+GCP_K8S_REGIONS=$(jq -r '[.k8s_clusters.gcp[].region] | join(" ")' "${TFVARS_JSON}")
 export GCP_K8S_REGIONS
 NAME_PREFIX=$(jq -r '.name_prefix' "${TFVARS_JSON}")
 export NAME_PREFIX
-TETRATE_OWNER=$(jq -r '.tetrate_owner' "${TFVARS_JSON}")
-export TETRATE_OWNER
-TETRATE_TEAM=$(jq -r '.tetrate_team' "${TFVARS_JSON}")
-export TETRATE_TEAM
-TSB_FQDN=$(jq -r '.tsb_fqdn' "${TFVARS_JSON}")
-export TSB_FQDN
-TSB_IMAGE_SYNC_APIKEY=$(jq -r '.tsb_image_sync_apikey' "${TFVARS_JSON}")
-export TSB_IMAGE_SYNC_APIKEY
-TSB_IMAGE_SYNC_USERNAME=$(jq -r '.tsb_image_sync_username' "${TFVARS_JSON}")
-export TSB_IMAGE_SYNC_USERNAME
-TSB_MP_CLOUD=$(jq -r '.tsb_mp.cloud' "${TFVARS_JSON}")
-export TSB_MP_CLOUD
-TSB_MP_CLUSTER_ID=$(jq -r '.tsb_mp.cluster_id' "${TFVARS_JSON}")
-export TSB_MP_CLUSTER_ID
-TSB_ORG=$(jq -r '.tsb_org' "${TFVARS_JSON}")
-export TSB_ORG
-TSB_PASSWORD=$(jq -r '.tsb_password' "${TFVARS_JSON}")
-export TSB_PASSWORD
-TSB_VERSION=$(jq -r '.tsb_version' "${TFVARS_JSON}")
-export TSB_VERSION
-EXTERNAL_DNS_AWS_DNS_ZONE=$(jq -r '.external_dns_aws_dns_zone' "${TFVARS_JSON}")
-export EXTERNAL_DNS_AWS_DNS_ZONE
-EXTERNAL_DNS_AZURE_DNS_ZONE=$(jq -r '.external_dns_azure_dns_zone' "${TFVARS_JSON}")
-export EXTERNAL_DNS_AZURE_DNS_ZONE
-EXTERNAL_DNS_GCP_DNS_ZONE=$(jq -r '.external_dns_gcp_dns_zone' "${TFVARS_JSON}")
-export EXTERNAL_DNS_GCP_DNS_ZONE
+
+TETRATE_FQDN=$(jq -r '.tetrate.fqdn' "${TFVARS_JSON}")
+export TETRATE_FQDN
+TETRATE_IMAGE_SYNC_APIKEY=$(jq -r '.tetrate.image_sync_apikey' "${TFVARS_JSON}")
+export TETRATE_IMAGE_SYNC_APIKEY
+TETRATE_IMAGE_SYNC_USERNAME=$(jq -r '.tetrate.image_sync_username' "${TFVARS_JSON}")
+export TETRATE_IMAGE_SYNC_USERNAME
+TETRATE_ORGANIZATION=$(jq -r '.tetrate.organization' "${TFVARS_JSON}")
+export TETRATE_ORGANIZATION
+TETRATE_PASSWORD=$(jq -r '.tetrate.password' "${TFVARS_JSON}")
+export TETRATE_PASSWORD
+TETRATE_VERSION=$(jq -r '.tetrate.version' "${TFVARS_JSON}")
+export TETRATE_VERSION

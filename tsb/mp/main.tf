@@ -1,14 +1,14 @@
 data "terraform_remote_state" "infra" {
   backend = "local"
   config = {
-    path = "../../infra/${var.tsb_mp["cloud"]}/terraform.tfstate.d/${var.tsb_mp["cloud"]}-${var.tsb_mp["cluster_id"]}-${local.k8s_regions[tonumber(var.tsb_mp["cluster_id"])]}/terraform.tfstate"
+    path = "../../infra/${local.cluster.cloud}/terraform.tfstate.d/${local.cluster.workspace}/terraform.tfstate"
   }
 }
 
 data "terraform_remote_state" "k8s_auth" {
   backend = "local"
   config = {
-    path = "../../infra/${var.tsb_mp["cloud"]}/k8s_auth/terraform.tfstate.d/${var.tsb_mp["cloud"]}-${var.tsb_mp["cluster_id"]}-${local.k8s_regions[tonumber(var.tsb_mp["cluster_id"])]}/terraform.tfstate"
+    path = "../../infra/${local.cluster.cloud}/k8s_auth/terraform.tfstate.d/${local.cluster.workspace}/terraform.tfstate"
   }
 }
 
@@ -32,17 +32,17 @@ module "es" {
 module "tsb_mp" {
   source                          = "../../modules/tsb/mp"
   name_prefix                     = var.name_prefix
-  tsb_version                     = var.tsb_version
-  tsb_helm_repository             = var.tsb_helm_repository
-  tsb_helm_repository_username    = var.tsb_helm_repository_username
-  tsb_helm_repository_password    = var.tsb_helm_repository_password
-  tsb_helm_version                = coalesce(var.tsb_helm_version, var.tsb_version)
-  tsb_fqdn                        = var.tsb_fqdn
-  tsb_org                         = var.tsb_org
-  tsb_username                    = var.tsb_username
-  tsb_password                    = var.tsb_password
-  tsb_image_sync_username         = var.tsb_image_sync_username
-  tsb_image_sync_apikey           = var.tsb_image_sync_apikey
+  tsb_version                     = local.tetrate.version
+  tsb_helm_repository             = local.tetrate.helm_repository
+  tsb_helm_repository_username    = local.tetrate.helm_username
+  tsb_helm_repository_password    = local.tetrate.helm_password
+  tsb_helm_version                = coalesce(local.tetrate.helm_version, local.tetrate.version)
+  tsb_fqdn                        = local.tetrate.fqdn
+  tsb_org                         = local.tetrate.organization
+  tsb_username                    = local.tetrate.username
+  tsb_password                    = local.tetrate.password
+  tsb_image_sync_username         = local.tetrate.image_sync_username
+  tsb_image_sync_apikey           = local.tetrate.image_sync_apikey
   es_host                         = coalesce(module.es.es_ip, module.es.es_hostname)
   es_username                     = module.es.es_username
   es_password                     = module.es.es_password

@@ -31,6 +31,10 @@ variable "jumpbox_username" {
   type = string
 }
 
+variable "machine_type" {
+  type = string
+}
+
 variable "tsb_image_sync_username" {
   type = string
 }

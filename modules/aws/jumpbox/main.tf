@@ -246,7 +246,7 @@ module "internal_registry" {
 resource "aws_instance" "jumpbox" {
   ami               = data.aws_ami.ubuntu.id
   availability_zone = data.aws_availability_zones.available.names[0]
-  instance_type     = "t2.medium"
+  instance_type     = var.machine_type
 
   key_name                    = aws_key_pair.tsbadmin_key_pair.key_name
   vpc_security_group_ids      = [aws_security_group.jumpbox_sg.id]

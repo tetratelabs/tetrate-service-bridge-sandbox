@@ -51,3 +51,6 @@ outputs/*.json
 outputs/*.pem
 outputs/*.sh
 !outputs/README.md
+
+# Local python scripts for terraform file cleanup
+*.py
