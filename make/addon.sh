@@ -161,7 +161,7 @@ function destroy_addon_per_region() {
     run "terraform workspace new ${workspace} || true"
     run "terraform workspace select ${workspace}"
     run "terraform init"
-    run "terraform destroy ${TERRAFORM_DESTROY_ARGS} -var-file=${root_path}/${TFVARS_JSON} -var=cluster='${cluster}' -var=addon_config='${addon_config}'"
+    run "terraform destroy ${TERRAFORM_DESTROY_ARGS} -var-file=${root_path}/${TFVARS_JSON} -var=cluster='${cluster}' -var=addon_config='${addon_config}' || true"
     run "terraform workspace select default"
     run "terraform workspace delete ${TERRAFORM_WORKSPACE_ARGS} ${workspace}"
     run "popd > /dev/null"
@@ -191,7 +191,7 @@ function destroy_addon_mp_cluster() {
   run "pushd addons/${addon_name} > /dev/null"
   run "terraform workspace select ${workspace}"
   run "terraform init"
-  run "terraform destroy ${TERRAFORM_DESTROY_ARGS} -var-file=../../${TFVARS_JSON} -var=cluster='${cluster}' -var=addon_config='${addon_config}'"
+  run "terraform destroy ${TERRAFORM_DESTROY_ARGS} -var-file=../../${TFVARS_JSON} -var=cluster='${cluster}' -var=addon_config='${addon_config}' || true"
   run "terraform workspace select default"
   run "popd > /dev/null"
 

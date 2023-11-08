@@ -50,7 +50,7 @@ function refresh_token_k8s() {
     run "terraform workspace new ${workspace} || true"
     run "terraform workspace select ${workspace}"
     run "terraform init"
-    run "terraform apply ${TERRAFORM_APPLY_ARGS} -refresh=false -var-file=../../../${TFVARS_JSON} -var=cluster='${cluster}'"
+    run "terraform apply ${TERRAFORM_APPLY_ARGS} -refresh=false -var-file=../../../${TFVARS_JSON} -var=cluster='${cluster}' || true"
     run "terraform workspace select default"
     run "popd > /dev/null"
   done
