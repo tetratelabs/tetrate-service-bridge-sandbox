@@ -50,7 +50,6 @@ module "tsb_cp" {
   tsb_helm_repository_password = local.tetrate.helm_password
   tsb_helm_version             = coalesce(local.tetrate.helm_version, local.tetrate.version)
   tsb_mp_host                  = data.terraform_remote_state.tsb_mp.outputs.fqdn
-  tier1_cluster                = local.cluster.tetrate.control_plane && local.cluster.tetrate.management_plane
   tsb_fqdn                     = local.tetrate.fqdn
   tsb_org                      = local.tetrate.organization
   tsb_username                 = local.tetrate.username
