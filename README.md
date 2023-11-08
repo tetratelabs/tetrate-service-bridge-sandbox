@@ -122,7 +122,7 @@ Please refer to [tfvars collection](/tfvars_collection) for more examples, i.e. 
         "tetrate_team": "Change me! (https://github.com/tetrateio/tetrate/blob/master/cloud/docs/misc/tags.md)"
     },
     "tetrate": {
-        "fqdn": "<YOUR UNIQUE PREFIX NAME TO BE CREATED>.aws.sandbox.tetrate.io",
+        "fqdn": "<YOUR UNIQUE PREFIX NAME TO BE CREATED>.sandbox.tetrate.io",
         "image_sync_apikey": "<TSB_REPO_APIKEY>",
         "image_sync_username": "<TSB_REPO_USERNAME>",
         "organization": "tetrate",
