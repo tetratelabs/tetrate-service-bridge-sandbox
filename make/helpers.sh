@@ -15,6 +15,7 @@ function run() {
   if ${DRY_RUN:-false}; then
     printf "%s\n" "$*"
   else
+    print_command "$*"
     eval "$@"
   fi
 }
