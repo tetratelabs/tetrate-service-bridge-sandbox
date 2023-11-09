@@ -52,7 +52,23 @@ function get_cluster_config() {
 
   # Check of cluster name is set, generate one if not using the format cloud - name_prefix - region - index
   if [ -z "${cluster_name}" ]; then
-    cluster_name="${cloud}-${name_prefix}-${cluster_region}-${index}"
+    # Convert cloud variable to the appropriate cluster name suffix
+    case "${cloud}" in
+        aws)
+            cloud_suffix="eks"
+            ;;
+        azure)
+            cloud_suffix="aks"
+            ;;
+        gcp)
+            cloud_suffix="gke"
+            ;;
+        *)
+            echo "Unknown cloud provider: ${cloud}"
+            exit 1
+            ;;
+    esac
+    cluster_name="${cloud_suffix}-${name_prefix}-${cluster_region}-${index}"
     cluster=$(jq --arg name "${cluster_name}" '. + {name: $name}' <<< "${cluster}")
   fi
 
@@ -97,7 +113,23 @@ function get_mp_cluster_config() {
 
   # Check of cluster name is set, if not fall back on previous behavior
   if [ -z "${cluster_name}" ]; then
-    cluster_name="${cloud}-${name_prefix}-${cluster_region}-${index}"
+    # Convert cloud variable to the appropriate cluster name suffix
+    case "${cloud}" in
+        aws)
+            cloud_suffix="eks"
+            ;;
+        azure)
+            cloud_suffix="aks"
+            ;;
+        gcp)
+            cloud_suffix="gke"
+            ;;
+        *)
+            echo "Unknown cloud provider: ${cloud}"
+            exit 1
+            ;;
+    esac
+    cluster_name="${cloud_suffix}-${name_prefix}-${cluster_region}-${index}"
     cluster=$(jq --arg name "${cluster_name}" '. + {name: $name}' <<< "${cluster}")
   fi
 
