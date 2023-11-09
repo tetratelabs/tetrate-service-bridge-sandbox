@@ -49,6 +49,8 @@ function deploy_mp() {
   run "terraform init"
   run "terraform apply ${TERRAFORM_APPLY_ARGS} -target=module.cert-manager -target=module.es -target=data.terraform_remote_state.infra -var-file=../../${TFVARS_JSON} -var=cluster='${cluster}'"
   run "terraform apply ${TERRAFORM_APPLY_ARGS} -target=module.tsb_mp.kubectl_manifest.manifests_certs -target=data.terraform_remote_state.infra -var-file=../../${TFVARS_JSON} -var=cluster='${cluster}'"
+  # Prevent kubernetes auth from failing due to long running terraform apply as k8s auth token expires in 15 minutes (AWS caveat).
+  source "${BASE_DIR}/k8s_auth.sh" k8s_auth_${cloud}
   run "terraform apply ${TERRAFORM_APPLY_ARGS} -var-file=../../${TFVARS_JSON} -var=cluster='${cluster}'"
   run "terraform output ${TERRAFORM_OUTPUT_ARGS} | jq . > ../../outputs/terraform_outputs/terraform-tsb-mp.json"
   run "terraform workspace select default"
