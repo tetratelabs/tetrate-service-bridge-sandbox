@@ -77,11 +77,11 @@ resource "null_resource" "aws_cleanup" {
 
   provisioner "local-exec" {
     when       = destroy
-    command    = "sh ${self.triggers.output_path}/${self.triggers.name_prefix}-aws-cleanup.sh"
+    command    = "sleep 960 && sh ${self.triggers.output_path}/${self.triggers.name_prefix}-aws-cleanup.sh && cp ${self.triggers.output_path}/${self.triggers.name_prefix}-aws-cleanup.sh ${self.triggers.output_path}/${self.triggers.name_prefix}-aws-cleanup.sh.completed"
     on_failure = continue
   }
 
-  depends_on = [aws_subnet.tsb, local_file.aws_cleanup]
+  depends_on = [aws_vpc.tsb, local_file.aws_cleanup]
 
 }
 
