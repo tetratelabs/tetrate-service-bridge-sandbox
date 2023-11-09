@@ -53,8 +53,8 @@ function deploy_mp() {
   source "${BASE_DIR}/k8s_auth.sh" k8s_auth_${cloud}
   run "pushd tsb/mp > /dev/null"
   run "terraform workspace select ${workspace}"
-  run "terraform apply ${TERRAFORM_APPLY_ARGS} -target=module.tsb_mp.kubectl_manifest.manifests_certs -target=data.terraform_remote_state.infra -var-file=../../${TFVARS_JSON} -var=cluster='${cluster}'" 
-  run "terraform apply ${TERRAFORM_APPLY_ARGS} -target=data.terraform_remote_state.infra -var-file=../../${TFVARS_JSON} -var=cluster='${cluster}'"
+  run "terraform apply ${TERRAFORM_APPLY_ARGS} -target=module.tsb_mp.kubectl_manifest.manifests_certs -target=data.terraform_remote_state.infra -var-file=../../${TFVARS_JSON} -var=cluster='${cluster}'"
+  run "terraform apply ${TERRAFORM_APPLY_ARGS} -var-file=../../${TFVARS_JSON} -var=cluster='${cluster}'"
   run "terraform output ${TERRAFORM_OUTPUT_ARGS} | jq . > ../../outputs/terraform_outputs/terraform-tsb-mp.json"
   run "terraform workspace select default"
   run "popd > /dev/null"
