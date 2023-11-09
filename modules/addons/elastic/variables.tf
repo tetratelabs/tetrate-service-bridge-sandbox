@@ -1,6 +1,9 @@
 variable "cluster_name" {
 }
 
+variable "es_version" {
+}
+
 variable "k8s_host" {
 }
 

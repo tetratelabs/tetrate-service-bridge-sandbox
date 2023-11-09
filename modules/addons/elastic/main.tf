@@ -34,8 +34,10 @@ resource "time_sleep" "wait_90_seconds" {
 }
 
 data "kubectl_path_documents" "manifests" {
-  pattern          = "${path.module}/manifests/*.yaml"
-  disable_template = true
+  pattern = "${path.module}/manifests/es.yaml"
+  vars = {
+    es_version = var.es_version
+  }
 }
 
 resource "kubectl_manifest" "manifests" {

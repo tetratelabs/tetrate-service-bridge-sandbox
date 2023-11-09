@@ -20,15 +20,6 @@ data "terraform_remote_state" "tsb_mp" {
   }
 }
 
-module "cert-manager" {
-  source                     = "../../modules/addons/cert-manager"
-  cluster_name               = data.terraform_remote_state.infra.outputs.cluster_name
-  k8s_host                   = data.terraform_remote_state.infra.outputs.host
-  k8s_cluster_ca_certificate = data.terraform_remote_state.infra.outputs.cluster_ca_certificate
-  k8s_client_token           = data.terraform_remote_state.k8s_auth.outputs.token
-  cert-manager_enabled       = local.cluster.tetrate.management_plane ? false : var.cert-manager_enabled
-}
-
 module "ratelimit" {
   source                     = "../../modules/addons/ratelimit"
   cluster_name               = data.terraform_remote_state.infra.outputs.cluster_name
@@ -59,8 +50,6 @@ module "tsb_cp" {
   ratelimit_namespace          = module.ratelimit.namespace
   redis_password               = module.ratelimit.redis_password
   identity_propagation_enabled = var.identity_propagation_enabled
-  istiod_cacerts_tls_crt       = data.terraform_remote_state.tsb_mp.outputs.istiod_cacerts_tls_crt
-  istiod_cacerts_tls_key       = data.terraform_remote_state.tsb_mp.outputs.istiod_cacerts_tls_key
   tsb_image_sync_username      = local.tetrate.image_sync_username
   tsb_image_sync_apikey        = local.tetrate.image_sync_apikey
   output_path                  = var.output_path

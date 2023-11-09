@@ -30,6 +30,7 @@ spec:
       mountInternalWasmExtensions: true
     xcp:
       centralAuthMode: JWT
+      centralProvidedCaCert: true
       configProtection: {}
       enableHttpMeshInternalIdentityPropagation: ${identity_propagation_enabled}
       isolationBoundaries:
@@ -79,7 +80,7 @@ spec:
       reconcileInterval: 600s
     internalCertProvider:
       certManager:
-        managed: EXTERNAL
+        managed: AUTO
     oap:
       streamingLogEnabled: true
     %{ if ratelimit_enabled }
