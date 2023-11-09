@@ -62,6 +62,7 @@ locals {
     helm_username   = ""
     helm_version    = null
     username        = "admin"
+    es_version      = "8.10.4"
   }
   tetrate = merge(local.tetrate_defaults, var.tetrate)
 }

@@ -18,6 +18,9 @@ secrets:
     username: ${db_username}
     password: ${db_password}
 spec:
+  certIssuer:
+    selfSigned: {}
+    clusterIntermediateCAs: {}
   hub: "${registry}"
   organization: "${tsb_org}"
   telemetryStore:
