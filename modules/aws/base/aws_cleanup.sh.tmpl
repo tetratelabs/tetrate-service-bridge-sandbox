@@ -15,7 +15,7 @@ for elbv2 in $(aws elbv2 describe-load-balancers --region $REGION --query 'LoadB
   aws elbv2 delete-load-balancer --region $REGION --load-balancer-arn $elbv2
 done
 
-sleep 60
+sleep 90
 
 echo 'Destroying K8s ELBs...'
 for elb in $(aws elb describe-load-balancers --region $REGION --query 'LoadBalancerDescriptions[?VPCId==`${vpc_id}`]|[].LoadBalancerName' --output text); do 
@@ -23,7 +23,7 @@ for elb in $(aws elb describe-load-balancers --region $REGION --query 'LoadBalan
     aws elb delete-load-balancer --region $REGION --load-balancer-name $elb 
 done
 
-sleep 60
+sleep 90
 
 echo 'Destroying K8s ELB SGs...'
 for sg in $(aws ec2 --region $REGION describe-security-groups --filters "Name=vpc-id,Values=$VPC_ID" --query "SecurityGroups[?GroupName!='default'].GroupId" --output text); do
@@ -31,4 +31,4 @@ for sg in $(aws ec2 --region $REGION describe-security-groups --filters "Name=vp
     aws ec2 delete-security-group --region $REGION --group-id $sg 
 done
 
-sleep 60
+sleep 5
