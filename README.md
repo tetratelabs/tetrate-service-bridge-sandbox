@@ -219,7 +219,7 @@ For a quicker destroy for development purposes, you can:
 
 - Terraform destroys only the resources it created (`make destroy`)
 - Terraform stores the `state` across workspaces in different folders locally
-- Cleanup of aws objects created by K8s load balancer services (ELB+SGs) is currently manual effort
+- Cleanup of aws objects created by K8s load balancer services (ELB+SGs) is automated, but may require manual effort.
 - When using GCP, it is possible to use the DNS of the current project instead of the shared one. This may
   be convenient if you don't have permissions to create DNS records in the shared DNS project. To have the
   DNS records created in your project, just use any `fqdn` you want that ends in `.private`. Note that
