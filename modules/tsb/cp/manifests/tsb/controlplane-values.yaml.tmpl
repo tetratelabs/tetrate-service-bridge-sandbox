@@ -70,11 +70,11 @@ spec:
               - path: spec.components.edgeServer.kubeSpec.deployment.env[-1]
                 value:
                   name: ENABLE_NETWORK_POLICY_TRANSLATION
-                  value: “true”
+                  value: "true"
               - path: spec.components.edgeServer.kubeSpec.deployment.env[-1]
                 value:
                   name: ENABLE_NON_INGRESS_HOST_LEVEL_AUTHORIZATION
-                  value: “true”
+                  value: "true"
     gitops:
       enabled: true
       reconcileInterval: 600s
