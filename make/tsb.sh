@@ -78,11 +78,7 @@ function deploy_mp_fqdn() {
   echo "Processing cluster:" 
   echo "${cluster}" | jq '.'
 
-  if [[ "${dns_provider}" == aws* ]]; then
-    run "pushd tsb/fqdn/aws"
-  else
-    run "pushd tsb/fqdn/${dns_provider} > /dev/null"
-  fi
+  run "pushd tsb/fqdn/${dns_provider} > /dev/null"
   run "terraform workspace new ${workspace} || true"
   run "terraform workspace select ${workspace}"
   run "terraform init"
