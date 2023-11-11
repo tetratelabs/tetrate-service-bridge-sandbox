@@ -26,9 +26,15 @@ init: convert_tfvars ## Terraform init
 	@/bin/sh -c "export TFVARS_JSON="${tfvars_json}" && ./make/helpers.sh"
 	@echo "Please refer to the latest instructions and terraform.tfvars.json file format at https://github.com/tetrateio/tetrate-service-bridge-sandbox#usage"
 
+# to be deprecated in favour to infra_*
 .PHONY: k8s
 k8s: aws_k8s azure_k8s gcp_k8s  ## Deploys cloud infra and k8s clusters for MP and N-number of CPs
 %_k8s: init
+	@/bin/sh -c 'export DRY_RUN="${dry_run}" TF_LOG="${tf_log}" TFVARS_JSON="${tfvars_json}" && ./make/infra.sh $*_k8s'
+
+.PHONY: infra
+infra: infra_aws infra_azure infra_gcp  ## Deploys cloud infra and k8s clusters for MP and N-number of CPs
+infra_%: init
 	@/bin/sh -c 'export DRY_RUN="${dry_run}" TF_LOG="${tf_log}" TFVARS_JSON="${tfvars_json}" && ./make/infra.sh $*_k8s'
 
 .PHONY: tsb_mp
@@ -43,7 +49,7 @@ tsb_cp_%:
 	@/bin/sh -c 'export DRY_RUN="${dry_run}" TF_LOG="${tf_log}" TFVARS_JSON="${tfvars_json}" && ./make/tsb.sh tsb_cp_$*'
 
 .PHONY: tsb
-tsb: k8s tsb_mp tsb_cp  ## Deploys full environment (MP+CP)
+tsb: infra tsb_mp tsb_cp  ## Deploys full environment (MP+CP)
 	@echo "Magic is on the way..."
 
 .PHONY: argocd
@@ -68,6 +74,11 @@ external_dns: external_dns_aws external_dns_azure external_dns_gcp ## Deploys Ex
 external_dns_%:
 	@echo "Deploying External DNS on cloud $*..."
 	@/bin/sh -c 'export DRY_RUN="${dry_run}" TF_LOG="${tf_log}" TFVARS_JSON="${tfvars_json}" && ./make/addon.sh external_dns_$*'
+
+.PHONY: describe
+describe: describe_infra describe_tetrate describe_addons ## Describe environment
+describe_%:
+	@/bin/sh -c 'export DRY_RUN="${dry_run}" TF_LOG="${tf_log}" TFVARS_JSON="${tfvars_json}" && ./make/describe.sh $*'
 
 destroy_external_dns: destroy_external_dns_aws destroy_external_dns_azure destroy_external_dns_gcp ## Destroy External DNS
 destroy_external_dns_%:

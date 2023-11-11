@@ -84,6 +84,12 @@ END="\033[0m"
   YELLOW="\033[0;33m"
 }
 
+function print_debug {
+  if [[ ${TF_LOG} == "DEBUG" ]]; then
+    echo -e "${GREEN_B}${1}${END}"
+  fi
+}
+
 function print_info {
   echo -e "${GREEN_B}${1}${END}"
 }
@@ -103,3 +109,4 @@ function print_command {
 function print_stage {
   echo -e "${BLUE_B}${1}${END}"
 }
+

@@ -71,7 +71,7 @@ function validate_input() {
     fi
   done
 
-  print_info "JSON structure of '${tfvars_json}' is valid."
+  print_debug "JSON structure of '${tfvars_json}' is valid."
 }
 
 # Validate input values
