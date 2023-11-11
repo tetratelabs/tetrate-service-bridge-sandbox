@@ -10,7 +10,7 @@ output "vpc_subnets" {
 }
 
 output "registry" {
-  value = "gcr.io/${var.project_id}"
+  value = "${var.region}-docker.pkg.dev/${var.project_id}/${var.name_prefix}-tsb-repo/"
 }
 
 output "registry_username" {

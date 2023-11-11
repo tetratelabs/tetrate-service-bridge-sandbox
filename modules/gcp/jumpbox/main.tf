@@ -67,7 +67,7 @@ resource "google_compute_instance" "jumpbox" {
       tsb_version               = var.tsb_version
       tsb_image_sync_username   = var.tsb_image_sync_username
       tsb_image_sync_apikey     = var.tsb_image_sync_apikey
-      docker_login              = "gcloud auth configure-docker -q"
+      docker_login              = "gcloud auth configure-docker -q ${var.region}-docker.pkg.dev"
       registry                  = var.registry
       pubkey                    = tls_private_key.generated.public_key_openssh
       tsb_helm_repository       = var.tsb_helm_repository
