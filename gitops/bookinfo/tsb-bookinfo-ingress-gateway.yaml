@@ -36,29 +36,3 @@ items:
                   serviceDestination:
                     host: "bookinfo/productpage.bookinfo.svc.cluster.local"
                     port: 9080
-        - name: googleapis
-          port: 80
-          hostname: "www.googleapis.com"
-          routing:
-            rules:
-              - route:
-                  serviceDestination:
-                    host: bookinfo/www.googleapis.com
-                    port: 443
-                    tls:
-                      mode: SIMPLE
-                      files:
-                        caCertificates: "/etc/ssl/certs/ca-certificates.crt"
-        - name: httpbin
-          port: 80
-          hostname: "httpbin.org"
-          routing:
-            rules:
-              - route:
-                  serviceDestination:
-                    host: bookinfo/httpbin.org
-                    port: 443
-                    tls:
-                      mode: SIMPLE
-                      files:
-                        caCertificates: "/etc/ssl/certs/ca-certificates.crt"
