@@ -1,0 +1,64 @@
+---
+apiVersion: v1
+kind: List
+items:
+  - apiVersion: install.tetrate.io/v1alpha1
+    kind: IngressGateway
+    metadata:
+      name: ingress-gw
+      namespace: bookinfo
+    spec:
+      kubeSpec:
+        service:
+          type: LoadBalancer
+  - apiVersion: gateway.tsb.tetrate.io/v2
+    kind: Gateway
+    metadata:
+      name: ingress-gw
+      namespace: bookinfo
+      annotations:
+        tsb.tetrate.io/organization: tetrate
+        tsb.tetrate.io/tenant: dev
+        tsb.tetrate.io/workspace: bookinfo-ws
+        tsb.tetrate.io/gatewayGroup: bookinfo-gg
+    spec:
+      workloadSelector:
+        namespace: bookinfo
+        labels:
+          app: ingress-gw
+      http:
+        - name: productpage
+          port: 80
+          hostname: "internal-bookinfo.tetrate.io"
+          routing:
+            rules:
+              - route:
+                  serviceDestination:
+                    host: "bookinfo/productpage.bookinfo.svc.cluster.local"
+                    port: 9080
+        - name: googleapis
+          port: 80
+          hostname: "www.googleapis.com"
+          routing:
+            rules:
+              - route:
+                  serviceDestination:
+                    host: bookinfo/www.googleapis.com
+                    port: 443
+                    tls:
+                      mode: SIMPLE
+                      files:
+                        caCertificates: "/etc/ssl/certs/ca-certificates.crt"
+        - name: httpbin
+          port: 80
+          hostname: "httpbin.org"
+          routing:
+            rules:
+              - route:
+                  serviceDestination:
+                    host: bookinfo/httpbin.org
+                    port: 443
+                    tls:
+                      mode: SIMPLE
+                      files:
+                        caCertificates: "/etc/ssl/certs/ca-certificates.crt"
