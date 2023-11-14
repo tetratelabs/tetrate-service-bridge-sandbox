@@ -16,7 +16,7 @@ items:
     spec:
       kubeSpec:
         service:
-          type: NodePort
+          type: LoadBalancer
   - apiVersion: gateway.tsb.tetrate.io/v2
     kind: Gateway
     metadata:
