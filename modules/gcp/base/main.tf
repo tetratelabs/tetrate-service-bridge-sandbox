@@ -3,9 +3,9 @@ resource "google_project_service" "compute" {
   service = "compute.googleapis.com"
 }
 
-resource "google_project_service" "containerregistry" {
+resource "google_project_service" "artifactregistry" {
   project = var.project_id
-  service = "containerregistry.googleapis.com"
+  service = "artifactregistry.googleapis.com"
 }
 
 resource "google_project_service" "dns" {
@@ -16,7 +16,7 @@ resource "google_project_service" "dns" {
 resource "time_sleep" "wait_60_seconds" {
   depends_on = [
     google_project_service.compute,
-    google_project_service.containerregistry,
+    google_project_service.artifactregistry,
     google_project_service.dns
   ]
   create_duration = "60s"
@@ -119,4 +119,14 @@ resource "google_project_iam_member" "artifact_reader" {
 
 resource "google_service_account_key" "gcr_pull_key" {
   service_account_id = google_service_account.gcr_pull.name
+}
+
+resource "google_artifact_registry_repository" "tsb" {
+  project       = var.project_id
+  location      = var.region
+  repository_id = "${var.name_prefix}-tsb-repo"
+  format        = "DOCKER"
+  depends_on = [
+    time_sleep.wait_60_seconds
+  ]
 }
