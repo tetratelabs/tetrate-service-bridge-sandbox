@@ -26,20 +26,6 @@
 #   kubectl apply -f samples/bookinfo/platform/kube/bookinfo.yaml -l app=reviews,version=v3 # reviews-v3 Deployment
 ##################################################################################################
 ---
-apiVersion: v1
-kind: Namespace
-metadata:
-  labels:
-    istio-injection: enabled
-  name: bookinfo
----
-apiVersion: v1
-kind: Namespace
-metadata:
-  labels:
-    istio-injection: enabled
-  name: tier1
----
 ##################################################################################################
 # Details service
 ##################################################################################################
@@ -93,6 +79,38 @@ spec:
         imagePullPolicy: IfNotPresent
         ports:
         - containerPort: 9080
+---
+##################################################################################################
+# Details service v2
+##################################################################################################
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: details-v2
+  labels:
+    app: details
+    version: v2
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: details
+      version: v2
+  template:
+    metadata:
+      labels:
+        app: details
+        version: v2
+    spec:
+      containers:
+      - name: details
+        image: docker.io/istio/examples-bookinfo-details-v2:1.18.0
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 9080
+        env:
+        - name: DO_NOT_ENCRYPT
+          value: "true"
 ---
 ##################################################################################################
 # Ratings service

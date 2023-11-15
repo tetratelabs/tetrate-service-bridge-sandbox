@@ -1,0 +1,103 @@
+---
+apiVersion: v1
+kind: List
+items:
+  - apiVersion: v1
+    kind: Namespace
+    metadata:
+      labels:
+        istio-injection: enabled
+      name: bookinfo
+  - apiVersion: tsb.tetrate.io/v2
+    kind: Tenant
+    metadata:
+      name: dev
+      namespace: bookinfo
+      annotations:
+        tsb.tetrate.io/organization: tetrate
+      labels:
+        domain: dev
+    spec:
+      description: dev
+      displayName: dev
+      deletionProtectionEnabled: true
+  - apiVersion: tsb.tetrate.io/v2
+    kind: Workspace
+    metadata:
+      name: bookinfo-ws
+      namespace: bookinfo
+      annotations:
+        tsb.tetrate.io/organization: tetrate
+        tsb.tetrate.io/tenant: dev
+        owner: bookinfo-ws-team
+      labels:
+        app: bookinfo
+    spec:
+      namespaceSelector:
+        names:
+          - "*/bookinfo"
+          - "*/tier1"
+          - "*/egress"
+  - apiVersion: gateway.tsb.tetrate.io/v2
+    kind: Group
+    metadata:
+      name: bookinfo-gg
+      namespace: bookinfo
+      annotations:
+        tsb.tetrate.io/organization: tetrate
+        tsb.tetrate.io/tenant: dev
+        tsb.tetrate.io/workspace: bookinfo-ws
+    spec:
+      namespaceSelector:
+        names:
+          - "*/bookinfo"
+          - "*/tier1"
+          - "*/egress"
+      configMode: BRIDGED
+  - apiVersion: traffic.tsb.tetrate.io/v2
+    kind: Group
+    metadata:
+      name: bookinfo-tg
+      namespace: bookinfo
+      annotations:
+        tsb.tetrate.io/organization: tetrate
+        tsb.tetrate.io/tenant: dev
+        tsb.tetrate.io/workspace: bookinfo-ws
+    spec:
+      namespaceSelector:
+        names:
+          - "*/bookinfo"
+          - "*/tier1"
+          - "*/egress"
+      configMode: BRIDGED
+  - apiVersion: security.tsb.tetrate.io/v2
+    kind: Group
+    metadata:
+      name: bookinfo-sg
+      namespace: bookinfo
+      annotations:
+        tsb.tetrate.io/organization: tetrate
+        tsb.tetrate.io/tenant: dev
+        tsb.tetrate.io/workspace: bookinfo-ws
+    spec:
+      namespaceSelector:
+        names:
+          - "*/bookinfo"
+          - "*/tier1"
+          - "*/egress"
+      configMode: BRIDGED
+  - apiVersion: istiointernal.tsb.tetrate.io/v2
+    kind: Group
+    metadata:
+      name: bookinfo-ig
+      namespace: bookinfo
+      annotations:
+        tsb.tetrate.io/organization: tetrate
+        tsb.tetrate.io/tenant: dev
+        tsb.tetrate.io/workspace: bookinfo-ws
+    spec:
+      namespaceSelector:
+        names:
+          - "*/bookinfo"
+          - "*/tier1"
+          - "*/egress"
