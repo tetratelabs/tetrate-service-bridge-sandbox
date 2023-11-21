@@ -49,7 +49,6 @@ module "tsb_cp" {
   ratelimit_enabled            = var.ratelimit_enabled
   ratelimit_namespace          = module.ratelimit.namespace
   redis_password               = module.ratelimit.redis_password
-  identity_propagation_enabled = var.identity_propagation_enabled
   tsb_image_sync_username      = local.tetrate.image_sync_username
   tsb_image_sync_apikey        = local.tetrate.image_sync_apikey
   output_path                  = var.output_path
