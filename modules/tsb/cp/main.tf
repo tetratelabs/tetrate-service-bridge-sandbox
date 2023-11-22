@@ -87,7 +87,6 @@ resource "helm_release" "controlplane" {
     es_password                  = var.es_password
     ratelimit_enabled            = var.ratelimit_enabled
     ratelimit_namespace          = var.ratelimit_namespace
-    identity_propagation_enabled = var.identity_propagation_enabled
   })]
 
   set {
@@ -116,28 +115,4 @@ resource "kubernetes_secret" "redis_password" {
   data = {
     REDIS_AUTH = var.redis_password
   }
-}
-
-resource "kubernetes_secret_v1" "cr_pull_secret" {
-  metadata {
-    name      = "cr-pull-secret"
-    namespace = "istio-system"
-    annotations = {
-      clustername = var.cluster_name
-    }
-  }
-
-  data = {
-    ".dockerconfigjson" = jsonencode({
-      auths = {
-        "${var.registry}" = {
-          "username" = var.registry_username
-          "password" = var.registry_password
-        }
-      }
-    })
-  }
-
-  type       = "kubernetes.io/dockerconfigjson"
-  depends_on = [helm_release.controlplane]
 }

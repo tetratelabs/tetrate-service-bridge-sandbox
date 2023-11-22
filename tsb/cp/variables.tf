@@ -98,8 +98,3 @@ variable "ratelimit_enabled" {
   description = "enable ratelimit"
   default     = true
 }
-
-variable "identity_propagation_enabled" {
-  description = "enable identity propagation"
-  default     = false
-}
