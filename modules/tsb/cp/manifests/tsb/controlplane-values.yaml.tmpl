@@ -30,6 +30,7 @@ spec:
       - name: global
         revisions:
         - name: default
+        meshExpansion: {}
       - name: dev
         revisions:
         - name: dev-stable
@@ -83,7 +84,6 @@ spec:
         redis:
           uri: redis-master.${ratelimit_namespace}.svc.cluster.local:6379
     %{ endif }
-  meshExpansion: {}
   meshObservability:
     settings:
       apiEndpointMetricsEnabled: true  
