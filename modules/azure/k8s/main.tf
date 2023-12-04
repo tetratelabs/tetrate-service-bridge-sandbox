@@ -24,6 +24,9 @@ resource "azurerm_kubernetes_cluster" "k8s" {
     vm_size             = var.instance_type
     type                = "VirtualMachineScaleSets"
     os_disk_size_gb     = 50
+    upgrade_settings {
+      max_surge = "10%"
+    }
   }
 
   identity {
