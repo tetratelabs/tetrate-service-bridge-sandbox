@@ -36,6 +36,7 @@ module "aws_jumpbox" {
 module "aws_k8s" {
   source               = "../../modules/aws/k8s"
   k8s_version          = local.cluster.version
+  instance_type        = local.cluster.instance_type
   region               = local.cluster.region
   vpc_id               = module.aws_base.vpc_id
   vpc_subnets          = module.aws_base.vpc_subnets
