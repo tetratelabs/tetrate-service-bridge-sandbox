@@ -31,6 +31,10 @@ variable "k8s_version" {
   type = string
 }
 
+variable "instance_type" {
+  type = string
+}
+
 variable "output_path" {
   type = string
 }
