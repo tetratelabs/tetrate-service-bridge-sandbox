@@ -83,7 +83,7 @@ items:
     spec:
       namespaceSelector:
         names:
-          - "*/bookinfo"
+          - "*/bookinfo-dev"
           - "*/tier1-dev"
   - apiVersion: networking.istio.io/v1beta1
     kind: ServiceEntry
