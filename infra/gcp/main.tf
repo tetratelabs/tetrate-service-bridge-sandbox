@@ -54,6 +54,7 @@ module "gcp_k8s" {
   region            = local.cluster.region
   preemptible_nodes = var.preemptible_nodes
   k8s_version       = local.cluster.version
+  instance_type     = local.cluster.instance_type
   output_path       = var.output_path
   tags              = local.tags
   depends_on        = [module.gcp_jumpbox]

@@ -9,8 +9,9 @@ variable "cluster" {
       control_plane    = optional(bool)
       management_plane = optional(bool)
     })
-    version   = optional(string)
-    workspace = string
+    version       = optional(string)
+    instance_type = optional(string)
+    workspace     = string
   })
 }
 
@@ -20,7 +21,8 @@ locals {
       control_plane    = false
       management_plane = false
     }
-    version = "1.27"
+    version       = "1.28"
+    instance_type = "Standard_D4as_v5"
   }
   cluster = {
     cloud  = var.cluster.cloud
@@ -31,8 +33,9 @@ locals {
       control_plane    = coalesce(var.cluster.tetrate.control_plane, local.cluster_defaults.tetrate.control_plane)
       management_plane = coalesce(var.cluster.tetrate.management_plane, local.cluster_defaults.tetrate.management_plane)
     }
-    version   = coalesce(var.cluster.version, local.cluster_defaults.version)
-    workspace = var.cluster.workspace
+    version       = coalesce(var.cluster.version, local.cluster_defaults.version)
+    instance_type = coalesce(var.cluster.instance_type, local.cluster_defaults.instance_type)
+    workspace     = var.cluster.workspace
   }
 }
 

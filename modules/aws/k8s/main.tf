@@ -14,7 +14,7 @@ module "eks" {
 
   eks_managed_node_group_defaults = {
     disk_size      = 50
-    instance_types = ["m5.xlarge"]
+    instance_types = [var.instance_type]
     iam_role_additional_policies = {
       AmazonEBSCSIDriverPolicy = "arn:aws:iam::aws:policy/service-role/AmazonEBSCSIDriverPolicy"
     }
@@ -48,9 +48,9 @@ module "eks" {
 
   eks_managed_node_groups = {
     tsb_sandbox_blue = {
-      min_size     = 3
+      min_size     = 2
       max_size     = 5
-      desired_size = 3
+      desired_size = 2
     }
   }
 
