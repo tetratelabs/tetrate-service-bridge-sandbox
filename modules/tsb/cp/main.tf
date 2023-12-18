@@ -19,6 +19,15 @@ provider "kubernetes" {
   token                  = var.k8s_client_token
 }
 
+resource "kubernetes_namespace" "istio-system" {
+  metadata {
+    name = "istio-system"
+  }
+  lifecycle {
+    ignore_changes = [metadata]
+  }
+}
+
 resource "null_resource" "jumpbox_tctl" {
   connection {
     host        = var.jumpbox_host
@@ -71,7 +80,6 @@ resource "helm_release" "controlplane" {
   repository_password = var.tsb_helm_repository_password
   chart               = "controlplane"
   version             = var.tsb_helm_version
-  create_namespace    = true
   namespace           = "istio-system"
   timeout             = 900
 
@@ -102,6 +110,7 @@ resource "helm_release" "controlplane" {
     name  = "secrets.elasticsearch.cacert"
     value = var.es_cacert
   }
+  depends_on = [ kubernetes_namespace.istio-system ]
 }
 
 resource "kubernetes_secret" "redis_password" {
