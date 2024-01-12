@@ -26,16 +26,6 @@ spec:
       centralAuthMode: JWT
       centralProvidedCaCert: true
       configProtection: {}
-      isolationBoundaries:
-      - name: global
-        revisions:
-        - name: default
-      - name: dev
-        revisions:
-        - name: dev-stable
-      - name: qa
-        revisions:
-        - name: qa-stable
       kubeSpec:
         deployment:
           env:
@@ -91,4 +81,4 @@ operator:
   deployment:
     env:
     - name: ISTIO_ISOLATION_BOUNDARIES
-      value: "true"
+      value: "false"

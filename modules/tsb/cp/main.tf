@@ -125,3 +125,28 @@ resource "kubernetes_secret" "redis_password" {
     REDIS_AUTH = var.redis_password
   }
 }
+
+resource "helm_release" "dataplane" {
+  name             = "dataplane"
+  repository       = var.tsb_helm_repository
+  chart            = "dataplane"
+  version          = var.tsb_helm_version
+  create_namespace = true
+  namespace        = "istio-gateway"
+  timeout          = 900
+
+  set {
+    name  = "image.registry"
+    value = var.registry
+  }
+
+  set {
+    name  = "image.tag"
+    value = var.tsb_version
+  }
+
+  values = [templatefile("${path.module}/manifests/tsb/dataplane-values.yaml.tmpl", {
+    registry                  = var.registry
+    tsb_version               = var.tsb_version
+  })]
+}
