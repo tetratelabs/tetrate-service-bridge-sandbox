@@ -36,7 +36,7 @@ items:
       namespaceSelector:
         names:
           - "*/bookinfo"
-          - "*/tier1"
+          - "*/edge"
           - "*/egress"
   - apiVersion: gateway.tsb.tetrate.io/v2
     kind: Group
@@ -51,7 +51,7 @@ items:
       namespaceSelector:
         names:
           - "*/bookinfo"
-          - "*/tier1"
+          - "*/edge"
           - "*/egress"
       configMode: BRIDGED
   - apiVersion: traffic.tsb.tetrate.io/v2
@@ -67,7 +67,7 @@ items:
       namespaceSelector:
         names:
           - "*/bookinfo"
-          - "*/tier1"
+          - "*/edge"
           - "*/egress"
       configMode: BRIDGED
   - apiVersion: security.tsb.tetrate.io/v2
@@ -83,7 +83,7 @@ items:
       namespaceSelector:
         names:
           - "*/bookinfo"
-          - "*/tier1"
+          - "*/edge"
           - "*/egress"
       configMode: BRIDGED
   - apiVersion: istiointernal.tsb.tetrate.io/v2
@@ -99,5 +99,5 @@ items:
       namespaceSelector:
         names:
           - "*/bookinfo"
-          - "*/tier1"
+          - "*/edge"
           - "*/egress"

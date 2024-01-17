@@ -5,7 +5,7 @@ items:
   - apiVersion: install.tetrate.io/v1alpha1
     kind: IngressGateway
     metadata:
-      name: ingress-gw
+      name: app-gw
       namespace: bookinfo
     spec:
       kubeSpec:
@@ -14,7 +14,7 @@ items:
   - apiVersion: gateway.tsb.tetrate.io/v2
     kind: Gateway
     metadata:
-      name: ingress-gw
+      name: app-bookinfo-gw
       namespace: bookinfo
       annotations:
         tsb.tetrate.io/organization: tetrate
@@ -25,7 +25,7 @@ items:
       workloadSelector:
         namespace: bookinfo
         labels:
-          app: ingress-gw
+          app: app-gw
       http:
         - name: productpage
           port: 80

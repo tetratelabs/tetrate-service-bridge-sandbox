@@ -7,12 +7,12 @@ items:
     metadata:
       labels:
         istio-injection: enabled
-      name: tier1
+      name: edge
   - apiVersion: install.tetrate.io/v1alpha1
     kind: Tier1Gateway
     metadata:
-      name: tier1-gw
-      namespace: tier1
+      name: edge-gw
+      namespace: edge
     spec:
       kubeSpec:
         service:
@@ -20,8 +20,8 @@ items:
   - apiVersion: gateway.tsb.tetrate.io/v2
     kind: Gateway
     metadata:
-      name: tier1-bookinfo-gw
-      namespace: tier1
+      name: edge-bookinfo-gw
+      namespace: edge
       annotations:
         tsb.tetrate.io/organization: tetrate
         tsb.tetrate.io/tenant: dev
@@ -29,9 +29,9 @@ items:
         tsb.tetrate.io/gatewayGroup: bookinfo-gg
     spec:
       workloadSelector:
-        namespace: tier1
+        namespace: edge
         labels:
-          app: tier1-gw
+          app: edge-gw
       http:
         - name: productpage
           port: 80

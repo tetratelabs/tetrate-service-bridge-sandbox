@@ -38,7 +38,7 @@ kind: Namespace
 metadata:
   labels:
     istio.io/rev: dev-stable
-  name: tier1-dev
+  name: edge-dev
 ---
 ##################################################################################################
 # Details service
