@@ -29,7 +29,7 @@ items:
       namespaceSelector:
         names:
           - "*/bookinfo-dev"
-          - "*/tier1-dev"
+          - "*/edge-dev"
   - apiVersion: gateway.tsb.tetrate.io/v2
     kind: Group
     metadata:
@@ -42,7 +42,7 @@ items:
       namespaceSelector:
         names:
           - "*/bookinfo-dev"
-          - "*/tier1-dev"
+          - "*/edge-dev"
       configMode: BRIDGED
   - apiVersion: traffic.tsb.tetrate.io/v2
     kind: Group
@@ -56,7 +56,7 @@ items:
       namespaceSelector:
         names:
           - "*/bookinfo-dev"
-          - "*/tier1-dev"
+          - "*/edge-dev"
       configMode: BRIDGED
   - apiVersion: security.tsb.tetrate.io/v2
     kind: Group
@@ -70,7 +70,7 @@ items:
       namespaceSelector:
         names:
           - "*/bookinfo-dev"
-          - "*/tier1-dev"
+          - "*/edge-dev"
       configMode: BRIDGED
   - apiVersion: istiointernal.tsb.tetrate.io/v2
     kind: Group
@@ -84,7 +84,7 @@ items:
       namespaceSelector:
         names:
           - "*/bookinfo-dev"
-          - "*/tier1-dev"
+          - "*/edge-dev"
   - apiVersion: networking.istio.io/v1beta1
     kind: ServiceEntry
     metadata:
@@ -143,8 +143,8 @@ items:
   - apiVersion: install.tetrate.io/v1alpha1
     kind: Tier1Gateway
     metadata:
-      name: tier1-dev-gw
-      namespace: tier1-dev
+      name: edge-dev-gw
+      namespace: edge-dev
     spec:
       kubeSpec:
         service:
@@ -152,7 +152,7 @@ items:
   - apiVersion: gateway.tsb.tetrate.io/v2
     kind: Gateway
     metadata:
-      name: tier1-bookinfo-dev-gw
+      name: edge-bookinfo-dev-gw
       annotations:
         tsb.tetrate.io/organization: tetrate
         tsb.tetrate.io/tenant: dev
@@ -160,9 +160,9 @@ items:
         tsb.tetrate.io/gatewayGroup: bookinfo-dev-gg
     spec:
       workloadSelector:
-        namespace: tier1-dev
+        namespace: edge-dev
         labels:
-          app: tier1-dev-gw
+          app: edge-dev-gw
       http:
         - name: productpage
           port: 80
@@ -206,7 +206,7 @@ items:
             - args:
                 - /bin/sh
                 - -c
-                - 'while true; do sleep 60; curl -vIX GET -H"Host: internal-bookinfo-dev.tetrate.io" bookinfo-dev-gw.bookinfo-dev/productpage; sleep 60; curl -vIX GET -H"Host: bookinfo-dev.tetrate.io" tier1-dev-gw.tier1-dev/productpage; done'
+                - 'while true; do sleep 60; curl -vIX GET -H"Host: internal-bookinfo-dev.tetrate.io" bookinfo-dev-gw.bookinfo-dev/productpage; sleep 60; curl -vIX GET -H"Host: bookinfo-dev.tetrate.io" edge-dev-gw.edge-dev/productpage; done'
               image: appropriate/curl
               imagePullPolicy: Always
               name: trafficgenerator-bookinfo-dev

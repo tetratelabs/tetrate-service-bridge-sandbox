@@ -2,17 +2,11 @@
 apiVersion: v1
 kind: List
 items:
-  - apiVersion: v1
-    kind: Namespace
-    metadata:
-      labels:
-        istio-injection: enabled
-      name: tier1
   - apiVersion: install.tetrate.io/v1alpha1
-    kind: Tier1Gateway
+    kind: IngressGateway
     metadata:
-      name: tier1-gw
-      namespace: tier1
+      name: app-gw
+      namespace: bookinfo
     spec:
       kubeSpec:
         service:
@@ -20,8 +14,8 @@ items:
   - apiVersion: gateway.tsb.tetrate.io/v2
     kind: Gateway
     metadata:
-      name: tier1-bookinfo-gw
-      namespace: tier1
+      name: app-bookinfo-gw
+      namespace: bookinfo
       annotations:
         tsb.tetrate.io/organization: tetrate
         tsb.tetrate.io/tenant: dev
@@ -29,18 +23,16 @@ items:
         tsb.tetrate.io/gatewayGroup: bookinfo-gg
     spec:
       workloadSelector:
-        namespace: tier1
+        namespace: bookinfo
         labels:
-          app: tier1-gw
+          app: app-gw
       http:
         - name: productpage
           port: 80
-          hostname: "bookinfo.tetrate.io"
+          hostname: "internal-bookinfo.tetrate.io"
           routing:
             rules:
               - route:
-                  clusterDestination:
-                    clusters: []
-                modify:
-                  rewrite:
-                    authority: 'internal-bookinfo.tetrate.io'
+                  serviceDestination:
+                    host: "bookinfo/productpage.bookinfo.svc.cluster.local"
+                    port: 9080

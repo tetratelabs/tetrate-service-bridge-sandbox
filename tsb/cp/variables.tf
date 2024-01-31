@@ -74,11 +74,6 @@ variable "name_prefix" {
   description = "name prefix"
 }
 
-variable "mp_as_tier1_cluster" {
-  description = "mp cluster as tier1"
-  default     = true
-}
-
 variable "jumpbox_username" {
   description = "jumpbox username"
   default     = "tsbadmin"

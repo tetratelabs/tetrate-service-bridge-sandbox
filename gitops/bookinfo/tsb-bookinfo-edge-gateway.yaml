@@ -2,11 +2,17 @@
 apiVersion: v1
 kind: List
 items:
-  - apiVersion: install.tetrate.io/v1alpha1
-    kind: IngressGateway
+  - apiVersion: v1
+    kind: Namespace
     metadata:
-      name: ingress-gw
-      namespace: bookinfo
+      labels:
+        istio-injection: enabled
+      name: edge
+  - apiVersion: install.tetrate.io/v1alpha1
+    kind: Tier1Gateway
+    metadata:
+      name: edge-gw
+      namespace: edge
     spec:
       kubeSpec:
         service:
@@ -14,8 +20,8 @@ items:
   - apiVersion: gateway.tsb.tetrate.io/v2
     kind: Gateway
     metadata:
-      name: ingress-gw
-      namespace: bookinfo
+      name: edge-bookinfo-gw
+      namespace: edge
       annotations:
         tsb.tetrate.io/organization: tetrate
         tsb.tetrate.io/tenant: dev
@@ -23,16 +29,18 @@ items:
         tsb.tetrate.io/gatewayGroup: bookinfo-gg
     spec:
       workloadSelector:
-        namespace: bookinfo
+        namespace: edge
         labels:
-          app: ingress-gw
+          app: edge-gw
       http:
         - name: productpage
           port: 80
-          hostname: "internal-bookinfo.tetrate.io"
+          hostname: "bookinfo.tetrate.io"
           routing:
             rules:
               - route:
-                  serviceDestination:
-                    host: "bookinfo/productpage.bookinfo.svc.cluster.local"
-                    port: 9080
+                  clusterDestination:
+                    clusters: []
+                modify:
+                  rewrite:
+                    authority: 'internal-bookinfo.tetrate.io'
