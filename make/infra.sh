@@ -48,7 +48,7 @@ function deploy_infra() {
   for ((index = 0; index < cluster_count; index++)); do
     local cluster=$(get_cluster_config "${TFVARS_JSON}" "${cloud}" "${index}")
     local workspace=$(get_cluster_workspace "${cluster}")
-    echo "Processing cluster:" 
+    echo "Processing cluster:"
     echo "${cluster}" | jq '.'
 
     run "pushd infra/${cloud} > /dev/null"
@@ -80,14 +80,17 @@ function destroy_infra() {
   for ((index = 0; index < cluster_count; index++)); do
     local cluster=$(get_cluster_config "${TFVARS_JSON}" "${cloud}" "${index}")
     local workspace=$(get_cluster_workspace "${cluster}")
-    echo "Processing cluster:" 
+    echo "Processing cluster:"
     echo "${cluster}" | jq '.'
 
     run "pushd infra/${cloud} > /dev/null"
-    run "terraform workspace select ${workspace}"
-    run "terraform destroy ${TERRAFORM_DESTROY_ARGS} -var-file=../../${TFVARS_JSON} -var=cluster='${cluster}'"
-    run "terraform workspace select default"
-    run "terraform workspace delete ${TERRAFORM_WORKSPACE_ARGS} ${workspace}"
+    if run "terraform workspace select ${workspace}"; then
+      # Only run the following commands if "terraform workspace select" succeeds, otherwise the
+      # workspace was never created or has already been deleted.
+      run "terraform destroy ${TERRAFORM_DESTROY_ARGS} -var-file=../../${TFVARS_JSON} -var=cluster='${cluster}'"
+      run "terraform workspace select default"
+      run "terraform workspace delete ${TERRAFORM_WORKSPACE_ARGS} ${workspace}"
+    fi
     run "popd > /dev/null"
   done
 
