@@ -128,7 +128,7 @@ reviews-v3-5868dd8d98-8vz5k     us-west1-docker.pkg.dev/sw02-hpch-0/sw02-0-tsb-r
 ### Update Application Namespace to use New Revision
 ```sh
 kubectl label ns bookinfo istio-injection-
-kubectl label ns bookinfo istio.io/rev=default1-8-0
+kubectl label ns bookinfo istio.io/rev=canary
 kubectl rollout restart deployment -n bookinfo
 ```
 
