@@ -30,9 +30,11 @@ spec:
       - name: global
         revisions:
         - name: default
-      - name: dev
-        revisions:
-        - name: dev-stable
+          istio:
+            tsbVersion: ${tsb_version}
+        - name: canary
+          istio:
+            tsbVersion: ${tsb_version}
       kubeSpec:
         deployment:
           env:

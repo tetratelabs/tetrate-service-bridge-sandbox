@@ -4,12 +4,15 @@
 
 This walkthrough completes a `Control Plane` upgrade and takes a phased approach to upgrade the `Data Plane`. This is achieved by creating a new revision of the Isolation Boundary and updating the namespace to use the new revision.
 
+- [Isolation Boundary KB](https://docs.tetrate.io/service-bridge/setup/isolation-boundaries)
+
 ## Pre-requisites
 
 - Ensure that the Management Plane is upgraded to the Target Version.
 - Ensure that `tctl install image-sync` is completed for the Target Version.
 - Run `make argocd` and ensure that the bookinfo application is deployed
 - The `yq` tool is installed (used to update yaml files)
+- An alias `kip` will be used for validation: `alias kip="kubectl get pods -o=custom-columns='NAME:.metadata.name,IMAGE:.spec.containers[*].image'"_**`
 
 ## Upgrade Control Plane
 
@@ -18,13 +21,13 @@ The following steps are performed to upgrade the Control Plane
 ### Set Environment Variables
 
 ```sh
-CLUSTER_NAME="gke-sw02-us-west1-0"
+CLUSTER_NAME="aks-sw02-eastus-1"
 CURRENT_VERSION="1.8.0-internal-rc3"
 UPGRADE_VERSION="1.8.0"
 
 ```
 
-### Setup Revision and Upgrade ControlPlane
+### Upgrade Control Plane
 
 ```sh
 
@@ -37,29 +40,53 @@ helm get values controlplane -n istio-system -o yaml > $CLUSTER_NAME-cp.yaml
 # Update the version configured in Helm values
 yq eval-all '.image.tag = "'${UPGRADE_VERSION}'"' $CLUSTER_NAME-cp.yaml -i
 
-# Extract Default IsolationBoundary Properties from the ControlPlane Manifest
-k get controlplane controlplane -o yaml -n istio-system | yq .spec.components.xcp.isolationBoundaries > IB-$CLUSTER_NAME-$UPGRADE_VERSION.yaml
-
-# Update the IsolationBoundary File to reflect the new revision for the default IsolationBoundary
-yq eval-all '.[0].revisions += {"name": "default'$(echo "$UPGRADE_VERSION" | tr '.' '-')'", "istio": {"tsbVersion": "'${UPGRADE_VERSION}'"}}' IB-$CLUSTER_NAME-$UPGRADE_VERSION.yaml -i
-
-# Merge Revisions into ControlPlane Helm values
-IB_OUTPUT=$(yq . IB-$CLUSTER_NAME-$UPGRADE_VERSION.yaml) yq eval-all '.spec.components.xcp.isolationBoundaries = env(IB_OUTPUT)' $CLUSTER_NAME-cp.yaml -i
-
 # Upgrade Control Plane
 helm upgrade controlplane -n istio-system -f $CLUSTER_NAME-cp.yaml tetrate-tsb-helm/controlplane --version $UPGRADE_VERSION
 ```
 
 ### Verify Control Plane Upgrade
 
-With a new revision, we expect to see my `default` istiod pod and another `istiod` with the revision name
+Should see most components using new versions, the only components not upgraded would be the `istiod`` dataplane/controlplane components.
 
 ```sh
-kubectl get pod -n istio-system -l app=istiod
-NAME                                   READY   STATUS    RESTARTS   AGE
-istiod-7b5ddb998f-482cx                1/1     Running   0          14h
-istiod-default1-8-0-7887f9c59d-m77qb   1/1     Running   0          1h
-istiod-dev-stable-58544c4587-pt6tk     1/1     Running   0          14h
+kip -n istio-system
+
+NAME                                                     IMAGE
+edge-6dc4ff6ff4-7fjhw                                    sw021tsbacrqaxhebu5d5uuq0kr.azurecr.io/xcpd:v1.8.1
+istio-operator-76b798c8d7-kkjhm                          sw021tsbacrqaxhebu5d5uuq0kr.azurecr.io/operator:1.19.3-9d7a73d4d6-distroless
+istio-operator-canary-6c4447c878-mrzx7                   sw021tsbacrqaxhebu5d5uuq0kr.azurecr.io/operator:1.19.3-9d7a73d4d6-distroless
+istio-system-custom-metrics-apiserver-6647dbd89f-d775k   sw021tsbacrqaxhebu5d5uuq0kr.azurecr.io/swck:976d7b6
+istiod-558bbb6db4-rtljl                                  sw021tsbacrqaxhebu5d5uuq0kr.azurecr.io/pilot:1.19.3-9d7a73d4d6-distroless
+istiod-canary-85d46f9f5d-lnxdl                           sw021tsbacrqaxhebu5d5uuq0kr.azurecr.io/pilot:1.19.3-9d7a73d4d6-distroless
+oap-deployment-66df8bc595-9b2d4                          sw021tsbacrqaxhebu5d5uuq0kr.azurecr.io/proxyv2:1.19.3-9d7a73d4d6-distroless,sw021tsbacrqaxhebu5d5uuq0kr.azurecr.io/spm-user:fd0086c4263c33dfcf2d2c6cafefc3827f65c9a2,sw021tsbacrqaxhebu5d5uuq0kr.azurecr.io/proxyv2:1.19.5-f764c5d759-distroless
+onboarding-operator-d4bf7bb4b-ffsrw                      sw021tsbacrqaxhebu5d5uuq0kr.azurecr.io/onboarding-operator-server:1.8.0
+otel-collector-86f8f7fc4c-tw2zq                          sw021tsbacrqaxhebu5d5uuq0kr.azurecr.io/otelcol:0.89.0,sw021tsbacrqaxhebu5d5uuq0kr.azurecr.io/proxyv2:1.19.5-f764c5d759-distroless
+ratelimit-server-5b5c48bf55-n47ww                        sw021tsbacrqaxhebu5d5uuq0kr.azurecr.io/ratelimit:5e1be594-tetrate-v1
+tsb-operator-control-plane-864c9bd5fc-m6rj4              sw021tsbacrqaxhebu5d5uuq0kr.azurecr.io/tsboperator-server:1.8.0
+vmgateway-f9bfddc45-9fw7j                                sw021tsbacrqaxhebu5d5uuq0kr.azurecr.io/proxyv2:1.19.3-9d7a73d4d6-distroless
+wasmfetcher-8fc9b9f45-drs4l                              sw021tsbacrqaxhebu5d5uuq0kr.azurecr.io/wasmfetcher-server:1.8.0
+xcp-operator-edge-6c4984b5d4-dj4xk                       sw021tsbacrqaxhebu5d5uuq0kr.azurecr.io/xcp-operator:v1.8.1
+```
+
+### Add New `tsbVersion` for revision: `canary`
+
+
+```sh
+# Update canary revision to be new version
+yq eval-all '.spec.components.xcp.isolationBoundaries[0].revisions |= map(select(.name == "canary").istio.tsbVersion = "1.8.0")' $CLUSTER_NAME-cp.yaml -i
+
+# Upgrade Control Plane
+helm upgrade controlplane -n istio-system -f $CLUSTER_NAME-cp.yaml tetrate-tsb-helm/controlplane --version $UPGRADE_VERSION
+```
+
+### Verify istiod versions updated
+
+```sh
+kip -n istio-system -l app=istiod
+NAME                             IMAGE
+istiod-558bbb6db4-rtljl          sw021tsbacrqaxhebu5d5uuq0kr.azurecr.io/pilot:1.19.3-9d7a73d4d6-distroless
+istiod-canary-7f7576f989-q8f8q   sw021tsbacrqaxhebu5d5uuq0kr.azurecr.io/pilot:1.19.5-f764c5d759-distroless
+
 ```
 
 ## Dataplane Upgrade
@@ -83,7 +110,7 @@ reviews-v2-5bf46f8fb6-ts2w9     2/2     Running   0          139m
 reviews-v3-5868dd8d98-8vz5k     2/2     Running   0          139m
 ```
 
-**_NOTE: alias kip="kubectl get pods -o=custom-columns='NAME:.metadata.name,IMAGE:.spec.containers[*].image'"_**
+Verify with `kip` alias
 
 ```sh
 kip -n bookinfo
