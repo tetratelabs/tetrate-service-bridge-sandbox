@@ -73,7 +73,7 @@ xcp-operator-edge-6c4984b5d4-dj4xk                       sw021tsbacrqaxhebu5d5uu
 
 ```sh
 # Update canary revision to be new version
-yq eval-all '.spec.components.xcp.isolationBoundaries[0].revisions |= map(select(.name == "canary").istio.tsbVersion = "1.8.0")' $CLUSTER_NAME-cp.yaml -i
+yq eval-all '.spec.components.xcp.isolationBoundaries[0].revisions |= map(select(.name = "canary").istio.tsbVersion = "'${UPGRADE_VERSION}'")' $CLUSTER_NAME-cp.yaml -i
 
 # Upgrade Control Plane
 helm upgrade controlplane -n istio-system -f $CLUSTER_NAME-cp.yaml tetrate-tsb-helm/controlplane --version $UPGRADE_VERSION
