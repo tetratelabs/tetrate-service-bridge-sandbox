@@ -4,7 +4,7 @@
 
 This walkthrough completes a `Control Plane` upgrade and takes a phased approach to upgrade the `Data Plane`. This is achieved by creating a new revision of the Isolation Boundary and updating the namespace to use the new revision.
 
-- [Isolation Boundary KB](https://docs.tetrate.io/service-bridge/setup/isolation-boundaries)
+- [Revisioned Upgrade KB](https://docs.tetrate.io/service-bridge/setup/upgrades/revisioned-to-revisioned)
 
 ## Pre-requisites
 
