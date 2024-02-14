@@ -33,7 +33,7 @@ items:
             - args:
                 - /bin/sh
                 - -c
-                - 'while true; do sleep 60; curl -vIX GET -H"Host: internal-bookinfo.tetrate.io" bookinfo-gw.bookinfo/productpage; sleep 60; curl -vIX GET -H"Host: bookinfo.tetrate.io" edge-gw.edge/productpage; done'
+                - 'while true; do sleep 60; curl -vIX GET -H"Host: internal-bookinfo.tetrate.io" app-gw.bookinfo/productpage; sleep 60; curl -vIX GET -H"Host: bookinfo.tetrate.io" edge-gw.edge/productpage; done'
               image: appropriate/curl
               imagePullPolicy: Always
               name: trafficgenerator-bookinfo
