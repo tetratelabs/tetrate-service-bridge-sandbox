@@ -12,29 +12,41 @@ A complete reference example:
 `terraform.tfvars.json`
 ```json
 {
-    "name_prefix": "",
-    "dns_provider": "",
-    "tsb_fqdn": "",
-    "tsb_version": "1.6.0-dev",
-    "tsb_helm_repository": "",
-    "tsb_helm_repository_username": "",
-    "tsb_helm_repository_password": "",
-    "tsb_image_sync_username": "",
-    "tsb_image_sync_apikey": "",
-    "tsb_password": "Tetrate123",
-    "tsb_mp": {
-        "cloud": "gcp",
-        "cluster_id": 0
+    "k8s_clusters": {
+        "aws": [
+        ],
+        "azure": [
+        ],
+        "gcp": [
+            {
+                "region": "us-central1",
+                "tetrate": {
+                    "management_plane": true
+                }
+            },
+            {
+                "region": "us-west1",
+                "tetrate": {
+                    "control_plane": true
+                }
+            }
+        ]
     },
-    "tsb_org": "tetrate",
-    "aws_k8s_regions": [
-    ],
-    "azure_k8s_regions": [
-    ],
-    "gcp_k8s_regions": [
-        "us-west1"
-    ],
-    "tetrate_owner": "username",
-    "tetrate_team": "function:team"
+    "name_prefix": "",
+    "tags": {
+       "tetrate_owner": "username",
+       "tetrate_team": "function:team"
+    },
+    "tetrate": {
+        "fqdn": "",
+        "image_sync_apikey": "", 
+        "image_sync_username": "",
+        "organization": "tetrate",
+        "version": "1.6.0-dev",
+        "helm_repository": "",
+        "helm_username": "",
+        "helm_password": "",
+        "password": "Tetrate123"
+    }
 }
 ```
