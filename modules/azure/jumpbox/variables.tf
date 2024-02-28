@@ -35,6 +35,16 @@ variable "registry_password" {
   type = string
 }
 
+variable "tsb_helm_username" {
+  type    = string
+  default = ""
+}
+
+variable "tsb_helm_password" {
+  type    = string
+  default = ""
+}
+
 variable "jumpbox_username" {
   type = string
 }
