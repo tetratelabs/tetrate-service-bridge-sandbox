@@ -30,15 +30,15 @@ spec:
       - name: global
         revisions:
         - name: default
-        %{ if length(regexall("dev", tsb_version)) == 0 }
+          %{ if length(regexall("dev", tsb_version)) == 0 }
           istio:
             tsbVersion: ${tsb_version}
-        %{ endif }
+          %{ endif }
         - name: canary
-        %{ if length(regexall("dev", tsb_version)) == 0 }
+          %{ if length(regexall("dev", tsb_version)) == 0 }
           istio:
             tsbVersion: ${tsb_version}
-        %{ endif }
+          %{ endif }
       kubeSpec:
         deployment:
           env:
