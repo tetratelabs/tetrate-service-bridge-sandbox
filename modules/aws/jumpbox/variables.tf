@@ -51,6 +51,16 @@ variable "tsb_helm_repository" {
   type = string
 }
 
+variable "tsb_helm_username" {
+  type    = string
+  default = ""
+}
+
+variable "tsb_helm_password" {
+  type    = string
+  default = ""
+}
+
 variable "output_path" {
   type = string
 }

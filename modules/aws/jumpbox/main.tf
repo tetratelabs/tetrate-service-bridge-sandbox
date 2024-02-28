@@ -263,6 +263,8 @@ resource "aws_instance" "jumpbox" {
   user_data = base64encode(templatefile("${path.module}/jumpbox.userdata", {
     jumpbox_username          = var.jumpbox_username
     tsb_version               = var.tsb_version
+    tsb_helm_username         = var.tsb_helm_username
+    tsb_helm_password         = var.tsb_helm_password
     tsb_image_sync_username   = var.tsb_image_sync_username
     tsb_image_sync_apikey     = var.tsb_image_sync_apikey
     docker_login              = "aws ecr get-login-password --region ${var.region} | docker login --username AWS --password-stdin ${var.registry}"

@@ -32,7 +32,7 @@ write_files:
       ${docker_login}
       if [[ ! -z "${tetrate_internal_cr}" ]]; then
         curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
-        helm repo add tetrate-tsb-helm "${tsb_helm_repository}"
+        helm repo add tetrate-tsb-helm "${tsb_helm_repository}"  --username "${tsb_helm_username}" --password "${tsb_helm_password}"
         helm repo update
         curl -Lo "/usr/local/bin/tctl" "https://binaries.dl.tetrate.io/public/raw/versions/linux-amd64-next/tctl"
         chmod +x "/usr/local/bin/tctl"
