@@ -43,7 +43,7 @@ module "gatekeeper" {
   k8s_host                   = data.terraform_remote_state.infra.outputs.host
   k8s_cluster_ca_certificate = data.terraform_remote_state.infra.outputs.cluster_ca_certificate
   k8s_client_token           = data.terraform_remote_state.k8s_auth.outputs.token
-  gatekeeper_enabled         = local.cluster.tetrate.management_plane ? false : var.gatekeeper_enabled
+  gatekeeper_enabled         = local.cluster.tetrate.management_plane ? false : local.cluster.addons.gatekeeper
 }
 
 module "tsb_cp" {

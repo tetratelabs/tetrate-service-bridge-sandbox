@@ -34,8 +34,3 @@ resource "helm_release" "gatekeeper" {
     file("${path.module}/manifests/gatekeeper-values.yaml")
   ]
 }
-
-resource "time_sleep" "wait_90_seconds" {
-  depends_on      = [helm_release.gatekeeper]
-  create_duration = "90s"
-}
