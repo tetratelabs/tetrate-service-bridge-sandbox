@@ -23,6 +23,8 @@ module "aws_jumpbox" {
   cidr                    = module.aws_base.cidr
   tsb_version             = local.tetrate.version
   tsb_helm_repository     = local.tetrate.helm_repository
+  tsb_helm_username       = local.tetrate.helm_username
+  tsb_helm_password       = local.tetrate.helm_password
   jumpbox_username        = var.jumpbox_username
   machine_type            = var.jumpbox_machine_type
   tsb_image_sync_username = local.tetrate.image_sync_username

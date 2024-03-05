@@ -71,6 +71,8 @@ resource "google_compute_instance" "jumpbox" {
       registry                  = var.registry
       pubkey                    = tls_private_key.generated.public_key_openssh
       tsb_helm_repository       = var.tsb_helm_repository
+      tsb_helm_username         = var.tsb_helm_username
+      tsb_helm_password         = var.tsb_helm_password
       tetrate_internal_cr       = module.internal_registry.internal_cr
       tetrate_internal_cr_token = module.internal_registry.internal_cr_token
     })

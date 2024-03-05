@@ -117,6 +117,8 @@ resource "azurerm_linux_virtual_machine" "jumpbox" {
     jumpbox_username          = var.jumpbox_username
     tsb_version               = var.tsb_version
     tsb_image_sync_username   = var.tsb_image_sync_username
+    tsb_helm_username         = var.helm_username
+    tsb_helm_password         = var.helm_password
     tsb_image_sync_apikey     = var.tsb_image_sync_apikey
     docker_login              = "docker login -u ${var.registry_username} -p ${var.registry_password} ${var.registry}"
     registry                  = var.registry
