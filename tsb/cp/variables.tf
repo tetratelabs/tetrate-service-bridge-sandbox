@@ -93,3 +93,8 @@ variable "ratelimit_enabled" {
   description = "enable ratelimit"
   default     = true
 }
+
+variable "gatekeeper_enabled" {
+  description = "enable gatekeeper"
+  default     = true
+}

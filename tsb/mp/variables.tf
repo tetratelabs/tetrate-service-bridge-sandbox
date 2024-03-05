@@ -81,3 +81,8 @@ variable "cert-manager_enabled" {
   description = "enable cert-manager"
   default     = true
 }
+
+variable "gatekeeper_enabled" {
+  description = "enable gatekeeper"
+  default     = true
+}

@@ -30,6 +30,15 @@ module "es" {
   es_version                 = local.tetrate.es_version
 }
 
+module "gatekeeper" {
+  source                     = "../../modules/addons/gatekeeper"
+  cluster_name               = data.terraform_remote_state.infra.outputs.cluster_name
+  k8s_host                   = data.terraform_remote_state.infra.outputs.host
+  k8s_cluster_ca_certificate = data.terraform_remote_state.infra.outputs.cluster_ca_certificate
+  k8s_client_token           = data.terraform_remote_state.k8s_auth.outputs.token
+  gatekeeper_enabled          = var.gatekeeper_enabled
+}
+
 module "tsb_mp" {
   source                       = "../../modules/tsb/mp"
   name_prefix                  = var.name_prefix

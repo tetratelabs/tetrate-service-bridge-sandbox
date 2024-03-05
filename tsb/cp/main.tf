@@ -37,6 +37,15 @@ module "ratelimit" {
   enabled                    = var.ratelimit_enabled
 }
 
+module "gatekeeper" {
+  source                     = "../../modules/addons/gatekeeper"
+  cluster_name               = data.terraform_remote_state.infra.outputs.cluster_name
+  k8s_host                   = data.terraform_remote_state.infra.outputs.host
+  k8s_cluster_ca_certificate = data.terraform_remote_state.infra.outputs.cluster_ca_certificate
+  k8s_client_token           = data.terraform_remote_state.k8s_auth.outputs.token
+  gatekeeper_enabled         = local.cluster.tetrate.management_plane ? false : var.gatekeeper_enabled
+}
+
 module "tsb_cp" {
   source                       = "../../modules/tsb/cp"
   cloud                        = local.cluster.cloud
