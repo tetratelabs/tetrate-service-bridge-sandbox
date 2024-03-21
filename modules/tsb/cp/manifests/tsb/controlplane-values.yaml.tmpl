@@ -40,29 +40,11 @@ spec:
             tsbVersion: ${tsb_version}
           %{ endif }
       kubeSpec:
-        deployment:
-          env:
-            - name: ENABLE_GATEWAY_DELETE_HOLD
-              value: "true"
-            - name: GATEWAY_DELETE_HOLD_SECONDS
-              value: "20"
         overlays:
           - apiVersion: install.xcp.tetrate.io/v1alpha1
             kind: EdgeXcp
             name: edge-xcp
             patches:
-              - path: spec.components.edgeServer.kubeSpec.deployment.env[-1]
-                value:
-                  name: ENABLE_ENHANCED_EAST_WEST_ROUTING
-                  value: "true"
-              - path: spec.components.edgeServer.kubeSpec.deployment.env[-1]
-                value:
-                  name: DISABLE_TIER1_TIER2_SEPARATION
-                  value: "true"
-              - path: spec.components.edgeServer.kubeSpec.deployment.env[-1]
-                value:
-                  name: ENABLE_DNS_RESOLUTION_AT_EDGE
-                  value: "true"
               - path: spec.components.edgeServer.kubeSpec.deployment.env[-1]
                 value:
                   name: ENABLE_NETWORK_POLICY_TRANSLATION
