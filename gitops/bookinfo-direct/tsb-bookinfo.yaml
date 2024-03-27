@@ -28,6 +28,30 @@ items:
       namespaceSelector:
         names:
           - "*/direct-bookinfo"
+  - apiVersion: tsb.tetrate.io/v2
+    kind: WorkspaceSetting
+    metadata:
+      name: direct-bookinfo-wss
+      namespace: bookinfo
+      annotations:
+        tsb.tetrate.io/organization: tetrate
+        tsb.tetrate.io/tenant: stg
+        tsb.tetrate.io/workspace: direct-bookinfo-ws
+    spec:
+      failoverSettings:
+        failoverPriority:
+          - "version=v2"
+          - "topology.istio.io/network"
+      defaultEastWestGatewaySettings:
+        - workloadSelector:
+            namespace: bookinfo-direct
+            labels:
+              app: direct-bookinfo-gw
+          exposedServices:
+            - serviceLabels:
+                app: reviews
+            - serviceLabels:
+                app: details
   - apiVersion: gateway.tsb.tetrate.io/v2
     kind: Group
     metadata:
