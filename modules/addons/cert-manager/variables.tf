@@ -14,5 +14,5 @@ variable "cert-manager_enabled" {
 }
 
 variable "cert-manager_version" {
-  default = "v1.14.3"
+  default = "v1.14.4"
 }

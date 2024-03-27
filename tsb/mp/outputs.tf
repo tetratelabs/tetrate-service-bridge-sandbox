@@ -15,25 +15,18 @@ output "tsb_cacert" {
   sensitive = true
 }
 
-output "es_ip" {
-  value = module.es.es_ip
-}
-
-output "es_hostname" {
-  value = module.es.es_hostname
-}
-
 output "es_username" {
-  value = module.es.es_username
+  value     = module.tsb_mp.es_username
+  sensitive = true
 }
 
 output "es_password" {
-  value     = module.es.es_password
+  value     = module.tsb_mp.es_password
   sensitive = true
 }
 
 output "es_cacert" {
-  value     = module.es.es_cacert
+  value     = module.tsb_mp.tsb_cacert
   sensitive = true
 }
 

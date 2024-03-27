@@ -15,3 +15,12 @@ output "password" {
   value     = coalesce(var.tsb_password, random_password.tsb.result)
   sensitive = true
 }
+
+output "es_username" {
+  value     = data.kubernetes_secret.elastic_credentials.data["username"]
+  sensitive = true
+}
+
+output "es_password" {
+  value = data.kubernetes_secret.elastic_credentials.data["password"]
+}
