@@ -81,16 +81,6 @@ resource "helm_release" "managementplane" {
     tsb_password = coalesce(var.tsb_password, random_password.tsb.result)
     tsb_org      = var.tsb_org
     tsb_fqdn     = var.tsb_fqdn
-    #eck
-    es_host     = var.es_host
-    es_username = var.es_username
-    es_password = var.es_password
-    # demo db profile
-    db_username = "tsb"
-    db_password = "tsb-postgres-password"
-    # demo ldap profile
-    ldap_binddn       = "cn=admin,dc=tetrate,dc=io"
-    ldap_bindpassword = "admin"
   })]
   set {
     name  = "secrets.tsb.cert"
@@ -109,13 +99,6 @@ resource "helm_release" "managementplane" {
     name  = "secrets.xcp.rootcakey"
     value = data.kubernetes_secret.selfsigned_ca.data["tls.key"]
   }
-
-  set {
-    name  = "secrets.elasticsearch.cacert"
-    value = var.es_cacert
-
-  }
-
 }
 
 resource "time_sleep" "wait_240_seconds" {
@@ -126,6 +109,14 @@ resource "time_sleep" "wait_240_seconds" {
 data "kubernetes_service" "tsb" {
   metadata {
     name      = "envoy"
+    namespace = "tsb"
+  }
+  depends_on = [time_sleep.wait_240_seconds]
+}
+
+data "kubernetes_secret" "elastic_credentials" {
+  metadata {
+    name      = "elastic-credentials"
     namespace = "tsb"
   }
   depends_on = [time_sleep.wait_240_seconds]

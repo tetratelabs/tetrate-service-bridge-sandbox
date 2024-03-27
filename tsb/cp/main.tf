@@ -60,10 +60,10 @@ module "tsb_cp" {
   tsb_image_sync_username      = local.tetrate.image_sync_username
   tsb_image_sync_apikey        = local.tetrate.image_sync_apikey
   output_path                  = var.output_path
-  es_host                      = coalesce(data.terraform_remote_state.tsb_mp.outputs.es_ip, data.terraform_remote_state.tsb_mp.outputs.es_hostname)
+  es_host                      = local.tetrate.fqdn
   es_username                  = data.terraform_remote_state.tsb_mp.outputs.es_username
   es_password                  = data.terraform_remote_state.tsb_mp.outputs.es_password
-  es_cacert                    = data.terraform_remote_state.tsb_mp.outputs.es_cacert
+  es_cacert                    = data.terraform_remote_state.tsb_mp.outputs.tsb_cacert
   jumpbox_host                 = data.terraform_remote_state.infra.outputs.public_ip
   jumpbox_username             = var.jumpbox_username
   jumpbox_pkey                 = data.terraform_remote_state.infra.outputs.pkey

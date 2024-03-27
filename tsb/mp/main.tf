@@ -21,15 +21,6 @@ module "cert-manager" {
   cert-manager_enabled       = var.cert-manager_enabled
 }
 
-module "es" {
-  source                     = "../../modules/addons/elastic"
-  cluster_name               = data.terraform_remote_state.infra.outputs.cluster_name
-  k8s_host                   = data.terraform_remote_state.infra.outputs.host
-  k8s_cluster_ca_certificate = data.terraform_remote_state.infra.outputs.cluster_ca_certificate
-  k8s_client_token           = data.terraform_remote_state.k8s_auth.outputs.token
-  es_version                 = local.tetrate.es_version
-}
-
 module "tsb_mp" {
   source                       = "../../modules/tsb/mp"
   name_prefix                  = var.name_prefix
@@ -44,10 +35,6 @@ module "tsb_mp" {
   tsb_password                 = local.tetrate.password
   tsb_image_sync_username      = local.tetrate.image_sync_username
   tsb_image_sync_apikey        = local.tetrate.image_sync_apikey
-  es_host                      = coalesce(module.es.es_ip, module.es.es_hostname)
-  es_username                  = module.es.es_username
-  es_password                  = module.es.es_password
-  es_cacert                    = module.es.es_cacert
   registry                     = data.terraform_remote_state.infra.outputs.registry
   cluster_name                 = data.terraform_remote_state.infra.outputs.cluster_name
   k8s_host                     = data.terraform_remote_state.infra.outputs.host
