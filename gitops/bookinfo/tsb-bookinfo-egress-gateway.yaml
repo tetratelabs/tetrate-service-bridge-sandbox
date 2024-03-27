@@ -9,11 +9,12 @@ items:
         istio-injection: enabled
       name: egress
   - apiVersion: install.tetrate.io/v1alpha1
-    kind: EgressGateway
+    kind: Gateway
     metadata:
       name: egress-gw
       namespace: egress
     spec:
+      type: EGRESS
       kubeSpec:
         service:
           type: LoadBalancer

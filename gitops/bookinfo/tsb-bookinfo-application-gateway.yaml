@@ -3,11 +3,12 @@ apiVersion: v1
 kind: List
 items:
   - apiVersion: install.tetrate.io/v1alpha1
-    kind: IngressGateway
+    kind: Gateway
     metadata:
       name: app-gw
       namespace: bookinfo
     spec:
+      type: UNIFIED
       kubeSpec:
         service:
           type: LoadBalancer

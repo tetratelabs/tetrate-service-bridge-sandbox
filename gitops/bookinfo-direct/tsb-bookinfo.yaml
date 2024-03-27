@@ -68,7 +68,7 @@ items:
           - "*/direct-bookinfo"
       configMode: DIRECT
   - apiVersion: install.tetrate.io/v1alpha1
-    kind: IngressGateway
+    kind: Gateway
     metadata:
       name: direct-bookinfo-gw
       namespace: direct-bookinfo
