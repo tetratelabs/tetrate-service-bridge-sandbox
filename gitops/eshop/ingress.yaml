@@ -9,7 +9,7 @@ spec:
       type: LoadBalancer
 ---
 apiVersion: install.tetrate.io/v1alpha1
-kind: IngressGateway
+kind: Gateway
 metadata:
   name: tsb-gateway-payments
   namespace: eshop-payments

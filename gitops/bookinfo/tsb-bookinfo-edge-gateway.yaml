@@ -9,11 +9,12 @@ items:
         istio-injection: enabled
       name: edge
   - apiVersion: install.tetrate.io/v1alpha1
-    kind: Tier1Gateway
+    kind: Gateway
     metadata:
       name: edge-gw
       namespace: edge
     spec:
+      type: INGRESS
       kubeSpec:
         service:
           type: LoadBalancer
