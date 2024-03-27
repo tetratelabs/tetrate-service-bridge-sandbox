@@ -38,6 +38,28 @@ items:
           - "*/bookinfo"
           - "*/edge"
           - "*/egress"
+  - apiVersion: tsb.tetrate.io/v2
+    kind: WorkspaceSetting
+    metadata:
+      name: bookinfo-wss
+      namespace: bookinfo
+      annotations:
+        tsb.tetrate.io/organization: tetrate
+        tsb.tetrate.io/tenant: dev
+        tsb.tetrate.io/workspace: bookinfo-ws
+    spec:
+      failoverSettings:
+        topologyChoice: CLUSTER
+      defaultEastWestGatewaySettings:
+        - workloadSelector:
+            namespace: bookinfo
+            labels:
+              app: app-gw
+          exposedServices:
+            - serviceLabels:
+                app: reviews
+            - serviceLabels:
+                app: details
   - apiVersion: gateway.tsb.tetrate.io/v2
     kind: Group
     metadata:
