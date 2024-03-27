@@ -9,9 +9,6 @@
                 "addons": {
                     "argocd": {
                         "enabled": true
-                    },
-                    "gatekeeper": {
-                        "enabled" : true
                     }
                 }
             }
@@ -25,9 +22,6 @@
                 "addons": {
                     "argocd": {
                         "enabled": true
-                    },
-                    "gatekeeper": {
-                        "enabled": true
                     }
                 }
             }
@@ -40,9 +34,6 @@
                 },
                 "addons": {
                     "argocd": {
-                        "enabled": true
-                    },
-                    "gatekeeper": {
                         "enabled": true
                     }
                 }

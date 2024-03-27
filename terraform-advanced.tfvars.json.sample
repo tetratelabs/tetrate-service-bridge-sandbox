@@ -19,9 +19,6 @@
                     },
                     "tsb-monitoring": {
                         "enabled": true
-                    },
-                    "gatekeeper": {
-                        "enabled" : true
                     }
                 }
             }
@@ -44,9 +41,6 @@
                     },
                     "tsb-monitoring": {
                         "enabled": true
-                    },
-                    "gatekeeper": {
-                        "enabled" : true
                     }
                 }
             }
@@ -69,9 +63,6 @@
                     },
                     "tsb-monitoring": {
                         "enabled": true
-                    },
-                    "gatekeeper": {
-                        "enabled" : true
                     }
                 }
             }

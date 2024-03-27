@@ -130,4 +130,3 @@ data "kubernetes_service" "tsb" {
   }
   depends_on = [time_sleep.wait_240_seconds]
 }
-

@@ -9,11 +9,6 @@ variable "cluster" {
       control_plane    = optional(bool)
       management_plane = optional(bool)
     })
-    addons = object({
-      gatekeeper = object({
-        enabled = optional(bool)
-      })     
-    })
     version   = optional(string)
     workspace = string
   })
@@ -26,9 +21,6 @@ locals {
       management_plane = false
     }
     version = "1.27"
-    addons = {
-      gatekeeper = false
-    }
   }
   cluster = {
     cloud  = var.cluster.cloud
@@ -41,10 +33,6 @@ locals {
     }
     version   = coalesce(var.cluster.version, local.cluster_defaults.version)
     workspace = var.cluster.workspace
-    addons = {
-      gatekeeper  = coalesce(var.cluster.addons.gatekeeper.enabled,local.cluster_defaults.addons.gatekeeper)
-    }
-    
   }
 }
 
