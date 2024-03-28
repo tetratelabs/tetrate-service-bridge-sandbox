@@ -21,7 +21,7 @@ provider "kubernetes" {
 
 # Gatekeeper Deployment using helm chart
 resource "helm_release" "gatekeeper" {
-  count             = var.gatekeeper_enabled == true ? 1 : 0
+  #count             = var.gatekeeper_enabled == true ? 1 : 0
   name              = "gatekeeper"
   repository        = "https://open-policy-agent.github.io/gatekeeper/charts"
   chart             = "gatekeeper"
