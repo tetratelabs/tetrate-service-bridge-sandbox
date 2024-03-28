@@ -18,15 +18,4 @@ module "gatekeeper" {
   k8s_host                   = data.terraform_remote_state.infra.outputs.host
   k8s_cluster_ca_certificate = data.terraform_remote_state.infra.outputs.cluster_ca_certificate
   k8s_client_token           = data.terraform_remote_state.k8s_auth.outputs.token
-  #service_type               = local.addon_config.service_type
-  #service_fqdn               = local.addon_config.service_fqdn
-  #password                   = local.tetrate.password
 }
-
-
-#output "var_addon_config" {
-#  value = var.addon_config
-#}
-#output "local_addon_config" {
-#  value = local.addon_config
-#}

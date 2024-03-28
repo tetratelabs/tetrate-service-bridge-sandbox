@@ -21,9 +21,6 @@ locals {
       management_plane = false
     }
     version = "1.27"
-    #addons = {
-    #  gatekeeper = false
-    #}
   }
   cluster = {
     cloud  = var.cluster.cloud
@@ -79,12 +76,3 @@ variable "addon_config" {
     service_fqdn         = optional(string)
   */
 }
-
-#locals {
-#  addon_config_defaults = {
-#    include_example_apps = true
-#    service_type         = "LoadBalancer"
-#    service_fqdn         = "argocd.tetrate.io"
-#  }
-#  addon_config = merge(local.addon_config_defaults, var.addon_config)
-#}
