@@ -33,6 +33,15 @@ make fluxcd
 
 For details about the deployed applications, take a look at the manifests in the `applications` folder.
 
+## Gatekeeper
+
+Deploys Flux CD for gitops demo
+
+```bash
+# Deploys Gatekeeper on Cluster
+make gatekeeper
+```
+
 ## TSB monitoring stack
 
 Deploys the TSB monitoring stack to have metrics and dashboards showing the operational status
@@ -134,3 +143,6 @@ make destroy_external_dns_gcp
 * Deploys the TSB monitoring stack.
 * prometheus configured to scrape all the TSB and XCP components.
 * grafana with TSB operational dashboards preloaded and configured.
+
+#### module.monitoring (`make gatekeeper`)
+* Deploys Gatekeeper
