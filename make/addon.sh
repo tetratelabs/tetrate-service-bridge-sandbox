@@ -24,6 +24,7 @@ SUPPORTED_ACTIONS=("help"
                    "destroy_external_dns_aws" "destroy_external_dns_azure" "destroy_external_dns_gcp"
                    "destroy_tsb_monitoring" "destroy_gatekeeper_azure" "destroy_gatekeeper_aws" 
                    "destroy_gatekeeper_gcp")
+                   
 if ! [[ " ${SUPPORTED_ACTIONS[*]} " == *" ${ACTION} "* ]]; then
   print_error "Invalid action '${ACTION}'. Must be one of '${SUPPORTED_ACTIONS[*]}'."
   exit 1
