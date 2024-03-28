@@ -59,3 +59,32 @@ items:
       - name: v3
         labels:
           version: v3
+  - apiVersion: traffic.tsb.tetrate.io/v2
+    kind: TrafficSetting
+    metadata:
+      name: internal-bookinfo-host-ts
+      namespace: bookinfo
+      annotations:
+        tsb.tetrate.io/organization: tetrate
+        tsb.tetrate.io/tenant: dev
+        tsb.tetrate.io/workspace: bookinfo-ws
+        tsb.tetrate.io/trafficGroup: bookinfo-tg
+    spec:
+      upstreamTrafficSettings:
+        - hosts:
+          - internal-bookinfo.tetrate.io
+          settings:
+            loadBalancer:
+              simple: LEAST_REQUEST
+            resilience:
+              circuitBreakerSensitivity: MEDIUM
+              connectionPool:
+                tcp:
+                  connectTimeout: 0.5s
+        - hosts:
+          - *.bookinfo.svc.cluster.local
+          settings:
+            loadBalancer:
+              simple: LEAST_REQUEST
+            resilience:
+              circuitBreakerSensitivity: HIGH
