@@ -82,7 +82,7 @@ items:
                 tcp:
                   connectTimeout: 0.5s
         - hosts:
-          - *.bookinfo.svc.cluster.local
+          - "*.bookinfo.svc.cluster.local"
           settings:
             loadBalancer:
               simple: LEAST_REQUEST
