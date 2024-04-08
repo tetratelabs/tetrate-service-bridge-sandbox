@@ -41,7 +41,7 @@ items:
             rules:
               - route:
                   serviceDestination:
-                    host: bookinfo/www.googleapis.com
+                    host: egress/www.googleapis.com
                     port: 443
                     tls:
                       mode: SIMPLE
@@ -54,7 +54,7 @@ items:
             rules:
               - route:
                   serviceDestination:
-                    host: bookinfo/httpbin.org
+                    host: egress/httpbin.org
                     port: 443
                     tls:
                       mode: SIMPLE
