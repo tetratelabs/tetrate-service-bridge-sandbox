@@ -45,7 +45,7 @@ items:
               - route:
                   serviceDestination:
                     host: "bookinfo/productpage.bookinfo.svc.cluster.local"
-                    port: 9080             
+                    port: 9080
   - apiVersion: traffic.tsb.tetrate.io/v2
     kind: ServiceRoute
     metadata:
