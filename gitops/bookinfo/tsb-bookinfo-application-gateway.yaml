@@ -28,6 +28,15 @@ items:
         labels:
           app: app-gw
       http:
+        - name: health
+          port: 80
+          hostname: 'health.tetrate.io'
+          routing:
+            rules:
+              - directResponse:
+                  status: 200
+                  body:
+                    string: "OK"
         - name: productpage
           port: 80
           hostname: "internal-bookinfo.tetrate.io"
@@ -36,7 +45,7 @@ items:
               - route:
                   serviceDestination:
                     host: "bookinfo/productpage.bookinfo.svc.cluster.local"
-                    port: 9080
+                    port: 9080             
   - apiVersion: traffic.tsb.tetrate.io/v2
     kind: ServiceRoute
     metadata:
@@ -59,6 +68,30 @@ items:
       - name: v3
         labels:
           version: v3
+  - apiVersion: traffic.tsb.tetrate.io/v2
+    kind: ServiceRoute
+    metadata:
+      name: ratings-sr
+      namespace: bookinfo
+      annotations:
+        tsb.tetrate.io/organization: tetrate
+        tsb.tetrate.io/tenant: dev
+        tsb.tetrate.io/workspace: bookinfo-ws
+        tsb.tetrate.io/trafficGroup: bookinfo-tg
+    spec:
+      service: bookinfo/ratings.bookinfo.svc.cluster.local
+      httpRoutes:
+      - name: ratings-faultinjections
+        destination:
+          - destinationHost: "bookinfo/ratings.bookinfo.svc.cluster.local"
+            port: 9080
+        fault:
+          delay:
+            percentage: 10
+            fixedDelay: 500ms
+          abort:
+            percentage: 10
+            httpStatus: 418
   - apiVersion: traffic.tsb.tetrate.io/v2
     kind: TrafficSetting
     metadata:
