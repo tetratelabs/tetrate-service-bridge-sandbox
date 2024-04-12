@@ -60,6 +60,14 @@ items:
                       mode: SIMPLE
                       files:
                         caCertificates: "/etc/ssl/certs/ca-certificates.crt"
+      egressAuthorization:
+      - from:
+          mode: SERVICE_ACCOUNT
+          serviceAccounts:
+            - "bookinfo/bookinfo-details"
+        to:
+        - host:
+            exact: "www.googleapis.com"
   - apiVersion: networking.istio.io/v1beta1
     kind: ServiceEntry
     metadata:
