@@ -4,10 +4,24 @@ set -e
 export REGION="${region}"
 export VPC_ID="${vpc_id}"
 export REPO_PREFIX="${registry_name}"
+export NAME_PREFIX="${name_prefix}"
 
 echo 'Destroying ECR repositories...'
 for repo in $(aws ecr describe-repositories --region $REGION --query 'repositories[*].repositoryName' --no-paginate --output text); do
     [[ "$repo" =~ ^$REPO_PREFIX/.* ]] && aws ecr delete-repository --repository-name $repo --region $REGION --force; done
+
+echo 'Clean up of IAM Roles/Policies...'
+for role in $(aws iam list-roles --query "Roles[?RoleName.contains(@,'$NAME_PREFIX-$REGION-alb-ingress')].[RoleName]" --output text); do
+  for policyarn in $(aws iam list-attached-role-policies --role-name $role --output text --query "AttachedPolicies[].PolicyArn"); do
+    echo "Detact Policy $policyarn from Role $role"
+    aws iam detach-role-policy --role-name $role --policy-arn $policyarn
+    sleep 10
+    echo "Delete Policy $policyarn"
+    aws iam delete-policy --policy-arn $policyarn
+  done
+  echo "Delete Role $role"
+  aws iam delete-role --role-name $role
+done
 
 echo 'Destroying K8s NLBs...'
 for elbv2 in $(aws elbv2 describe-load-balancers --region $REGION --query 'LoadBalancers[?Type==`network` && VpcId==`${vpc_id}`].LoadBalancerArn' --output text); do
@@ -15,7 +29,7 @@ for elbv2 in $(aws elbv2 describe-load-balancers --region $REGION --query 'LoadB
   aws elbv2 delete-load-balancer --region $REGION --load-balancer-arn $elbv2
 done
 
-sleep 90
+sleep 60
 
 echo 'Destroying K8s ELBs...'
 for elb in $(aws elb describe-load-balancers --region $REGION --query 'LoadBalancerDescriptions[?VPCId==`${vpc_id}`]|[].LoadBalancerName' --output text); do 
@@ -23,12 +37,12 @@ for elb in $(aws elb describe-load-balancers --region $REGION --query 'LoadBalan
     aws elb delete-load-balancer --region $REGION --load-balancer-name $elb 
 done
 
-sleep 90
+sleep 60
 
 echo 'Destroying K8s ELB SGs...'
-for sg in $(aws ec2 --region $REGION describe-security-groups --filters "Name=vpc-id,Values=$VPC_ID" --query "SecurityGroups[?GroupName!='default'].GroupId" --output text); do
+for sg in $(aws ec2 --region $REGION describe-security-groups --filters "Name=vpc-id,Values=$VPC_ID" --query "SecurityGroups[*].GroupId" --output text); do 
     echo "Removing $sg..."
     aws ec2 delete-security-group --region $REGION --group-id $sg 
 done
 
-sleep 5
+sleep 60
