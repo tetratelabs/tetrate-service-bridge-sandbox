@@ -127,6 +127,27 @@ provider "kubernetes" {
   }
 }
 
+provider "helm" {
+  kubernetes {
+    host                   = module.eks.cluster_endpoint
+    cluster_ca_certificate = base64decode(module.eks.cluster_certificate_authority_data)
+    exec {
+      api_version = "client.authentication.k8s.io/v1beta1"
+      command     = "/bin/sh"
+      args        = ["-c", "for i in $(seq 1 30); do curl -s -k -f ${module.eks.cluster_endpoint}/healthz > /dev/null && break || sleep 10; done && aws eks --region ${data.aws_availability_zones.available.id} get-token --cluster-name ${var.cluster_name}"]
+    }
+  }
+}
+
+module "load_balancer_controller" {
+  source                           = "git::https://github.com/smarunich/terraform-aws-eks-lb-controller.git"
+  helm_chart_version               = var.lb_controller_helm_chart_version
+  cluster_identity_oidc_issuer     = module.eks.cluster_oidc_issuer_url
+  cluster_identity_oidc_issuer_arn = module.eks.oidc_provider_arn
+  cluster_name                     = var.cluster_name
+  settings                         = var.lb_controller_settings
+}
+
 resource "local_file" "gen_kubeconfig_sh" {
   content         = "eksctl utils write-kubeconfig --cluster ${var.cluster_name} --region ${data.aws_availability_zones.available.id} --kubeconfig ${var.cluster_name}-kubeconfig"
   filename        = "${var.output_path}/generate-${var.cluster_name}-kubeconfig.sh"

@@ -81,6 +81,7 @@ resource "helm_release" "managementplane" {
     tsb_password = coalesce(var.tsb_password, random_password.tsb.result)
     tsb_org      = var.tsb_org
     tsb_fqdn     = var.tsb_fqdn
+    cloud        = can(regex("eks", var.k8s_host)) ? "aws" : "none"
   })]
   set {
     name  = "secrets.tsb.cert"

@@ -18,6 +18,14 @@ spec:
   components:
     frontEnvoy:
       port: 443
+%{ if cloud == "aws"}
+      kubeSpec:
+        service:
+          annotations:
+            service.beta.kubernetes.io/aws-load-balancer-type: external
+            service.beta.kubernetes.io/aws-load-balancer-attributes: "load_balancing.cross_zone.enabled=true"
+            service.beta.kubernetes.io/aws-load-balancer-scheme: internet-facing
+%{ endif }
     webUI:
       kubeSpec:
         overlays:
