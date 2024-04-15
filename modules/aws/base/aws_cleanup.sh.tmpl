@@ -40,7 +40,7 @@ done
 sleep 60
 
 echo 'Destroying K8s ELB SGs...'
-for sg in $(aws ec2 --region $REGION describe-security-groups --filters "Name=vpc-id,Values=$VPC_ID" --query "SecurityGroups[*].GroupId" --output text); do 
+for sg in $(aws ec2 --region $REGION describe-security-groups --filters "Name=vpc-id,Values=$VPC_ID" --query "SecurityGroups[?GroupName!='default'].GroupId" --output text); do
     echo "Removing $sg..."
     aws ec2 delete-security-group --region $REGION --group-id $sg 
 done
