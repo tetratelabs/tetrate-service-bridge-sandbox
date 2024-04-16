@@ -10,8 +10,8 @@ packages:
   - tmux
   - vim
   - jq
-  - awscli
   - skopeo
+  - unzip
 
 users:
   - default
@@ -29,6 +29,12 @@ write_files:
       #!/bin/bash
       curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
       install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl
+      curl -LO https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64
+      install -o root -g root -m 0755 yq_linux_amd64 /usr/bin/yq
+      # Install awscliv2, the instruction from official docs: http://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html
+      curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+      unzip awscliv2.zip
+      ./aws/install
       ${docker_login}
       if [[ ! -z "${tetrate_internal_cr}" ]]; then
         curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
