@@ -48,7 +48,7 @@ data "google_compute_zones" "available" {
 }
 
 resource "google_compute_subnetwork" "tsb" {
-  count = 1
+  count = var.min_az_count
   name  = "${var.name_prefix}-subnet${data.google_compute_zones.available.names[count.index]}"
 
   project = var.project_id

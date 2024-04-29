@@ -27,6 +27,7 @@ resource "azurerm_kubernetes_cluster" "k8s" {
     upgrade_settings {
       max_surge = "10%"
     }
+    availability_zones = ["1"]
   }
 
   identity {

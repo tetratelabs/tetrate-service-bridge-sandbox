@@ -105,7 +105,7 @@ variable "cidr" {
 
 variable "jumpbox_machine_type" {
   type    = string
-  default = "t2.medium"
+  default = "t3.small"
 }
 
 variable "jumpbox_username" {

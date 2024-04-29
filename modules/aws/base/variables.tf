@@ -10,7 +10,7 @@ variable "cidr" {
 
 variable "min_az_count" {
   type    = string
-  default = 2
+  default = 1
 }
 
 variable "max_az_count" {

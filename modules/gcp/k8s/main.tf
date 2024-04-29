@@ -2,6 +2,14 @@ data "google_compute_default_service_account" "default" {
   project = var.project_id
 }
 
+data "google_compute_zones" "available" {
+  project = var.project_id
+  region  = var.region
+  depends_on = [
+    time_sleep.wait_60_seconds
+  ]
+}
+
 resource "google_project_service" "container" {
   project = var.project_id
   service = "container.googleapis.com"
@@ -10,7 +18,7 @@ resource "google_project_service" "container" {
 resource "google_container_cluster" "tsb" {
   name               = var.cluster_name
   project            = var.project_id
-  location           = var.region
+  location           = data.google_compute_zones.available.names[0]
   min_master_version = var.k8s_version
   network            = var.vpc_id
   subnetwork         = var.vpc_subnet
