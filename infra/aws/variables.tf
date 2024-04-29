@@ -21,8 +21,8 @@ locals {
       control_plane    = false
       management_plane = false
     }
-    version       = "1.27"
-    instance_type = "m7i.xlarge"
+    version       = "1.28"
+    instance_type = "m7i.large"
   }
   cluster = {
     cloud  = var.cluster.cloud

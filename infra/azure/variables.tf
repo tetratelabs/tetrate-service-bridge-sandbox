@@ -21,8 +21,8 @@ locals {
       control_plane    = false
       management_plane = false
     }
-    version       = "1.28"
-    instance_type = "Standard_D4as_v5"
+    version       = "1.29"
+    instance_type = "Standard_D2as_v5"
   }
   cluster = {
     cloud  = var.cluster.cloud
