@@ -17,6 +17,7 @@ resource "azurerm_kubernetes_cluster" "k8s" {
 
   default_node_pool {
     name                = replace("${substr(var.cluster_name, 0, min(length("${var.cluster_name}"), 6))}", "-", "")
+    zones               = [1]
     vnet_subnet_id      = var.vnet_subnet
     enable_auto_scaling = true
     min_count           = 2
@@ -27,7 +28,7 @@ resource "azurerm_kubernetes_cluster" "k8s" {
     upgrade_settings {
       max_surge = "10%"
     }
-    availability_zones = ["1"]
+
   }
 
   identity {
