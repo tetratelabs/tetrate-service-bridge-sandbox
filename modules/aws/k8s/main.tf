@@ -157,6 +157,7 @@ module "eks-cluster-autoscaler" {
   cluster_name                     = var.cluster_name
   cluster_identity_oidc_issuer     = module.eks.cluster_oidc_issuer_url
   cluster_identity_oidc_issuer_arn = module.eks.oidc_provider_arn
+  helm_chart_name                  = var.cluster_name
 }
 
 resource "local_file" "gen_kubeconfig_sh" {
