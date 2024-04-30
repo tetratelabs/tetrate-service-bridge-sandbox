@@ -87,7 +87,7 @@ resource "local_file" "kubeconfig" {
 }
 
 resource "local_file" "gen_kubeconfig_sh" {
-  content         = "gcloud container clusters get-credentials --project ${var.project_id} --region ${var.region} ${var.cluster_name}"
+  content         = "gcloud container clusters get-credentials --project ${var.project_id} --region ${data.google_compute_zones.available.names[0]} ${var.cluster_name}"
   filename        = "${var.output_path}/generate-${var.cluster_name}-kubeconfig.sh"
   file_permission = "0755"
 }
