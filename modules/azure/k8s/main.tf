@@ -21,7 +21,7 @@ resource "azurerm_kubernetes_cluster" "k8s" {
     vnet_subnet_id      = var.vnet_subnet
     enable_auto_scaling = true
     min_count           = 2
-    max_count           = 5
+    max_count           = 7
     vm_size             = var.instance_type
     type                = "VirtualMachineScaleSets"
     os_disk_size_gb     = 50

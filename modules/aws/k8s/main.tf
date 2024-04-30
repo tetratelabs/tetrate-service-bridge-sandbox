@@ -1,7 +1,6 @@
 data "aws_availability_zones" "available" {}
 module "eks" {
-  source  = "terraform-aws-modules/eks/aws"
-  version = "~> 19.0"
+  source = "terraform-aws-modules/eks/aws"
 
   cluster_name                    = var.cluster_name
   cluster_version                 = var.k8s_version
@@ -49,7 +48,7 @@ module "eks" {
   eks_managed_node_groups = {
     tsb_sandbox_blue = {
       min_size     = 2
-      max_size     = 5
+      max_size     = 7
       desired_size = 2
     }
   }
@@ -146,6 +145,17 @@ module "load_balancer_controller" {
   cluster_identity_oidc_issuer_arn = module.eks.oidc_provider_arn
   cluster_name                     = var.cluster_name
   settings                         = var.lb_controller_settings
+}
+
+module "eks-cluster-autoscaler" {
+  source            = "lablabs/eks-cluster-autoscaler/aws"
+  enabled           = true
+  argo_enabled      = false
+  argo_helm_enabled = false
+
+  cluster_name                     = var.cluster_name
+  cluster_identity_oidc_issuer     = module.eks.cluster_oidc_issuer_url
+  cluster_identity_oidc_issuer_arn = module.eks.oidc_provider_arn
 }
 
 resource "local_file" "gen_kubeconfig_sh" {

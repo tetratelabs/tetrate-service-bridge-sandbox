@@ -47,11 +47,11 @@ resource "google_container_node_pool" "primary_nodes" {
   project    = var.project_id
   location   = data.google_compute_zones.available.names[0]
   cluster    = google_container_cluster.tsb.name
-  node_count = 1
+  node_count = 2
 
   autoscaling {
     min_node_count = 2
-    max_node_count = 5
+    max_node_count = 7
   }
 
   node_config {

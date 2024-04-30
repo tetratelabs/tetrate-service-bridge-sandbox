@@ -21,8 +21,8 @@ locals {
       control_plane    = false
       management_plane = false
     }
-    version       = "1.27"
-    instance_type = "e2-standard-2"
+    version       = "1.28"
+    instance_type = "e2-standard-4"
   }
   cluster = {
     cloud  = var.cluster.cloud
