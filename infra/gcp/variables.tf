@@ -21,7 +21,7 @@ locals {
       control_plane    = false
       management_plane = false
     }
-    version       = "1.27"
+    version       = "1.28"
     instance_type = "e2-standard-4"
   }
   cluster = {
@@ -120,7 +120,7 @@ variable "gcp_org_id" {
 
 variable "jumpbox_machine_type" {
   type    = string
-  default = "n1-standard-2"
+  default = "n1-standard-1"
 }
 
 variable "jumpbox_username" {

@@ -19,7 +19,7 @@ variable "cidr" {
 
 variable "min_az_count" {
   type    = number
-  default = 2
+  default = 1
 }
 
 variable "max_az_count" {

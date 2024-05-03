@@ -2,6 +2,11 @@ data "google_compute_default_service_account" "default" {
   project = var.project_id
 }
 
+data "google_compute_zones" "available" {
+  project = var.project_id
+  region  = var.region
+}
+
 resource "google_project_service" "container" {
   project = var.project_id
   service = "container.googleapis.com"
@@ -10,7 +15,7 @@ resource "google_project_service" "container" {
 resource "google_container_cluster" "tsb" {
   name               = var.cluster_name
   project            = var.project_id
-  location           = var.region
+  location           = data.google_compute_zones.available.names[0]
   min_master_version = var.k8s_version
   network            = var.vpc_id
   subnetwork         = var.vpc_subnet
@@ -40,13 +45,13 @@ resource "google_container_cluster" "tsb" {
 resource "google_container_node_pool" "primary_nodes" {
   name       = "${var.cluster_name}-pool"
   project    = var.project_id
-  location   = var.region
+  location   = data.google_compute_zones.available.names[0]
   cluster    = google_container_cluster.tsb.name
-  node_count = 1
+  node_count = 2
 
   autoscaling {
     min_node_count = 2
-    max_node_count = 5
+    max_node_count = 7
   }
 
   node_config {
@@ -69,7 +74,7 @@ module "gke_auth" {
 
   project_id           = var.project_id
   cluster_name         = google_container_cluster.tsb.name
-  location             = var.region
+  location             = data.google_compute_zones.available.names[0]
   use_private_endpoint = false
   depends_on = [
     google_container_cluster.tsb
@@ -82,7 +87,7 @@ resource "local_file" "kubeconfig" {
 }
 
 resource "local_file" "gen_kubeconfig_sh" {
-  content         = "gcloud container clusters get-credentials --project ${var.project_id} --region ${var.region} ${var.cluster_name}"
+  content         = "gcloud container clusters get-credentials --project ${var.project_id} --region ${data.google_compute_zones.available.names[0]} ${var.cluster_name}"
   filename        = "${var.output_path}/generate-${var.cluster_name}-kubeconfig.sh"
   file_permission = "0755"
 }

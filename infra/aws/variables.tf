@@ -21,8 +21,8 @@ locals {
       control_plane    = false
       management_plane = false
     }
-    version       = "1.27"
-    instance_type = "m7i.xlarge"
+    version       = "1.28"
+    instance_type = "m7i.large"
   }
   cluster = {
     cloud  = var.cluster.cloud
@@ -105,7 +105,7 @@ variable "cidr" {
 
 variable "jumpbox_machine_type" {
   type    = string
-  default = "t2.medium"
+  default = "t3.small"
 }
 
 variable "jumpbox_username" {
