@@ -9,7 +9,7 @@ source "${BASE_DIR}/helpers.sh"
 
 ACTION=${1}
 SUPPORTED_CLOUDS=("azure" "aws" "gcp")
-SUPPORTED_REGIONAL_ADDONS=("argocd" "fluxcd" "external-dns")
+SUPPORTED_REGIONAL_ADDONS=("argocd" "fluxcd" "external-dns" "gatekeeper")
 SUPPORTED_MP_ADDONS=("tsb-monitoring")
 
 # Validate input values.
@@ -18,11 +18,13 @@ SUPPORTED_ACTIONS=("help"
                    "argocd_aws" "argocd_azure" "argocd_gcp"
                    "fluxcd_aws" "fluxcd_azure" "fluxcd_gcp" 
                    "external_dns_aws" "external_dns_azure" "external_dns_gcp" 
-                   "tsb_monitoring"
+                   "tsb_monitoring" "gatekeeper_azure" "gatekeeper_aws" "gatekeeper_gcp"
                    "destroy_argocd_aws" "destroy_argocd_azure" "destroy_argocd_gcp"
                    "destroy_fluxcd_aws" "destroy_fluxcd_azure" "destroy_fluxcd_gcp"
                    "destroy_external_dns_aws" "destroy_external_dns_azure" "destroy_external_dns_gcp"
-                   "destroy_tsb_monitoring")
+                   "destroy_tsb_monitoring" "destroy_gatekeeper_azure" "destroy_gatekeeper_aws" 
+                   "destroy_gatekeeper_gcp")
+                   
 if ! [[ " ${SUPPORTED_ACTIONS[*]} " == *" ${ACTION} "* ]]; then
   print_error "Invalid action '${ACTION}'. Must be one of '${SUPPORTED_ACTIONS[*]}'."
   exit 1
@@ -40,6 +42,9 @@ function help() {
   echo "  fluxcd_aws                      Deploy addon fluxcd on aws."
   echo "  fluxcd_azure                    Deploy addon fluxcd on azure."
   echo "  fluxcd_gcp                      Deploy addon fluxcd on gcp."
+  echo "  gatekeeper_azure                Deploy addon gatekeeper on azure."
+  echo "  gatekeeper_aws                  Deploy addon gatekeeper on aws."
+  echo "  gatekeeper_gcp                  Deploy addon gatekeeper on gcp."
   echo "  tsb_monitoring                  Deploy addon tsb_monitoring."
   echo "  external_dns_aws                Deploy addon external_dns on aws."
   echo "  external_dns_azure              Deploy addon external_dns on azure."
@@ -54,6 +59,9 @@ function help() {
   echo "  destroy_external_dns_aws        Destroy addon external_dns on aws."
   echo "  destroy_external_dns_azure      Destroy addon external_dns on azure."
   echo "  destroy_external_dns_gcp        Destroy addon external_dns on gcp."
+  echo "  destroy_gatekeeper_azure        Destroy addon gatekeeper on azure."
+  echo "  destroy_gatekeeper_aws          Destroy addon gatekeeper on aws."
+  echo "  destroy_gatekeeper_gcp          Destroy addon gatekeeper on gcp."
 }
 
 # This function deploys the specified addon on the specified cloud provider per region.
@@ -244,6 +252,18 @@ case "${ACTION}" in
     print_stage "Going to deploy addon 'external-dns' on cloud 'gcp'" 
     deploy_addon_per_region "gcp" "external-dns"
     ;;
+  gatekeeper_aws)
+    print_stage "Going to deploy addon 'gatekeeper' on cloud 'aws'" 
+    deploy_addon_per_region "aws" "gatekeeper"
+    ;;
+  gatekeeper_azure)
+    print_stage "Going to deploy addon 'gatekeeper' on cloud 'azure'" 
+    deploy_addon_per_region "azure" "gatekeeper"
+    ;;
+  gatekeeper_gcp)
+    print_stage "Going to deploy addon 'gatekeeper' on cloud 'gcp'" 
+    deploy_addon_per_region "gcp" "gatekeeper"
+    ;;
   destroy_argocd_aws)
     print_stage "Going to destroy addon 'argocd' on cloud 'aws'" 
     destroy_addon_per_region "aws" "argocd"
@@ -283,6 +303,18 @@ case "${ACTION}" in
   destroy_external_dns_gcp)
     print_stage "Going to destroy addon 'external-dns' on cloud 'gcp'" 
     destroy_addon_per_region "gcp" "external-dns"
+    ;;
+  destroy_gatekeeper_aws)
+    print_stage "Going to destroy addon 'gatekeeper' on cloud 'aws'" 
+    destroy_addon_per_region "aws" "gatekeeper"
+    ;;
+  destroy_gatekeeper_azure)
+    print_stage "Going to destroy addon 'gatekeeper' on cloud 'azure'" 
+    destroy_addon_per_region "azure" "gatekeeper"
+    ;;
+  destroy_gatekeeper_gcp)
+    print_stage "Going to destroy addon 'gatekeeper' on cloud 'gcp'" 
+    destroy_addon_per_region "gcp" "gatekeeper"
     ;;
   *)
     print_error "Invalid option. Use 'help' to see available commands."

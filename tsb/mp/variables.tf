@@ -32,7 +32,7 @@ locals {
       management_plane = coalesce(var.cluster.tetrate.management_plane, local.cluster_defaults.tetrate.management_plane)
     }
     version   = coalesce(var.cluster.version, local.cluster_defaults.version)
-    workspace = var.cluster.workspace
+    workspace = var.cluster.workspace   
   }
 }
 

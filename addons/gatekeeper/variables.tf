@@ -32,8 +32,7 @@ locals {
       management_plane = coalesce(var.cluster.tetrate.management_plane, local.cluster_defaults.tetrate.management_plane)
     }
     version   = coalesce(var.cluster.version, local.cluster_defaults.version)
-    workspace = var.cluster.workspace
-    
+    workspace = var.cluster.workspace 
   }
 }
 
@@ -67,30 +66,13 @@ locals {
   tetrate = merge(local.tetrate_defaults, var.tetrate)
 }
 
-locals {
-  infra = data.terraform_remote_state.infra
-}
-
-variable "name_prefix" {
-  description = "name prefix"
-}
-
-variable "jumpbox_username" {
-  description = "jumpbox username"
-  default     = "tsbadmin"
-}
-
-variable "output_path" {
-  description = "output path"
-  default     = "../../outputs"
-}
-
-variable "cert-manager_enabled" {
-  description = "enable cert-manager"
-  default     = true
-}
-
-variable "ratelimit_enabled" {
-  description = "enable ratelimit"
-  default     = true
+variable "addon_config" {
+  description = "An object containing addon configuration"
+  type        = map(any)
+  default     = {}
+  /*
+    include_example_apps = optional(bool)
+    service_type         = optional(string)
+    service_fqdn         = optional(string)
+  */
 }

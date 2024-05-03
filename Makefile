@@ -52,6 +52,12 @@ argocd_%:
 	@echo "Deploying ArgoCD on cloud $*..."
 	@/bin/sh -c 'export DRY_RUN="${dry_run}" TF_LOG="${tf_log}" TFVARS_JSON="${tfvars_json}" && ./make/addon.sh argocd_$*'
 
+.PHONY: gatekeeper
+gatekeeper: gatekeeper_aws gatekeeper_azure gatekeeper_gcp ## Deploys gatekeeper
+gatekeeper_%:
+	@echo "Deploying gatekeeper on cloud $*..."
+	@/bin/sh -c 'export DRY_RUN="${dry_run}" TF_LOG="${tf_log}" TFVARS_JSON="${tfvars_json}" && ./make/addon.sh gatekeeper_$*'
+
 .PHONY: fluxcd
 fluxcd: fluxcd_aws fluxcd_azure fluxcd_gcp ## Deploys FluxCD
 fluxcd_%:
