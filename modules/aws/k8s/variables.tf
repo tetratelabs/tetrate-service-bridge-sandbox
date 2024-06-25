@@ -39,3 +39,11 @@ variable "output_path" {
 variable "tags" {
   type = map(any)
 }
+
+variable "lb_controller_helm_chart_version" {
+  default = "1.7.1"
+}
+
+variable "lb_controller_settings" {
+  default = { "controllerConfig" = { "featureGates" = { "SubnetsClusterTagCheck" : "false" } } }
+}
