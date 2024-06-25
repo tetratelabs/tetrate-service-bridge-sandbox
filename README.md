@@ -145,16 +145,23 @@ Please refer to [tfvars collection](/tfvars_collection) for more examples, i.e. 
 
 ## Usage
 
+a) Make sure your cloud CLIs (gcloud, aws, az) are logged in in your current shell.
+```bash
+# Gcloud example
+gcloud auth application-default login
+```
+
 All `Make` commands should be executed from root of repo as this is where the `Makefile` is.
 
-a) Stand up a complete demo
+
+b) Stand up a complete demo
 
 ```bash
 # Build complete demo
 make all
 ```
 
-b) Decouple Demo or Deploy in Stages
+c) Decouple Demo or Deploy in Stages
 
 ```bash
 # setup underlying clusters, registries, jumpboxes
@@ -167,7 +174,7 @@ make tsb_mp
 make tsb_cp
 ```
 
-c) Advanced customization
+d) Advanced customization
 
 ```bash
 # provide a custom path to variables file
