@@ -21,7 +21,7 @@ locals {
       control_plane    = false
       management_plane = false
     }
-    version       = "1.29"
+    version       = "1.30"
     instance_type = "Standard_D2as_v5"
   }
   cluster = {
