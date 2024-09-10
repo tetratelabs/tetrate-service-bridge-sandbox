@@ -118,8 +118,8 @@ Please refer to [tfvars collection](/tfvars_collection) for more examples, i.e. 
     },
     "name_prefix": "<YOUR UNIQUE PREFIX NAME TO BE CREATED>",
     "tags": {
-        "tetrate_owner": "Change me! (https://github.com/tetrateio/tetrate/blob/master/cloud/docs/misc/tags.md)",
-        "tetrate_team": "Change me! (https://github.com/tetrateio/tetrate/blob/master/cloud/docs/misc/tags.md)"
+        "tetrate_owner": "Change me! (https://github.com/tetrateio/tetrate/blob/master/cloud/docs/aws/tags.md)",
+        "tetrate_team": "Change me! (https://github.com/tetrateio/tetrate/blob/master/cloud/docs/aws/tags.md)"
     },
     "tetrate": {
         "fqdn": "<YOUR UNIQUE PREFIX NAME TO BE CREATED>.sandbox.tetrate.io",
