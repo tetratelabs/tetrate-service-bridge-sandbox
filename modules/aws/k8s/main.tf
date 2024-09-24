@@ -161,6 +161,19 @@ module "eks-cluster-autoscaler" {
   irsa_role_name_prefix            = var.cluster_name
 }
 
+resource "kubernetes_annotations" "default-storageclass" {
+  api_version = "storage.k8s.io/v1"
+  kind        = "StorageClass"
+  force       = "true"
+
+  metadata {
+    name = "gp2"
+  }
+  annotations = {
+    "storageclass.kubernetes.io/is-default-class" = "true"
+  }
+}
+
 resource "local_file" "gen_kubeconfig_sh" {
   content         = "eksctl utils write-kubeconfig --cluster ${var.cluster_name} --region ${data.aws_availability_zones.available.id} --kubeconfig ${var.cluster_name}-kubeconfig"
   filename        = "${var.output_path}/generate-${var.cluster_name}-kubeconfig.sh"
