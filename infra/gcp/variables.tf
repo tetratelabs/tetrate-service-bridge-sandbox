@@ -21,7 +21,7 @@ locals {
       control_plane    = false
       management_plane = false
     }
-    version       = "1.27"
+    version       = "1.29"
     instance_type = "e2-standard-4"
   }
   cluster = {
