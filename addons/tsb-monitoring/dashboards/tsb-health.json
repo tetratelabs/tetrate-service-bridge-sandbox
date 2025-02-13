@@ -1,0 +1,1034 @@
+{
+  "annotations": {
+    "list": [
+      {
+        "builtIn": 1,
+        "datasource": {
+          "type": "datasource",
+          "uid": "grafana"
+        },
+        "enable": true,
+        "hide": true,
+        "iconColor": "rgba(0, 211, 255, 1)",
+        "name": "Annotations & Alerts",
+        "target": {
+          "limit": 100,
+          "matchAny": false,
+          "tags": [],
+          "type": "dashboard"
+        },
+        "type": "dashboard"
+      }
+    ]
+  },
+  "description": "TSB Health fast diagnosis",
+  "editable": true,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 0,
+  "id": 11,
+  "links": [],
+  "liveNow": false,
+  "panels": [
+    {
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 0
+      },
+      "id": 92,
+      "panels": [],
+      "title": "TSB Core Components Health Status",
+      "type": "row"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "P1809F7CD0C75ACF3"
+      },
+      "description": "MPC Health Status.\nThree metrics define the health of this component:\n1. If mpc_info stops reporting, then it is KO.\n2. If mpc has create operations errors, then it is degraded (!!!).\n3. If mpc has fetch operations errors, then it is degraded (!!!).\n4. If mpc gRPC streams had more than X errors, then it is degraded (!!!)\n\nIf 2 and 3, then it is KO\n\n",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [
+            {
+              "options": {
+                "from": 0,
+                "result": {
+                  "color": "green",
+                  "index": 0,
+                  "text": "OK"
+                },
+                "to": 0.499
+              },
+              "type": "range"
+            },
+            {
+              "options": {
+                "from": 0.5,
+                "result": {
+                  "color": "yellow",
+                  "index": 1,
+                  "text": "!!!"
+                },
+                "to": 0.99
+              },
+              "type": "range"
+            },
+            {
+              "options": {
+                "from": 1,
+                "result": {
+                  "color": "red",
+                  "index": 2,
+                  "text": "KO"
+                },
+                "to": 100
+              },
+              "type": "range"
+            }
+          ],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 1
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 3,
+        "w": 5,
+        "x": 0,
+        "y": 1
+      },
+      "id": 97,
+      "options": {
+        "colorMode": "background",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "textMode": "none"
+      },
+      "pluginVersion": "9.1.7",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "P1809F7CD0C75ACF3"
+          },
+          "editorMode": "code",
+          "expr": "absent(mpc_info) OR on() vector(0)",
+          "hide": true,
+          "legendFormat": "__auto",
+          "range": true,
+          "refId": "A"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "P1809F7CD0C75ACF3"
+          },
+          "editorMode": "code",
+          "expr": "rate(mpc_xcp_config_create_ops_err[20m]) OR on() vector(1) > 0",
+          "hide": true,
+          "legendFormat": "__auto",
+          "range": true,
+          "refId": "B"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "P1809F7CD0C75ACF3"
+          },
+          "editorMode": "code",
+          "expr": "rate(mpc_xcp_config_fetch_ops_err[20m]) OR on() vector(1) > 0",
+          "hide": true,
+          "legendFormat": "__auto",
+          "range": true,
+          "refId": "C"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "P1809F7CD0C75ACF3"
+          },
+          "editorMode": "code",
+          "expr": "(sum(increase(permanent_stream_operation_total{error!=\"\", component=\"mpc\"}[5m])) or on() vector(0)) > bool 5",
+          "hide": true,
+          "legendFormat": "__auto",
+          "range": true,
+          "refId": "D"
+        },
+        {
+          "datasource": {
+            "name": "Expression",
+            "type": "__expr__",
+            "uid": "__expr__"
+          },
+          "expression": "$A + ($B*0.5) + ($C*0.5) + ($D*0.4)",
+          "hide": false,
+          "refId": "Logic",
+          "type": "math"
+        }
+      ],
+      "title": "MPC Health",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "P1809F7CD0C75ACF3"
+      },
+      "description": "CentralXCP Health Status.\n1. If the number of grpc connections from Central to edges and MPC is less than 1, then KO. Edge connections of type cluster_state should be 1 for tsb api and 1 for each cluster. Because in previous versions we had some scenarios with negative values, we account for it with the less tha 1. \n2. If the propagation time is greater than 10 seconds, it is degraded (!!!). If it is equal or greater than 20 seconds, then it is KO.",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [
+            {
+              "options": {
+                "from": 0,
+                "result": {
+                  "color": "green",
+                  "index": 0,
+                  "text": "OK"
+                },
+                "to": 0.499
+              },
+              "type": "range"
+            },
+            {
+              "options": {
+                "from": 0.5,
+                "result": {
+                  "color": "yellow",
+                  "index": 1,
+                  "text": "!!!"
+                },
+                "to": 0.99
+              },
+              "type": "range"
+            },
+            {
+              "options": {
+                "from": 1,
+                "result": {
+                  "color": "red",
+                  "index": 2,
+                  "text": "KO"
+                },
+                "to": 100
+              },
+              "type": "range"
+            }
+          ],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 1
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 3,
+        "w": 5,
+        "x": 5,
+        "y": 1
+      },
+      "id": 98,
+      "options": {
+        "colorMode": "background",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "textMode": "none"
+      },
+      "pluginVersion": "9.1.7",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "P1809F7CD0C75ACF3"
+          },
+          "editorMode": "code",
+          "expr": "(sum(xcp_central_current_edge_connections{connection_type=\"cluster_state\", component=\"xcp\"}) OR on() vector(0)) < bool 1",
+          "hide": true,
+          "legendFormat": "__auto",
+          "range": true,
+          "refId": "A"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "P1809F7CD0C75ACF3"
+          },
+          "editorMode": "code",
+          "exemplar": false,
+          "expr": "max(histogram_quantile(0.95, sum(rate(xcp_central_config_propagation_time_ms_bucket[60m])) by (le, edge))) OR on() vector(0)",
+          "hide": true,
+          "instant": false,
+          "legendFormat": "__auto",
+          "range": true,
+          "refId": "B"
+        },
+        {
+          "conditions": [
+            {
+              "evaluator": {
+                "params": [
+                  0,
+                  0
+                ],
+                "type": "gt"
+              },
+              "operator": {
+                "type": "and"
+              },
+              "query": {
+                "params": []
+              },
+              "reducer": {
+                "params": [],
+                "type": "avg"
+              },
+              "type": "query"
+            }
+          ],
+          "datasource": {
+            "name": "Expression",
+            "type": "__expr__",
+            "uid": "__expr__"
+          },
+          "downsampler": "mean",
+          "expression": "$A + $B/30000",
+          "hide": false,
+          "reducer": "mean",
+          "refId": "Logic",
+          "type": "math",
+          "upsampler": "fillna"
+        }
+      ],
+      "title": "XCP Central Health",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "P1809F7CD0C75ACF3"
+      },
+      "description": "XCP Edge Health\n1. This is a key metric about messages received by central from edges. If some of the edges stop reporting, there's a problem with the edges.\n2. This is a key metric about time passed since edges synced with central. If it is more than 10 minutes, there's a problem with one of the edges.\n\n",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [
+            {
+              "options": {
+                "0": {
+                  "color": "green",
+                  "index": 0,
+                  "text": "OK"
+                }
+              },
+              "type": "value"
+            },
+            {
+              "options": {
+                "from": 1,
+                "result": {
+                  "color": "red",
+                  "index": 1,
+                  "text": "KO"
+                },
+                "to": 100
+              },
+              "type": "range"
+            }
+          ],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 3,
+        "w": 5,
+        "x": 10,
+        "y": 1
+      },
+      "id": 99,
+      "options": {
+        "colorMode": "background",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "textMode": "none"
+      },
+      "pluginVersion": "9.1.7",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "P1809F7CD0C75ACF3"
+          },
+          "editorMode": "code",
+          "expr": "(min(increase(xcp_central_config_propagation_event_count_total{status=\"received\",type=\"config_resync_request\"}[8m])) OR on() vector(0)) == bool 0",
+          "hide": true,
+          "legendFormat": "__auto",
+          "range": true,
+          "refId": "A"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "P1809F7CD0C75ACF3"
+          },
+          "editorMode": "code",
+          "expr": "max (time() - max((increase(xcp_central_current_onboarded_edge_total[2m]) unless increase(xcp_central_current_onboarded_edge[2m]) == 0) + on(edge,instance) group_right xcp_central_last_config_propagation_event_timestamp_ms{edge!=\"\", type=\"cluster_state\"} /1000) by (edge,type,instance) > bool 700)",
+          "hide": true,
+          "legendFormat": "__auto",
+          "range": true,
+          "refId": "B"
+        },
+        {
+          "datasource": {
+            "name": "Expression",
+            "type": "__expr__",
+            "uid": "__expr__"
+          },
+          "expression": "$A + $B",
+          "hide": false,
+          "refId": "Logic",
+          "type": "math"
+        }
+      ],
+      "title": "XCP Edge Health",
+      "type": "stat"
+    },
+    {
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 4
+      },
+      "id": 101,
+      "panels": [],
+      "title": "TSB Non-Core Health Status",
+      "type": "row"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "P1809F7CD0C75ACF3"
+      },
+      "description": "TSB API Health Status.\n1. If OK grpc codes reported by TSB API are 0 or not being reported, this silence indicates an error. IF KO, use tctl or UI to check if tsb api is returning. If everything's alright, any call should set this metric to OK.\n",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [
+            {
+              "options": {
+                "from": -1,
+                "result": {
+                  "color": "green",
+                  "index": 0,
+                  "text": "OK"
+                },
+                "to": 0.499
+              },
+              "type": "range"
+            },
+            {
+              "options": {
+                "from": 0.5,
+                "result": {
+                  "color": "yellow",
+                  "index": 1,
+                  "text": "!!!"
+                },
+                "to": 0.99
+              },
+              "type": "range"
+            },
+            {
+              "options": {
+                "from": 1,
+                "result": {
+                  "color": "red",
+                  "index": 2,
+                  "text": "KO"
+                },
+                "to": 100
+              },
+              "type": "range"
+            }
+          ],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 1
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 3,
+        "w": 4,
+        "x": 0,
+        "y": 5
+      },
+      "id": 102,
+      "options": {
+        "colorMode": "background",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "textMode": "none"
+      },
+      "pluginVersion": "9.1.7",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "P1809F7CD0C75ACF3"
+          },
+          "editorMode": "code",
+          "expr": "(sum(rate(grpc_server_handled_total{component=\"tsb\", grpc_code=\"OK\", grpc_type=\"unary\"}[5m])) by (grpc_code) OR on() vector(0)) == bool 0",
+          "hide": true,
+          "legendFormat": "__auto",
+          "range": true,
+          "refId": "A"
+        },
+        {
+          "datasource": {
+            "name": "Expression",
+            "type": "__expr__",
+            "uid": "__expr__"
+          },
+          "expression": "$A",
+          "hide": false,
+          "refId": "Logic",
+          "type": "math"
+        }
+      ],
+      "title": "TSB API Health",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "P1809F7CD0C75ACF3"
+      },
+      "description": "IAM Health Status.\n1. If no authentication operations are reported, IAM is having an issue.\n2. If the difference between the short and middle term latencies for JWT is more than 1 second, then IAM is degraded.\n3. If the difference between the short and middle term latencies for JWT is more than 5 seconds, then IAM is having an issue.\n4. If the difference between the short and middle term latencies for non-JWT is more than 5 seconds, then IAM is degraded.\n5. If the difference between the short and middle term latencies for non-JWT is more than 30 seconds, then IAM is having an issue.\n",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [
+            {
+              "options": {
+                "from": -1,
+                "result": {
+                  "color": "green",
+                  "index": 0,
+                  "text": "OK"
+                },
+                "to": 0.499
+              },
+              "type": "range"
+            },
+            {
+              "options": {
+                "from": 0.5,
+                "result": {
+                  "color": "yellow",
+                  "index": 1,
+                  "text": "!!!"
+                },
+                "to": 0.99
+              },
+              "type": "range"
+            },
+            {
+              "options": {
+                "from": 1,
+                "result": {
+                  "color": "red",
+                  "index": 2,
+                  "text": "KO"
+                },
+                "to": 100
+              },
+              "type": "range"
+            }
+          ],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 1
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 3,
+        "w": 4,
+        "x": 4,
+        "y": 5
+      },
+      "id": 103,
+      "options": {
+        "colorMode": "background",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "textMode": "none"
+      },
+      "pluginVersion": "9.1.7",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "P1809F7CD0C75ACF3"
+          },
+          "editorMode": "code",
+          "expr": "(max(sum(rate(iam_auth_time_count{error=\"\"}[1m])) by (provider)) OR on() vector(0)) == bool 0",
+          "hide": true,
+          "legendFormat": "__auto",
+          "range": true,
+          "refId": "A"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "P1809F7CD0C75ACF3"
+          },
+          "editorMode": "code",
+          "expr": "(abs((histogram_quantile(0.95, sum(rate(iam_auth_time_bucket{error=\"\", provider=\"jwt.Provider\"}[5m])) by (le)) OR on() vector(1)) - (histogram_quantile(0.95, sum(rate(iam_auth_time_bucket{error=\"\", provider=\"jwt.Provider\"}[30m])) by (le)) OR on() vector(1))) / 1000) > bool 1",
+          "hide": true,
+          "legendFormat": "__auto",
+          "range": true,
+          "refId": "B"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "P1809F7CD0C75ACF3"
+          },
+          "editorMode": "code",
+          "expr": "(abs((histogram_quantile(0.95, sum(rate(iam_auth_time_bucket{error=\"\", provider=\"jwt.Provider\"}[5m])) by (le)) OR on() vector(1)) - (histogram_quantile(0.95, sum(rate(iam_auth_time_bucket{error=\"\", provider=\"jwt.Provider\"}[30m])) by (le)) OR on() vector(1))) / 1000) > bool 5",
+          "hide": true,
+          "legendFormat": "__auto",
+          "range": true,
+          "refId": "C"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "P1809F7CD0C75ACF3"
+          },
+          "editorMode": "code",
+          "expr": "(abs((histogram_quantile(0.95, sum(rate(iam_auth_time_bucket{error=\"\", provider!=\"jwt.Provider\"}[5m])) by (le)) OR on() vector(1)) - (histogram_quantile(0.95, sum(rate(iam_auth_time_bucket{error=\"\", provider!=\"jwt.Provider\"}[30m])) by (le)) OR on() vector(1))) / 1000) > bool 5",
+          "hide": true,
+          "legendFormat": "__auto",
+          "range": true,
+          "refId": "D"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "P1809F7CD0C75ACF3"
+          },
+          "editorMode": "code",
+          "expr": "(abs((histogram_quantile(0.95, sum(rate(iam_auth_time_bucket{error=\"\", provider!=\"jwt.Provider\"}[5m])) by (le)) OR on() vector(1)) - (histogram_quantile(0.95, sum(rate(iam_auth_time_bucket{error=\"\", provider!=\"jwt.Provider\"}[30m])) by (le)) OR on() vector(1))) / 1000) > bool 30",
+          "hide": true,
+          "legendFormat": "__auto",
+          "range": true,
+          "refId": "E"
+        },
+        {
+          "datasource": {
+            "name": "Expression",
+            "type": "__expr__",
+            "uid": "__expr__"
+          },
+          "expression": "$A + ($B*0.5) + $C + ($D*0.5) + $E",
+          "hide": false,
+          "refId": "Logic",
+          "type": "math"
+        }
+      ],
+      "title": "IAM Health",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "P1809F7CD0C75ACF3"
+      },
+      "description": "OAP Health Status.\n1. If OAP's JVM are not reported, then OAP in the management plane has an issue.\n2. If the number of reporting clusters to xcp central is less than the number of control planes OAPs, theres an issue with one or more OAPs in the CPs. The dependency on xcp central health is controlled by only accounting for positive differences.",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [
+            {
+              "options": {
+                "from": -1,
+                "result": {
+                  "color": "green",
+                  "index": 0,
+                  "text": "OK"
+                },
+                "to": 0.499
+              },
+              "type": "range"
+            },
+            {
+              "options": {
+                "from": 0.5,
+                "result": {
+                  "color": "yellow",
+                  "index": 1,
+                  "text": "!!!"
+                },
+                "to": 0.99
+              },
+              "type": "range"
+            },
+            {
+              "options": {
+                "from": 1,
+                "result": {
+                  "color": "red",
+                  "index": 2,
+                  "text": "KO"
+                },
+                "to": 100
+              },
+              "type": "range"
+            }
+          ],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 1
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 3,
+        "w": 4,
+        "x": 8,
+        "y": 5
+      },
+      "id": 104,
+      "options": {
+        "colorMode": "background",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "textMode": "none"
+      },
+      "pluginVersion": "9.1.7",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "P1809F7CD0C75ACF3"
+          },
+          "editorMode": "code",
+          "expr": "(sum(jvm_threads_current{component=\"oap\", plane=\"management\"}) OR on() vector(0)) == bool 0",
+          "hide": true,
+          "legendFormat": "__auto",
+          "range": true,
+          "refId": "A"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "P1809F7CD0C75ACF3"
+          },
+          "editorMode": "code",
+          "expr": "count(rate(xcp_central_config_propagation_event_count_total{status=\"received\",type=\"config_resync_request\"}[5m]) OR on() vector(0)) - count(jvm_threads_current{component=\"oap\", plane=\"control\"} OR on() vector(0)) > bool 0",
+          "hide": true,
+          "legendFormat": "__auto",
+          "range": true,
+          "refId": "B"
+        },
+        {
+          "datasource": {
+            "name": "Expression",
+            "type": "__expr__",
+            "uid": "__expr__"
+          },
+          "expression": "$A + $B",
+          "hide": false,
+          "refId": "Logic",
+          "type": "math"
+        }
+      ],
+      "title": "OAP Health",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "P1809F7CD0C75ACF3"
+      },
+      "description": "Front Envoy Health Status.\n1.If the difference between the short and the long average response time from its upstream transactions exceeds a given threshold in ms (defined by the divisor).\n",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [
+            {
+              "options": {
+                "from": -1,
+                "result": {
+                  "color": "green",
+                  "index": 0,
+                  "text": "OK"
+                },
+                "to": 0.5
+              },
+              "type": "range"
+            },
+            {
+              "options": {
+                "from": 0.5,
+                "result": {
+                  "color": "yellow",
+                  "index": 1,
+                  "text": "!!!"
+                },
+                "to": 0.99
+              },
+              "type": "range"
+            },
+            {
+              "options": {
+                "from": 1,
+                "result": {
+                  "color": "red",
+                  "index": 2,
+                  "text": "KO"
+                },
+                "to": 100
+              },
+              "type": "range"
+            }
+          ],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 1
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 3,
+        "w": 4,
+        "x": 12,
+        "y": 5
+      },
+      "id": 94,
+      "options": {
+        "colorMode": "background",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "textMode": "none"
+      },
+      "pluginVersion": "9.1.7",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "P1809F7CD0C75ACF3"
+          },
+          "editorMode": "code",
+          "expr": "histogram_quantile(0.95, sum(rate(envoy_cluster_internal_upstream_rq_time_bucket{component=\"front-envoy\"}[5m])) by (le)) OR on() vector(2000)",
+          "hide": true,
+          "legendFormat": "__auto",
+          "range": true,
+          "refId": "A"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "P1809F7CD0C75ACF3"
+          },
+          "editorMode": "code",
+          "expr": "histogram_quantile(0.95, sum(rate(envoy_cluster_internal_upstream_rq_time_bucket{component=\"front-envoy\"}[60m])) by (le)) OR on() vector(1000)",
+          "hide": true,
+          "legendFormat": "__auto",
+          "range": true,
+          "refId": "B"
+        },
+        {
+          "datasource": {
+            "name": "Expression",
+            "type": "__expr__",
+            "uid": "__expr__"
+          },
+          "expression": "abs($A - $B) / 1000",
+          "hide": false,
+          "refId": "Logic",
+          "type": "math"
+        }
+      ],
+      "title": "Front Envoy Health",
+      "type": "stat"
+    }
+  ],
+  "refresh": "1m",
+  "schemaVersion": 37,
+  "style": "dark",
+  "tags": [
+    "tsb",
+    "health"
+  ],
+  "templating": {
+    "list": []
+  },
+  "time": {
+    "from": "now-15m",
+    "to": "now"
+  },
+  "timepicker": {
+    "hidden": true,
+    "refresh_intervals": [
+      "30s"
+    ]
+  },
+  "timezone": "utc",
+  "title": "TSB Health",
+  "uid": "EMsU7uWIS",
+  "version": 104,
+  "weekStart": ""
+}
