@@ -5,7 +5,7 @@ terraform {
       version = "2.0.3"
     }
     google = {
-      version = "~> 4.64.0"
+      version = "~> 5.45.0"
     }
   }
 }

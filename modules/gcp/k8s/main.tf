@@ -27,7 +27,7 @@ resource "google_container_cluster" "tsb" {
   # node pool and immediately delete it.
   remove_default_node_pool = true
   initial_node_count       = 1
-
+  deletion_protection=false
   resource_labels = merge(var.tags, {
     name = "${var.cluster_name}_tsb_sandbox_blue"
   })
