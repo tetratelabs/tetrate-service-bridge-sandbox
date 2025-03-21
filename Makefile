@@ -58,6 +58,12 @@ fluxcd_%:
 	@echo "Deploying FluxCD on cloud $*..."
 	@/bin/sh -c 'export DRY_RUN="${dry_run}" TF_LOG="${tf_log}" TFVARS_JSON="${tfvars_json}" && ./make/addon.sh fluxcd_$*'
 
+.PHONY: cert-manager
+cert-manager: cert-manager_aws cert-manager_azure cert-manager_gcp ## Deploys cert-manager
+cert-manager_%:
+	@echo "Deploying cert-manager on cloud $*..."
+	@/bin/sh -c 'export DRY_RUN="${dry_run}" TF_LOG="${tf_log}" TFVARS_JSON="${tfvars_json}" && ./make/addon.sh cert-manager_$*'
+
 .PHONY: tsb_monitoring
 tsb_monitoring:  ## Deploys TSB monitoring stack
 	@echo "Deploying TSB Monitoring"
