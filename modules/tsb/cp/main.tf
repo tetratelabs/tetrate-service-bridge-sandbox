@@ -95,6 +95,7 @@ resource "helm_release" "controlplane" {
     es_password                  = var.es_password
     ratelimit_enabled            = var.ratelimit_enabled
     ratelimit_namespace          = var.ratelimit_namespace
+    cert-manager_enabled         = var.cert-manager_enabled
   })]
 
   set {

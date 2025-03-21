@@ -86,7 +86,7 @@ variable "output_path" {
 
 variable "cert-manager_enabled" {
   description = "enable cert-manager"
-  default     = true
+  default     = false
 }
 
 variable "ratelimit_enabled" {
