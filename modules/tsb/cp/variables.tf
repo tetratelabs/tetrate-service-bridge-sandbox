@@ -91,6 +91,9 @@ variable "k8s_cluster_ca_certificate" {
 variable "k8s_client_token" {
 }
 
+variable "cert-manager_enabled" {
+}
+
 variable "ratelimit_enabled" {
 }
 

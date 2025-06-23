@@ -54,8 +54,12 @@ spec:
       reconcileInterval: 600s
       pushMode: ASYNC
     internalCertProvider:
+    %{ if cert-manager_enabled }
       certManager:
         managed: AUTO
+    %{ else }
+      tsbManaged: {}
+    %{ endif }
     oap:
       streamingLogEnabled: true
     %{ if ratelimit_enabled }

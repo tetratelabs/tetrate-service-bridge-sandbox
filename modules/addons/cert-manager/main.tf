@@ -41,13 +41,12 @@ resource "helm_release" "cert_manager" {
     {
       name  = "featureGates"
       value = "ExperimentalCertificateSigningRequestControllers=true"
-
     }
   ]
   } 
 resource "time_sleep" "wait_90_seconds" {
   depends_on      = [helm_release.cert_manager]
-  create_duration = "90s"
+  create_duration = "30s"
 }
 
 data "kubectl_path_documents" "manifests_selfsigned_ca" {
@@ -58,7 +57,7 @@ data "kubectl_path_documents" "manifests_selfsigned_ca" {
 resource "kubectl_manifest" "manifests_selfsigned_ca" {
   count      = var.cert-manager_enabled == true ? length(data.kubectl_path_documents.manifests_selfsigned_ca.documents) : 0
   yaml_body  = element(data.kubectl_path_documents.manifests_selfsigned_ca.documents, count.index)
-  depends_on = [time_sleep.wait_90_seconds]
+  depends_on = [time_sleep.wait_30_seconds]
 }
 
 

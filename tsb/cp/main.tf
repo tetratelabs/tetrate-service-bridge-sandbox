@@ -54,6 +54,7 @@ module "tsb_cp" {
   tsb_username                 = local.tetrate.username
   tsb_password                 = data.terraform_remote_state.tsb_mp.outputs.tsb_password
   tsb_cacert                   = data.terraform_remote_state.tsb_mp.outputs.tsb_cacert
+  cert-manager_enabled         = var.cert-manager_enabled
   ratelimit_enabled            = var.ratelimit_enabled
   ratelimit_namespace          = module.ratelimit.namespace
   redis_password               = module.ratelimit.redis_password

@@ -9,17 +9,19 @@ source "${BASE_DIR}/helpers.sh"
 
 ACTION=${1}
 SUPPORTED_CLOUDS=("azure" "aws" "gcp")
-SUPPORTED_REGIONAL_ADDONS=("argocd" "fluxcd" "external-dns")
+SUPPORTED_REGIONAL_ADDONS=("argocd" "fluxcd" "external-dns" "cert-manager")
 SUPPORTED_MP_ADDONS=("tsb-monitoring")
 
 # Validate input values.
 #
 SUPPORTED_ACTIONS=("help"
                    "argocd_aws" "argocd_azure" "argocd_gcp"
+                   "cert-manager_aws" "cert-manager_azure" "cert-manager_gcp"
                    "fluxcd_aws" "fluxcd_azure" "fluxcd_gcp" 
                    "external_dns_aws" "external_dns_azure" "external_dns_gcp" 
                    "tsb_monitoring"
                    "destroy_argocd_aws" "destroy_argocd_azure" "destroy_argocd_gcp"
+                   "destroy_cert-manager_aws" "destroy_cert-manager_azure" "destroy_cert-manager_gcp"
                    "destroy_fluxcd_aws" "destroy_fluxcd_azure" "destroy_fluxcd_gcp"
                    "destroy_external_dns_aws" "destroy_external_dns_azure" "destroy_external_dns_gcp"
                    "destroy_tsb_monitoring")
@@ -37,6 +39,9 @@ function help() {
   echo "  argocd_aws                      Deploy addon argocd on aws."
   echo "  argocd_azure                    Deploy addon argocd on azure."
   echo "  argocd_gcp                      Deploy addon argocd on gcp."
+  echo "  cert-manager_aws                Deploy addon cert-manager on aws."
+  echo "  cert-manager_azure              Deploy addon cert-manager on azure."
+  echo "  cert-manager_gcp                Deploy addon cert-manager on gcp."
   echo "  fluxcd_aws                      Deploy addon fluxcd on aws."
   echo "  fluxcd_azure                    Deploy addon fluxcd on azure."
   echo "  fluxcd_gcp                      Deploy addon fluxcd on gcp."
@@ -47,6 +52,9 @@ function help() {
   echo "  destroy_argocd_aws              Destroy addon argocd on aws."
   echo "  destroy_argocd_azure            Destroy addon argocd on azure."
   echo "  destroy_argocd_gcp              Destroy addon argocd on gcp."
+  echo "  destroy_cert-manager_aws        Destroy addon cert-manager on aws."
+  echo "  destroy_cert-manager_azure      Destroy addon cert-manager on azure."
+  echo "  destroy_cert-manager_gcp        Destroy addon cert-manager on gcp."
   echo "  destroy_fluxcd_aws              Destroy addon fluxcd on aws."
   echo "  destroy_fluxcd_azure            Destroy addon fluxcd on azure."
   echo "  destroy_fluxcd_gcp              Destroy addon fluxcd on gcp."
@@ -216,6 +224,18 @@ case "${ACTION}" in
     print_stage "Going to deploy addon 'argocd' on cloud 'gcp'" 
     deploy_addon_per_region "gcp" "argocd"
     ;;
+  cert-manager_aws)
+    print_stage "Going to deploy addon 'cert-manager' on cloud 'aws'" 
+    deploy_addon_per_region "aws" "cert-manager"
+    ;;
+  cert-manager_azure)
+    print_stage "Going to deploy addon 'cert-manager' on cloud 'azure'" 
+    deploy_addon_per_region "azure" "cert-manager"
+    ;;
+  cert-manager_gcp)
+    print_stage "Going to deploy addon 'cert-manager' on cloud 'gcp'" 
+    deploy_addon_per_region "gcp" "cert-manager"
+    ;;
   fluxcd_aws)
     print_stage "Going to deploy addon 'fluxcd' on cloud 'aws'" 
     deploy_addon_per_region "aws" "fluxcd"
@@ -255,6 +275,18 @@ case "${ACTION}" in
   destroy_argocd_gcp)
     print_stage "Going to destroy addon 'argocd' on cloud 'gcp'" 
     destroy_addon_per_region "gcp" "argocd"
+    ;;
+  destroy_cert-manager_aws)
+    print_stage "Going to destroy addon 'cert-manager' on cloud 'aws'" 
+    destroy_addon_per_region "aws" "cert-manager"
+    ;;
+  destroy_cert-manager_azure)
+    print_stage "Going to destroy addon 'cert-manager' on cloud 'azure'" 
+    destroy_addon_per_region "azure" "cert-manager"
+    ;;
+  destroy_cert-manager_gcp)
+    print_stage "Going to destroy addon 'cert-manager' on cloud 'gcp'" 
+    destroy_addon_per_region "gcp" "cert-manager"
     ;;
   destroy_fluxcd_aws)
     print_stage "Going to destroy addon 'fluxcd' on cloud 'aws'" 

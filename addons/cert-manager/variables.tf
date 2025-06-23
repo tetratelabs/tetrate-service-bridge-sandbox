@@ -66,30 +66,19 @@ locals {
   tetrate = merge(local.tetrate_defaults, var.tetrate)
 }
 
-locals {
-  infra = data.terraform_remote_state.infra
-}
-
-variable "name_prefix" {
-  description = "name prefix"
-}
-
-variable "jumpbox_username" {
-  description = "jumpbox username"
-  default     = "tsbadmin"
-}
-
-variable "output_path" {
-  description = "output path"
-  default     = "../../outputs"
-}
-
 variable "cert-manager_enabled" {
-  description = "enable cert-manager"
-  default     = false
+  type    = bool
+  default = true
 }
 
-variable "ratelimit_enabled" {
-  description = "enable ratelimit"
-  default     = true
+
+variable "addon_config" {
+  description = "An object containing addon configuration"
+  type        = map(any)
+  default     = {}
+}
+
+locals {
+  addon_config_defaults = {}
+  addon_config = merge(local.addon_config_defaults, var.addon_config)
 }
