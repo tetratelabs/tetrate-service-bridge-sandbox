@@ -1,5 +1,5 @@
 provider "helm" {
-  kubernetes {
+  kubernetes = {
     host                   = var.k8s_host
     cluster_ca_certificate = base64decode(var.k8s_cluster_ca_certificate)
     token                  = var.k8s_client_token
@@ -21,12 +21,13 @@ resource "helm_release" "redis" {
   namespace        = var.namespace
   timeout          = 900
 
-  set {
+  set = [{
     name  = "auth.password"
     value = random_password.redis.result
-  }
-  set {
+  },
+   {
     name  = "architecture"
     value = "standalone"
   }
+  ]
 }

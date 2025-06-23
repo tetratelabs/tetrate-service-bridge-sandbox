@@ -1,5 +1,5 @@
 provider "helm" {
-  kubernetes {
+  kubernetes = {
     host                   = var.k8s_host
     cluster_ca_certificate = base64decode(var.k8s_cluster_ca_certificate)
     token                  = var.k8s_client_token
@@ -72,6 +72,7 @@ resource "helm_release" "managementplane" {
   chart               = "managementplane"
   version             = var.tsb_helm_version
   namespace           = "tsb"
+  replace             = true
   timeout             = 900
 
   values = [templatefile("${path.module}/manifests/tsb/managementplane-values.yaml.tmpl", {
@@ -83,23 +84,24 @@ resource "helm_release" "managementplane" {
     tsb_fqdn     = var.tsb_fqdn
     cloud        = can(regex("eks", var.k8s_host)) ? "aws" : "none"
   })]
-  set {
+  set = [ {
     name  = "secrets.tsb.cert"
     value = data.kubernetes_secret.tsb_server_cert.data["tls.crt"]
-  }
-  set {
+  },
+  {
     name  = "secrets.tsb.key"
     value = data.kubernetes_secret.tsb_server_cert.data["tls.key"]
-  }
+  },
 
-  set {
+   {
     name  = "secrets.xcp.rootca"
     value = data.kubernetes_secret.selfsigned_ca.data["tls.crt"]
-  }
-  set {
+  },
+  {
     name  = "secrets.xcp.rootcakey"
     value = data.kubernetes_secret.selfsigned_ca.data["tls.key"]
   }
+  ]
 }
 
 resource "time_sleep" "wait_240_seconds" {
