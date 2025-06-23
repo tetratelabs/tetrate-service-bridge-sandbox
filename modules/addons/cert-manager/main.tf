@@ -1,5 +1,5 @@
 provider "helm" {
-  kubernetes {
+  kubernetes = { 
     host                   = var.k8s_host
     cluster_ca_certificate = base64decode(var.k8s_cluster_ca_certificate)
     token                  = var.k8s_client_token
@@ -29,18 +29,22 @@ resource "helm_release" "cert_manager" {
   namespace        = "cert-manager"
   timeout          = 900
 
-  set {
-    name  = "installCRDs"
-    value = "true"
-  }
-  set {
-    name  = "featureGates"
-    value = "ExperimentalCertificateSigningRequestControllers=true"
-  }
-
-}
-
-resource "time_sleep" "wait_30_seconds" {
+  set = [
+    {
+      name  = "installCRDs"
+      value = "true"
+    },
+    {
+      name  = "global.certificateSigningRequestControllers"
+      value = "cert-manager.io"
+    },
+    {
+      name  = "featureGates"
+      value = "ExperimentalCertificateSigningRequestControllers=true"
+    }
+  ]
+  } 
+resource "time_sleep" "wait_90_seconds" {
   depends_on      = [helm_release.cert_manager]
   create_duration = "30s"
 }
