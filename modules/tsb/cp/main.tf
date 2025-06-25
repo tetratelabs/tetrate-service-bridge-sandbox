@@ -1,5 +1,5 @@
 provider "helm" {
-  kubernetes {
+  kubernetes ={
     host                   = var.k8s_host
     cluster_ca_certificate = base64decode(var.k8s_cluster_ca_certificate)
     token                  = var.k8s_client_token
@@ -97,19 +97,20 @@ resource "helm_release" "controlplane" {
     ratelimit_namespace          = var.ratelimit_namespace
   })]
 
-  set {
-    name  = "secrets.tsb.cacert"
-    value = var.tsb_cacert
-  }
-  set {
-    name  = "secrets.xcp.rootca"
-    value = var.tsb_cacert
-  }
-
-  set {
-    name  = "secrets.elasticsearch.cacert"
-    value = var.es_cacert
-  }
+  set = [
+    {
+      name  = "secrets.tsb.cacert"
+      value = var.tsb_cacert
+    },
+    {
+      name  = "secrets.xcp.rootca"
+      value = var.tsb_cacert
+    },
+    {
+      name  = "secrets.elasticsearch.cacert"
+      value = var.es_cacert
+    }
+  ]
   depends_on = [ kubernetes_namespace.istio-system ]
 }
 
