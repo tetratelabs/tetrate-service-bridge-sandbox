@@ -334,6 +334,20 @@ pushd tsb/fqdn/ > /dev/null
 
 Valid values are `gcp`, `aws`, `azure`.
 
+### Error: expected length of name_prefix to be in the range (1 - 38)
+
+If you see the following error when deploying the cluster (`make k8s`):
+
+```text
+Error: expected length of name_prefix to be in the range (1 - 38), got eks-owen_1_13_test-eu-west-1-0-cluster-
+│
+│   with module.aws_k8s.module.eks.aws_iam_role.this[0],
+│   on .terraform/modules/aws_k8s.eks/main.tf line 297, in resource "aws_iam_role" "this":
+│  297:   name_prefix = var.iam_role_use_name_prefix ? "${local.iam_role_name}${var.prefix_separator}" : null
+```
+
+... ensure that the value chosen for `name_prefix` is no more than 13 characters long.
+
 ## Repository structure
 
 | Directory | Description |
