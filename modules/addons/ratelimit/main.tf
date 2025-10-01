@@ -29,6 +29,10 @@ resource "helm_release" "redis" {
     {
       name  = "architecture"
       value = "standalone"
+    },
+    {
+    name  = "image.repository"
+    value = "bitnamilegacy/redis"
     }
   ]
 }
