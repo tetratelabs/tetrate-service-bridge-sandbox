@@ -334,6 +334,21 @@ pushd tsb/fqdn/ > /dev/null
 
 Valid values are `gcp`, `aws`, `azure`.
 
+### Error: failed calling webhook "mservice.elbv2.k8s.aws"
+
+If you see the following error when deploying `k8s`:
+
+```text
+Internal error occurred: failed calling webhook "mservice.elbv2.k8s.aws": failed to call webhook: Post "https://aws-load-balancer-webhook-service.kube-system.svc:443/mutate-v1-service?timeout=10s": no endpoints available for service "aws-load-balancer-webhook-service"
+```
+
+... update your `eks` helm repo:
+
+```bash
+helm repo add eks https://aws.github.io/eks-charts
+helm repo update eks
+```
+
 ## Repository structure
 
 | Directory | Description |
