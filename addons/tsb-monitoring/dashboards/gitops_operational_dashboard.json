@@ -3,25 +3,37 @@
     "list": [
       {
         "builtIn": 1,
-        "datasource": "-- Grafana --",
+        "datasource": {
+          "type": "datasource",
+          "uid": "grafana"
+        },
         "enable": true,
         "hide": true,
         "iconColor": "rgba(0, 211, 255, 1)",
         "name": "Annotations & Alerts",
+        "target": {
+          "limit": 100,
+          "matchAny": false,
+          "tags": [],
+          "type": "dashboard"
+        },
         "type": "dashboard"
       }
     ]
   },
   "description": "Operational metrics to indicate Cluster GitOps health",
   "editable": true,
-  "gnetId": null,
+  "fiscalYearStartMonth": 0,
   "graphTooltip": 0,
-  "id": 7,
-  "iteration": 1650986883263,
+  "id": 8,
   "links": [],
+  "liveNow": false,
   "panels": [
     {
-      "datasource": null,
+      "datasource": {
+        "type": "prometheus",
+        "uid": "P1809F7CD0C75ACF3"
+      },
       "description": "Shows the status of the GitOps component for each cluster.",
       "fieldConfig": {
         "defaults": {
@@ -31,26 +43,23 @@
           "custom": {
             "align": "left",
             "displayMode": "color-text",
-            "filterable": false
+            "filterable": false,
+            "inspect": false
           },
           "mappings": [
             {
-              "from": "",
-              "id": 1,
-              "text": "enabled",
-              "to": "",
-              "type": 1,
-              "value": "1"
-            },
-            {
-              "from": "",
-              "id": 2,
-              "text": "disabled",
-              "to": "",
-              "type": 1,
-              "value": "0"
+              "options": {
+                "0": {
+                  "text": "disabled"
+                },
+                "1": {
+                  "text": "enabled"
+                }
+              },
+              "type": "value"
             }
           ],
+          "noValue": "management plane",
           "thresholds": {
             "mode": "absolute",
             "steps": [
@@ -79,11 +88,23 @@
       },
       "id": 13,
       "options": {
+        "footer": {
+          "fields": "",
+          "reducer": [
+            "sum"
+          ],
+          "show": false
+        },
         "showHeader": true
       },
-      "pluginVersion": "7.5.13",
+      "pluginVersion": "9.1.7",
       "targets": [
         {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "P1809F7CD0C75ACF3"
+          },
+          "editorMode": "code",
           "exemplar": false,
           "expr": "gitops_enabled",
           "format": "table",
@@ -97,6 +118,10 @@
       "transformations": [
         {
           "id": "labelsToFields",
+          "options": {}
+        },
+        {
+          "id": "merge",
           "options": {}
         },
         {
@@ -132,12 +157,11 @@
       "bars": false,
       "dashLength": 10,
       "dashes": false,
-      "datasource": null,
-      "description": "Accepted admission requests for each cluster. This is the rate at which operations are processed by the GitOps relay and sent to TSB.",
-      "fieldConfig": {
-        "defaults": {},
-        "overrides": []
+      "datasource": {
+        "type": "prometheus",
+        "uid": "P1809F7CD0C75ACF3"
       },
+      "description": "Accepted admission requests for each cluster. This is the rate at which operations are processed by the GitOps relay and sent to TSB.",
       "fill": 1,
       "fillGradient": 0,
       "gridPos": {
@@ -164,7 +188,7 @@
         "alertThreshold": true
       },
       "percentage": false,
-      "pluginVersion": "7.5.13",
+      "pluginVersion": "9.1.7",
       "pointradius": 2,
       "points": false,
       "renderer": "flot",
@@ -174,17 +198,21 @@
       "steppedLine": false,
       "targets": [
         {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "P1809F7CD0C75ACF3"
+          },
+          "editorMode": "code",
           "exemplar": false,
-          "expr": "sum(rate(gitops_admission_count{allowed=\"true\",namespace=\"tsb-$organization\"}[$gitopsInterval])) by (cluster_name)",
+          "expr": "sum(rate(gitops_admission_count_total{allowed=\"true\"}[$gitopsInterval])) by (cluster_name, component)",
           "interval": "",
-          "legendFormat": "{{cluster_name}}",
+          "legendFormat": "{{cluster_name}} {{component}}",
+          "range": true,
           "refId": "A"
         }
       ],
       "thresholds": [],
-      "timeFrom": null,
       "timeRegions": [],
-      "timeShift": null,
       "title": "Accepted Admission Requests",
       "tooltip": {
         "shared": true,
@@ -193,9 +221,7 @@
       },
       "type": "graph",
       "xaxis": {
-        "buckets": null,
         "mode": "time",
-        "name": null,
         "show": true,
         "values": []
       },
@@ -203,25 +229,18 @@
         {
           "$$hashKey": "object:427",
           "format": "ops",
-          "label": null,
           "logBase": 1,
-          "max": null,
-          "min": null,
           "show": true
         },
         {
           "$$hashKey": "object:428",
           "format": "short",
-          "label": null,
           "logBase": 1,
-          "max": null,
-          "min": null,
           "show": true
         }
       ],
       "yaxis": {
-        "align": false,
-        "alignLevel": null
+        "align": false
       }
     },
     {
@@ -229,12 +248,11 @@
       "bars": false,
       "dashLength": 10,
       "dashes": false,
-      "datasource": null,
-      "description": "Rejected admission requests for each cluster. This is the rate at which operations are processed by the GitOps relay and sent to TSB.\n\nA spike in these metrics may indicate an increase in invalid TSB resources being applied to the Kubernetes clusters, or error in the admission webhook processing.",
-      "fieldConfig": {
-        "defaults": {},
-        "overrides": []
+      "datasource": {
+        "type": "prometheus",
+        "uid": "P1809F7CD0C75ACF3"
       },
+      "description": "Rejected admission requests for each cluster. This is the rate at which operations are processed by the GitOps relay and sent to TSB.\n\nA spike in these metrics may indicate an increase in invalid TSB resources being applied to the Kubernetes clusters, or error in the admission webhook processing.",
       "fill": 1,
       "fillGradient": 0,
       "gridPos": {
@@ -261,7 +279,7 @@
         "alertThreshold": true
       },
       "percentage": false,
-      "pluginVersion": "7.5.13",
+      "pluginVersion": "9.1.7",
       "pointradius": 2,
       "points": false,
       "renderer": "flot",
@@ -271,17 +289,21 @@
       "steppedLine": false,
       "targets": [
         {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "P1809F7CD0C75ACF3"
+          },
+          "editorMode": "code",
           "exemplar": false,
-          "expr": "sum(rate(gitops_admission_count{allowed=\"false\",namespace=\"tsb-$organization\"}[$gitopsInterval])) by (cluster_name)",
+          "expr": "sum(rate(gitops_admission_count_total{allowed=\"false\"}[$gitopsInterval])) by (cluster_name, component)",
           "interval": "",
-          "legendFormat": "{{cluster_name}}",
+          "legendFormat": "{{cluster_name}} {{component}}",
+          "range": true,
           "refId": "A"
         }
       ],
       "thresholds": [],
-      "timeFrom": null,
       "timeRegions": [],
-      "timeShift": null,
       "title": "Rejected Admission Requests",
       "tooltip": {
         "shared": true,
@@ -290,9 +312,7 @@
       },
       "type": "graph",
       "xaxis": {
-        "buckets": null,
         "mode": "time",
-        "name": null,
         "show": true,
         "values": []
       },
@@ -300,25 +320,18 @@
         {
           "$$hashKey": "object:427",
           "format": "ops",
-          "label": null,
           "logBase": 1,
-          "max": null,
-          "min": null,
           "show": true
         },
         {
           "$$hashKey": "object:428",
           "format": "short",
-          "label": null,
           "logBase": 1,
-          "max": null,
-          "min": null,
           "show": true
         }
       ],
       "yaxis": {
-        "align": false,
-        "alignLevel": null
+        "align": false
       }
     },
     {
@@ -326,12 +339,11 @@
       "bars": false,
       "dashLength": 10,
       "dashes": false,
-      "datasource": null,
-      "description": "Admission review latency percentiles grouped by cluster.\n\nThe GitOps admission reviews make decisions by forwarding the objects to the Management Plane. This metric helps understand the time it takes to make such decisions.\n\nA spike here may indicate network issues or connectivity issues between the Control Plane and the Management Plane.",
-      "fieldConfig": {
-        "defaults": {},
-        "overrides": []
+      "datasource": {
+        "type": "prometheus",
+        "uid": "P1809F7CD0C75ACF3"
       },
+      "description": "Admission review latency percentiles grouped by cluster.\n\nThe GitOps admission reviews make decisions by forwarding the objects to the Management Plane. This metric helps understand the time it takes to make such decisions.\n\nA spike here may indicate network issues or connectivity issues between the Control Plane and the Management Plane.",
       "fill": 1,
       "fillGradient": 0,
       "gridPos": {
@@ -358,7 +370,7 @@
         "alertThreshold": true
       },
       "percentage": false,
-      "pluginVersion": "7.5.13",
+      "pluginVersion": "9.1.7",
       "pointradius": 2,
       "points": false,
       "renderer": "flot",
@@ -368,25 +380,35 @@
       "steppedLine": false,
       "targets": [
         {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "P1809F7CD0C75ACF3"
+          },
+          "editorMode": "code",
           "exemplar": false,
-          "expr": "histogram_quantile(0.99, sum(rate(gitops_admission_duration_bucket{namespace=\"tsb-$organization\"}[$gitopsInterval])) by (cluster_name, le))",
+          "expr": "histogram_quantile(0.99, sum(rate(gitops_admission_duration_bucket{}[$gitopsInterval])) by (cluster_name, component, le))",
           "interval": "",
-          "legendFormat": "{{cluster_name}} P99",
+          "legendFormat": "{{cluster_name}} {{component}} P99",
+          "range": true,
           "refId": "A"
         },
         {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "P1809F7CD0C75ACF3"
+          },
+          "editorMode": "code",
           "exemplar": false,
-          "expr": "histogram_quantile(0.95, sum(rate(gitops_admission_duration_bucket{namespace=\"tsb-$organization\"}[$gitopsInterval])) by (cluster_name, le))",
+          "expr": "histogram_quantile(0.95, sum(rate(gitops_admission_duration_bucket{}[$gitopsInterval])) by (cluster_name, component, le))",
           "hide": false,
           "interval": "",
-          "legendFormat": "{{cluster_name}} P95",
+          "legendFormat": "{{cluster_name}} {{component}}  P95",
+          "range": true,
           "refId": "B"
         }
       ],
       "thresholds": [],
-      "timeFrom": null,
       "timeRegions": [],
-      "timeShift": null,
       "title": "Admission Review Latency",
       "tooltip": {
         "shared": true,
@@ -395,9 +417,7 @@
       },
       "type": "graph",
       "xaxis": {
-        "buckets": null,
         "mode": "time",
-        "name": null,
         "show": true,
         "values": []
       },
@@ -405,25 +425,19 @@
         {
           "$$hashKey": "object:4841",
           "format": "ms",
-          "label": null,
           "logBase": 1,
-          "max": null,
           "min": "0",
           "show": true
         },
         {
           "$$hashKey": "object:4842",
           "format": "short",
-          "label": null,
           "logBase": 1,
-          "max": null,
-          "min": null,
           "show": true
         }
       ],
       "yaxis": {
-        "align": false,
-        "alignLevel": null
+        "align": false
       }
     },
     {
@@ -431,12 +445,11 @@
       "bars": false,
       "dashLength": 10,
       "dashes": false,
-      "datasource": null,
-      "description": "Number of resources pushed to the Management Plane.\n\nThis should be equivalent to the admission requests in most cases, but this will also account for object pushes that are done by the background reconcile processes.",
-      "fieldConfig": {
-        "defaults": {},
-        "overrides": []
+      "datasource": {
+        "type": "prometheus",
+        "uid": "P1809F7CD0C75ACF3"
       },
+      "description": "Number of resources pushed to the Management Plane.\n\nThis should be equivalent to the admission requests in most cases, but this will also account for object pushes that are done by the background reconcile processes.",
       "fill": 1,
       "fillGradient": 0,
       "gridPos": {
@@ -463,7 +476,7 @@
         "alertThreshold": true
       },
       "percentage": false,
-      "pluginVersion": "7.5.13",
+      "pluginVersion": "9.1.7",
       "pointradius": 2,
       "points": false,
       "renderer": "flot",
@@ -473,17 +486,21 @@
       "steppedLine": false,
       "targets": [
         {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "P1809F7CD0C75ACF3"
+          },
+          "editorMode": "code",
           "exemplar": false,
-          "expr": "sum(rate(gitops_push_count{success=\"true\",namespace=\"tsb-$organization\"}[$gitopsInterval])) by (cluster_name)",
+          "expr": "sum(rate(gitops_push_count_total{success=\"true\"}[$gitopsInterval])) by (cluster_name, component)",
           "interval": "",
-          "legendFormat": "{{cluster_name}}",
+          "legendFormat": "{{cluster_name}} {{component}}",
+          "range": true,
           "refId": "A"
         }
       ],
       "thresholds": [],
-      "timeFrom": null,
       "timeRegions": [],
-      "timeShift": null,
       "title": "Resources Pushed to TSB",
       "tooltip": {
         "shared": true,
@@ -492,9 +509,7 @@
       },
       "type": "graph",
       "xaxis": {
-        "buckets": null,
         "mode": "time",
-        "name": null,
         "show": true,
         "values": []
       },
@@ -502,25 +517,18 @@
         {
           "$$hashKey": "object:427",
           "format": "opm",
-          "label": null,
           "logBase": 1,
-          "max": null,
-          "min": null,
           "show": true
         },
         {
           "$$hashKey": "object:428",
           "format": "short",
-          "label": null,
           "logBase": 1,
-          "max": null,
-          "min": null,
           "show": true
         }
       ],
       "yaxis": {
-        "align": false,
-        "alignLevel": null
+        "align": false
       }
     },
     {
@@ -528,12 +536,11 @@
       "bars": false,
       "dashLength": 10,
       "dashes": false,
-      "datasource": null,
-      "description": "Number of resource pushes to the Management Plane that failed.\n\nThis should be equivalent to the failed admission requests in most cases, but this will also account for object pushes that are done by the background reconcile processes.",
-      "fieldConfig": {
-        "defaults": {},
-        "overrides": []
+      "datasource": {
+        "type": "prometheus",
+        "uid": "P1809F7CD0C75ACF3"
       },
+      "description": "Number of resource pushes to the Management Plane that failed.\n\nThis should be equivalent to the failed admission requests in most cases, but this will also account for object pushes that are done by the background reconciliation processes.",
       "fill": 1,
       "fillGradient": 0,
       "gridPos": {
@@ -560,7 +567,7 @@
         "alertThreshold": true
       },
       "percentage": false,
-      "pluginVersion": "7.5.13",
+      "pluginVersion": "9.1.7",
       "pointradius": 2,
       "points": false,
       "renderer": "flot",
@@ -570,17 +577,21 @@
       "steppedLine": false,
       "targets": [
         {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "P1809F7CD0C75ACF3"
+          },
+          "editorMode": "builder",
           "exemplar": false,
-          "expr": "sum(rate(gitops_push_count{success=\"false\",namespace=\"tsb-$organization\"}[$gitopsInterval])) by (cluster_name)",
+          "expr": "sum(rate(gitops_push_count_total{code!=\"OK\"}[$gitopsInterval])) by (cluster_name, component, code)",
           "interval": "",
-          "legendFormat": "{{cluster_name}}",
+          "legendFormat": "cluster={{cluster_name}} component={{component}} gRPC Code={{code}}",
+          "range": true,
           "refId": "A"
         }
       ],
       "thresholds": [],
-      "timeFrom": null,
       "timeRegions": [],
-      "timeShift": null,
       "title": "Failed pushes to TSB",
       "tooltip": {
         "shared": true,
@@ -589,9 +600,7 @@
       },
       "type": "graph",
       "xaxis": {
-        "buckets": null,
         "mode": "time",
-        "name": null,
         "show": true,
         "values": []
       },
@@ -599,25 +608,18 @@
         {
           "$$hashKey": "object:427",
           "format": "ops",
-          "label": null,
           "logBase": 1,
-          "max": null,
-          "min": null,
           "show": true
         },
         {
           "$$hashKey": "object:428",
           "format": "short",
-          "label": null,
           "logBase": 1,
-          "max": null,
-          "min": null,
           "show": true
         }
       ],
       "yaxis": {
-        "align": false,
-        "alignLevel": null
+        "align": false
       }
     },
     {
@@ -625,12 +627,11 @@
       "bars": false,
       "dashLength": 10,
       "dashes": false,
-      "datasource": null,
-      "description": "Number of Kubernetes resources that have been read from the cluster and successfully converted into TSB objects to be pushed to the Management plane.\n\nThe values for this metric should be the same as the Pushed Objects. If there is a difference between them, it probably means some issue when converting the Kubernetes objects to TSB objects.",
-      "fieldConfig": {
-        "defaults": {},
-        "overrides": []
+      "datasource": {
+        "type": "prometheus",
+        "uid": "P1809F7CD0C75ACF3"
       },
+      "description": "Number of Kubernetes resources that have been read from the cluster and successfully converted into TSB objects to be pushed to the Management plane.\n\nThe values for this metric should be the same as the Pushed Objects. If there is a difference between them, it probably means some issue when converting the Kubernetes objects to TSB objects.",
       "fill": 1,
       "fillGradient": 0,
       "gridPos": {
@@ -657,7 +658,7 @@
         "alertThreshold": true
       },
       "percentage": false,
-      "pluginVersion": "7.5.13",
+      "pluginVersion": "9.1.7",
       "pointradius": 2,
       "points": false,
       "renderer": "flot",
@@ -667,17 +668,21 @@
       "steppedLine": false,
       "targets": [
         {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "P1809F7CD0C75ACF3"
+          },
+          "editorMode": "code",
           "exemplar": false,
-          "expr": "sum(rate(gitops_convert_count{success=\"true\",namespace=\"tsb-$organization\"}[$gitopsInterval])) by (cluster_name)",
+          "expr": "sum(rate(gitops_convert_count_total{success=\"true\"}[$gitopsInterval])) by (cluster_name, component)",
           "interval": "",
-          "legendFormat": "{{cluster_name}}",
+          "legendFormat": "{{cluster_name}} {{component}}",
+          "range": true,
           "refId": "A"
         }
       ],
       "thresholds": [],
-      "timeFrom": null,
       "timeRegions": [],
-      "timeShift": null,
       "title": "Resources Conversions",
       "tooltip": {
         "shared": true,
@@ -686,9 +691,7 @@
       },
       "type": "graph",
       "xaxis": {
-        "buckets": null,
         "mode": "time",
-        "name": null,
         "show": true,
         "values": []
       },
@@ -696,25 +699,18 @@
         {
           "$$hashKey": "object:427",
           "format": "ops",
-          "label": null,
           "logBase": 1,
-          "max": null,
-          "min": null,
           "show": true
         },
         {
           "$$hashKey": "object:428",
           "format": "short",
-          "label": null,
           "logBase": 1,
-          "max": null,
-          "min": null,
           "show": true
         }
       ],
       "yaxis": {
-        "align": false,
-        "alignLevel": null
+        "align": false
       }
     },
     {
@@ -722,12 +718,11 @@
       "bars": false,
       "dashLength": 10,
       "dashes": false,
-      "datasource": null,
-      "description": "Number of Kubernetes resources that have been read from the cluster and failed to be converted into TSB objects.\n\nA spike on this metric indicates that the Kubernetes objects could not be converted to TSB objects and that those resources were not sent to the Management Plane.",
-      "fieldConfig": {
-        "defaults": {},
-        "overrides": []
+      "datasource": {
+        "type": "prometheus",
+        "uid": "P1809F7CD0C75ACF3"
       },
+      "description": "Number of Kubernetes resources that have been read from the cluster and failed to be converted into TSB objects.\n\nA spike on this metric indicates that the Kubernetes objects could not be converted to TSB objects and that those resources were not sent to the Management Plane.",
       "fill": 1,
       "fillGradient": 0,
       "gridPos": {
@@ -754,7 +749,7 @@
         "alertThreshold": true
       },
       "percentage": false,
-      "pluginVersion": "7.5.13",
+      "pluginVersion": "9.1.7",
       "pointradius": 2,
       "points": false,
       "renderer": "flot",
@@ -764,17 +759,21 @@
       "steppedLine": false,
       "targets": [
         {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "P1809F7CD0C75ACF3"
+          },
+          "editorMode": "code",
           "exemplar": false,
-          "expr": "sum(rate(gitops_convert_count{success=\"false\",namespace=\"tsb-$organization\"}[$gitopsInterval])) by (cluster_name)",
+          "expr": "sum(rate(gitops_convert_count_total{success=\"false\"}[$gitopsInterval])) by (cluster_name, component)",
           "interval": "",
-          "legendFormat": "{{cluster_name}}",
+          "legendFormat": "{{cluster_name}} {{component}}",
+          "range": true,
           "refId": "A"
         }
       ],
       "thresholds": [],
-      "timeFrom": null,
       "timeRegions": [],
-      "timeShift": null,
       "title": "Resources conversions errors",
       "tooltip": {
         "shared": true,
@@ -783,9 +782,7 @@
       },
       "type": "graph",
       "xaxis": {
-        "buckets": null,
         "mode": "time",
-        "name": null,
         "show": true,
         "values": []
       },
@@ -793,65 +790,30 @@
         {
           "$$hashKey": "object:427",
           "format": "ops",
-          "label": null,
           "logBase": 1,
-          "max": null,
-          "min": null,
           "show": true
         },
         {
           "$$hashKey": "object:428",
           "format": "short",
-          "label": null,
           "logBase": 1,
-          "max": null,
-          "min": null,
           "show": true
         }
       ],
       "yaxis": {
-        "align": false,
-        "alignLevel": null
+        "align": false
       }
     }
   ],
   "refresh": "1m",
-  "schemaVersion": 27,
+  "schemaVersion": 37,
   "style": "dark",
-  "tags": [],
+  "tags": [
+    "tsb",
+    "gitops"
+  ],
   "templating": {
     "list": [
-      {
-        "allValue": null,
-        "current": {
-          "selected": false,
-          "text": "alpha",
-          "value": "alpha"
-        },
-        "datasource": null,
-        "definition": "label_values(namespace)",
-        "description": null,
-        "error": null,
-        "hide": 0,
-        "includeAll": false,
-        "label": "organization",
-        "multi": false,
-        "name": "organization",
-        "options": [],
-        "query": {
-          "query": "label_values(namespace)",
-          "refId": "StandardVariableQuery"
-        },
-        "refresh": 1,
-        "regex": "tsb-(.*)",
-        "skipUrlSync": false,
-        "sort": 0,
-        "tagValuesQuery": "",
-        "tags": [],
-        "tagsQuery": "",
-        "type": "query",
-        "useTags": false
-      },
       {
         "auto": true,
         "auto_count": 30,
@@ -861,8 +823,6 @@
           "text": "1h",
           "value": "1h"
         },
-        "description": null,
-        "error": null,
         "hide": 0,
         "label": "Time period between updates",
         "name": "gitopsInterval",
@@ -933,6 +893,7 @@
   "timepicker": {},
   "timezone": "utc",
   "title": "GitOps Operational Status",
-  "uid": "cG1wcf87k",
-  "version": 3
+  "uid": "5Sy61IyIk",
+  "version": 5,
+  "weekStart": ""
 }
